@@ -1,0 +1,68 @@
+@use 'sass:map'
+@use '../../styles/mixins' as mix
+@use '../../styles/variables' as vars
+
+.login-page
+    position: relative
+    width: 100%
+    height: 100vh
+    @mix.flex-content(center, column)
+        background-color: map.get(vars.$main, 'main-bg')
+    &-background
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+        z-index: -1
+        img
+            width: 100%
+            height: 100%
+            object-fit: cover
+    &-container
+        position: relative
+        height: 100%
+    &-header
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 60px
+        @include mix.flex-content(space-between, row)
+        padding: 0 20px
+        &-logo
+            +mix.typography(24px, 700, map.get(vars.$main, 'main'))
+    &-form-container
+        width: 100%
+        height: 100%
+        padding: 20px
+        @include mix.flex-content(center, column)
+        .form-container
+            width: 100%
+            max-width: 650px
+            background-color: map.get(vars.$basic, 'white')
+            border-radius: map.get(vars.$border, 'r-6')
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
+            padding: 50px 24px
+            @include mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+            .form-items
+                @include mix.flex-content(center, column)
+                row-gap: 24px
+                .form-title
+                    +mix.typography(28px, 700, map.get(vars.$main, 'main'))
+                    text-align: center
+                .form
+                    width: 100%
+                    @include mix.flex-content(start, column)
+                    align-items: start
+                    .form-item
+                        width: 100%
+                        label
+                            +mix.typography(18px, 600, map.get(vars.$main, 'main'))
+                        .input
+                            width: 100%
+                            padding: 10px
+                            border-radius: 10px
+                            border: 1px solid map.get(vars.$main, 'light-grey')
+                            &:focus
+                                border-color: map.get(vars.$main, 'main')

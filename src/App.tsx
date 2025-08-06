@@ -1,10 +1,11 @@
 import './App.sass'
+import LoginPage from './pages/login'
 
 function App() {
 
   return (
     <>
-    <h1>hello</h1>
+    <LoginPage/>
     </>
   )
 }
