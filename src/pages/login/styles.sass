@@ -51,18 +51,3 @@
                 .form-title
                     +mix.typography(28px, 700, map.get(vars.$main, 'main'))
                     text-align: center
-                .form
-                    width: 100%
-                    @include mix.flex-content(start, column)
-                    align-items: start
-                    .form-item
-                        width: 100%
-                        label
-                            +mix.typography(18px, 600, map.get(vars.$main, 'main'))
-                        .input
-                            width: 100%
-                            padding: 10px
-                            border-radius: 10px
-                            border: 1px solid map.get(vars.$main, 'light-grey')
-                            &:focus
-                                border-color: map.get(vars.$main, 'main')

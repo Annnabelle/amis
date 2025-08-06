@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { Form, type FormInstance  } from 'antd';
+import './styles.sass';
 
 interface FormComponentProps {
     children: ReactNode;
