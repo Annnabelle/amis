@@ -1,0 +1,19 @@
+@mixin flex-content($justify-content: null, $flex-direction: null)
+    display: flex
+    align-items: center
+    @if $flex-direction != null
+        flex-direction: $flex-direction
+    @if $justify-content != null
+        justify-content: $justify-content
+
+@mixin button-style($bg-color, $text-color, $border-radius)
+    background-color: $bg-color
+    color: $text-color
+    padding: 10px 20px
+    border-radius: $border-radius
+
+@mixin typography($fontSize, $fontWeight, $color)
+    font-family: "Montserrat", sans-serif
+    font-weight: $fontWeight
+    font-size: $fontSize
+    color: $color
