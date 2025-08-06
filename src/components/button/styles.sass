@@ -1,0 +1,39 @@
+@use "sass:map"
+@use "../../styles/mixins.sass" as mix
+@use "../../styles/variables.sass" as vars
+.btn
+    +mix.typography(16px, 400, map.get(vars.$basic, 'white'))
+    @include mix.flex-content(center)
+    text-align: center
+    background: map.get(vars.$main, 'main' )
+    padding: 12px
+    border: none
+    cursor: pointer
+    width: 100%
+    border: 1px solid map.get(vars.$main, 'main')
+    transition: all 0.5s ease
+    border-radius: 6px
+    column-gap: 10px
+    &:hover
+        background: transparent
+        border: 1px solid map.get(vars.$main, 'main')
+        color: map.get(vars.$main, 'main')
+.outline
+    +mix.typography(16px, 400, map.get(vars.$main, 'main'))
+    background: transparent
+    border: 1px solid map.get(vars.$main, 'main')
+    &:hover
+        background: map.get(vars.$main, 'main' )
+        border: 1px solid map.get(vars.$main, 'main')
+        color: map.get(vars.$basic, 'white')
+    &-black
+        @extend .outline
+        color: map.get(vars.$basic, 'black')
+.danger
+    +mix.typography(16px, 400, map.get(vars.$basic, 'white'))
+    background: map.get(vars.$main, 'red')
+    border: 1px solid map.get(vars.$main, 'red')
+    &:hover
+        background: transparent
+        border: 1px solid map.get(vars.$main, 'red')
+        color: map.get(vars.$main, 'red')

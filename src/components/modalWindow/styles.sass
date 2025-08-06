@@ -1,0 +1,51 @@
+@use 'sass:map'
+@use '../../styles/mixins' as mix
+@use '../../styles/variables' as vars
+.modal-window
+    border-radius: 10px
+    border: 10px solid map.get(vars.$main, 'main')
+    padding: 0
+    width: 100% !important
+    max-width: 800px
+    .ant-modal-content
+        border-radius: 2px
+        .modal-heading-container
+            .modal-heading-title
+                @include mix.flex-content(flex-start, row)
+                column-gap: 10px
+                .title
+                    +mix.typography(24px, 700, map.get(vars.$basic, 'black'))
+                &-icon
+                    &-trash
+                        width: 40px
+                        height: 40px
+                        border-radius: 6px
+                        @include mix.flex-content(center)
+                        cursor: pointer
+                        transition: all 0.5s ease
+                        border: 1px solid map.get(vars.$main, 'red')
+                        .svg-trash
+                            font-size: 18px
+                            color: map.get(vars.$main, 'red')
+                        &:hover
+                            background: map.get(vars.$main, 'red')
+                            color: map.get(vars.$basic, 'white')
+                            .svg-trash
+                                color: map.get(vars.$basic, 'white')
+                    &-edit
+                        @extend .modal-heading-title-icon-trash
+                        border: 1px solid map.get(vars.$main, 'main')
+                        .svg-edit
+                            font-size: 24px
+                            color: map.get(vars.$main, 'main')
+                        &:hover
+                            background: map.get(vars.$main, 'main')
+                            color: map.get(vars.$basic, 'white')
+                            .svg-edit
+                                color: map.get(vars.$basic, 'white')
+.modal-tight
+    max-width: 600px
+    &-container
+        margin-top: 40px
+        @include mix.flex-content(space-between, row)
+        column-gap: 20px
