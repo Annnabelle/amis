@@ -1,0 +1,38 @@
+@use "sass:map"
+@use "../../../styles/mixins.sass" as mix
+@use "../../../styles/variables.sass" as vars
+.user
+    position: relative
+    &-info
+        cursor: pointer
+        @include mix.flex-content(space-between, row)
+        column-gap: 15px
+        line-height: 22px
+    &-text
+        &-container
+            &-name
+                +mix.typography(17px, 500, map.get(vars.$basic, 'black'))
+            &-role
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+    &-arrow
+        svg
+            +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+    &-avatar
+        background: map.get(vars.$main, 'main')
+        .user-icon
+            color: map.get(vars.$basic, 'white')
+    &-dropdown
+        @include mix.flex-content(center, column)
+        margin-top: 5px
+        padding: 10px 15px
+        list-style: none
+        left: 0
+        right: 0
+        position: absolute
+        border: 1px solid map.get(vars.$main, "grey")
+        border-radius: 3px
+        box-shadow: 4px 4px 13px rgba(0, 0, 0, 0.12)
+        background: map.get(vars.$basic, "white")
+        z-index: 1
+        &-action
+            width: 100%

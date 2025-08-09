@@ -1,0 +1,35 @@
+@use "sass:map"
+@use "../../styles/mixins" as mix
+@use "../../styles/variables" as vars
+.layout
+    height: 100%
+    background: #DFE5EE
+    &-header
+        background: map.get(vars.$basic, 'white')
+        &-container
+            @include mix.flex-content(space-between, row)
+            height: 64px
+            align-items: center
+            &-items
+                @include mix.flex-content(space-between, row)
+                column-gap: 20px
+                &-item
+                    display: flex
+                    .logo
+                        display: flex
+                        +mix.typography(28px, 600, map.get(vars.$main, 'main'))
+    //     &-items
+    //         color: white
+    //         width: 100%
+    //         @include mix.flex-content(space-between, row)
+    //     &-item
+    //         @include mix.flex-content(space-between, row)
+    //         column-gap: 40px
+    // .layout-content-container
+    //     height: 100%
+    //     padding: 24px
+    //     border-radius: 6px
+    //     display: flex
+    //     flex-direction: column
+    //     row-gap: 30px
+    //     justify-content: space-between
