@@ -1,0 +1,22 @@
+@use 'sass:map'
+@use '../../../styles/mixins' as mix
+@use '../../../styles/variables' as vars
+.session
+    line-height: 1
+    &-container
+        @include mix.flex-content(center, row)
+        column-gap: 10px
+        width: 100%
+        &-items
+            @include mix.flex-content(center, column)
+            row-gap: 10px
+            align-items: start
+            &-item
+                .item-icon
+                    +mix.typography(24px, 600, map.get(vars.$main, 'main'))
+                .item-title
+                    .title
+                        +mix.typography(17px, 600, map.get(vars.$basic, 'black'))
+                .item-timer
+                    .timer
+                        +mix.typography(20px, 800, map.get(vars.$basic, 'black'))
