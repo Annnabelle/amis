@@ -1,74 +1,81 @@
-import React from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
 import type { MenuProps } from 'antd';
-import { Layout, Menu, theme } from 'antd';
+import { Button, Layout, Menu } from 'antd';
+import { AppstoreOutlined} from '@ant-design/icons';
 import UserInfo from '../widgets/userInfo';
-import './styles.sass';
 import Session from '../widgets/session';
 import Balance from '../widgets/balance';
+import './styles.sass';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { IoClose } from 'react-icons/io5';
 
 const { Header, Content, Sider } = Layout;
 
-const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-  (icon, index) => {
-    const key = String(index + 1);
-
-    return {
-      key: `sub${key}`,
-      icon: React.createElement(icon),
-      label: `subnav ${key}`,
-      children: Array.from({ length: 4 }).map((_, j) => {
-        const subKey = index * 4 + j + 1;
-        return {
-          key: subKey,
-          label: `option${subKey}`,
-        };
-      }),
-    };
+const menuItems: MenuProps['items'] = [
+  {
+    key: 'management',
+    icon: <AppstoreOutlined className='menu-icon' />,
+    label: 'Управление',
+    children: [
+      {
+        key: 'organization',
+        label: 'Организация',
+      },
+      {
+        key: 'products',
+        label: 'Продукция',
+      },
+    ],
   },
-);
+];
 
 const MainLayout: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
+   const [collapsed, setCollapsed] = useState(false);
   return (
     <Layout className='layout'>
       <Header className='layout-header'>
         <div className="layout-header-container">
-            <div className="layout-header-container-items">
-                <div className="layout-header-container-items-item">
-                    <h1 className="logo">logo</h1>
-                </div>
+          <div className="layout-header-container-items">
+            <div className="layout-header-container-items-item">
+              <h1 className="logo">logo</h1>
             </div>
-            <div className="layout-header-container-items">
-              <div className="layout-header-container-items-item">
-                <Balance />
-              </div>
-                <div className="layout-header-container-items-item">
-                  <Session />
-                </div>
-                <div className="layout-header-container-items-item">
-                    <UserInfo />
-                </div>
+          </div>
+          <div className="layout-header-container-items">
+            <div className="layout-header-container-items-item">
+              <Balance />
             </div>
+            <div className="layout-header-container-items-item">
+              <Session />
+            </div>
+            <div className="layout-header-container-items-item">
+              <UserInfo />
+            </div>
+          </div>
         </div>
       </Header>
-      <div style={{ padding: '24px 48px' }}>
-        <Layout
-          style={{ padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG }}
-        >
-          <Sider style={{ background: colorBgContainer }} width={200}>
-            <Menu
-              mode="inline"
-              defaultSelectedKeys={['1']}
-              defaultOpenKeys={['sub1']}
-              style={{ height: '100%' }}
-              items={items2}
-            />
-          </Sider>
-          <Content style={{ padding: '0 24px', minHeight: 280 }}>Content</Content>
+      <div className='layout-content-wrapper'>
+        <Layout className='layout-content'>
+          <Sider collapsible collapsed={collapsed} trigger={null} className='layout-sider'>
+            <div className='layout-sider-trigger'>
+              <div className="layout-sider-trigger-container">
+                <Button
+                  type="text"
+                  icon={collapsed ? <GiHamburgerMenu/> : <IoClose />}
+                  onClick={() => setCollapsed(!collapsed)}
+                  className='layout-sider-trigger-container-button'
+                />
+              </div>
+            </div>
+          <Menu
+            mode="inline"
+            defaultSelectedKeys={['organization']}
+            defaultOpenKeys={['management']}
+            style={{ height: '100%' }}
+            items={menuItems}
+            className='layout-sider-menu'
+          />
+        </Sider>
+          <Content className='layout-content-container'>Content</Content>
         </Layout>
       </div>
     </Layout>
