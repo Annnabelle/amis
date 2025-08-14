@@ -1,16 +1,29 @@
+import type { LoginForm } from '../../types/users';
 import { Form, Input } from 'antd';
+import { useAppDispatch } from '../../store';
+import { Login } from '../../store/users';
 import mainBG from '../../assets/main-bg.png';
-import './styles.sass';
 import FormComponent from '../../components/formComponent';
 import Button from '../../components/button';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
+import './styles.sass';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
+    const form = useFormInstance();
+    const dispatch = useAppDispatch();
+    const onFinish = (values: LoginForm) => {
+        // dispatch(Login(values));
+        dispatch(Login(values)).unwrap()
+            .then(() => {
+                toast.success('Успешный вход');
+            })
+            .catch((error) => {
+                toast.error('Ошибка входа, проверьте логин и пароль');
+                console.error(error);
+            }); 
+    };
 
-    const [form] = Form.useForm();
-
-    const onFinish = (values: any) => {
-        console.log('Received values:', values);
-    }
 
   return (
     <div className="login-page">
@@ -28,10 +41,10 @@ const LoginPage = () => {
                             <h3 className="title">Вход</h3>
                         </div>
                         <FormComponent onFinish={onFinish} formProps={form}>
-                            <Form.Item label="Логин" className='form-item'>
-                                <Input placeholder="Введите логин" className='input'/>
+                            <Form.Item label="Логин" className='form-item'  name="email" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
+                                <Input placeholder="Введите логин" className='input' />
                             </Form.Item>
-                            <Form.Item label="Пароль" className='form-item'>
+                            <Form.Item label="Пароль" className='form-item' name="password" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
                                 <Input placeholder="Введите пароль" className='input'/>
                             </Form.Item>
                             <div className="form-item">
