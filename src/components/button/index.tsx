@@ -9,7 +9,7 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset" ; 
 }
 
-const Button: React.FC<ButtonProps> = ({ className = "", children, disabled = false, onClick, type = "button" }) => {
+const CustomButton: React.FC<ButtonProps> = ({ className = "", children, disabled = false, onClick, type = "button" }) => {
   return (
     <button onClick={onClick} className={`btn ${className}`} disabled={disabled} type={type}>
       {children}
@@ -17,4 +17,4 @@ const Button: React.FC<ButtonProps> = ({ className = "", children, disabled = fa
   );
 };
 
-export default Button;
+export default CustomButton;

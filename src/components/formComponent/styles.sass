@@ -5,14 +5,21 @@
     width: 100%
     @include mix.flex-content(start, column)
     align-items: start
-    .form-item
+    row-gap: 20px
+    &-inputs
         width: 100%
-        label
-            +mix.typography(18px, 600, map.get(vars.$main, 'main'))
-            .input
-                width: 100%
-                padding: 10px
-                border-radius: 10px
-                border: 1px solid map.get(vars.$main, 'light-grey')
-                &:focus
-                    border-color: map.get(vars.$main, 'main')
+        @include mix.flex-content(start, column)
+        align-items: flex-start
+        row-gap: 20px
+        .input
+            width: 100%
+            margin-bottom: 0
+            &:focus
+                border-color: map.get(vars.$main, 'main')
+            &::placeholder
+                +mix.typography(18px, 400, map.get(vars.$main, 'grey'))
+            label
+                +mix.typography(18px, 500, map.get(vars.$main, 'main'))
+                margin-bottom: 10px
+        .ant-select-selection-placeholder
+            +mix.typography(18px, 400, map.get(vars.$main, 'grey'))

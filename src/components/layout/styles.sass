@@ -86,3 +86,33 @@
                             width: 100%
                             font-size: 28px
                             @include mix.flex-content(center, row)
+            &-container
+                @include mix.flex-content(center, column)
+                row-gap: 24px
+                .heading
+                    background-color: map.get(vars.$basic, 'white')
+                    position: relative
+                    padding: 24px
+                    margin-right: 24px
+                    border-radius: 20px
+                    box-shadow: 0 0 17px 0 #dcdcdc
+                    width: 100%
+                .box
+                    background-color: map.get(vars.$basic, 'white')
+                    position: relative
+                    padding: 24px
+                    margin-right: 24px
+                    border-radius: 20px
+                    box-shadow: 0 0 17px 0 #dcdcdc
+                    width: 100%
+                    &-container
+                        @include mix.flex-content(flex-start, column)
+                        align-items: flex-start
+                        row-gap: 24px
+                        width: 100%
+                        &-items
+                            width: 100%
+                            &-item
+                                &-filters
+                                    @include mix.flex-content(flex-start, row)
+                                    column-gap: 20px

@@ -5,12 +5,12 @@ import './styles.sass';
 interface FormComponentProps {
     children: ReactNode;
     onFinish?: (values: any) => void;
-    formProps?: FormInstance; 
+    form?: FormInstance; 
 }
 
-const FormComponent: React.FC<FormComponentProps> = ({ children, onFinish, formProps }) => {
+const FormComponent: React.FC<FormComponentProps> = ({ children, onFinish,  form  }) => {
     const [defaultForm] = Form.useForm();
-    const usedForm = formProps ?? defaultForm;
+    const usedForm = form ?? defaultForm;
 
     return (
         <Form form={usedForm} layout='vertical' onFinish={onFinish} className='form'>

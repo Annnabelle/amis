@@ -2,11 +2,11 @@
 @use "../../styles/mixins.sass" as mix
 @use "../../styles/variables.sass" as vars
 .btn
-    +mix.typography(16px, 400, map.get(vars.$basic, 'white'))
+    +mix.typography(20px, 500, map.get(vars.$basic, 'white'))
     @include mix.flex-content(center)
     text-align: center
     background: map.get(vars.$main, 'main' )
-    padding: 12px
+    padding: 12px 24px
     border: none
     cursor: pointer
     width: 100%
@@ -30,10 +30,10 @@
         @extend .outline
         color: map.get(vars.$basic, 'black')
 .danger
-    +mix.typography(16px, 400, map.get(vars.$basic, 'white'))
-    background: map.get(vars.$main, 'red')
-    border: 1px solid map.get(vars.$main, 'red')
+    +mix.typography(16px, 400, map.get(vars.$events, 'red'))
+    background: transparent
+    border: 1px solid map.get(vars.$events, 'red')
     &:hover
-        background: transparent
+        background: map.get(vars.$events, 'red')
         border: 1px solid map.get(vars.$main, 'red')
-        color: map.get(vars.$main, 'red')
+        color: map.get(vars.$basic, 'white')

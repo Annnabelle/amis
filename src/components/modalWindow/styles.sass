@@ -2,19 +2,22 @@
 @use '../../styles/mixins' as mix
 @use '../../styles/variables' as vars
 .modal-window
-    border-radius: 10px
-    border: 10px solid map.get(vars.$main, 'main')
+    // border: 10px solid map.get(vars.$main, 'main')
     padding: 0
     width: 100% !important
     max-width: 800px
     .ant-modal-content
-        border-radius: 2px
+        border-radius: 20px
         .modal-heading-container
             .modal-heading-title
-                @include mix.flex-content(flex-start, row)
+                @include mix.flex-content(center, row)
                 column-gap: 10px
                 .title
                     +mix.typography(24px, 700, map.get(vars.$basic, 'black'))
+                    &-action
+                        +mix.typography(24px, 700, map.get(vars.$main, 'main'))
+                .danger-title
+                    +mix.typography(24px, 700, map.get(vars.$events, 'red'))
                 &-icon
                     &-trash
                         width: 40px
@@ -43,6 +46,24 @@
                             color: map.get(vars.$basic, 'white')
                             .svg-edit
                                 color: map.get(vars.$basic, 'white')
+    .delete-modal
+        @include mix.flex-content(space-between, column)
+        row-gap: 50px
+        &-title
+            margin-top: 50px
+            .title
+                +mix.typography(18px, 500, map.get(vars.$basic, 'black'))
+                text-align: center
+            .subtitle
+                +mix.typography(16px, 800, map.get(vars.$basic, 'black'))
+                text-align: center
+                margin-top: 10px
+        &-btns
+            @include mix.flex-content(space-between, row)
+            column-gap: 24px
+            width: 100%
+            .btn
+                width: 100%
 .modal-tight
     max-width: 600px
     &-container
