@@ -9,11 +9,13 @@ export interface ModalProps {
     openModal?: boolean,
     children?: ReactNode,
     title?: string,
+    titleAction?: string,
     handleAction?: () => void
     handleDelete?: () => void,
     handleEdit?: () => void
     handleCancel?: () => void
     className?: string
+    classDangerName?: string
 }
 
 const ModalWindow: React.FC<ModalProps> = ({ children, ...props }) => {
@@ -23,7 +25,7 @@ const ModalWindow: React.FC<ModalProps> = ({ children, ...props }) => {
       title={
         <div className='modal-heading-container'>
           <div className="modal-heading-title">
-            <h3 className="title">{props?.title}</h3>
+            <h3 className="title"> <span className={`title-action ${props.classDangerName}`}> {props?.titleAction}</span> {props?.title}</h3>
             <div className="modal-heading-title-icon">
               {props?.handleDelete && (
                 <div className="modal-heading-title-icon-trash">

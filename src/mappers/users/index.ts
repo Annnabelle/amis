@@ -1,6 +1,6 @@
 import type { ErrorDto } from "../../dtos";
-import type { LoginDto, LoginResponseDto } from "../../dtos/users/login";
-import type { LoginForm, LoginResponse } from "../../types/users";
+import type { LoginDto, LoginResponseDto, UserResponseDto } from "../../dtos/users/login";
+import type { LoginForm, LoginResponse, UserResponse } from "../../types/users";
 
 export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
   return {
@@ -8,6 +8,29 @@ export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
     password: form.password,
   };
 }
+
+export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
+  id: dto.id,
+  firstName: dto.firstName,
+  lastName: dto.lastName,
+  email: dto.email,
+  phone: dto.phone,
+  status: dto.status,
+  role: dto.role
+    ? {
+        id: dto.role.id,
+        name: {
+          ru: dto.role.name.ru,
+          uz: dto.role.name.uz,
+          en: dto.role.name.en,
+        },
+        alias: dto.role.alias,
+      }
+    : undefined,
+  language: dto.language,
+  lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
+});
+
 
 function isSuccessLoginResponseDto(dto: LoginResponseDto
 ): dto is Exclude<LoginResponseDto, ErrorDto> {
@@ -39,7 +62,7 @@ export function mapLoginResponseDtoToLoginResponse(
             }
           : undefined,
         language: dto.user.language,
-        lastLoggedInAt: dto.user.lastLoggedInAt,
+        lastLoggedInAt: dto.user.lastLoggedInAt ? new Date(dto.user.lastLoggedInAt) : null,
       },
       accessToken: dto.tokens.accessToken,
       refreshToken: dto.tokens.refreshToken,
@@ -51,6 +74,27 @@ export function mapLoginResponseDtoToLoginResponse(
     error: dto as ErrorDto,
   };
 }
+
+export function mapUpdateUserDtoToEntity(dto: UserResponseDto): UserResponse {
+  return {
+    id: dto.id,
+    firstName: dto.firstName,
+    lastName: dto.lastName,
+    email: dto.email,
+    phone: dto.phone,
+    status: dto.status,
+    role: dto.role
+      ? {
+          id: dto.role.id,
+          name: dto.role.name,
+          alias: dto.role.alias,
+        }
+      : undefined,
+    language: dto.language,
+    lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
+  };
+}
+
 
 
 

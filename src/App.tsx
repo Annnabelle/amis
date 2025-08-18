@@ -1,14 +1,13 @@
+import { BrowserRouter } from 'react-router-dom'
+import Router from './routes'
 import './App.sass'
-import LoginPage from './pages/login'
-import MainPage from './pages/main'
 
 function App() {
 
   return (
-    <>
-    <LoginPage/>
-    {/* <MainPage/> */}
-    </>
+    <BrowserRouter>
+      <Router/>
+    </BrowserRouter>
   )
 }
 

@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import type { MenuProps } from 'antd';
 import { Button, Layout, Menu } from 'antd';
 import { AppstoreOutlined} from '@ant-design/icons';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { IoClose } from 'react-icons/io5';
 import UserInfo from '../widgets/userInfo';
 import Session from '../widgets/session';
 import Balance from '../widgets/balance';
+import { Link } from 'react-router-dom';
 import './styles.sass';
-import { GiHamburgerMenu } from 'react-icons/gi';
-import { IoClose } from 'react-icons/io5';
 
 const { Header, Content, Sider } = Layout;
 
@@ -25,11 +26,19 @@ const menuItems: MenuProps['items'] = [
         key: 'products',
         label: 'Продукция',
       },
+      {
+        key: 'users',
+        label: <Link to="/users">Пользователи</Link>,
+      },
     ],
   },
 ];
 
-const MainLayout: React.FC = () => {
+interface MainLayoutProps {
+  children: ReactNode;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
    const [collapsed, setCollapsed] = useState(false);
   return (
     <Layout className='layout'>
@@ -66,16 +75,16 @@ const MainLayout: React.FC = () => {
                 />
               </div>
             </div>
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={['organization']}
-            defaultOpenKeys={['management']}
-            style={{ height: '100%' }}
-            items={menuItems}
-            className='layout-sider-menu'
-          />
-        </Sider>
-          <Content className='layout-content-container'>Content</Content>
+            <Menu
+              mode="inline"
+              defaultSelectedKeys={['organization']}
+              defaultOpenKeys={['management']}
+              style={{ height: '100%' }}
+              items={menuItems}
+              className='layout-sider-menu'
+            />
+          </Sider>
+          <Content className='layout-content-container'>{children}</Content>
         </Layout>
       </div>
     </Layout>

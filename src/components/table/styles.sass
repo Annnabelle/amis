@@ -1,0 +1,14 @@
+@use "sass:map"
+@use "../../styles/mixins" as mix
+@use "../../styles/variables" as vars
+.amis-table
+    .ant-table-thead
+        .ant-table-cell
+            background: map.get(vars.$main, 'main-more-lighter') !important
+            +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
+    .ant-table-tbody
+        .ant-table-cell
+            .table-text
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+    .clickable-row
+        cursor: pointer

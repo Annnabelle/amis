@@ -2,17 +2,23 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Avatar } from "antd";
 import { LuUserRound } from "react-icons/lu";
 import { IoIosArrowDown } from "react-icons/io";
-import Button from "../../button";
+import { useAppSelector } from "../../../store";
+import CustomButton from "../../button";
 import "./styles.sass";
 
 const UserInfo: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const user = useAppSelector((state) => state.users.user);
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (isOpen && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setIsOpen(false);
     }
   }, [isOpen]);
+
+  console.log('====================================');
+  console.log('user', user);
+  console.log('====================================');
   
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -42,11 +48,11 @@ const UserInfo: React.FC = () => {
         <Avatar className="user-avatar" size="large" icon={<LuUserRound className="user-icon" />} />
         <div className="user-text">
           <div className="user-text-container">
-            <p className="user-text-container-name">User name</p>
+            <p className="user-text-container-name">{user?.firstName} {user?.lastName}</p>
           </div>
           <div className="user-text-container">
             <div className="user-text-container-role">
-            Admin
+            {user?.role?.name.en || "Без роли"}
             </div>
           </div>
         </div>
@@ -57,7 +63,7 @@ const UserInfo: React.FC = () => {
       {isOpen && (
         <div className="user-dropdown">
           <div className="user-dropdown-action">
-            <Button onClick={handleLogout}>Logout</Button>
+            <CustomButton onClick={handleLogout}>Logout</CustomButton>
           </div>
         </div>
       )}

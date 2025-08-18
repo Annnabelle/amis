@@ -1,0 +1,17 @@
+@use "sass:map"
+@use "../../styles/mixins" as mix
+@use "../../styles/variables" as vars
+.heading
+    &-container
+        &-items
+            @include mix.flex-content(space-between, row)
+            &-item
+                &-title
+                    margin-bottom: 5px
+                    .title
+                        +mix.typography(28px, 600, map.get(vars.$basic, 'black'))
+                &-subtitle
+                    .subtitle
+                        +mix.typography(14px, 600, map.get(vars.$basic, 'black'))
+                        &-primary
+                            +mix.typography(14px, 600, map.get(vars.$main, 'main'))

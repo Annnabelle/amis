@@ -36,6 +36,9 @@ export type LoginResponse = {
 
 export type UsersState = {
     user: UserResponse | null;
+    userById: UserResponse | null;
+    updateUser: UserResponse | null;
+    users: UserResponse[];
     accessToken: string | null;
     refreshToken: string | null;
     isLoading: boolean;
@@ -43,4 +46,16 @@ export type UsersState = {
     status: string | null;
     sessionStart: number | null;
     isAuthenticated: boolean;
+    total: number,
+    page: number,
+    limit: number,
 };
+
+export type  AddUserForm = {
+   firstName: string
+    lastName: string,
+    phone: string,
+    email: string,
+    role: string,
+    password: string,
+}
