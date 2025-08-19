@@ -177,6 +177,17 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+export const searchUsers = createAsyncThunk(
+  'users/search',
+  async ({ query, page = 1, limit = 10, sortOrder = 'asc' }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }) => {
+    const response = await axiosInstance.get(`/users/search`, {
+      params: { query, page, limit, sortOrder }
+    });
+    return response.data;
+  }
+);
+
+
 
 
 export const usersSlice = createSlice({ 
@@ -294,6 +305,25 @@ export const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      .addCase(searchUsers.fulfilled, (state, action) => {
+        const { data = [], total, page, limit } = action.payload;
+
+        state.users = data.map((user: any) => ({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          status: user.status,
+          lastLoggedInAt: user.lastLoggedInAt,
+        }));
+
+        state.total = total;
+        state.page = page;
+        state.limit = limit;
+      });
+
+
   },
 });
 

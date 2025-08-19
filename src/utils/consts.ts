@@ -5,3 +5,5 @@ export const UserRoles = {
     admin: 'admin',
     operator: 'operator',
 }
+
+export type LangKey = 'ru' | 'uz' | 'en';

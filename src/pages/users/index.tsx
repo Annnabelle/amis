@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { deleteUser, getAllUsers, getUserById, registerUser, updateUser } from '../../store/users'
+import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers, updateUser } from '../../store/users'
 import type { UserTableDataType } from '../../tableData/users/types'
 import type { AddUserForm, UserResponse } from '../../types/users'
 import type { Language } from '../../dtos'
@@ -17,6 +17,7 @@ import CustomButton from '../../components/button'
 import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
 import PhoneInput from '../../components/phoneInput'
+import type { LangKey } from '../../utils/consts'
 
 const Users = () => {
     const { t, i18n } = useTranslation();
@@ -57,7 +58,7 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            role: user.role?.name.en || 'Без роли',
+            role: user.role?.name?.[i18n.language as LangKey] || user.role?.name?.ru || 'Без роли',
             lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
             status: user.status,
             action: 'Действие', 
@@ -201,6 +202,16 @@ const Users = () => {
         { value: "active", label: t('users.status.active') },
         { value: "inactive", label: t('users.status.inactive') },
     ]
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.trim().length > 0) {
+            dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
+        } else {
+            dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
+        }
+    };
+
   return (
     <MainLayout>
         <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount='100'>
@@ -212,16 +223,14 @@ const Users = () => {
                     <div className="box-container-items-item">
                         <div className="box-container-items-item-filters">
                                <div className="form-inputs">
-                                    <Form.Item
-                                        className="input"
-                                        name="searchExpert"
-                                    >
+                                    <Form.Item name="searchExpert" className="input">
                                         <Input
                                             size="large"
-                                            className='input'
+                                            className="input"
                                             placeholder={t('search.byName')}
                                             suffix={<IoSearch />}
                                             allowClear
+                                            onChange={handleSearchChange}
                                         />
                                     </Form.Item>
                                 </div>
