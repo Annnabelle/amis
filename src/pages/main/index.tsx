@@ -4,7 +4,7 @@ import MainLayout from '../../components/layout'
 const MainPage = () => {
   return (
     <MainLayout>
-        {/* <div>Main Page Content</div> */}
+        <div>Main Page Content</div>
     </MainLayout>
   )
 }

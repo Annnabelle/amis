@@ -1,23 +1,25 @@
 import { Form, Input, Select } from 'antd'
-import type { UserTableDataType } from '../../tableData/users/types'
 import { UsersTableColumns } from '../../tableData/users'
 import { IoSearch } from 'react-icons/io5'
+import { useAppDispatch, useAppSelector } from '../../store'
+import { toast } from 'react-toastify'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { deleteUser, getAllUsers, getUserById, registerUser, updateUser } from '../../store/users'
+import type { UserTableDataType } from '../../tableData/users/types'
+import type { AddUserForm, UserResponse } from '../../types/users'
+import type { Language } from '../../dtos'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
 import ComponentTable from '../../components/table'
-import { useAppDispatch, useAppSelector } from '../../store'
-import { useEffect, useMemo, useState } from 'react'
-import { deleteUser, getAllUsers, getUserById, registerUser, updateUser } from '../../store/users'
 import dayjs from 'dayjs'
 import CustomButton from '../../components/button'
-import type { AddUserForm, UserResponse } from '../../types/users'
 import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
-import { toast } from 'react-toastify'
-import type { Language } from '../../dtos'
 import PhoneInput from '../../components/phoneInput'
 
 const Users = () => {
+    const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const users = useAppSelector((state) => state.users.users)
     const dataLimit = useAppSelector((state) => state.users.limit)
@@ -28,16 +30,16 @@ const Users = () => {
     const [form] = Form.useForm()
 
     useEffect(() => {
-    if (userById) {
-        form.setFieldsValue({
-        firstName: userById.firstName,
-        lastName: userById.lastName,
-        phone: userById.phone,
-        email: userById.email,
-        role: userById.role?.alias,
-        status: userById.status,
-        })
-    }
+        if (userById) {
+            form.setFieldsValue({
+            firstName: userById.firstName,
+            lastName: userById.lastName,
+            phone: userById.phone,
+            email: userById.email,
+            role: userById.role?.alias,
+            status: userById.status,
+            })
+        }
     }, [userById, form])
 
     useEffect(() => {
@@ -50,8 +52,8 @@ const Users = () => {
 
    const UsersData = useMemo(() => {
         return users.map((user, index) => ({
-            key: user.id,                // настоящий id (для действий, запросов и т.д.)
-            number: index + 1,           // порядковый номер (для отображения в таблице)
+            key: user.id,                
+            number: index + 1,         
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
@@ -61,8 +63,6 @@ const Users = () => {
             action: 'Действие', 
         }))
     }, [users]);
-
-
 
     const [modalState, setModalState] = useState<{
         addUser: boolean;
@@ -88,16 +88,16 @@ const Users = () => {
             const resultAction = await dispatch(registerUser(newFormData));
         
             if (registerUser.fulfilled.match(resultAction)) {
-                toast.success('User created successfully');
+                toast.success(t('users.messages.success.createUser'));
                 setTimeout(() => {
                     handleModal('addUser', false);
                     window.location.reload(); 
                 }, 1000); 
             } else {
-                toast.error('error?)');
+                toast.error(t('users.messages.error.createUser'));
             }
         } catch (err) {
-        toast.error((err as string) || 'error 2?_');
+            toast.error((err as string) || t('users.messages.error.createUser'));
         }
     };
 
@@ -145,33 +145,29 @@ const Users = () => {
             );
 
             if (updateUser.fulfilled.match(resultAction)) {
-                toast.success("Пользователь успешно обновлен");
+                toast.success(t('users.messages.success.updateUser'));
                 handleModal("editUser", false);
 
                 await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
-                await dispatch(getUserById({ id: selectedUserId })); // 🔑 обновляем данные выбранного юзера
+                await dispatch(getUserById({ id: selectedUserId }));
                 } else {
-                toast.error("Ошибка при обновлении пользователя");
+                toast.error(t('users.messages.error.updateUser'));
             }
         } catch (err) {
-            toast.error((err as string) || "Ошибка при обновлении");
+            toast.error((err as string) || t('users.messages.error.updateUser'));
         }
     };
 
-
-
-    // внутри Users компонента
-
     const handleDeleteUser = (record: UserTableDataType) => {
     const user = users.find((u) => u.id === record.key) ?? null;
-    if (user) {
-        setSelectedUserId(user.id);
-        setModalState((prev) => ({
-        ...prev,
-        deleteUser: true,
-        userData: user,
-        }));
-    }
+        if (user) {
+            setSelectedUserId(user.id);
+            setModalState((prev) => ({
+            ...prev,
+            deleteUser: true,
+            userData: user,
+            }));
+        }
     };
 
     const confirmDeleteUser = async () => {
@@ -183,37 +179,32 @@ const Users = () => {
             );
 
             if (deleteUser.fulfilled.match(resultAction)) {
-                toast.success("Пользователь успешно удален");
+                toast.success(t('users.messages.success.deleteUser'));
                 handleModal("deleteUser", false);
 
-                // переполучаем список юзеров
                 await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: "asc" }));
             } else {
-                toast.error("Ошибка при удалении пользователя");
+                toast.error(t('users.messages.error.deleteUser'));
             }
         } catch (err) {
-            toast.error((err as string) || "Ошибка при удалении");
+            toast.error((err as string) || t('users.messages.error.deleteUser'));
         }
     };
 
-
-
     const roleOption = [
-        { value: "admin", label: 'Администратор'},
-        { value: "intl_officer", label: "Сотрудник международного управления"},
-        { value: "junior_intl_officer", label: 'Младший сотрудник международного управления' },
-        { value: "manager", label: 'Руководство'},
-        { value: "employee", label: 'Другие сотрудники'},
+        { value: "superadmin", label: t('users.userRole.superadmin') },
+        { value: "admin", label: t('users.userRole.admin') },
+        { value: "operator", label: t('users.userRole.operator') },
     ];
 
     const statusOption = [
-        { value: "active", label: 'Активный' },
-        { value: "inactive", label: 'Неактивный' },
+        { value: "active", label: t('users.status.active') },
+        { value: "inactive", label: t('users.status.inactive') },
     ]
   return (
     <MainLayout>
-        <Heading title="Пользователи">
-            <CustomButton onClick={() => handleModal('addUser', true)}>Добавить</CustomButton>
+        <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount='100'>
+            <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton>
         </Heading>
         <div className="box">
             <div className="box-container">
@@ -228,7 +219,7 @@ const Users = () => {
                                         <Input
                                             size="large"
                                             className='input'
-                                            placeholder='Поиск по имени'
+                                            placeholder={t('search.byName')}
                                             suffix={<IoSearch />}
                                             allowClear
                                         />
@@ -260,48 +251,48 @@ const Users = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow titleAction='Добавление' title='юзера' openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
+        <ModalWindow titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
             <FormComponent onFinish={handleRegisterUser}>
                 <div className="form-inputs">
-                    <Form.Item className="input" name="firstName" label="Имя" >
-                        <Input className="input" size='large' placeholder='введите имя'/>
+                    <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')} >
+                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.firstName')} />
                     </Form.Item>
-                    <Form.Item className="input" name="lastName" label="Фамилия">
-                        <Input className="input" size='large' placeholder='введите фамилию' />
+                    <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')}>
+                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.lastName')} />
                     </Form.Item>
                 </div>
                 <div className="form-inputs">
                     <Form.Item
                         className="input"
                         name="phone"
-                        label="Телефон"
+                        label={t('users.addUserForm.label.phone')}
                         // rules={[{ required: true, message: "Введите номер телефона" }]}
                     >
                         <PhoneInput />
                     </Form.Item>
-                    <Form.Item className="input" name="email" label="Почта">
-                        <Input className="input" size='large' placeholder='введите почту' />
+                    <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')}>
+                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.email')} />
                     </Form.Item>
                 </div>
                 <div className="form-inputs">
-                    <Form.Item className="input" name="role" label="Роль" >
-                        <Select className='input' size="large" options={roleOption} placeholder='выберите роль'/>
+                    <Form.Item className="input" name="role" label={t('users.addUserForm.label.role')}  >
+                        <Select className='input' size="large" options={roleOption} placeholder={t('users.addUserForm.placeholder.role')}/>
                     </Form.Item>
-                    <Form.Item className="input" name="password" label="Пароль">
-                        <Input className="input" size='large' placeholder='придумайте пароль' />
+                    <Form.Item className="input" name="password" label={t('users.addUserForm.label.password')} >
+                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.password')} />
                     </Form.Item>
                 </div>
-                <CustomButton type="submit">Создать</CustomButton>
+                <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>
         {userById && selectedUserId && (
-            <ModalWindow titleAction='Просмотр' title='пользователя' openModal={modalState.retrieveUser} closeModal={() => handleModal('retrieveUser', false)}>
+            <ModalWindow titleAction={t('users.modalWindow.viewing')} title={t('users.modalWindow.user')} openModal={modalState.retrieveUser} closeModal={() => handleModal('retrieveUser', false)}>
                 <FormComponent>
                     <div className="form-inputs">
-                        <Form.Item className="input" name="firstName" label="Имя">
+                        <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')}>
                             <Input className="input" size='large' placeholder={userById.firstName} disabled/>
                         </Form.Item>
-                        <Form.Item className="input" name="lastName" label="Фамилия">
+                        <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')}>
                             <Input className="input" size='large' placeholder={userById.lastName} disabled />
                         </Form.Item>
                     </div>
@@ -309,20 +300,17 @@ const Users = () => {
                         <Form.Item
                             className="input"
                             name="phone"
-                            label="Телефон"
+                            label={t('users.addUserForm.label.phone')}
                         >
                             <Input className="input" size='large' placeholder={userById.phone} disabled />
                         </Form.Item>
-                        <Form.Item className="input" name="email" label="Почта">
+                        <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')}>
                             <Input className="input" size='large' placeholder={userById.email} disabled />
                         </Form.Item>
                     </div>
                     <div className="form-inputs">
-                        <Form.Item className="input" name="role" label="Роль" >
+                        <Form.Item className="input" name="role" label={t('users.addUserForm.label.role')} >
                             <Select className='input' size="large" options={roleOption} placeholder={userById.role?.name.ru} disabled/>
-                        </Form.Item>
-                        <Form.Item className="input" name="status" label="Статус" >
-                            <Select className='input' size="large" options={roleOption} placeholder={userById.status} disabled/>
                         </Form.Item>
                     </div>
                 </FormComponent>
@@ -330,8 +318,8 @@ const Users = () => {
         )}
         {userById && selectedUserId && (
             <ModalWindow
-                titleAction="Редактирование"
-                title="пользователя"
+                titleAction={t('users.modalWindow.editing')}
+                title={t('users.modalWindow.user')}
                 openModal={modalState.editUser}
                 closeModal={() => handleModal("editUser", false)}
             >
@@ -342,19 +330,19 @@ const Users = () => {
                     }}
                 >
                     <div className="form-inputs">
-                        <Form.Item className="input" name="firstName" label="Имя" initialValue={userById.firstName}>
-                            <Input className="input" size="large" placeholder="Имя" />
+                        <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')}  initialValue={userById.firstName}>
+                            <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.firstName')}  />
                         </Form.Item>
-                        <Form.Item className="input" name="lastName" label="Фамилия" initialValue={userById.lastName}>
-                            <Input className="input" size="large" placeholder="Фамилия" />
+                        <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')} initialValue={userById.lastName}>
+                            <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.lastName')}  />
                         </Form.Item>
                     </div>
                     <div className="form-inputs">
-                        <Form.Item className="input" name="phone" label="Телефон" initialValue={userById.phone}>
+                        <Form.Item className="input" name="phone" label={t('users.addUserForm.label.phone')}  initialValue={userById.phone}>
                             <PhoneInput />
                         </Form.Item>
-                        <Form.Item className="input" name="email" label="Почта" initialValue={userById.email}>
-                            <Input className="input" size="large" placeholder="Почта" />
+                        <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')}  initialValue={userById.email}>
+                            <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.email')}  />
                         </Form.Item>
                     </div>
                     <div className="form-inputs">
@@ -362,13 +350,13 @@ const Users = () => {
                             <Select className='input' size="large" defaultValue={userById.status} options={statusOption}/>
                         </Form.Item>
                     </div>
-                    <CustomButton type="submit">Сохранить</CustomButton>
+                    <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 </FormComponent>
             </ModalWindow>
         )}
         <ModalWindow
-            titleAction="Удаление"
-            title="пользователя"
+            titleAction={t('users.modalWindow.deletion')}
+            title={t('users.modalWindow.user')}
             openModal={modalState.deleteUser}
             closeModal={() => handleModal("deleteUser", false)}
             classDangerName='danger-title'
@@ -376,16 +364,16 @@ const Users = () => {
             <div className="delete-modal">
                 <div className="delete-modal-title">
                     <p className='title'>
-                        Вы уверены, что хотите удалить пользователя: {" "}
+                        {t('users.deleteUserQuestion')}: {" "}
                     </p>
                     <p className="subtitle">{modalState.userData?.firstName} {modalState.userData?.lastName} ? </p>
                 </div>
                 <div className="delete-modal-btns">
                     <CustomButton className="danger" onClick={confirmDeleteUser}>
-                        Удалить
+                        {t('btn.delete')}
                     </CustomButton>
                     <CustomButton onClick={() => handleModal("deleteUser", false)} className="outline">
-                        Отмена
+                        {t('btn.cancel')}
                     </CustomButton>
                 </div>
             </div>

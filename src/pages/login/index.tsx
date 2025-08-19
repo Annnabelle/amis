@@ -2,30 +2,31 @@ import type { LoginForm } from '../../types/users';
 import { Form, Input } from 'antd';
 import { useAppDispatch } from '../../store';
 import { Login } from '../../store/users';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import mainBG from '../../assets/main-bg.png';
 import FormComponent from '../../components/formComponent';
 import CustomButton from '../../components/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import './styles.sass';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const form = useFormInstance();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
     const onFinish = (values: LoginForm) => {
-        // dispatch(Login(values));
         dispatch(Login(values)).unwrap()
             .then(() => {
-                toast.success('Успешный вход');
+                toast.success(t('login.messages.successLogin'));
                 setTimeout(() => {
                     navigate('/home');
-                }, 1000); // Пауза в 1 секунду перед переходом
+                }, 1000); 
 
             })
             .catch((error) => {
-                toast.error('Ошибка входа, проверьте логин и пароль');
+                toast.error(t('login.messages.errorLogin'));
                 console.error(error);
             }); 
     };
@@ -44,20 +45,20 @@ const LoginPage = () => {
                 <div className="form-container">
                     <div className="form-items">
                         <div className="form-title">
-                            <h3 className="title">Вход</h3>
+                            <h3 className="title">{t('login.btn.login')}</h3>
                         </div>
-                        <FormComponent onFinish={onFinish} formProps={form}>
+                        <FormComponent onFinish={onFinish} form={form}>
                             <div className="form-inputs">
-                                <Form.Item label="Логин" className='input'  name="email" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
-                                    <Input placeholder="Введите логин" className='input' size='large'/>
+                                <Form.Item label={t('login.username')} className='input'  name="email" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
+                                    <Input placeholder={t('login.enterUserName')} className='input' size='large'/>
                                 </Form.Item>
-                                <Form.Item label="Пароль" className='input'  name="password" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
-                                    <Input placeholder="Введите пароль" className='input' size='large'/>
+                                <Form.Item label={t('users.addUserForm.label.password')} className='input'  name="password" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
+                                    <Input placeholder={t('users.addUserForm.placeholder.password')} className='input' size='large'/>
                                 </Form.Item>
                             </div>
                             <div className="form-inputs">
                                 <CustomButton type="submit" className='btn-submit'>
-                                    Войти   
+                                    {t('login.btn.signIn')}    
                                 </CustomButton>
                             </div>
                         </FormComponent>

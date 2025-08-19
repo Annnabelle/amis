@@ -2,23 +2,29 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Avatar } from "antd";
 import { LuUserRound } from "react-icons/lu";
 import { IoIosArrowDown } from "react-icons/io";
-import { useAppSelector } from "../../../store";
+import { useAppDispatch, useAppSelector } from "../../../store";
 import CustomButton from "../../button";
 import "./styles.sass";
+import { getUserById } from "../../../store/users";
 
 const UserInfo: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const user = useAppSelector((state) => state.users.user);
+  const user = useAppSelector((state) => state.users.userById);
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (isOpen && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setIsOpen(false);
     }
   }, [isOpen]);
 
-  console.log('====================================');
-  console.log('user', user);
-  console.log('====================================');
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      dispatch(getUserById({ id: userId }));
+    }
+  }, [dispatch]);
   
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -32,6 +38,7 @@ const UserInfo: React.FC = () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
     localStorage.removeItem("userRole")
+    localStorage.removeItem("userId");
     window.location.href = "/";
   };
 
@@ -52,7 +59,7 @@ const UserInfo: React.FC = () => {
           </div>
           <div className="user-text-container">
             <div className="user-text-container-role">
-            {user?.role?.name.en || "Без роли"}
+            {user?.role?.name.en || " "}
             </div>
           </div>
         </div>

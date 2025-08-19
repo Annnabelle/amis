@@ -2,10 +2,12 @@ import './styles.sass'
 
 interface HeadingProps {
   title: string;
+  subtitle?: string;
+  totalAmount?: string; 
   children?: React.ReactNode; 
 }
 
-const Heading: React.FC<HeadingProps> = ({ title, children }) => {
+const Heading: React.FC<HeadingProps> = ({ title, children, subtitle, totalAmount }) => {
   return (
     <div className='heading'>
       <div className="heading-container">
@@ -16,7 +18,7 @@ const Heading: React.FC<HeadingProps> = ({ title, children }) => {
             </div>
             <div className="heading-container-items-item-subtitle">
               <p className="subtitle">
-                Всего: <span className="subtitle-primary">100</span>
+                {subtitle} <span className="subtitle-primary">{totalAmount}</span>
               </p>
             </div>
           </div>

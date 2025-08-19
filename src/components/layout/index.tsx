@@ -4,42 +4,49 @@ import { Button, Layout, Menu } from 'antd';
 import { AppstoreOutlined} from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
+import { Link, useLocation } from 'react-router-dom';
 import UserInfo from '../widgets/userInfo';
 import Session from '../widgets/session';
 import Balance from '../widgets/balance';
-import { Link } from 'react-router-dom';
+import Languages from '../languages';
 import './styles.sass';
+import { useTranslation } from 'react-i18next';
 
 const { Header, Content, Sider } = Layout;
 
-const menuItems: MenuProps['items'] = [
-  {
-    key: 'management',
-    icon: <AppstoreOutlined className='menu-icon' />,
-    label: 'Управление',
-    children: [
-      {
-        key: 'organization',
-        label: 'Организация',
-      },
-      {
-        key: 'products',
-        label: 'Продукция',
-      },
-      {
-        key: 'users',
-        label: <Link to="/users">Пользователи</Link>,
-      },
-    ],
-  },
-];
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-   const [collapsed, setCollapsed] = useState(false);
+  
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  const { t } = useTranslation();
+
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'management',
+      icon: <AppstoreOutlined className='menu-icon' />,
+      label: t('navigation.management'),
+      children: [
+        {
+          key: '/organization',
+          label: <Link to="/organization">{t('navigation.organization')}</Link>,
+        },
+        {
+          key: '/products',
+          label: <Link to="/products">{t('navigation.products')}</Link>,
+        },
+        {
+          key: '/users',
+          label: <Link to="/users">{t('navigation.users')}</Link>,
+        },
+      ],
+    },
+  ];
+
   return (
     <Layout className='layout'>
       <Header className='layout-header'>
@@ -50,6 +57,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </div>
           </div>
           <div className="layout-header-container-items">
+            <div className="layout-header-container-items-item">
+              <Languages  />
+            </div>
             <div className="layout-header-container-items-item">
               <Balance />
             </div>
@@ -77,7 +87,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </div>
             <Menu
               mode="inline"
-              defaultSelectedKeys={['organization']}
+              selectedKeys={[location.pathname]} 
               defaultOpenKeys={['management']}
               style={{ height: '100%' }}
               items={menuItems}

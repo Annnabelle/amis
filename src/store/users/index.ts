@@ -37,6 +37,7 @@ export const Login = createAsyncThunk(
         localStorage.setItem('refreshToken', mapped.refreshToken!);
         localStorage.setItem('userName', mapped.user.firstName);
         localStorage.setItem('userRole', mapped.user.role?.name.en || '');
+        localStorage.setItem("userId", mapped.user.id);
 
         return mapped;
       } else {

@@ -1,0 +1,38 @@
+@use "sass:map"
+@use "../../styles/mixins" as mix
+@use "../../styles/variables" as vars
+.language-switcher
+    padding: 0 20px
+    position: relative
+    .selected-language
+        border: none
+        background: transparent
+        cursor: pointer
+        @include mix.flex-content(center)
+        column-gap: 5px
+        .flag
+            line-height: 22px
+            +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+        svg
+            +mix.typography(18px, 700, map.get(vars.$basic, 'black'))
+    .dropdown-menu
+        @include mix.flex-content(center, column)
+        margin-top: 10px
+        list-style: none
+        left: 0
+        right: 0
+        position: absolute
+        border: 1px solid map.get(vars.$main, "grey")
+        border-radius: 3px
+        box-shadow: 4px 4px 13px rgba(0, 0, 0, 0.12)
+        background: map.get(vars.$basic, "white")
+        z-index: 10
+        .language-option
+            cursor: pointer
+            width: 100%
+            padding: 5px 10px
+            &:hover
+                background: map.get(vars.$main, 'main-more-lighter')
+            .flag
+                line-height: 22px
+                +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
