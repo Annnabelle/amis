@@ -1,9 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
+
 const LoginPage = lazy(() => import("../pages/login"));
 const MainPage = lazy(() => import("../pages/main"));
 const Users = lazy(() => import("../pages/users"));
+const Products = lazy(() => import( "../pages/products"));
+const Organizations = lazy(() => import ("../pages/organizations"))
 
 const Router: React.FC = () => {
   return (
@@ -12,6 +15,8 @@ const Router: React.FC = () => {
         <Route path='/' element={<LoginPage />} />
         <Route path='/home' element={<MainPage />} />
         <Route path='/users' element={<Users />} />
+        <Route path='/products' element={<Products/>}/>
+        <Route path='/organization' element={<Organizations/>}/>
       </Routes>
     </Suspense>
   );

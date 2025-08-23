@@ -53,6 +53,7 @@ export const resources = {
                         role: 'Role',
                         password: 'Password',
                         phone: 'Phone',
+                        lastLoggedInAt: 'Last logged in at'
                     },
                     placeholder: {
                         firstName: 'Enter first name',
@@ -71,6 +72,87 @@ export const resources = {
                     adding: 'Adding',
                 }
             },
+            organizations: {
+                companyTypeOption: {
+                    type1: "type1",
+                    inactive: "Inactive",
+                },
+                title: "Organizations",
+                subtitle: "Total",
+                btnAdd: "Add organization",
+                status: 'Status',
+                deleteUserQuestion: "Are you sure you want to delete the organization",
+                messages: {
+                    success: {
+                        createUser: "Organization successfully created",
+                        updateUser: "Organization successfully updated",
+                        deleteUser: "Organization successfully deleted"
+                    },
+                    error: {
+                        createUser: "Error while creating organization",
+                        updateUser: "Error while updating organization",
+                        deleteUser: "Error while deleting organization"
+                    },
+                },
+                addUserForm: {
+                    label: {
+                        companyType: "Company type",
+                        displayName: "Display name",
+                        productGroup: "Product group",
+                        tin: "TIN",
+                        legalName: "Legal name of the organization",
+                        director: "Director",
+                        region: "Region",
+                        district: "District",
+                        address: "Address",
+                        bankName: "Servicing bank",
+                        ccea: "OKED",
+                        account: "Account number",
+                        mfo: "MFO",
+                        phone: "Phone",
+                        email: "Email",
+                        url: "Website",
+                        person: "Contact person",
+                        gcpCode: "GCP code",
+                        omsId: "OMSID",
+                        turonToken: "Turon token",
+                    },
+                    placeholder: {
+                        companyType: "Enter company type",
+                        displayName: "Enter display name",
+                        productGroup: "Enter product group",
+                        tin: "Enter TIN",
+                        legalName: "Enter legal name",
+                        director: "Enter director details",
+                        region: "Enter region",
+                        district: "Enter district",
+                        address: "Enter address",
+                        bankName: "Enter servicing bank",
+                        ccea: "Enter OKED",
+                        account: "Enter account number",
+                        mfo: "Enter MFO",
+                        phone: "Enter phone number",
+                        email: "Enter email",
+                        url: "Enter website",
+                        person: "Enter contact person",
+                        gcpCode: "Enter GCP code",
+                        omsId: "Enter OMSID",
+                        turonToken: "Enter Turon token",
+                    }
+                },
+                subtitles: {
+                    address: "Address:",
+                    bankDetails: "Bank details:",
+                    contactDetails: "Contact details:"
+                },
+                modalWindow: {
+                    deletion: "Deletion",
+                    organization: "organization",
+                    editing: "Editing",
+                    viewing: "Viewing",
+                    adding: "Adding",
+                }
+            },
             login: {
                 messages:{
                     successLogin: 'Successful login',
@@ -82,7 +164,10 @@ export const resources = {
                 },
                 enterUserName: 'Enter username',
                 username: 'Username',
-            }
+            },
+            products: {
+                title: 'Products'
+            },
         }
     },
     ru:{
@@ -137,6 +222,7 @@ export const resources = {
                         role: 'Роль',
                         password: 'Пароль',
                         phone: 'Телефон',
+                        lastLoggedInAt: 'Дата последнего входа'
                     },
                     placeholder: {
                         firstName: 'Введите имя',
@@ -155,6 +241,87 @@ export const resources = {
                     adding: 'Добавление',
                 }
             },
+            organizations: {
+                companyTypeOption: {
+                    type1: "type1",
+                    inactive: "Inactive",
+                },
+                title: "Организации",
+                subtitle: 'Всего',
+                btnAdd: 'Добавить организацию',
+                status: 'Статус',
+                deleteUserQuestion: 'Вы уверены, что хотите удалить организацию',
+                messages: {
+                    success: {
+                        createUser: "Организация успешно создан",
+                        updateUser: "Организация успешно обновлён",
+                        deleteUser: "Организация успешно удалён"
+                    },
+                    error: {
+                        createUser: "Ошибка при создании организации",
+                        updateUser: "Ошибка при обновлении организации",
+                        deleteUser: "Ошибка при удалении организации"
+                    },
+                },
+                addUserForm: {
+                    label: {
+                        companyType: 'Тип компании',
+                        displayName: 'Отображаемое имя',
+                        productGroup: 'Товарная группа',
+                        tin: 'ИНН',
+                        legalName: 'Юридическое название организации',
+                        director: 'Директор',
+                        region: 'Регион',
+                        district: 'Район',
+                        address: 'Адрес',
+                        bankName: 'Обслуживающий банк',
+                        ccea: 'ОКЭД',
+                        account: 'Номер счета',
+                        mfo: 'МФО',
+                        phone: 'Телефон',
+                        email: 'Эл. почта',
+                        url: 'Веб-сайт',
+                        person: 'Контактное лицо',
+                        gcpCode: 'GCP код',
+                        omsId: 'OMSID',
+                        turonToken: 'Turon token',
+                    },
+                    placeholder: {
+                        companyType: 'Введите тип компании',
+                        displayName: 'Введите отображаемое имя',
+                        productGroup: 'Введите группу',
+                        tin: 'Введите ИНН',
+                        legalName: 'Введите юр. название',
+                        director: 'Введите даннеы директора',
+                        region: 'Введите регион',
+                        district: 'Введите район',
+                        address: 'Введите адрес',
+                        bankName: 'Введите обслуживающий банк',
+                        ccea: 'Введите ОКЭД',
+                        account: 'Введите номер счета',
+                        mfo: 'Введите МФО',
+                        phone: 'Введите рабочий телефон',
+                        email: 'Введите email',
+                        url: 'Введите веб-сайт',
+                        person: 'Введите контактное лицо',
+                        gcpCode: 'Введите GCP код',
+                        omsId: 'Введите OSMID',
+                        turonToken: 'Введите turon token',
+                    }
+                },
+                subtitles: {
+                    address: 'Адресс:',
+                    bankDetails: 'Банковские реквизиты:',
+                    contactDetails: 'Контактные данные:'
+                },
+                modalWindow: {
+                    deletion: 'Удаление',
+                    organization: 'организации',
+                    editing: 'Редактирование',
+                    viewing: 'Просмотр',
+                    adding: 'Добавление',
+                }
+            },
             login: {
                 messages:{
                     successLogin: 'Успешный вход',
@@ -166,7 +333,10 @@ export const resources = {
                 },
                 enterUserName: 'Введите логин',
                 username: 'Логин',
-            }
+            },
+            products: {
+                title: 'Продукция'
+            },
         }
     },
     uz:{
@@ -221,6 +391,7 @@ export const resources = {
                         role: 'Roli',
                         password: 'Parol',
                         phone: 'Telefon',
+                        lastLoggedInAt: 'Oxirgi tizimga kirgan vaqti'
                     },
                     placeholder: {
                         firstName: 'Ismni kiriting',
@@ -239,6 +410,87 @@ export const resources = {
                     adding: 'Qo‘shish',
                 }
             },
+            organizations: {
+                companyTypeOption: {
+                    type1: "type1",
+                    inactive: "Faol emas",
+                },
+                title: "Tashkilotlar",
+                subtitle: "Jami",
+                btnAdd: "Tashkilot qo‘shish",
+                status: 'Holat',
+                deleteUserQuestion: "Tashkilotni o‘chirib tashlashni xohlaysizmi?",
+                messages: {
+                    success: {
+                        createUser: "Tashkilot muvaffaqiyatli yaratildi",
+                        updateUser: "Tashkilot muvaffaqiyatli yangilandi",
+                        deleteUser: "Tashkilot muvaffaqiyatli o‘chirildi"
+                    },
+                    error: {
+                        createUser: "Tashkilotni yaratishda xatolik",
+                        updateUser: "Tashkilotni yangilashda xatolik",
+                        deleteUser: "Tashkilotni o‘chirishda xatolik"
+                    },
+                },
+                addUserForm: {
+                    label: {
+                        companyType: "Kompaniya turi",
+                        displayName: "Ko‘rsatiladigan nom",
+                        productGroup: "Mahsulot guruhi",
+                        tin: "STIR",
+                        legalName: "Tashkilotning yuridik nomi",
+                        director: "Direktor",
+                        region: "Hudud",
+                        district: "Tuman",
+                        address: "Manzil",
+                        bankName: "Xizmat ko‘rsatuvchi bank",
+                        ccea: "OKED",
+                        account: "Hisob raqami",
+                        mfo: "MFO",
+                        phone: "Telefon",
+                        email: "Elektron pochta",
+                        url: "Veb-sayt",
+                        person: "Aloqa shaxsi",
+                        gcpCode: "GCP kodi",
+                        omsId: "OMSID",
+                        turonToken: "Turon token",
+                    },
+                    placeholder: {
+                        companyType: "Kompaniya turini kiriting",
+                        displayName: "Ko‘rsatiladigan nomni kiriting",
+                        productGroup: "Mahsulot guruhini kiriting",
+                        tin: "STIR ni kiriting",
+                        legalName: "Yuridik nomni kiriting",
+                        director: "Direktor ma’lumotlarini kiriting",
+                        region: "Hududni kiriting",
+                        district: "Tumanni kiriting",
+                        address: "Manzilni kiriting",
+                        bankName: "Xizmat ko‘rsatuvchi bankni kiriting",
+                        ccea: "OKED ni kiriting",
+                        account: "Hisob raqamini kiriting",
+                        mfo: "MFO ni kiriting",
+                        phone: "Telefon raqamini kiriting",
+                        email: "Elektron pochtani kiriting",
+                        url: "Veb-saytni kiriting",
+                        person: "Aloqa shaxsini kiriting",
+                        gcpCode: "GCP kodini kiriting",
+                        omsId: "OMSID ni kiriting",
+                        turonToken: "Turon tokenni kiriting",
+                    }
+                },
+                subtitles: {
+                    address: "Manzil:",
+                    bankDetails: "Bank rekvizitlari:",
+                    contactDetails: "Aloqa ma’lumotlari:"
+                },
+                modalWindow: {
+                    deletion: "O‘chirish",
+                    organization: "tashkilot",
+                    editing: "Tahrirlash",
+                    viewing: "Ko‘rish",
+                    adding: "Qo‘shish",
+                }
+            },
             login: {
                 messages:{
                     successLogin: 'Muvaffaqiyatli kirish',
@@ -250,7 +502,10 @@ export const resources = {
                 },
                 enterUserName: 'Login kiriting',
                 username: 'Login',
-            }
+            },
+            products: {
+                title: 'Mahsulotlar'
+            },
         }
     }
 }

@@ -19,203 +19,203 @@ import FormComponent from '../../components/formComponent'
 import PhoneInput from '../../components/phoneInput'
 import type { LangKey } from '../../utils/consts'
 
-const Users = () => {
+const Products = () => {
     const { t, i18n } = useTranslation();
-    const dispatch = useAppDispatch()
-    const users = useAppSelector((state) => state.users.users)
-    const dataLimit = useAppSelector((state) => state.users.limit)
-    const dataPage = useAppSelector((state) => state.users.page)
-    const dataTotal = useAppSelector((state) => state.users.total)
-    const userById = useAppSelector((state) => state.users.userById)
+//     const dispatch = useAppDispatch()
+//     const users = useAppSelector((state) => state.users.users)
+//     const dataLimit = useAppSelector((state) => state.users.limit)
+//     const dataPage = useAppSelector((state) => state.users.page)
+//     const dataTotal = useAppSelector((state) => state.users.total)
+//     const userById = useAppSelector((state) => state.users.userById)
 
-    const [form] = Form.useForm()
+//     const [form] = Form.useForm()
 
-    useEffect(() => {
-        if (userById) {
-            form.setFieldsValue({
-            firstName: userById.firstName,
-            lastName: userById.lastName,
-            phone: userById.phone,
-            email: userById.email,
-            role: userById.role?.alias,
-            status: userById.status,
-            })
-        }
-    }, [userById, form])
+//     useEffect(() => {
+//         if (userById) {
+//             form.setFieldsValue({
+//             firstName: userById.firstName,
+//             lastName: userById.lastName,
+//             phone: userById.phone,
+//             email: userById.email,
+//             role: userById.role?.alias,
+//             status: userById.status,
+//             })
+//         }
+//     }, [userById, form])
 
-    useEffect(() => {
-        dispatch(getAllUsers({
-            page: 1,
-            limit: 10,
-            sortOrder: 'asc',
-        })) 
-    }, [dispatch])
+//     useEffect(() => {
+//         dispatch(getAllUsers({
+//             page: 1,
+//             limit: 10,
+//             sortOrder: 'asc',
+//         })) 
+//     }, [dispatch])
 
-   const UsersData = useMemo(() => {
-        return users.map((user, index) => ({
-            key: user.id,                
-            number: index + 1,         
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            role: user.role?.name?.[i18n.language as LangKey] || user.role?.name?.ru || 'Без роли',
-            lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
-            status: user.status,
-            action: 'Действие', 
-        }))
-    }, [users]);
+//    const UsersData = useMemo(() => {
+//         return users.map((user, index) => ({
+//             key: user.id,                
+//             number: index + 1,         
+//             firstName: user.firstName,
+//             lastName: user.lastName,
+//             email: user.email,
+//             role: user.role?.name?.[i18n.language as LangKey] || user.role?.name?.ru || 'Без роли',
+//             lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
+//             status: user.status,
+//             action: 'Действие', 
+//         }))
+//     }, [users]);
 
-    const [modalState, setModalState] = useState<{
-        addUser: boolean;
-        editUser: boolean;
-        retrieveUser: boolean;
-        deleteUser: boolean;
-        userData: UserResponse | null; 
-      }>({
-        addUser: false,
-        editUser: false,
-        retrieveUser: false,
-        deleteUser: false,
-        userData: null, 
-      });
+//     const [modalState, setModalState] = useState<{
+//         addUser: boolean;
+//         editUser: boolean;
+//         retrieveUser: boolean;
+//         deleteUser: boolean;
+//         userData: UserResponse | null; 
+//       }>({
+//         addUser: false,
+//         editUser: false,
+//         retrieveUser: false,
+//         deleteUser: false,
+//         userData: null, 
+//       });
 
-    const handleModal = (modalName: string, value: boolean) => {
-        setModalState((prev) => ({...prev, [modalName] : value}));
-    }
+//     const handleModal = (modalName: string, value: boolean) => {
+//         setModalState((prev) => ({...prev, [modalName] : value}));
+//     }
 
-    const handleRegisterUser = async (values: AddUserForm) => {
-        try {
-            const newFormData = {...values,   language: "ru" as Language, }
-            const resultAction = await dispatch(registerUser(newFormData));
+//     const handleRegisterUser = async (values: AddUserForm) => {
+//         try {
+//             const newFormData = {...values,   language: "ru" as Language, }
+//             const resultAction = await dispatch(registerUser(newFormData));
         
-            if (registerUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.createUser'));
-                setTimeout(() => {
-                    handleModal('addUser', false);
-                    window.location.reload(); 
-                }, 1000); 
-            } else {
-                toast.error(t('users.messages.error.createUser'));
-            }
-        } catch (err) {
-            toast.error((err as string) || t('users.messages.error.createUser'));
-        }
-    };
+//             if (registerUser.fulfilled.match(resultAction)) {
+//                 toast.success(t('users.messages.success.createUser'));
+//                 setTimeout(() => {
+//                     handleModal('addUser', false);
+//                     window.location.reload(); 
+//                 }, 1000); 
+//             } else {
+//                 toast.error(t('users.messages.error.createUser'));
+//             }
+//         } catch (err) {
+//             toast.error((err as string) || t('users.messages.error.createUser'));
+//         }
+//     };
 
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+//     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-     const handleRowClick = (type: 'User', action: 'retrieve' | 'edit' | 'delete', record: UserTableDataType) => {
-        console.log(`Clicked on ${type}, action: ${action}, record:`, record);
-        if (type === 'User'){
-            const user = users.find((user) => user.id === record.key) ?? null
-            setSelectedUserId(record.key);
+//      const handleRowClick = (type: 'User', action: 'retrieve' | 'edit' | 'delete', record: UserTableDataType) => {
+//         console.log(`Clicked on ${type}, action: ${action}, record:`, record);
+//         if (type === 'User'){
+//             const user = users.find((user) => user.id === record.key) ?? null
+//             setSelectedUserId(record.key);
 
-            setModalState((prev) => ({
-                ...prev,
-                [`${action}${type}`]: true,
-                userData: user
-            }));
-        }
-    };
+//             setModalState((prev) => ({
+//                 ...prev,
+//                 [`${action}${type}`]: true,
+//                 userData: user
+//             }));
+//         }
+//     };
 
-    useEffect(() => {
-        if (selectedUserId){
-            dispatch(getUserById({id: selectedUserId}))
-        }
-    }, [dispatch, selectedUserId])
+//     useEffect(() => {
+//         if (selectedUserId){
+//             dispatch(getUserById({id: selectedUserId}))
+//         }
+//     }, [dispatch, selectedUserId])
 
-    const handleEditUser = (record: UserTableDataType) => {
-        const user = users.find((u) => u.id === record.key) ?? null;
-        if (user) {
-            setSelectedUserId(user.id);
-            setModalState((prev) => ({
-            ...prev,
-            editUser: true,
-            userData: user
-            }));
-        }
-    };
+//     const handleEditUser = (record: UserTableDataType) => {
+//         const user = users.find((u) => u.id === record.key) ?? null;
+//         if (user) {
+//             setSelectedUserId(user.id);
+//             setModalState((prev) => ({
+//             ...prev,
+//             editUser: true,
+//             userData: user
+//             }));
+//         }
+//     };
 
 
-    const handleUpdateUser = async (values: any) => {
-        if (!selectedUserId) return;
+//     const handleUpdateUser = async (values: any) => {
+//         if (!selectedUserId) return;
 
-        try {
-            const resultAction = await dispatch(
-             updateUser({ id: selectedUserId, data: values })
-            );
+//         try {
+//             const resultAction = await dispatch(
+//              updateUser({ id: selectedUserId, data: values })
+//             );
 
-            if (updateUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.updateUser'));
-                handleModal("editUser", false);
+//             if (updateUser.fulfilled.match(resultAction)) {
+//                 toast.success(t('users.messages.success.updateUser'));
+//                 handleModal("editUser", false);
 
-                await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
-                await dispatch(getUserById({ id: selectedUserId }));
-                } else {
-                toast.error(t('users.messages.error.updateUser'));
-            }
-        } catch (err) {
-            toast.error((err as string) || t('users.messages.error.updateUser'));
-        }
-    };
+//                 await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
+//                 await dispatch(getUserById({ id: selectedUserId }));
+//                 } else {
+//                 toast.error(t('users.messages.error.updateUser'));
+//             }
+//         } catch (err) {
+//             toast.error((err as string) || t('users.messages.error.updateUser'));
+//         }
+//     };
 
-    const handleDeleteUser = (record: UserTableDataType) => {
-    const user = users.find((u) => u.id === record.key) ?? null;
-        if (user) {
-            setSelectedUserId(user.id);
-            setModalState((prev) => ({
-            ...prev,
-            deleteUser: true,
-            userData: user,
-            }));
-        }
-    };
+//     const handleDeleteUser = (record: UserTableDataType) => {
+//     const user = users.find((u) => u.id === record.key) ?? null;
+//         if (user) {
+//             setSelectedUserId(user.id);
+//             setModalState((prev) => ({
+//             ...prev,
+//             deleteUser: true,
+//             userData: user,
+//             }));
+//         }
+//     };
 
-    const confirmDeleteUser = async () => {
-        if (!modalState.userData) return;
+//     const confirmDeleteUser = async () => {
+//         if (!modalState.userData) return;
 
-        try {
-            const resultAction = await dispatch(
-            deleteUser({ id: modalState.userData.id })
-            );
+//         try {
+//             const resultAction = await dispatch(
+//             deleteUser({ id: modalState.userData.id })
+//             );
 
-            if (deleteUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.deleteUser'));
-                handleModal("deleteUser", false);
+//             if (deleteUser.fulfilled.match(resultAction)) {
+//                 toast.success(t('users.messages.success.deleteUser'));
+//                 handleModal("deleteUser", false);
 
-                await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: "asc" }));
-            } else {
-                toast.error(t('users.messages.error.deleteUser'));
-            }
-        } catch (err) {
-            toast.error((err as string) || t('users.messages.error.deleteUser'));
-        }
-    };
+//                 await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: "asc" }));
+//             } else {
+//                 toast.error(t('users.messages.error.deleteUser'));
+//             }
+//         } catch (err) {
+//             toast.error((err as string) || t('users.messages.error.deleteUser'));
+//         }
+//     };
 
-    const roleOption = [
-        { value: "superadmin", label: t('users.userRole.superadmin') },
-        { value: "admin", label: t('users.userRole.admin') },
-        { value: "operator", label: t('users.userRole.operator') },
-    ];
+//     const roleOption = [
+//         { value: "superadmin", label: t('users.userRole.superadmin') },
+//         { value: "admin", label: t('users.userRole.admin') },
+//         { value: "operator", label: t('users.userRole.operator') },
+//     ];
 
-    const statusOption = [
-        { value: "active", label: t('users.status.active') },
-        { value: "inactive", label: t('users.status.inactive') },
-    ]
+//     const statusOption = [
+//         { value: "active", label: t('users.status.active') },
+//         { value: "inactive", label: t('users.status.inactive') },
+//     ]
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.trim().length > 0) {
-            dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
-        } else {
-            dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
-        }
-    };
+//     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//         const value = e.target.value;
+//         if (value.trim().length > 0) {
+//             dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
+//         } else {
+//             dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
+//         }
+//     };
 
   return (
     <MainLayout>
-        <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount='100'>
-            <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton>
+        <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount='100'>
+            {/* <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton> */}
         </Heading>
         <div className="box">
             <div className="box-container">
@@ -223,7 +223,7 @@ const Users = () => {
                     <div className="box-container-items-item">
                         <div className="box-container-items-item-filters">
                                <div className="form-inputs">
-                                    <Form.Item name="searchExpert" className="input">
+                                    {/* <Form.Item name="searchExpert" className="input">
                                         <Input
                                             size="large"
                                             className="input"
@@ -232,7 +232,7 @@ const Users = () => {
                                             allowClear
                                             onChange={handleSearchChange}
                                         />
-                                    </Form.Item>
+                                    </Form.Item> */}
                                 </div>
                                 {/* <div className="form-inputs">
                                     <Form.Item
@@ -251,16 +251,16 @@ const Users = () => {
                         </div>
                     </div>
                 </div>
-                <div className="box-container-items">
+                {/* <div className="box-container-items">
                     <ComponentTable<UserTableDataType> 
-                        columns={UsersTableColumns(t, handleEditUser, handleDeleteUser)}
+                        columns={UsersTableColumns(handleEditUser, handleDeleteUser)}
                         data={UsersData}
                         onRowClick={(record) => handleRowClick('User', 'retrieve', record)}
                     />
-                </div>
+                </div> */}
             </div>
         </div>
-        <ModalWindow titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
+        {/* <ModalWindow titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
             <FormComponent onFinish={handleRegisterUser}>
                 <div className="form-inputs">
                     <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')} >
@@ -386,10 +386,10 @@ const Users = () => {
                     </CustomButton>
                 </div>
             </div>
-        </ModalWindow>
+        </ModalWindow> */}
 
     </MainLayout>
   )
 }
 
-export default Users
+export default Products

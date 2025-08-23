@@ -1,52 +1,45 @@
 import { type TableProps, Dropdown, Menu, Button } from 'antd';
-import type { UserTableDataType } from './types';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import CustomButton from '../../components/button';
+import type { OrganizationTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
-export const UsersTableColumns = (t: TFunction, onEdit: (record: UserTableDataType) => void,
-  onDelete: (record: UserTableDataType) => void): TableProps<UserTableDataType>["columns"] => [
-  {
+export const OrganizationsTableColumns = (t: TFunction, onEdit: (record: OrganizationTableDataType) => void, onDelete: (record: OrganizationTableDataType) => void) : TableProps<OrganizationTableDataType>["columns"] => [
+  { 
     title: '№',
     dataIndex: "number",
     key: "number",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
-    title: t('users.addUserForm.label.email'),
-    dataIndex: "email",
-    key: "email",
+    title: t('organizations.addUserForm.label.displayName'),
+    dataIndex: "displayName",
+    key: "displayName",
     render: (text) => <p className="table-text">{text}</p>
   },
   {
-    title: t('users.addUserForm.label.firstName'),
-    dataIndex: "firstName",
-    key: "firstName",
+    title: t('organizations.addUserForm.label.director'),
+    dataIndex: "director",
+    key: "director",
     render: (text) => <p className="table-text">{text}</p>
   },
   {
-    title: t('users.addUserForm.label.lastName'),
-    dataIndex: "lastName",
-    key: "lastName",
+    title: t('organizations.addUserForm.label.legalName'),
+    dataIndex: "legalName",
+    key: "legalName",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
-    title: t('users.addUserForm.label.role'),
-    dataIndex: "role",
-    key: "role",
+    title: t('organizations.addUserForm.label.phone'),
+    dataIndex: "contacts",
+    key: "contacts",
     render: (text) => <p className="table-text">{text}</p>
-  },
-  {
-    title: t('users.addUserForm.label.lastLoggedInAt'),
-    dataIndex: "lastLoggedInAt",
-    key: "lastLoggedInAt",
-    render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: t('organizations.status'),
     dataIndex: "status",
     key: "status",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <p className="table-text">{text}</p>,
   },
    {
     title: '',
@@ -64,7 +57,7 @@ export const UsersTableColumns = (t: TFunction, onEdit: (record: UserTableDataTy
                     className="outline"
                     onClick={(e) =>  {e.stopPropagation(); onEdit(record)}}
                   >
-                    {t('btn.edit')}
+                   {t('btn.edit')}
                   </CustomButton>
                 ),
               },

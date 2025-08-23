@@ -33,7 +33,6 @@ export type LoginResponse = {
   error?: ErrorDto;
 };
 
-
 export type UsersState = {
     user: UserResponse | null;
     userById: UserResponse | null;
@@ -52,10 +51,10 @@ export type UsersState = {
 };
 
 export type  AddUserForm = {
-   firstName: string
-    lastName: string,
-    phone: string,
-    email: string,
-    role: string,
-    password: string,
+  firstName: string
+  lastName: string,
+  phone: string,
+  email: string,
+  role: string,
+  password: string,
 }
