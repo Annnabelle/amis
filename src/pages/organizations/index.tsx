@@ -1,4 +1,4 @@
-import { Form, Input, Select } from 'antd'
+import { Form, Input, Select} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { useEffect, useMemo, useState } from 'react'
@@ -9,22 +9,22 @@ import ComponentTable from '../../components/table'
 import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations, updateOrganization } from '../../store/organization'
 import { OrganizationsTableColumns } from '../../tableData/organizations'
 import type { OrganizationTableDataType } from '../../tableData/organizations/types'
-import type { CompanyResponse, CreateCompany } from '../../types/organization'
-import type { Language } from '../../dtos'
+import type { CompanyResponse, CreateCompany } from '../../types/organization'  
 import { toast } from 'react-toastify'
 import CustomButton from '../../components/button'
 import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
+import { useNavigate } from 'react-router-dom'
 
 const Organizations = () => {
-    const { t, i18n } = useTranslation();
+    const navigate = useNavigate()
+    const { t } = useTranslation();
     const dispatch = useAppDispatch()
     const organizations = useAppSelector((state) => state.organizations.organizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)
     const dataPage = useAppSelector((state) => state.organizations.page)
     const dataTotal = useAppSelector((state) => state.organizations.total)
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
-
     const [form] = Form.useForm()
 
     useEffect(() => {
@@ -73,10 +73,6 @@ const Organizations = () => {
         })) 
     }, [dispatch])
 
-    console.log('====================================');
-    console.log("organizations", organizations);
-    console.log('====================================');
-
    const OrganizationsData = useMemo(() => {
         return organizations.map((organization, index) => ({
             key: organization.id,                
@@ -113,16 +109,16 @@ const Organizations = () => {
             const resultAction = await dispatch(createOrganization(values));
         
             if (createOrganization.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.createUser')); //заменить
+                toast.success(t('organizations.messages.success.createUser')); //заменить
                 setTimeout(() => {
                     handleModal('addCompany', false);
                     window.location.reload(); 
                 }, 1000); 
             } else {
-                toast.error(t('users.messages.error.createUser')); //заменить
+                toast.error(t('organizations.messages.error.createUser')); //заменить
             }
         } catch (err) {
-            toast.error((err as string) || t('users.messages.error.createUser')); //заменить
+            toast.error((err as string) || t('organizations.messages.error.createUser')); //заменить
         }
     };
 
@@ -130,15 +126,8 @@ const Organizations = () => {
 
      const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
         console.log(`Clicked on ${type}, action: ${action}, record:`, record);
-        if (type === 'Company'){
-            const organization = organizations.find((organization) => organization.id === record.key) ?? null
-            setSelectedOrganizationId(record.key);
-
-            setModalState((prev) => ({
-                ...prev,
-                [`${action}${type}`]: true,
-                organizationData: organization
-            }));
+        if (type === "Company" && action === "retrieve") {
+            navigate(`/organization/${record.key}`); 
         }
     };
 
@@ -170,29 +159,29 @@ const Organizations = () => {
             );
 
             if (updateOrganization.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.updateUser'));
+                toast.success(t('organizations.messages.success.updateUser'));
                 handleModal("editCompany", false);
 
                 await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: 'asc' }));
                 await dispatch(getOrganizationById({ id: selectedOrganizationId }));
                 } else {
-                toast.error(t('users.messages.error.updateUser'));
+                toast.error(t('organizations.messages.error.updateUser'));
             }
         } catch (err) {
-            toast.error((err as string) || t('users.messages.error.updateUser'));
+            toast.error((err as string) || t('organizations.messages.error.updateUser'));
         }
     };
 
     const handleDeleteOrganization = (record: OrganizationTableDataType) => {
-    const organization = organizations.find((o) => o.id === record.key) ?? null;
-        if (organization) {
-            setSelectedOrganizationId(organization.id);
-            setModalState((prev) => ({
-            ...prev,
-            deleteCompany: true,
-            companyData: organization
-            }));
-        }
+        const organization = organizations.find((o) => o.id === record.key) ?? null;
+            if (organization) {
+                setSelectedOrganizationId(organization.id);
+                setModalState((prev) => ({
+                ...prev,
+                deleteCompany: true,
+                companyData: organization
+                }));
+            }
     };
 
     const confirmDeleteOrganization = async () => {
@@ -204,15 +193,15 @@ const Organizations = () => {
             );
 
             if (deleteOrganization.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.deleteUser'));
+                toast.success(t('organizations.messages.success.deleteUser'));
                 handleModal("deleteCompany", false);
 
                 await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
             } else {
-                toast.error(t('users.messages.error.deleteUser'));
+                toast.error(t('organizations.messages.error.deleteUser'));
             }
         } catch (err) {
-            toast.error((err as string) || t('users.messages.error.deleteUser'));
+            toast.error((err as string) || t('organizations.messages.error.deleteUser'));
         }
     };
 
@@ -246,7 +235,7 @@ const Organizations = () => {
                                         <Input
                                             size="large"
                                             className="input"
-                                            placeholder={t('search.byName')}
+                                            placeholder={t('search.byOrganization')}
                                             suffix={<IoSearch />}
                                             allowClear
                                             onChange={handleSearchChange}
@@ -374,115 +363,6 @@ const Organizations = () => {
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>
-        {organizationById && selectedOrganizationId && (
-            <ModalWindow titleAction={t('organizations.modalWindow.viewing')} title={t('organizations.modalWindow.organization')} openModal={modalState.retrieveCompany} closeModal={() => handleModal('retrieveCompany', false)}>
-                <FormComponent>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}  >
-                            <Select className='input' size="large" options={companyTypeOption} placeholder={organizationById.companyType} disabled/>
-                        </Form.Item>
-                        <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}>
-                            <Input className="input" size="large" placeholder={organizationById.displayName} disabled />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item className="input"  name="productGroup" label={t('organizations.addUserForm.label.productGroup')}>
-                            <Input className="input" size="large" placeholder={organizationById.productGroup} disabled />
-                        </Form.Item>
-                        <Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')}>
-                            <Input className="input" size="large" placeholder={organizationById.tin} disabled />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')}>
-                            <Input className="input" size="large" placeholder={organizationById.legalName} disabled />
-                        </Form.Item>
-                        <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')}>
-                            <Input className="input" size="large" placeholder={organizationById.director} disabled />
-                        </Form.Item>
-                    </div>
-
-                    <div className="form-divider-title">
-                        <h4 className="title">{t('organizations.subtitles.address')} </h4>
-                    </div>
-
-                    {/* AddressDto */}
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')}>
-                            <Input className="input" size="large" placeholder={organizationById.address?.region} disabled />
-                        </Form.Item>
-                        <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')}>
-                            <Input className="input" size="large" placeholder={organizationById.address?.district} disabled />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['address', 'address']} label={t('organizations.addUserForm.label.address')}>
-                            <Input className="input" size="large" placeholder={organizationById.address?.address} disabled />
-                        </Form.Item>
-                    </div>
-
-                    <div className="form-divider-title">
-                        <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
-                    </div>
-
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')}>
-                            <Input className="input" size="large" placeholder={organizationById.bankDetails?.bankName} disabled />
-                        </Form.Item>
-                        <Form.Item className="input" name={['bankDetails', 'ccea']} label={t('organizations.addUserForm.label.ccea')}>
-                            <Input className="input" size="large" placeholder={organizationById.bankDetails?.ccea} disabled />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')}>
-                            <Input className="input" size="large" placeholder={organizationById.bankDetails?.account} disabled />
-                        </Form.Item>
-                        <Form.Item className="input" name={['bankDetails', 'mfo']} label={t('organizations.addUserForm.label.mfo')}>
-                            <Input className="input" size="large" placeholder={organizationById.bankDetails?.mfo} disabled />
-                        </Form.Item>
-                    </div>
-
-                    <div className="form-divider-title">
-                        <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
-                    </div>
-
-                    {/* ContactsDto */}
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}>
-                            <Input className="input" size="large" placeholder={organizationById.contacts?.phone} disabled />
-                        </Form.Item>
-                        <Form.Item className="input" name={['contacts', 'email']} label={t('organizations.addUserForm.label.email')}>
-                            <Input className="input" size="large" placeholder={organizationById.contacts?.email}  disabled/>
-                        </Form.Item>
-                    </div>
-
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['contacts', 'url']} label={t('organizations.addUserForm.label.url')}>
-                            <Input className="input" size="large" placeholder={organizationById.contacts?.url}  disabled/>
-                        </Form.Item>
-                        <Form.Item className="input" name={['contacts', 'person']} label={t('organizations.addUserForm.label.person')}>
-                            <Input className="input" size="large" placeholder={organizationById.contacts?.person} disabled />
-                        </Form.Item>
-                    </div>
-
-                    {/* AccessCodesDto */}
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['accessCodes', 'gcpCode']} label={t('organizations.addUserForm.label.gcpCode')}>
-                            <Input className="input" size="large" placeholder={organizationById.accessCodes?.gcpCode}  disabled/>
-                        </Form.Item>
-                        <Form.Item className="input" name={['accessCodes', 'omsId']} label={t('organizations.addUserForm.label.omsId')}>
-                            <Input className="input" size="large" placeholder={organizationById.accessCodes?.omsId} disabled />
-                        </Form.Item>
-                    </div>
-
-                    <div className="form-inputs">
-                        <Form.Item className="input" name={['accessCodes', 'turonToken']} label={t('organizations.addUserForm.label.turonToken')}>
-                            <Input className="input" size="large" placeholder={organizationById.accessCodes?.turonToken} disabled />
-                        </Form.Item>
-                    </div>
-                </FormComponent>
-            </ModalWindow>
-        )}
         {organizationById && selectedOrganizationId && (
             <ModalWindow
                 titleAction={t('organizations.modalWindow.editing')}

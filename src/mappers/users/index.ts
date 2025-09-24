@@ -1,11 +1,19 @@
 import type { ErrorDto } from "../../dtos";
-import type { LoginDto, LoginResponseDto, UserResponseDto } from "../../dtos/users/login";
-import type { LoginForm, LoginResponse, UserResponse } from "../../types/users";
+import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, UserResponseDto } from "../../dtos/users/login";
+import type { ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserResponse } from "../../types/users";
 
 export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
   return {
     email: form.email.trim(),
     password: form.password,
+  };
+}
+
+export function mapChangePwdFormToChangePwdDto(form: ChangePassword): ChangePasswordDto {
+  return {
+    currentPassword: form.currentPassword,
+    newPassword: form.newPassword,
+    newPasswordConfirmation: form.newPasswordConfirmation,
   };
 }
 
@@ -16,6 +24,7 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   email: dto.email,
   phone: dto.phone,
   status: dto.status,
+  companyIds: dto.companyIds,
   role: dto.role
     ? {
         id: dto.role.id,
@@ -30,6 +39,31 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   language: dto.language,
   lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
 });
+
+
+function isSuccessChangePasswordResponseDto(
+  dto: ChangePasswordResponseDto
+): dto is Exclude<ChangePasswordResponseDto, ErrorDto> {
+  return (dto as any).success !== undefined;
+}
+
+export const mapChangePwdDtoToEntity = (
+  dto: ChangePasswordResponseDto
+): ChangePasswordResponse => {
+  if (isSuccessChangePasswordResponseDto(dto)) {
+    return {
+      success: dto.success,
+      user: mapUsersDtoToEntity(dto.user),
+      tokens: {
+        accessToken: dto.tokens.accessToken,
+        refreshToken: dto.tokens.refreshToken,
+      },
+    };
+  }
+
+  return dto;
+};
+
 
 
 function isSuccessLoginResponseDto(dto: LoginResponseDto
@@ -50,6 +84,7 @@ export function mapLoginResponseDtoToLoginResponse(
         email: dto.user.email,
         phone: dto.user.phone,
         status: dto.user.status,
+        companyIds: dto.user.companyIds,
         role: dto.user.role
           ? {
               id: dto.user.role.id,
@@ -83,6 +118,7 @@ export function mapUpdateUserDtoToEntity(dto: UserResponseDto): UserResponse {
     email: dto.email,
     phone: dto.phone,
     status: dto.status,
+    companyIds: dto.companyIds,
     role: dto.role
       ? {
           id: dto.role.id,

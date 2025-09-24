@@ -1,54 +1,51 @@
 import { type TableProps, Dropdown, Menu, Button } from 'antd';
-import type { UserTableDataType } from './types';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import CustomButton from '../../components/button';
+import type { ProductTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
-export const UsersTableColumns = (
-  t: TFunction,
-  handleRowClick: (type: "User", action: "retrieve" | "edit" | "delete", record: UserTableDataType) => void
-): TableProps<UserTableDataType>["columns"] => [
-  {
+export const ProductsTableColumns = (t: TFunction, onEdit: (record: ProductTableDataType) => void, onDelete: (record: ProductTableDataType) => void) : TableProps<ProductTableDataType>["columns"] => [
+  { 
     title: '№',
     dataIndex: "number",
     key: "number",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
-    title: t('users.addUserForm.label.email'),
-    dataIndex: "email",
-    key: "email",
+    title: t('products.addProductForm.label.name'),
+    dataIndex: "name",
+    key: "name",
     render: (text) => <p className="table-text">{text}</p>
   },
   {
-    title: t('users.addUserForm.label.firstName'),
-    dataIndex: "firstName",
-    key: "firstName",
+    title: t('products.addProductForm.label.productType'),
+    dataIndex: "productType",
+    key: "productType",
     render: (text) => <p className="table-text">{text}</p>
   },
   {
-    title: t('users.addUserForm.label.lastName'),
-    dataIndex: "lastName",
-    key: "lastName",
+    title: t('products.addProductForm.label.icps'),
+    dataIndex: "icps",
+    key: "icps",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
-    title: t('users.addUserForm.label.role'),
-    dataIndex: "role",
-    key: "role",
+    title: t('products.addProductForm.label.gtin'),
+    dataIndex: "gtin",
+    key: "gtin",
     render: (text) => <p className="table-text">{text}</p>
   },
   {
-    title: t('users.addUserForm.label.lastLoggedInAt'),
-    dataIndex: "lastLoggedInAt",
-    key: "lastLoggedInAt",
+    title: t('products.addProductForm.label.unit'),
+    dataIndex: "measurement",
+    key: "measurement",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
-    title: t('organizations.status'),
+    title: t('products.status'),
     dataIndex: "status",
     key: "status",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: '',
@@ -64,12 +61,9 @@ export const UsersTableColumns = (
                   <CustomButton
                     type="button"
                     className="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRowClick("User", "edit", record);
-                    }}
+                    onClick={(e) =>  {e.stopPropagation(); onEdit(record)}}
                   >
-                    {t('btn.edit')}
+                    {t('btn.edit')} 
                   </CustomButton>
                 ),
               },
@@ -79,12 +73,9 @@ export const UsersTableColumns = (
                   <CustomButton
                     type="button"
                     className="danger"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRowClick("User", "delete", record);
-                    }}
+                    onClick={(e) => { e.stopPropagation(); onDelete(record)}}
                   >
-                    {t('btn.delete')}
+                    {t('btn.delete')} 
                   </CustomButton>
                 ),
               },
@@ -99,4 +90,3 @@ export const UsersTableColumns = (
     ),
   },
 ];
-

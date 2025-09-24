@@ -109,3 +109,34 @@ export const CompanySortFields = Object.values(CompanySortField);
 
 export type CompanySortField = typeof CompanySortField[keyof typeof CompanySortField];
 
+
+export type MeasurementDto = {
+  unit: string;
+  amount: number;
+}
+
+export type WeightDto = {
+  net: number;
+  gross: number;
+}
+
+export const ProductStatus = {
+  Active: "active",
+  Inactive: "inactive",
+} as const;
+
+export const ProductStatuses = Object.values(ProductStatus);
+
+export type ProductStatus = typeof ProductStatus[keyof typeof ProductStatus];
+
+export const ProductSortField = {
+  Id: '_id',
+  Name: 'name',
+  Gtin: 'gtin',
+  Price: 'price',
+} as const;
+
+export const ProductSortFields = Object.values(ProductSortField);
+
+export type ProductSortField = typeof ProductSortField[keyof typeof ProductSortField];
+

@@ -35,10 +35,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           key: '/organization',
           label: <Link to="/organization">{t('navigation.organization')}</Link>,
         },
-        {
-          key: '/products',
-          label: <Link to="/products">{t('navigation.products')}</Link>,
-        },
+        // {
+        //   key: '/products',
+        //   label: <Link to="/products">{t('navigation.products')}</Link>,
+        // },
         {
           key: '/users',
           label: <Link to="/users">{t('navigation.users')}</Link>,
@@ -74,8 +74,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </Header>
       <div className='layout-content-wrapper'>
         <Layout className='layout-content'>
-          <Sider collapsible collapsed={collapsed} trigger={null} className='layout-sider'>
-            <div className='layout-sider-trigger'>
+          <Sider collapsible collapsed={collapsed} trigger={null} className={`layout-sider ${collapsed ? '' : 'sider-opened'}`}>
+            <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
               <div className="layout-sider-trigger-container">
                 <Button
                   type="text"
