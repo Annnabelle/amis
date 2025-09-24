@@ -1,8 +1,8 @@
 import type { LoginForm, UserResponse, UsersState } from "../../types/users";
-import type { DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, RegisterUserDto, UpdateUserDto, UpdateUserResponseDto, UserResponseDto } from "../../dtos/users/login";
+import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, RegisterUserDto, UpdateUserDto, UpdateUserResponseDto, UserResponseDto } from "../../dtos/users/login";
 import type { PaginatedResponseDto } from "../../dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUsersDtoToEntity } from "../../mappers/users";
+import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUsersDtoToEntity } from "../../mappers/users";
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
 
@@ -20,7 +20,8 @@ const initialState: UsersState = {
   error: null,
   status: null,
   sessionStart: null,
-  isAuthenticated: false 
+  isAuthenticated: false,
+  currentUser: null,
 };
 
 export const Login = createAsyncThunk(
@@ -74,6 +75,30 @@ export const getAllUsers = createAsyncThunk(
     }
   }
 );
+
+
+
+function isSuccessChangePasswordResponseDto(
+  res: ChangePasswordResponseDto
+): res is { success: boolean; user: UserResponseDto, tokens: { accessToken: string; refreshToken: string } } {
+  return "success" in res && res.success === true && "user" in res;
+}
+
+export const changeUserPassword = createAsyncThunk(
+  'users/changeUserPassword',
+  async ( { userId, data }: { userId: string; data: ChangePasswordDto },
+    thunkAPI) => {
+    try {
+      const response = await axiosInstance.patch<ChangePasswordResponseDto>(`${BASE_URL}/users/${userId}/change-password`, data);
+      if (isSuccessChangePasswordResponseDto(response.data)) {
+        return mapChangePwdDtoToEntity(response.data);
+      }
+      return thunkAPI.rejectWithValue("Ошибка изменения пароля");
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.message || "Ошибка сервера");
+    }
+  }
+)
 
 function isRegisterSuccessResponse(
   res: RegisterResponseDto
@@ -188,6 +213,44 @@ export const searchUsers = createAsyncThunk(
 );
 
 
+export const assignUserToCompany = createAsyncThunk(
+  "users/assignUserToCompany",
+  async (
+    { userId, companyId }: { userId: string; companyId: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axiosInstance.patch(`/users/${userId}/companies/assign`, {
+        companyId,
+      });
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Error assigning user"
+      );
+    }
+  }
+);
+
+export const unassignUserToCompany = createAsyncThunk(
+  "users/unassignUserToCompany",
+  async (
+    { userId, companyId }: { userId: string; companyId: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axiosInstance.patch(`/users/${userId}/companies/unassign `, {
+        companyId,
+      });
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Error unassign user"
+      );
+    }
+  }
+);
+
 
 
 export const usersSlice = createSlice({ 
@@ -195,12 +258,23 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      state.sessionStart = Date.now();
+      state.user = null;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.sessionStart = null;
       state.isAuthenticated = false;
+      state.currentUser = null;
+
     },
     login: (state) => {
-        state.isAuthenticated = true;
-        state.sessionStart = Date.now();
+      state.isAuthenticated = true;
+      state.sessionStart = Date.now();
+    },
+    clearUserById: (state) => {
+       state.userById = null;
+    },
+    clearUser(state) {
+      state.currentUser = null;
     },
   },
   extraReducers: (builder) => {
@@ -216,8 +290,30 @@ export const usersSlice = createSlice({
         state.accessToken = action.payload.accessToken!;
         state.refreshToken = action.payload.refreshToken!;
         state.sessionStart = Date.now();
+
+        state.currentUser = action.payload.user!;
       })
       .addCase(Login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(assignUserToCompany.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(assignUserToCompany.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(assignUserToCompany.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(unassignUserToCompany.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(unassignUserToCompany.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(unassignUserToCompany.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
@@ -263,10 +359,11 @@ export const usersSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(getUserById.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+      .addCase(getUserById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.userById = action.payload; // сохраняем юзера в state
+        state.userById = action.payload;
       })
+
       .addCase(getUserById.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -321,6 +418,21 @@ export const usersSlice = createSlice({
         state.total = total;
         state.page = page;
         state.limit = limit;
+      })
+
+      .addCase(changeUserPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(changeUserPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if ("user" in action.payload) {
+          state.userById = action.payload.user;
+        }
+      })
+      .addCase(changeUserPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
 
 
@@ -328,4 +440,5 @@ export const usersSlice = createSlice({
 });
 
 export const { logout, login } = usersSlice.actions;
+export const { clearUserById, clearUser } = usersSlice.actions;
 export default usersSlice.reducer;

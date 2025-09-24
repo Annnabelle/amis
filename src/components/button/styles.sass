@@ -2,7 +2,7 @@
 @use "../../styles/mixins.sass" as mix
 @use "../../styles/variables.sass" as vars
 .btn
-    +mix.typography(20px, 500, map.get(vars.$basic, 'white'))
+    +mix.typography(16px, 500, map.get(vars.$basic, 'white'))
     @include mix.flex-content(center)
     text-align: center
     background: map.get(vars.$main, 'main' )

@@ -12,6 +12,7 @@ export type UserResponseDto = {
   email: string,
   phone: string,
   status: string,
+  companyIds: HexString[],
   role?: {
     id: HexString,
     name: {
@@ -88,4 +89,24 @@ export type DeleteUserDto  = {
 
 export type DeleteUserResponseDto = {
   success: boolean,
+} | ErrorDto;
+
+
+export type ChangePasswordDto = {
+  currentPassword: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
+}
+
+export type ChangePasswordQueryDto = {
+  id: HexString;
+}
+
+export type ChangePasswordResponseDto = {
+  success: boolean,
+  user: UserResponseDto,
+  tokens: {
+    accessToken: string,
+    refreshToken: string,
+  }
 } | ErrorDto;

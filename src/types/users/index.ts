@@ -1,4 +1,5 @@
 import type { ErrorDto, HexString } from "../../dtos";
+import type { UserResponseDto } from "../../dtos/users/login";
 
 export type UserResponse = {
     id: HexString,
@@ -7,6 +8,7 @@ export type UserResponse = {
     email: string,
     phone: string,
     status: string,
+    companyIds: HexString[],
     role?: {
     id: HexString,
     name: {
@@ -48,6 +50,7 @@ export type UsersState = {
     total: number,
     page: number,
     limit: number,
+    currentUser: UserResponse | null,
 };
 
 export type  AddUserForm = {
@@ -58,3 +61,23 @@ export type  AddUserForm = {
   role: string,
   password: string,
 }
+
+
+export type ChangePassword= {
+  currentPassword: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
+}
+
+export type ChangePasswordQueryDto = {
+  id: HexString;
+}
+
+export type ChangePasswordResponse = {
+  success: boolean,
+  user: UserResponseDto,
+  tokens: {
+    accessToken: string,
+    refreshToken: string,
+  }
+} | ErrorDto;

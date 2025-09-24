@@ -23,7 +23,7 @@
         width: 100%
         height: calc(100% - 64px)
         overflow: hidden
-        margin: 14px
+        margin-top: 14px
         .layout-content
             width: 100%
             height: 100%
@@ -32,17 +32,14 @@
             background-color: map.get(vars.$main, 'main-bg')
             @include mix.flex-content(center, row)
             align-items: start
-            gap: 20px
+            gap: 24px
             .layout-sider
                 background-color: map.get(vars.$basic, 'white')
                 position: relative
-                padding: 24px 15px
+                padding: 12px
                 border-radius: 20px
                 box-shadow: 0 0 17px 0 #dcdcdc
-                flex: 0 0 250 !important
-                width: 250px !important
-                max-width: 250px !important
-                min-width: 250px !important
+                // flex: 0 0 250 !important
                 .layout-sider-menu
                     border: none
                     .menu-icon
@@ -56,19 +53,20 @@
                         +mix.typography(17px, 600, map.get(vars.$basic, 'black'))
                         background: transparent
                         transition: all 0.3s ease
+                        margin-top: 0
                     .ant-menu-submenu-title
                         +mix.typography(18px, 600, map.get(vars.$main, 'main'))
                         padding-left: 8px !important
                         &:hover
                             color: map.get(vars.$main, 'main')
                     .ant-menu-item
-                        +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+                        +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
                         padding-left: 8px !important
                         &:hover
                             color: map.get(vars.$main, 'main') !important
                     .ant-menu-item-selected
                         background-color: map.get(vars.$main, 'main-light') !important
-                        +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+                        +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
                         padding-left: 8px !important
                         border-radius: 8px
                         .ant-menu-title-content
@@ -86,6 +84,16 @@
                             width: 100%
                             font-size: 28px
                             @include mix.flex-content(center, row)
+                .triggered
+                    @include mix.flex-content(center, row)
+                    width: 48px
+            .sider-opened
+                // flex: 0 0 250 !important
+                width: 250px !important
+                flex: 0 0 250px !important
+                transition: all 0.3s ease
+                max-width: 250px !important
+                min-width: 250px !important
             &-container
                 @include mix.flex-content(center, column)
                 row-gap: 24px
@@ -93,7 +101,7 @@
                     background-color: map.get(vars.$basic, 'white')
                     position: relative
                     padding: 24px
-                    margin-right: 24px
+                    // margin-right: 24px
                     border-radius: 20px
                     box-shadow: 0 0 17px 0 #dcdcdc
                     width: 100%
@@ -101,7 +109,7 @@
                     background-color: map.get(vars.$basic, 'white')
                     position: relative
                     padding: 24px
-                    margin-right: 24px
+                    // margin-right: 24px
                     border-radius: 20px
                     box-shadow: 0 0 17px 0 #dcdcdc
                     width: 100%
@@ -116,3 +124,12 @@
                                 &-filters
                                     @include mix.flex-content(flex-start, row)
                                     column-gap: 20px
+.ant-dropdown-placement-bottomRight
+    z-index: 1 !important
+
+.ant-tag
+    border-radius: 6px
+    border: 1px solid map.get(vars.$main, 'main')
+    +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
+    padding: 4px 8px
+    background-color: transparent

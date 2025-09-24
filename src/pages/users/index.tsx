@@ -1,11 +1,11 @@
-import { Form, Input, Select } from 'antd'
+import { Form, Input, Select, Spin, Tag } from 'antd'
 import { UsersTableColumns } from '../../tableData/users'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers, updateUser } from '../../store/users'
+import { assignUserToCompany, deleteUser, getAllUsers, getUserById, registerUser, searchUsers, unassignUserToCompany, updateUser } from '../../store/users'
 import type { UserTableDataType } from '../../tableData/users/types'
 import type { AddUserForm, UserResponse } from '../../types/users'
 import type { Language } from '../../dtos'
@@ -18,40 +18,103 @@ import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
 import PhoneInput from '../../components/phoneInput'
 import type { LangKey } from '../../utils/consts'
+import { getAllOrganizations, searchOrganizations } from '../../store/organization'
+import { useNavigate } from 'react-router-dom'
 
 const Users = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
+    const navigate = useNavigate();
     const users = useAppSelector((state) => state.users.users)
     const dataLimit = useAppSelector((state) => state.users.limit)
     const dataPage = useAppSelector((state) => state.users.page)
     const dataTotal = useAppSelector((state) => state.users.total)
     const userById = useAppSelector((state) => state.users.userById)
+    // const [searchValue, setSearchValue] = useState("");
+    const organizations = useAppSelector((state) => state.organizations.organizations);
+    // const isLoadingOrganizations = useAppSelector((state) => state.organizations.isLoading);
+    // const [assignedOrganizations, setAssignedOrganizations] = useState<any[]>([]);
+    // const [isLoading, setIsLoading] = useState(false);
 
     const [form] = Form.useForm()
 
-    useEffect(() => {
-        if (userById) {
-            form.setFieldsValue({
-            firstName: userById.firstName,
-            lastName: userById.lastName,
-            phone: userById.phone,
-            email: userById.email,
-            role: userById.role?.alias,
-            status: userById.status,
-            })
-        }
-    }, [userById, form])
+    // const handleAssignOrganization = async (companyId: string) => {
+    //     if (!selectedUserId) return;
+    //     setIsLoading(true);
+    //     try {
+    //         const resultAction = await dispatch(
+    //         assignUserToCompany({ userId: selectedUserId, companyId })
+    //         );
+
+    //         if (assignUserToCompany.fulfilled.match(resultAction)) {
+    //         const org = organizations.find((o) => o.id === companyId);
+
+    //         setAssignedOrganizations((prev) => [
+    //             ...prev,
+    //             {
+    //             ...resultAction.payload,
+    //             displayName: org?.displayName || resultAction.payload.displayName,
+    //             },
+    //         ]);
+
+    //         toast.success(t("organizations.messages.success.assignOrganization"));
+    //         }
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+
+    // const handleUnAssignOrganization = async (companyId: string) => {
+    //     if (!selectedUserId) return;
+    //     try {
+    //         const resultAction = await dispatch(
+    //             unassignUserToCompany({ userId: selectedUserId, companyId })
+    //         );
+    //         if (unassignUserToCompany.fulfilled.match(resultAction)) {
+    //             setAssignedOrganizations((prev) =>
+    //                 prev.filter((org) => org.id !== companyId)
+    //             );
+    //             toast.success(t("organizations.messages.success.unassignOrganization"));
+    //         }
+    //     } catch {
+    //         toast.error(t("organizations.messages.error.unassignOrganization"));
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     if (userById && organizations.length > 0) {
+    //         const assigned = organizations.filter((org) =>
+    //         userById.companyIds?.includes(org.id)
+    //         );
+    //         setAssignedOrganizations(assigned);
+    //     }
+    // }, [userById, organizations]);
+
+
+
+    // useEffect(() => {
+    //     if (userById) {
+    //         form.setFieldsValue({
+    //         firstName: userById.firstName,
+    //         lastName: userById.lastName,
+    //         phone: userById.phone,
+    //         email: userById.email,
+    //         role: userById.role?.alias,
+    //         status: userById.status,
+    //         })
+    //     }
+    // }, [userById, form])
 
     useEffect(() => {
         dispatch(getAllUsers({
-            page: 1,
-            limit: 10,
+            page: dataPage || 1,
+            limit: dataLimit || 10,
             sortOrder: 'asc',
-        })) 
-    }, [dispatch])
+        }));
+    }, [dispatch, dataPage, dataLimit]);
 
-   const UsersData = useMemo(() => {
+    const UsersData = useMemo(() => {
         return users.map((user, index) => ({
             key: user.id,                
             number: index + 1,         
@@ -104,63 +167,87 @@ const Users = () => {
 
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-     const handleRowClick = (type: 'User', action: 'retrieve' | 'edit' | 'delete', record: UserTableDataType) => {
-        console.log(`Clicked on ${type}, action: ${action}, record:`, record);
-        if (type === 'User'){
-            const user = users.find((user) => user.id === record.key) ?? null
+    const handleRowClick = (
+        type: "User",
+        action: "retrieve" | "edit" | "delete",
+        record: UserTableDataType
+        ) => {
+        if (type === "User") {
+            const user = users.find((user) => user.id === record.key) ?? null;
             setSelectedUserId(record.key);
 
             setModalState((prev) => ({
-                ...prev,
-                [`${action}${type}`]: true,
-                userData: user
+            ...prev,
+            [`${action}${type}`]: true,
+            userData: user,
             }));
+
+            if (record.key) {
+                dispatch(getUserById({ id: record.key }));
+
+                dispatch(getAllOrganizations({ page: 1, limit: 1000, sortOrder: "asc" }));
+            }
+            if (action === "retrieve") {
+                navigate(`/users/${record.key}`);
+            }
+                if (action === "edit") {
+                navigate(`/users/${record.key}/edit`);
+            }
+                if (action === "delete") {
+                handleDeleteUser(record);
+            }
         }
     };
+
+
+    // useEffect(() => {
+    //     if (selectedUserId){
+    //         dispatch(getUserById({id: selectedUserId}))
+    //     }
+    // }, [dispatch, selectedUserId])
+
+    // const handleEditUser = (record: UserTableDataType) => {
+    //     const user = users.find((u) => u.id === record.key) ?? null;
+    //     if (user) {
+    //         setSelectedUserId(user.id);
+    //         setModalState((prev) => ({
+    //         ...prev,
+    //         editUser: true,
+    //         userData: user
+    //         }));
+    //     }
+    // };
 
     useEffect(() => {
-        if (selectedUserId){
-            dispatch(getUserById({id: selectedUserId}))
+        if (modalState.editUser || modalState.retrieveUser) {
+            dispatch(getAllOrganizations({ page: 1, limit: 1000, sortOrder: "asc" }));
         }
-    }, [dispatch, selectedUserId])
+    }, [modalState.editUser, modalState.retrieveUser, dispatch]);
 
-    const handleEditUser = (record: UserTableDataType) => {
-        const user = users.find((u) => u.id === record.key) ?? null;
-        if (user) {
-            setSelectedUserId(user.id);
-            setModalState((prev) => ({
-            ...prev,
-            editUser: true,
-            userData: user
-            }));
-        }
-    };
+    // const handleUpdateUser = async (values: any) => {
+    //     if (!selectedUserId) return;
 
+    //     try {
+    //         const resultAction = await dispatch(
+    //          updateUser({ id: selectedUserId, data: values })
+    //         );
 
-    const handleUpdateUser = async (values: any) => {
-        if (!selectedUserId) return;
+    //         if (updateUser.fulfilled.match(resultAction)) {
+    //             toast.success(t('users.messages.success.updateUser'));
+    //             handleModal("editUser", false);
 
-        try {
-            const resultAction = await dispatch(
-             updateUser({ id: selectedUserId, data: values })
-            );
-
-            if (updateUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.updateUser'));
-                handleModal("editUser", false);
-
-                await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
-                await dispatch(getUserById({ id: selectedUserId }));
-                } else {
-                toast.error(t('users.messages.error.updateUser'));
-            }
-        } catch (err) {
-            toast.error((err as string) || t('users.messages.error.updateUser'));
-        }
-    };
+    //             await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
+    //             await dispatch(getUserById({ id: selectedUserId }));
+    //             } else {
+    //             toast.error(t('users.messages.error.updateUser'));
+    //         }
+    //     } catch (err) {
+    //         toast.error((err as string) || t('users.messages.error.updateUser'));
+    //     }
+    // };
 
     const handleDeleteUser = (record: UserTableDataType) => {
-    const user = users.find((u) => u.id === record.key) ?? null;
+        const user = users.find((u) => u.id === record.key) ?? null;
         if (user) {
             setSelectedUserId(user.id);
             setModalState((prev) => ({
@@ -198,10 +285,10 @@ const Users = () => {
         { value: "operator", label: t('users.userRole.operator') },
     ];
 
-    const statusOption = [
-        { value: "active", label: t('users.status.active') },
-        { value: "inactive", label: t('users.status.inactive') },
-    ]
+    // const statusOption = [
+    //     { value: "active", label: t('users.status.active') },
+    //     { value: "inactive", label: t('users.status.inactive') },
+    // ]
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -210,6 +297,15 @@ const Users = () => {
         } else {
             dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
         }
+    };
+
+
+    const handleTableChange = (pagination: any) => {
+        dispatch(getAllUsers({
+            page: pagination.current,
+            limit: pagination.pageSize,
+            sortOrder: 'asc',
+        }));
     };
 
   return (
@@ -222,40 +318,34 @@ const Users = () => {
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         <div className="box-container-items-item-filters">
-                               <div className="form-inputs">
-                                    <Form.Item name="searchExpert" className="input">
-                                        <Input
-                                            size="large"
-                                            className="input"
-                                            placeholder={t('search.byName')}
-                                            suffix={<IoSearch />}
-                                            allowClear
-                                            onChange={handleSearchChange}
-                                        />
-                                    </Form.Item>
-                                </div>
-                                {/* <div className="form-inputs">
-                                    <Form.Item
+                            <div className="form-inputs">
+                                <Form.Item name="searchExpert" className="input">
+                                    <Input
+                                        size="large"
                                         className="input"
-                                        name="searchExpert"
-                                    >
-                                        <Select
-                                            size="large"
-                                            className='input'
-                                            placeholder='Выберите роль'
-                                            options={chooseRole}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </div> */}
+                                        placeholder={t('search.byName')}
+                                        suffix={<IoSearch />}
+                                        allowClear
+                                        onChange={handleSearchChange}
+                                    />
+                                </Form.Item>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className="box-container-items">
-                    <ComponentTable<UserTableDataType> 
-                        columns={UsersTableColumns(t, handleEditUser, handleDeleteUser)}
+                    <ComponentTable<UserTableDataType>
+                        columns={UsersTableColumns(t, handleRowClick)}
                         data={UsersData}
-                        onRowClick={(record) => handleRowClick('User', 'retrieve', record)}
+                        onRowClick={(record) => handleRowClick("User", "retrieve", record)}
+                        pagination={{
+                            current: dataPage || 1,
+                            pageSize: dataLimit || 10,
+                            total: dataTotal || 0,
+                            onChange: (newPage, newLimit) => {
+                            dispatch(getAllUsers({ page: newPage, limit: newLimit, sortOrder: "asc" }));
+                            },
+                        }}
                     />
                 </div>
             </div>
@@ -294,38 +384,7 @@ const Users = () => {
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>
-        {userById && selectedUserId && (
-            <ModalWindow titleAction={t('users.modalWindow.viewing')} title={t('users.modalWindow.user')} openModal={modalState.retrieveUser} closeModal={() => handleModal('retrieveUser', false)}>
-                <FormComponent>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')}>
-                            <Input className="input" size='large' placeholder={userById.firstName} disabled/>
-                        </Form.Item>
-                        <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')}>
-                            <Input className="input" size='large' placeholder={userById.lastName} disabled />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item
-                            className="input"
-                            name="phone"
-                            label={t('users.addUserForm.label.phone')}
-                        >
-                            <Input className="input" size='large' placeholder={userById.phone} disabled />
-                        </Form.Item>
-                        <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')}>
-                            <Input className="input" size='large' placeholder={userById.email} disabled />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name="role" label={t('users.addUserForm.label.role')} >
-                            <Select className='input' size="large" options={roleOption} placeholder={userById.role?.name.ru} disabled/>
-                        </Form.Item>
-                    </div>
-                </FormComponent>
-            </ModalWindow>
-        )}
-        {userById && selectedUserId && (
+        {/* {userById && selectedUserId && (
             <ModalWindow
                 titleAction={t('users.modalWindow.editing')}
                 title={t('users.modalWindow.user')}
@@ -359,10 +418,64 @@ const Users = () => {
                             <Select className='input' size="large" defaultValue={userById.status} options={statusOption}/>
                         </Form.Item>
                     </div>
+                    <div className="form-inputs">
+                        <Form.Item
+                            className="input"
+                            label={t("organizations.assignToCompany")}
+                        >
+                            <Select
+                                showSearch
+                                className="input"
+                                size="large"
+                                value={searchValue || undefined}
+                                placeholder={t("search.byOrganization")}
+                                suffixIcon={<IoSearch />}
+                                filterOption={false}
+                                onSearch={(value) => {
+                                    setSearchValue(value);
+                                    if (value.trim()) {
+                                    dispatch(
+                                        searchOrganizations({ query: value, page: 1, limit: 10, sortOrder: "asc" })
+                                    );
+                                    } else {
+                                    dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
+                                    }
+                                }}
+                                onSelect={(companyId) => {
+                                    handleAssignOrganization(companyId);
+                                    setSearchValue("");
+                                }}
+                                notFoundContent={isLoadingOrganizations ? <Spin size="small" /> : t("search.noResults")}
+                                options={organizations
+                                    .filter((org) => !assignedOrganizations.some((a) => a.id === org.id))
+                                    .map((org) => ({
+                                    value: org.id,
+                                    label: org.displayName,
+                                    }))}
+                                >
+                                </Select>
+                        </Form.Item>
+                        <div>
+                            {isLoadingOrganizations ? (
+                                <Spin />
+                            ) : (
+                                assignedOrganizations.map((organization) => (
+                                    <Tag
+                                        key={organization.id}
+                                        closable
+                                        onClose={() => handleUnAssignOrganization(organization.id)}
+                                        color="blue"
+                                    >
+                                        {organization.displayName || <Spin size="small" />}
+                                    </Tag>
+                                ))
+                            )}
+                        </div>
+                    </div>
                     <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 </FormComponent>
             </ModalWindow>
-        )}
+        )} */}
         <ModalWindow
             titleAction={t('users.modalWindow.deletion')}
             title={t('users.modalWindow.user')}

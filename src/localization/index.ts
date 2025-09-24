@@ -3,15 +3,18 @@ import { PiPlaceholder } from "react-icons/pi";
 export const resources = {
     en:{
         translation:{
+            sessionEndsIn: 'Session ends in',
             search: {
-                byName: 'Search by name'
+                byName: 'Search by name',
+                byOrganization: 'Search by organization'
             },
             btn: {
                 create: 'Create',
                 edit: 'Edit',
                 delete: 'Delete',
                 cancel: 'Cancel',
-                save: 'Save'
+                save: 'Save',
+                back: 'Back'
             },
             navigation: {
                 products: "Products",
@@ -32,6 +35,8 @@ export const resources = {
                 title: "Users",
                 subtitle: 'Total',
                 btnAdd: 'Add user',
+                logOut: "Log out",
+                companies: "User's companies",
                 deleteUserQuestion: 'Are you sure you want to delete the user',
                 messages: {
                     success: {
@@ -81,17 +86,21 @@ export const resources = {
                 subtitle: "Total",
                 btnAdd: "Add organization",
                 status: 'Status',
+                assignToCompany: 'Assign to company',
                 deleteUserQuestion: "Are you sure you want to delete the organization",
                 messages: {
                     success: {
                         createUser: "Organization successfully created",
                         updateUser: "Organization successfully updated",
-                        deleteUser: "Organization successfully deleted"
+                        deleteUser: "Organization successfully deleted",
+                        assignOrganization: 'User successfully assigned to company',
+                        unassignOrganization: 'User successfully unassigned from company'
                     },
                     error: {
                         createUser: "Error while creating organization",
                         updateUser: "Error while updating organization",
-                        deleteUser: "Error while deleting organization"
+                        deleteUser: "Error while deleting organization",
+                        unassignOrganization: 'Error while unassigning user from company'
                     },
                 },
                 addUserForm: {
@@ -153,6 +162,72 @@ export const resources = {
                     adding: "Adding",
                 }
             },
+            products: {
+                companyTypeOption: {
+                    type1: "type1",
+                    inactive: "Inactive",
+                },
+                title: "Products",
+                subtitle: "Total",
+                btnAdd: "Add product",
+                status: "Status",
+                deleteUserQuestion: "Are you sure you want to delete the product?",
+                messages: {
+                    success: {
+                        createUser: "Product successfully created",
+                        updateUser: "Product successfully updated",
+                        deleteUser: "Product successfully deleted"
+                    },
+                    error: {
+                        createUser: "Error while creating product",
+                        updateUser: "Error while updating product",
+                        deleteUser: "Error while deleting product"
+                    },
+                },
+                addProductForm: {
+                    label: {
+                        name: "Name",
+                        shortName: "Short name",
+                        description: "Description",
+                        gtin: "GTIN",
+                        barcode: "Barcode",
+                        icps: "ICPS",
+                        productType: "Product type",
+                        aggregationQuantity: "Aggregation quantity",
+                        expiration: "Expiration date",
+                        unit: "Unit of measurement",
+                        amount: "Amount",
+                        net: "Net weight",
+                        gross: "Gross weight",
+                        price: "Price",
+                        companyId: "Company ID",
+                    },
+                    placeholder: {
+                        name: "Enter name",
+                        shortName: "Enter short name",
+                        description: "Enter description",
+                        gtin: "Enter GTIN",
+                        barcode: "Enter barcode",
+                        icps: "Enter ICPS",
+                        productType: "Enter product type",
+                        aggregationQuantity: "Enter aggregation quantity",
+                        expiration: "Enter expiration date",
+                        unit: "Enter unit of measurement",
+                        amount: "Enter amount",
+                        net: "Enter net weight",
+                        gross: "Enter gross weight",
+                        price: "Enter price",
+                        companyId: "Enter company ID",
+                    }
+                },
+                modalWindow: {
+                    deletion: "Deletion",
+                    product: "product",
+                    editing: "Editing",
+                    viewing: "Viewing",
+                    adding: "Adding",
+                }
+            },
             login: {
                 messages:{
                     successLogin: 'Successful login',
@@ -165,22 +240,45 @@ export const resources = {
                 enterUserName: 'Enter username',
                 username: 'Username',
             },
-            products: {
-                title: 'Products'
-            },
+            changePwd: {
+                title: 'Change Password',
+                confirmModal: {
+                    title: 'Are you sure you want to change the password?',
+                    subtitle: 'After changing the password, you will be automatically logged out',
+                    btn: {
+                        confirm: 'Confirm',
+                        cancel: 'Cancel',
+                    },
+                },
+                changePasswordForm: {
+                    label: {
+                        currentPassword: 'Current password',
+                        newPassword: 'New password',
+                        newPasswordConfirmation: 'New password confirmation',
+                    },
+                    placeholder: {
+                        currentPassword: 'Enter current password',
+                        newPassword: 'Enter new password',
+                        newPasswordConfirmation: 'Confirm new password',
+                    }
+                }
+            }
         }
     },
     ru:{
         translation:{
+            sessionEndsIn: 'Окончание сессии через',
             search: {
-                byName: 'Поиск по имени'
+                byName: 'Поиск по имени',
+                byOrganization: 'Поиск по организациям'
             },
             btn: {
                 create: 'Создать',
                 edit: 'Редактировать',
                 delete: 'Удалить',
                 cancel: 'Отмена',
-                save: 'Сохранить'
+                save: 'Сохранить',
+                back: 'Назад'
             },
             navigation: {
                 products: "Продукция",
@@ -200,7 +298,9 @@ export const resources = {
                 },
                 title: "Пользователи",
                 subtitle: 'Всего',
+                logOut: "Выйти",
                 btnAdd: 'Добавить пользователя',
+                companies: 'Компании пользователя',
                 deleteUserQuestion: 'Вы уверены, что хотите удалить пользователя',
                 messages: {
                     success: {
@@ -250,18 +350,23 @@ export const resources = {
                 subtitle: 'Всего',
                 btnAdd: 'Добавить организацию',
                 status: 'Статус',
+                assignToCompany: 'Назначить на компанию',
                 deleteUserQuestion: 'Вы уверены, что хотите удалить организацию',
                 messages: {
                     success: {
                         createUser: "Организация успешно создан",
                         updateUser: "Организация успешно обновлён",
-                        deleteUser: "Организация успешно удалён"
+                        deleteUser: "Организация успешно удалён",
+                        assignOrganization: 'Пользователь успешно назначен на компанию',
+                        unassignOrganization: 'Пользователь успешно отвязан от компании'
                     },
                     error: {
                         createUser: "Ошибка при создании организации",
                         updateUser: "Ошибка при обновлении организации",
-                        deleteUser: "Ошибка при удалении организации"
+                        deleteUser: "Ошибка при удалении организации",
+                        unassignOrganization: 'Ошибка при отвязывании пользователя от компании'
                     },
+                    
                 },
                 addUserForm: {
                     label: {
@@ -322,6 +427,72 @@ export const resources = {
                     adding: 'Добавление',
                 }
             },
+            products: {
+                companyTypeOption: {
+                    type1: "type1",
+                    inactive: "Inactive",
+                },
+                title: "Продукты",
+                subtitle: 'Всего',
+                btnAdd: 'Добавить продукт',
+                status: 'Статус',
+                deleteUserQuestion: 'Вы уверены, что хотите удалить продукт',
+                messages: {
+                    success: {
+                        createProduct: "Продукт успешно создан",
+                        updateProduct: "Продукт успешно обновлён",
+                        deleteProduct: "Продукт успешно удалён"
+                    },
+                    error: {
+                        createProduct: "Ошибка при создании Продукта",
+                        updateProduct: "Ошибка при обновлении Продукта",
+                        deleteProduct: "Ошибка при удалении Продукта"
+                    },
+                },
+                addProductForm: {
+                    label: {
+                        name: 'Название продукции',
+                        shortName: 'Короткое название продукции',
+                        description: 'Описание',
+                        gtin: 'GTIN',
+                        barcode: 'Штрихкод',
+                        icps: 'ИКПУ',
+                        productType: 'Тип продукции',
+                        aggregationQuantity: 'Количество в агрегации',
+                        expiration: 'Срок годности',
+                        unit: 'Единица измерения',
+                        amount: 'Количество',
+                        net: 'Вес нетто',
+                        gross: 'Вес брутто',
+                        price: 'Цена',
+                        companyId: 'Айди компании',
+                    },
+                    placeholder: {
+                        name: 'Введите название продукции',
+                        shortName: 'Введите короткое название продукции',
+                        description: 'Введите описание',
+                        gtin: 'Введите GTIN',
+                        barcode: 'Штрихкод',
+                        icps: 'Введите ИКПУ',
+                        productType: 'Введите тип продукции',
+                        aggregationQuantity: 'Введите количество в агрегации',
+                        expiration: 'Введите срок годности',
+                        unit: 'Введите единицу измерения',
+                        amount: 'Введите количество',
+                        net: 'Введите вес нетто',
+                        gross: 'Введите вес брутто',
+                        price: 'Введите цену',
+                        companyId: 'Айди компании',
+                    }
+                },
+                modalWindow: {
+                    deletion: 'Удаление',
+                    product: 'продукта',
+                    editing: 'Редактирование',
+                    viewing: 'Просмотр',
+                    adding: 'Добавление',
+                }
+            },
             login: {
                 messages:{
                     successLogin: 'Успешный вход',
@@ -334,22 +505,46 @@ export const resources = {
                 enterUserName: 'Введите логин',
                 username: 'Логин',
             },
-            products: {
-                title: 'Продукция'
-            },
+            changePwd: {
+                title: 'Изменить пароль',
+                confirmModal: {
+                    title: 'Вы уверены, что хотите изменить пароль?',
+                    subtitle: 'После изменения пароля вы будете автоматически разлогинены',
+                    btn: {
+                        confirm: 'Подтвердить',
+                        cancel: 'Отмена',
+                    },
+                },
+                  
+                changePasswordForm: {
+                    label: {
+                        currentPassword: 'Текущий пароль',
+                        newPassword: 'Новый пароль',
+                        newPasswordConfirmation: 'Подтверждение нового пароля',
+                    },
+                    placeholder: {
+                        currentPassword: 'Введите текущий пароль',
+                        newPassword: 'Введите новый пароль',
+                        newPasswordConfirmation: 'Подтвердите новый пароль',
+                    }
+                }
+            }
         }
     },
     uz:{
         translation:{
+            sessionEndsIn: 'Sessiya tugashiga',
             search: {
-                byName: 'Ism bo‘yicha qidirish'
+                byName: 'Ism bo‘yicha qidirish',
+                byOrganization: 'Tashkilotlar bo‘yicha qidirish'
             },
             btn: {
                 create: 'Yaratish',
                 edit: 'Tahrirlash',
                 delete: 'Oʻchirish',
                 cancel: 'Bekor qilish',
-                save: 'Saqlash'
+                save: 'Saqlash',
+                back: 'Orqaga'
             },
             navigation: {
                 products: "Mahsulotlar",
@@ -369,8 +564,10 @@ export const resources = {
                 },
                 title: "Foydalanuvchilar",
                 subtitle: 'Jami',
+                logOut: "Chiqish",
                 btnAdd: 'Foydalanuvchini qoʻshish',
                 deleteUserQuestion: 'Foydalanuvchini o‘chirishni xohlaysizmi',
+                companies: 'Foydalanuvchining kompaniyalari',
                 messages: {
                     success: {
                         createUser: "Foydalanuvchi muvaffaqiyatli yaratildi",
@@ -419,17 +616,21 @@ export const resources = {
                 subtitle: "Jami",
                 btnAdd: "Tashkilot qo‘shish",
                 status: 'Holat',
+                assignToCompany: 'Kompaniyaga biriktirish',
                 deleteUserQuestion: "Tashkilotni o‘chirib tashlashni xohlaysizmi?",
                 messages: {
                     success: {
                         createUser: "Tashkilot muvaffaqiyatli yaratildi",
                         updateUser: "Tashkilot muvaffaqiyatli yangilandi",
-                        deleteUser: "Tashkilot muvaffaqiyatli o‘chirildi"
+                        deleteUser: "Tashkilot muvaffaqiyatli o‘chirildi",
+                        assignOrganization: 'Foydalanuvchi muvaffaqiyatli kompaniyaga biriktirildi',
+                        unassignOrganization: 'Foydalanuvchi muvaffaqiyatli kompaniyadan ajratildi'
                     },
                     error: {
                         createUser: "Tashkilotni yaratishda xatolik",
                         updateUser: "Tashkilotni yangilashda xatolik",
-                        deleteUser: "Tashkilotni o‘chirishda xatolik"
+                        deleteUser: "Tashkilotni o‘chirishda xatolik",
+                        unassignOrganization: "Foydalanuvchini kompaniyadan ajratishda xatolik"
                     },
                 },
                 addUserForm: {
@@ -491,6 +692,72 @@ export const resources = {
                     adding: "Qo‘shish",
                 }
             },
+            products: {
+                companyTypeOption: {
+                    type1: "type1",
+                    inactive: "Faol emas",
+                },
+                title: "Mahsulotlar",
+                subtitle: "Jami",
+                btnAdd: "Mahsulot qo‘shish",
+                status: "Holat",
+                deleteUserQuestion: "Mahsulotni o‘chirib tashlashni xohlaysizmi?",
+                messages: {
+                    success: {
+                        createUser: "Mahsulot muvaffaqiyatli yaratildi",
+                        updateUser: "Mahsulot muvaffaqiyatli yangilandi",
+                        deleteUser: "Mahsulot muvaffaqiyatli o‘chirildi"
+                    },
+                    error: {
+                        createUser: "Mahsulotni yaratishda xatolik",
+                        updateUser: "Mahsulotni yangilashda xatolik",
+                        deleteUser: "Mahsulotni o‘chirishda xatolik"
+                    },
+                },
+                addProductForm: {
+                    label: {
+                        name: "Nomi",
+                        shortName: "Qisqa nomi",
+                        description: "Tavsif",
+                        gtin: "GTIN",
+                        barcode: "Shtrix-kod",
+                        icps: "IKPU",
+                        productType: "Mahsulot turi",
+                        aggregationQuantity: "Aggregatsiya miqdori",
+                        expiration: "Yaroqlilik muddati",
+                        unit: "O‘lchov birligi",
+                        amount: "Miqdor",
+                        net: "Sof og‘irlik",
+                        gross: "Brutto og‘irlik",
+                        price: "Narx",
+                        companyId: "Kompaniya ID",
+                    },
+                    placeholder: {
+                        name: "Nomini kiriting",
+                        shortName: "Qisqa nomini kiriting",
+                        description: "Tavsif kiriting",
+                        gtin: "GTIN kiriting",
+                        barcode: "Shtrix-kodni kiriting",
+                        icps: "IKPU kiriting",
+                        productType: "Mahsulot turini kiriting",
+                        aggregationQuantity: "Aggregatsiya miqdorini kiriting",
+                        expiration: "Yaroqlilik muddatini kiriting",
+                        unit: "O‘lchov birligini kiriting",
+                        amount: "Miqdor kiriting",
+                        net: "Sof og‘irlikni kiriting",
+                        gross: "Brutto og‘irlikni kiriting",
+                        price: "Narxni kiriting",
+                        companyId: "Kompaniya ID ni kiriting",
+                    }
+                },
+                modalWindow: {
+                    deletion: "O‘chirish",
+                    product: "mahsulot",
+                    editing: "Tahrirlash",
+                    viewing: "Ko‘rish",
+                    adding: "Qo‘shish",
+                }
+            },
             login: {
                 messages:{
                     successLogin: 'Muvaffaqiyatli kirish',
@@ -503,9 +770,29 @@ export const resources = {
                 enterUserName: 'Login kiriting',
                 username: 'Login',
             },
-            products: {
-                title: 'Mahsulotlar'
-            },
+            changePwd: {
+                title: 'Parolni o‘zgartirish',
+                confirmModal: {
+                    title: 'Parolni o‘zgartirishni xohlaysizmi?',
+                    subtitle: 'Parol o‘zgartirilgandan so‘ng, siz avtomatik ravishda tizimdan chiqasiz',
+                    btn: {
+                        confirm: 'Подтвердить',
+                        cancel: 'Bekor qilish',
+                    },
+                },
+                changePasswordForm: {
+                    label: {
+                        currentPassword: 'Joriy parol',
+                        newPassword: 'Yangi parol',
+                        newPasswordConfirmation: 'Yangi parolni tasdiqlash',
+                    },
+                    placeholder: {
+                        currentPassword: 'Joriy parolni kiriting',
+                        newPassword: 'Yangi parolni kiriting',
+                        newPasswordConfirmation: 'Yangi parolni tasdiqlang',
+                    }
+                }
+            }
         }
     }
 }
