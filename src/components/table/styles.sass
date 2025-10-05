@@ -4,7 +4,7 @@
 .amis-table
     .ant-table-thead
         .ant-table-cell
-            background: map.get(vars.$main, 'main-more-lighter') !important
+            background: map.get(vars.$main, 'main-light') !important
             +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
     .ant-table-tbody
         .ant-table-cell
@@ -12,3 +12,16 @@
                 +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
     .clickable-row
         cursor: pointer
+:where(.css-dev-only-do-not-override-1kl99jq).ant-dropdown .ant-dropdown-menu
+    background: map.get(vars.$basic, "white")
+    box-shadow: 0 0 6px 0 map.get(vars.$main, 'box-shadow')
+    display: flex
+    align-items: start
+    justify-content: start
+    flex-direction: column
+    gap: 10px
+    .ant-dropdown-menu-item
+        padding: 0
+        width: 100%
+        .btn
+            width: 100%

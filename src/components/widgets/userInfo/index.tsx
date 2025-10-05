@@ -7,15 +7,25 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import CustomButton from "../../button";
 import "./styles.sass";
-import { clearUser } from "../../../store/users";
+import { clearUser, logout } from "../../../store/users";
 
 const UserInfo: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = useAppSelector((s) => s.users.currentUser);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const supportedLangs = ['ru', 'en', 'uz'] as const;
+  type Lang = typeof supportedLangs[number];
+
+
+  const currentLang = (i18n.language as Lang) || 'en';
+
+
+  console.log('====================================');
+  console.log(user);
+  console.log('====================================');
 
   // клик вне дропдауна
   const handleClickOutside = useCallback(
@@ -35,12 +45,7 @@ const UserInfo: React.FC = () => {
   }, [handleClickOutside]);
 
   const handleLogout = () => {
-    localStorage.removeItem("userName");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userId");
-    dispatch(clearUser()); // очистим Redux
+    dispatch(logout()); // очистим Redux + localStorage
     navigate("/", { replace: true }); // уйдём на login без reload
   };
 
@@ -66,7 +71,7 @@ const UserInfo: React.FC = () => {
           </div>
           <div className="user-text-container">
             <div className="user-text-container-role">
-              {user?.role?.name?.en || ""}
+                {user?.role?.name?.[currentLang] || ""}
             </div>
           </div>
         </div>
@@ -77,8 +82,8 @@ const UserInfo: React.FC = () => {
       {isOpen && (
         <div className="user-dropdown">
           <div className="user-dropdown-action">
-            <CustomButton className="outline">
-              <Link to="/profile">{t("users.changePassword")}</Link>
+            <CustomButton className="outline" onClick={() => navigate('/profile')}>
+             {t("changePwd.title")}
             </CustomButton>
           </div>
           <div className="user-dropdown-action">

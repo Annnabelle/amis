@@ -1,3 +1,7 @@
+import type { CompanyResponseDto } from "./organization";
+import type { ProductResponseDto } from "./products";
+import type { UserResponseDto } from "./users/login";
+
 export type HexString = string;
 
 export const Language = {
@@ -139,4 +143,69 @@ export const ProductSortField = {
 export const ProductSortFields = Object.values(ProductSortField);
 
 export type ProductSortField = typeof ProductSortField[keyof typeof ProductSortField];
+
+export type Actor = {
+  User: "user",
+  System: "system",
+} ;
+
+export type TargetEntity = {
+  User: "user",
+  Company: "company",
+  Product: "product",
+};
+
+export const TargetEntity = {
+  User: "user",
+  Company: "company",
+  Product: "product",
+} as const;
+
+export const AuditCategory = {
+  Auth: 'auth',
+  User: 'user',
+  Product: 'product',
+  Company: 'company',
+} as const;
+
+export type AuditCategory = typeof AuditCategory[keyof typeof AuditCategory];
+
+export const AuditType = {
+  Login: 'login',
+  Logout: 'logout',
+  UserRegistration: 'userRegistration',
+  PasswordChange: 'passwordChange',
+  UserDelete: 'userDelete',
+  UserUpdate: 'userUpdate',
+  AssignCompanyToUser: 'assignCompanyToUser',
+  UnassignCompanyFromUser: 'unassignCompanyFromUser',
+
+  ProductCreate: 'productCreate',
+  ProductUpdate: 'productUpdate',
+  ProductDelete: 'productDelete',
+
+  // ...
+
+  CompanyCreate: 'companyCreate',
+  CompanyUpdate: 'companyUpdate',
+  CompanyDelete: 'companyDelete',
+
+  // ...
+} as const;
+
+export type AuditType = typeof AuditType[keyof typeof AuditType];
+
+type TargetResponseMap = {
+  [TargetEntity.User]: UserResponseDto;
+  [TargetEntity.Company]: CompanyResponseDto;
+  [TargetEntity.Product]: ProductResponseDto;
+};
+
+export type TargetResponseDto = UserResponseDto | CompanyResponseDto | ProductResponseDto | null;
+
+export type Identifier = {
+  type: 'Identifier';
+
+  toString(): string;
+}
 

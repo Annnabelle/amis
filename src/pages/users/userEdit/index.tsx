@@ -36,8 +36,6 @@ const UsersEdit = () => {
         }
     }, [dispatch, id]);
 
-
-
     
     const handleAssignOrganization = async (companyId: string) => {
         if (!id) return;
@@ -68,6 +66,9 @@ const UsersEdit = () => {
     
     const handleUnAssignOrganization = async (companyId: string) => {
         if (!id) return;
+        console.log('====================================');
+        console.log(id, companyId);
+        console.log('====================================');
         try {
             const resultAction = await dispatch(
                 unassignUserToCompany({ userId: id, companyId })

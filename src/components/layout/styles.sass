@@ -2,11 +2,11 @@
 @use "../../styles/mixins" as mix
 @use "../../styles/variables" as vars
 .layout
-    height: 100%
+    height: 100dvh
     background: map.get(vars.$main, 'main-bg')
     &-header
         background: map.get(vars.$basic, 'white')
-        box-shadow: 0 0 17px 0 #dcdcdc
+        box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
         &-container
             @include mix.flex-content(space-between, row)
             height: 64px
@@ -38,8 +38,10 @@
                 position: relative
                 padding: 12px
                 border-radius: 20px
-                box-shadow: 0 0 17px 0 #dcdcdc
+                box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
                 // flex: 0 0 250 !important
+                .ant-menu
+                    background: map.get(vars.$basic, 'white')
                 .layout-sider-menu
                     border: none
                     .menu-icon
@@ -70,12 +72,12 @@
                         padding-left: 8px !important
                         border-radius: 8px
                         .ant-menu-title-content
-                            color: map.get(vars.$basic, 'white') !important
+                            color: map.get(vars.$basic, 'black') !important
                 &-trigger
                     width: 100%
                     z-index: 1
                     &-container
-                        border: 1px solid map.get(vars.$main, 'main')
+                        // border: 1px solid map.get(vars.$main, 'main')
                         width: 28px
                         height: 28px
                         border-radius: 6px
@@ -84,6 +86,8 @@
                             width: 100%
                             font-size: 28px
                             @include mix.flex-content(center, row)
+                            svg
+                                color: map.get(vars.$basic, 'black')
                 .triggered
                     @include mix.flex-content(center, row)
                     width: 48px
@@ -103,7 +107,7 @@
                     padding: 24px
                     // margin-right: 24px
                     border-radius: 20px
-                    box-shadow: 0 0 17px 0 #dcdcdc
+                    box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
                     width: 100%
                 .box
                     background-color: map.get(vars.$basic, 'white')
@@ -111,7 +115,7 @@
                     padding: 24px
                     // margin-right: 24px
                     border-radius: 20px
-                    box-shadow: 0 0 17px 0 #dcdcdc
+                    box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
                     width: 100%
                     &-container
                         @include mix.flex-content(flex-start, column)
@@ -133,3 +137,8 @@
     +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
     padding: 4px 8px
     background-color: transparent
+:where(.css-dev-only-do-not-override-1kl99jq).ant-table-wrapper .ant-table
+    background: transparent !important
+
+:where(.css-dev-only-do-not-override-1kl99jq).ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector
+    background: transparent

@@ -1,0 +1,123 @@
+@use 'sass:map'
+@use '../../styles/mixins' as mix
+@use '../../styles/variables' as vars
+.interactive-tag
+    transition: all 0.3s ease
+    border-radius: 16px
+    padding: 4px 12px
+    cursor: pointer
+    &:hover
+        transform: scale(1.05)
+        filter: brightness(1.1)
+.audit-logs-list
+    .tooltip-tag
+        padding: 4px 8px
+        border-radius: 16px
+        font-size: 12px !important
+        font-weight: 700
+    .audit-logs-card
+        background: transparent
+        .actor-link-hover
+            transition: all 0.5s ease
+            &:hover
+                color: map.get(vars.$main, "main") !important
+
+        .logs-info
+            border-top: 1px solid map.get(vars.$main, 'grey')
+            @include mix.flex-content(flex-start, column)
+            align-items: start
+            gap: 10px
+            &-container
+                padding: 15px
+                width: 100%
+                @include mix.flex-content(flex-start, column)
+                align-items: start
+                row-gap: 15px
+                overflow: hidden
+                &-heading
+                    &-title
+                        +mix.typography(18px, 600, map.get(vars.$main, 'main'))
+                &-content
+                    width: 100%
+                    .content-items
+                        @include mix.flex-content(flex-start, row)
+                        column-gap: 15px
+                        width: 100%
+                        &-item-title
+                            width: 50%
+                            .title
+                                +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
+                        &-item-description
+                            width: 50%
+                            .description
+                                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+        .expand-enter
+            max-height: 0
+            opacity: 0
+            overflow: hidden
+            transition: all 300ms ease
+
+        .expand-enter-active
+            max-height: 200px
+            opacity: 1
+
+        .expand-exit
+            max-height: 200px
+            opacity: 1
+            overflow: hidden
+            transition: all 300ms ease
+
+        .expand-exit-active
+            max-height: 0
+            opacity: 0
+
+        .ant-list-item-meta-title
+            .ant-space
+                @include mix.flex-content(space-between, row)
+                align-items: start
+
+        .ant-collapse-expand-icon
+            padding-top: 24px
+        .log-list-heading
+            @include mix.flex-content(flex-start, column)
+            align-items: start
+            row-gap: 5px
+            &-container
+                @include mix.flex-content(center, row)
+                gap: 5px
+                &-target
+                    .actor-link-hover
+                        +mix.typography(14px, 600, map.get(vars.$main, 'main'))
+                &-title
+                    +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+                &-subtitle
+                    +mix.typography(14px, 400, map.get(vars.$main, 'grey'))
+
+        .ant-space-item
+            .ant-tag
+                margin: 0
+        .log-meta
+            margin-top: 15px
+            gap: 10px
+            align-items: start
+            @include mix.flex-content(space-between, row)
+            align-items: start
+            .log-list-heading-container-target
+                gap: 5px
+                @include mix.flex-content(flex-start, row)
+            .log-meta-items
+                @include mix.flex-content(flex-start, column)
+                row-gap: 10px
+                align-items: start
+                .log-meta-item
+                    column-gap: 10px
+                    +mix.typography(14px, 400, map.get(vars.$basic, 'gray-600'))
+                    display: flex
+                    align-items: center
+                    column-gap: 4px
+                    svg
+                        width: 16px
+                        height: 16px
+                        fill: map.get(vars.$main, 'main')
+                .item-strong
+                    +mix.typography(18px, 600, map.get(vars.$basic, 'black'))

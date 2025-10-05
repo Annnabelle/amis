@@ -1,11 +1,11 @@
-import { Form, Input, Select, Spin, Tag } from 'antd'
+import { Form, Input, Select } from 'antd'
 import { UsersTableColumns } from '../../tableData/users'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { assignUserToCompany, deleteUser, getAllUsers, getUserById, registerUser, searchUsers, unassignUserToCompany, updateUser } from '../../store/users'
+import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers } from '../../store/users'
 import type { UserTableDataType } from '../../tableData/users/types'
 import type { AddUserForm, UserResponse } from '../../types/users'
 import type { Language } from '../../dtos'
@@ -18,7 +18,7 @@ import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
 import PhoneInput from '../../components/phoneInput'
 import type { LangKey } from '../../utils/consts'
-import { getAllOrganizations, searchOrganizations } from '../../store/organization'
+import { getAllOrganizations } from '../../store/organization'
 import { useNavigate } from 'react-router-dom'
 
 const Users = () => {
@@ -29,82 +29,8 @@ const Users = () => {
     const dataLimit = useAppSelector((state) => state.users.limit)
     const dataPage = useAppSelector((state) => state.users.page)
     const dataTotal = useAppSelector((state) => state.users.total)
-    const userById = useAppSelector((state) => state.users.userById)
-    // const [searchValue, setSearchValue] = useState("");
-    const organizations = useAppSelector((state) => state.organizations.organizations);
-    // const isLoadingOrganizations = useAppSelector((state) => state.organizations.isLoading);
-    // const [assignedOrganizations, setAssignedOrganizations] = useState<any[]>([]);
-    // const [isLoading, setIsLoading] = useState(false);
 
     const [form] = Form.useForm()
-
-    // const handleAssignOrganization = async (companyId: string) => {
-    //     if (!selectedUserId) return;
-    //     setIsLoading(true);
-    //     try {
-    //         const resultAction = await dispatch(
-    //         assignUserToCompany({ userId: selectedUserId, companyId })
-    //         );
-
-    //         if (assignUserToCompany.fulfilled.match(resultAction)) {
-    //         const org = organizations.find((o) => o.id === companyId);
-
-    //         setAssignedOrganizations((prev) => [
-    //             ...prev,
-    //             {
-    //             ...resultAction.payload,
-    //             displayName: org?.displayName || resultAction.payload.displayName,
-    //             },
-    //         ]);
-
-    //         toast.success(t("organizations.messages.success.assignOrganization"));
-    //         }
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
-
-
-    // const handleUnAssignOrganization = async (companyId: string) => {
-    //     if (!selectedUserId) return;
-    //     try {
-    //         const resultAction = await dispatch(
-    //             unassignUserToCompany({ userId: selectedUserId, companyId })
-    //         );
-    //         if (unassignUserToCompany.fulfilled.match(resultAction)) {
-    //             setAssignedOrganizations((prev) =>
-    //                 prev.filter((org) => org.id !== companyId)
-    //             );
-    //             toast.success(t("organizations.messages.success.unassignOrganization"));
-    //         }
-    //     } catch {
-    //         toast.error(t("organizations.messages.error.unassignOrganization"));
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     if (userById && organizations.length > 0) {
-    //         const assigned = organizations.filter((org) =>
-    //         userById.companyIds?.includes(org.id)
-    //         );
-    //         setAssignedOrganizations(assigned);
-    //     }
-    // }, [userById, organizations]);
-
-
-
-    // useEffect(() => {
-    //     if (userById) {
-    //         form.setFieldsValue({
-    //         firstName: userById.firstName,
-    //         lastName: userById.lastName,
-    //         phone: userById.phone,
-    //         email: userById.email,
-    //         role: userById.role?.alias,
-    //         status: userById.status,
-    //         })
-    //     }
-    // }, [userById, form])
 
     useEffect(() => {
         dispatch(getAllUsers({
@@ -177,9 +103,9 @@ const Users = () => {
             setSelectedUserId(record.key);
 
             setModalState((prev) => ({
-            ...prev,
-            [`${action}${type}`]: true,
-            userData: user,
+                ...prev,
+                [`${action}${type}`]: true,
+                userData: user,
             }));
 
             if (record.key) {
@@ -199,52 +125,11 @@ const Users = () => {
         }
     };
 
-
-    // useEffect(() => {
-    //     if (selectedUserId){
-    //         dispatch(getUserById({id: selectedUserId}))
-    //     }
-    // }, [dispatch, selectedUserId])
-
-    // const handleEditUser = (record: UserTableDataType) => {
-    //     const user = users.find((u) => u.id === record.key) ?? null;
-    //     if (user) {
-    //         setSelectedUserId(user.id);
-    //         setModalState((prev) => ({
-    //         ...prev,
-    //         editUser: true,
-    //         userData: user
-    //         }));
-    //     }
-    // };
-
     useEffect(() => {
         if (modalState.editUser || modalState.retrieveUser) {
             dispatch(getAllOrganizations({ page: 1, limit: 1000, sortOrder: "asc" }));
         }
     }, [modalState.editUser, modalState.retrieveUser, dispatch]);
-
-    // const handleUpdateUser = async (values: any) => {
-    //     if (!selectedUserId) return;
-
-    //     try {
-    //         const resultAction = await dispatch(
-    //          updateUser({ id: selectedUserId, data: values })
-    //         );
-
-    //         if (updateUser.fulfilled.match(resultAction)) {
-    //             toast.success(t('users.messages.success.updateUser'));
-    //             handleModal("editUser", false);
-
-    //             await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
-    //             await dispatch(getUserById({ id: selectedUserId }));
-    //             } else {
-    //             toast.error(t('users.messages.error.updateUser'));
-    //         }
-    //     } catch (err) {
-    //         toast.error((err as string) || t('users.messages.error.updateUser'));
-    //     }
-    // };
 
     const handleDeleteUser = (record: UserTableDataType) => {
         const user = users.find((u) => u.id === record.key) ?? null;
@@ -311,7 +196,10 @@ const Users = () => {
   return (
     <MainLayout>
         <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount='100'>
-            <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton>
+            <div className="btns-group">
+                <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton>
+            </div>
         </Heading>
         <div className="box">
             <div className="box-container">
@@ -353,129 +241,104 @@ const Users = () => {
         <ModalWindow titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
             <FormComponent onFinish={handleRegisterUser}>
                 <div className="form-inputs">
-                    <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')} >
-                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.firstName')} />
+                    <Form.Item
+                        className="input"
+                        name="firstName"
+                        label={t('users.addUserForm.label.firstName')}
+                        rules={[
+                            { required: true, message: t('users.addUserForm.required.firstName') },
+                        ]}
+                    >
+                    <Input
+                        className="input"
+                        size="large"
+                        placeholder={t('users.addUserForm.placeholder.firstName')}
+                    />
                     </Form.Item>
-                    <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')}>
-                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.lastName')} />
+
+                    <Form.Item
+                        className="input"
+                        name="lastName"
+                        label={t('users.addUserForm.label.lastName')}
+                        rules={[
+                            { required: true, message: t('users.addUserForm.required.lastName') },
+                        ]}
+                    >
+                    <Input
+                        className="input"
+                        size="large"
+                        placeholder={t('users.addUserForm.placeholder.lastName')}
+                    />
                     </Form.Item>
                 </div>
+
                 <div className="form-inputs">
                     <Form.Item
                         className="input"
                         name="phone"
                         label={t('users.addUserForm.label.phone')}
-                        // rules={[{ required: true, message: "Введите номер телефона" }]}
+                        rules={[
+                            { required: true, message: t('users.addUserForm.required.phone') },
+                            { pattern: /^\+?[0-9]{9,15}$/, message: t('users.addUserForm.pattern.phone') }
+                        ]}
                     >
-                        <PhoneInput />
+                    <PhoneInput />
                     </Form.Item>
-                    <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')}>
-                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.email')} />
+
+                    <Form.Item
+                        className="input"
+                        name="email"
+                        label={t('users.addUserForm.label.email')}
+                        rules={[
+                            { required: true, message: t('users.addUserForm.required.email') },
+                            { type: "email", message: t('users.addUserForm.pattern.email') }
+                        ]}
+                    >
+                    <Input
+                        className="input"
+                        size="large"
+                        placeholder={t('users.addUserForm.placeholder.email')}
+                    />
                     </Form.Item>
                 </div>
+
                 <div className="form-inputs">
-                    <Form.Item className="input" name="role" label={t('users.addUserForm.label.role')}  >
-                        <Select className='input' size="large" options={roleOption} placeholder={t('users.addUserForm.placeholder.role')}/>
+                    <Form.Item
+                        className="input"
+                        name="role"
+                        label={t('users.addUserForm.label.role')}
+                        rules={[
+                            { required: true, message: t('users.addUserForm.required.role') }
+                        ]}
+                    >
+                    <Select
+                        className="input"
+                        size="large"
+                        options={roleOption}
+                        placeholder={t('users.addUserForm.placeholder.role')}
+                    />
                     </Form.Item>
-                    <Form.Item className="input" name="password" label={t('users.addUserForm.label.password')} >
-                        <Input className="input" size='large' placeholder={t('users.addUserForm.placeholder.password')} />
+
+                    <Form.Item
+                        className="input"
+                        name="password"
+                        label={t('users.addUserForm.label.password')}
+                        rules={[
+                            { required: true, message: t('users.addUserForm.required.password') },
+                            { min: 8, message: t('users.addUserForm.pattern.passwordMinLength') }
+                        ]}
+                    >
+                    <Input.Password
+                        className="input"
+                        size="large"
+                        placeholder={t('users.addUserForm.placeholder.password')}
+                    />
                     </Form.Item>
                 </div>
+
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>
-        {/* {userById && selectedUserId && (
-            <ModalWindow
-                titleAction={t('users.modalWindow.editing')}
-                title={t('users.modalWindow.user')}
-                openModal={modalState.editUser}
-                closeModal={() => handleModal("editUser", false)}
-            >
-                <FormComponent
-                    form={form}
-                    onFinish={(values) => {
-                        handleUpdateUser(values);
-                    }}
-                >
-                    <div className="form-inputs">
-                        <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')}  initialValue={userById.firstName}>
-                            <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.firstName')}  />
-                        </Form.Item>
-                        <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')} initialValue={userById.lastName}>
-                            <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.lastName')}  />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item className="input" name="phone" label={t('users.addUserForm.label.phone')}  initialValue={userById.phone}>
-                            <PhoneInput />
-                        </Form.Item>
-                        <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')}  initialValue={userById.email}>
-                            <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.email')}  />
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                         <Form.Item className="input" name="status" label="Статус" >
-                            <Select className='input' size="large" defaultValue={userById.status} options={statusOption}/>
-                        </Form.Item>
-                    </div>
-                    <div className="form-inputs">
-                        <Form.Item
-                            className="input"
-                            label={t("organizations.assignToCompany")}
-                        >
-                            <Select
-                                showSearch
-                                className="input"
-                                size="large"
-                                value={searchValue || undefined}
-                                placeholder={t("search.byOrganization")}
-                                suffixIcon={<IoSearch />}
-                                filterOption={false}
-                                onSearch={(value) => {
-                                    setSearchValue(value);
-                                    if (value.trim()) {
-                                    dispatch(
-                                        searchOrganizations({ query: value, page: 1, limit: 10, sortOrder: "asc" })
-                                    );
-                                    } else {
-                                    dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
-                                    }
-                                }}
-                                onSelect={(companyId) => {
-                                    handleAssignOrganization(companyId);
-                                    setSearchValue("");
-                                }}
-                                notFoundContent={isLoadingOrganizations ? <Spin size="small" /> : t("search.noResults")}
-                                options={organizations
-                                    .filter((org) => !assignedOrganizations.some((a) => a.id === org.id))
-                                    .map((org) => ({
-                                    value: org.id,
-                                    label: org.displayName,
-                                    }))}
-                                >
-                                </Select>
-                        </Form.Item>
-                        <div>
-                            {isLoadingOrganizations ? (
-                                <Spin />
-                            ) : (
-                                assignedOrganizations.map((organization) => (
-                                    <Tag
-                                        key={organization.id}
-                                        closable
-                                        onClose={() => handleUnAssignOrganization(organization.id)}
-                                        color="blue"
-                                    >
-                                        {organization.displayName || <Spin size="small" />}
-                                    </Tag>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                    <CustomButton type="submit">{t('btn.save')} </CustomButton>
-                </FormComponent>
-            </ModalWindow>
-        )} */}
         <ModalWindow
             titleAction={t('users.modalWindow.deletion')}
             title={t('users.modalWindow.user')}

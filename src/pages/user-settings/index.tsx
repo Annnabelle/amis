@@ -49,7 +49,7 @@ const UserSettings = () => {
       navigate("/");
     })
     .catch((err) => {
-      console.error("Ошибка при смене пароля:", err);
+      console.error(`${t("changePasswordForm.message.error")}`, err);
     });
 
   setModalOpen(false);
@@ -70,7 +70,7 @@ const UserSettings = () => {
                       className="input"
                       name="currentPassword"
                       label={t('changePwd.changePasswordForm.label.currentPassword')}
-                      rules={[{ required: true, message: t('validation.required') }]}
+                      rules={[{ required: true, message: t('changePwd.changePasswordForm.required.currentPassword') }]}
                     >
                       <Input.Password
                         className="input"
@@ -83,7 +83,10 @@ const UserSettings = () => {
                       className="input"
                       name="newPassword"
                       label={t('changePwd.changePasswordForm.label.newPassword')}
-                      rules={[{ required: true, message: t('validation.required') }]}
+                      rules={[
+                        { required: true, message: t('changePwd.changePasswordForm.required.newPasswordRequired') },
+                        { min: 8, message: t('changePwd.changePasswordForm.required.newPassword') }, // <-- проверка длины
+                      ]}
                     >
                       <Input.Password
                         className="input"
@@ -100,14 +103,14 @@ const UserSettings = () => {
                       label={t('changePwd.changePasswordForm.label.newPasswordConfirmation')}
                       dependencies={['newPassword']}
                       rules={[
-                        { required: true, message: t('validation.required') },
+                        { required: true, message:  t('changePwd.changePasswordForm.required.newPasswordRequired') },
                         ({ getFieldValue }) => ({
                           validator(_, value) {
                             if (!value || getFieldValue('newPassword') === value) {
                               return Promise.resolve();
                             }
                             return Promise.reject(
-                              new Error(t('validation.passwordsDontMatch'))
+                              new Error(t('changePwd.changePasswordForm.message.passwordsDontMatch'))
                             );
                           },
                         }),

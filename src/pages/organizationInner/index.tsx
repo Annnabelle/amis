@@ -8,12 +8,14 @@ import { getAllOrganizations, getOrganizationById } from '../../store/organizati
 import CustomButton from '../../components/button'
 import FormComponent from '../../components/formComponent'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigationBack } from '../../utils/utils'
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
+    const navigateBack = useNavigationBack();
     const organizations = useAppSelector((state) => state.organizations.organizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)
     const dataPage = useAppSelector((state) => state.organizations.page)
@@ -89,7 +91,10 @@ const OrganizationsInner = () => {
   return (
     <MainLayout>
         <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount='100'>
-             <CustomButton onClick={() => handleProductNavigation(id)}>Переидти к продуктам</CustomButton>
+            <div className="btns-group">
+                <CustomButton className='outline' onClick={() => navigateBack('/users')}>{t('btn.back')}</CustomButton>
+                <CustomButton onClick={() => handleProductNavigation(id)}>{t('btn.toProducts')}</CustomButton>
+            </div>
         </Heading>
         <div className="box">
             <div className="box-container">

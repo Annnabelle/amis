@@ -6,22 +6,26 @@ import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToL
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
 
+const storedUser = localStorage.getItem("user");
+const storedAccessToken = localStorage.getItem("accessToken");
+const storedRefreshToken = localStorage.getItem("refreshToken");
+
 const initialState: UsersState = {
-  user: null,
+  user: storedUser ? JSON.parse(storedUser) : null,
   userById: null,
   updateUser: null,
   users: [],
   total: 0,
   page: 1,
   limit: 10,
-  accessToken: null,
-  refreshToken: null,
+  accessToken: storedAccessToken,
+  refreshToken: storedRefreshToken,
   isLoading: false,
   error: null,
   status: null,
-  sessionStart: null,
-  isAuthenticated: false,
-  currentUser: null,
+  sessionStart: storedAccessToken ? Date.now() : null,
+  isAuthenticated: !!storedAccessToken,
+  currentUser: storedUser ? JSON.parse(storedUser) : null,
 };
 
 export const Login = createAsyncThunk(
@@ -264,7 +268,12 @@ export const usersSlice = createSlice({
       state.sessionStart = null;
       state.isAuthenticated = false;
       state.currentUser = null;
-
+      localStorage.removeItem("userName");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("sessionEnd");
     },
     login: (state) => {
       state.isAuthenticated = true;
@@ -292,6 +301,18 @@ export const usersSlice = createSlice({
         state.sessionStart = Date.now();
 
         state.currentUser = action.payload.user!;
+
+        if (action.payload.user) {
+          state.user = action.payload.user;
+          state.currentUser = action.payload.user;
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        } else {
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            state.user = JSON.parse(storedUser);
+            state.currentUser = JSON.parse(storedUser);
+          }
+        }
       })
       .addCase(Login.rejected, (state, action) => {
         state.isLoading = false;

@@ -15,3 +15,9 @@
                         +mix.typography(14px, 600, map.get(vars.$basic, 'black'))
                         &-primary
                             +mix.typography(14px, 600, map.get(vars.$main, 'main'))
+                .btns-group
+                    @include mix.flex-content(center, row)
+                    gap: 15px
+                    .btn
+                        width: 100%
+                        white-space: nowrap

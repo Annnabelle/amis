@@ -17,12 +17,12 @@ const UsersRetrieve = () => {
     const userById = useAppSelector((state) => state.users.userById);
     const organizations = useAppSelector((state) => state.organizations.organizations);
     const navigateBack = useNavigationBack();
-
     useEffect(() => {
         if (id) {
             dispatch(getUserById({ id }));
         }
     }, [dispatch, id]);
+   
 
     const roleOption = [
         { value: "superadmin", label: t('users.userRole.superadmin') },

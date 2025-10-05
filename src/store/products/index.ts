@@ -56,22 +56,22 @@ export const createProduct = createAsyncThunk(
   "products/createProduct",
   async (payload: CreateProductDto, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<ProductResponseDto>(
+      const { data } = await axiosInstance.post(
         `${BASE_URL}/products`,
         payload
       );
 
-      if (isProductCreateSuccessResponse(response.data)) {
-        return mapProductDtoToEntity(response.data);
+      // если API гарантированно возвращает success и product:
+      if (data.success && data.product) {
+        return mapProductDtoToEntity(data.product); // возвращаем именно продукт
       }
 
-      return rejectWithValue("Ошибка регистрации продукт");
+      return rejectWithValue("Ошибка регистрации продукта");
     } catch (err: any) {
       return rejectWithValue(err.message || "Ошибка сервера");
     }
   }
 );
-
 
 function isGetProductSuccessResponse(
   res: GetProductResponseDto

@@ -1,8 +1,56 @@
-import { PiPlaceholder } from "react-icons/pi";
+
 
 export const resources = {
     en:{
         translation:{
+            logsActions: {
+                user: {
+                    userRegistration: "Registration of a new user",
+                    passwordChange: "User changed the password",
+                    unassignCompanyFromUser: "The company has been deleted from the user",
+                    assignCompanyToUser: "Company assigned to the user",
+                    userUpdate: "User update",
+                    userDelete: "User deletion"
+                },
+                object: {
+                    productCreate: "User created a product",
+                    productUpdate: "User updated a product",
+                    productDelete: "User deleted a product"
+                },
+                auth: {
+                    auth: "Authentication",
+                    login: "User logged in",
+                    logout: "User logged out",
+                },
+                organization: {
+                    organizationCreate: "User created an organization",
+                    organizationUpdate: "User updated an organization",
+                    organizationDelete: "User deleted an organization"
+                },
+                types: {
+                    login: "User logged in",
+                    logout: "User logged out",
+                    userRegistration: "Registration of a new user",
+                    passwordChange: "User changed the password",
+                    productCreate: "User created a product",
+                    productUpdate: "User updated a product",
+                    productDelete: "User deleted a product",
+                    organizationCreate: "User created an organization",
+                    organizationUpdate: "User updated an organization",
+                    organizationDelete: "User deleted an organization",
+                    unassignCompanyFromUser: "The company has been deleted from the user",
+                    assignCompanyToUser: "Company assigned to the user",
+                    userUpdate: "User update",
+                    userDelete: "User deletion"
+                }
+            },
+            categories: {
+                all: 'All',
+                user: 'Users',
+                product: 'product',
+                auth: "Authentication",
+                organization: "Organization"
+            },
             sessionEndsIn: 'Session ends in',
             search: {
                 byName: 'Search by name',
@@ -14,13 +62,15 @@ export const resources = {
                 delete: 'Delete',
                 cancel: 'Cancel',
                 save: 'Save',
-                back: 'Back'
+                back: 'Back',
+                toProducts: "Go to products"
             },
             navigation: {
                 products: "Products",
                 management: "Management",
                 organization: "Organization",
                 users: "Users",
+                audit: "System logs"
             },
             users: {
                 userRole: {
@@ -67,6 +117,19 @@ export const resources = {
                         role: 'Enter role',
                         password: 'Enter password',
                         phone: 'Enter phone number',
+                    },
+                    required: {
+                        firstName: "Please enter your first name",
+                        lastName: "Please enter your last name",
+                        phone: "Please enter your phone number",
+                        email: "Please enter your email",
+                        role: "Please select a role",
+                        password: "Please enter your password"
+                    },
+                    pattern: {
+                        phone: "Please enter a valid phone number",
+                        email: "Please enter a valid email",
+                        passwordMinLength: "Password must be at least 8 characters"
                     }
                 },
                 modalWindow: {
@@ -125,6 +188,8 @@ export const resources = {
                         gcpCode: "GCP code",
                         omsId: "OMSID",
                         turonToken: "Turon token",
+                        status: "Status",
+                        deleted: "Deleted"
                     },
                     placeholder: {
                         companyType: "Enter company type",
@@ -147,6 +212,45 @@ export const resources = {
                         gcpCode: "Enter GCP code",
                         omsId: "Enter OMSID",
                         turonToken: "Enter Turon token",
+                    },
+                    validation:{
+                        required:{
+                            tin: "Please enter TIN",
+                            productGroup: "Please enter the product group name",
+                            companyType: "Please select the company type",
+                            displayName: "Please enter the company name",
+                            legalName: "Please enter the legal company name",
+                            director: "Please enter the director’s name",
+                            region: "Please enter the region",
+                            district: "Please enter the district",
+                            address: "Please enter the address",
+                            bankName:"Please enter the bank name",
+                            ccea: "Please enter the bank account number",
+                            account: "Please enter the account number",
+                            mfo: "Please enter the bank MFO code",
+                            phone: "Please enter the phone number",
+                            email: "Please enter the email",
+                            url: "Please enter the URL",
+                            person: "Please enter the contact person",
+                            gcpCode: "Please enter GCP code",
+                            omsId: "Please enter OMS ID",
+                            turonToken: "Please enter Turon Token",
+                            gtin: "GTIN is required"
+                        },
+                        pattern:{
+                            tin: "TIN must consist of 9 digits",
+                            ccea: "Bank account number must consist of 20 digits",
+                            account: "Account number must consist of 20 digits",
+                            mfo: "Bank MFO code must consist of 5 digits",
+                            phone: "Phone number must be in the format +998XXXXXXXXX",
+                            email: "Please enter a valid email",
+                            url: "Please enter a valid URL (e.g., https://example.com)",
+                            gcpCode: "GCP code must be at least 3 characters",
+                            omsId: "OMS ID must be at least 3 characters",
+                            turonToken: "Turon Token kamida 5 ta belgidan iborat bo‘lishi kerak",
+                            passwordMinLength:  "Password must be at least 8 characters long",
+                            gtin: "Enter a valid GTIN (14 digits)"
+                        }
                     }
                 },
                 subtitles: {
@@ -171,6 +275,8 @@ export const resources = {
                 subtitle: "Total",
                 btnAdd: "Add product",
                 status: "Status",
+                view: "View product",
+                edit: "Edit product",
                 deleteUserQuestion: "Are you sure you want to delete the product?",
                 messages: {
                     success: {
@@ -218,6 +324,31 @@ export const resources = {
                         gross: "Enter gross weight",
                         price: "Enter price",
                         companyId: "Enter company ID",
+                    },
+                    validation:{
+                        required:{
+                            gtin: "GTIN is required",
+                            barcode: "Barcode is required",
+                            icps: "ICPS is required",
+                            productType: "Product type is required",
+                            aggregationQuantity: "Aggregation quantity is required",
+                            expiration: "Expiration is required",
+                            measurementUnit: "Unit is required",
+                            measurementAmount: "Amount is required",
+                            weightNet: "Net weight is required",
+                            name: "Product name is required",
+                            shortName: "Product short name is required"
+                        },
+                        pattern:{
+                            gtin: "Enter a valid GTIN (14 digits)",
+                            barcode: "Enter a valid barcode (8 to 14 digits)",
+                            icps: "Enter a valid ICPS (14 digits)",
+                            aggregationQuantity: "Enter a valid number",
+                            expiration: "Enter a valid number",
+                            measurementUnit: "Maximum length is 10 characters",
+                            measurementAmount: "Enter a valid number (integer or decimal)",
+                            weightNet: "Enter a valid number (integer or decimal)"
+                        }
                     }
                 },
                 modalWindow: {
@@ -251,6 +382,10 @@ export const resources = {
                     },
                 },
                 changePasswordForm: {
+                    message: {
+                        passwordsDontMatch: "Passwords do not match.",
+                        error: "Error when changing password"
+                    },
                     label: {
                         currentPassword: 'Current password',
                         newPassword: 'New password',
@@ -260,13 +395,76 @@ export const resources = {
                         currentPassword: 'Enter current password',
                         newPassword: 'Enter new password',
                         newPasswordConfirmation: 'Confirm new password',
+                    },
+                    required: {
+                        currentPassword: "Enter your current password",
+                        newPasswordRequired: "Enter your current password",
+                        newPassword: "Password must be at least 8 characters long.",
                     }
                 }
+            },
+            auditLog:{
+                title: "System logs",
+                subtitle: "Monitoring and analysis of user activity",
+                ip: "IP address",
+                id: "Request ID",
+                session: "Session",
+                committed: "Performed by",
+                target: "Action purpose",
+
             }
         }
     },
     ru:{
         translation:{
+            logsActions: {
+                user: {
+                    userRegistration: "Регистрация нового пользователя",
+                    passwordChange: "Пользователь изменил пароль",
+                    unassignCompanyFromUser: "Компания удалена у пользователя",
+                    assignCompanyToUser: "Компания назначена пользователю",
+                    userUpdate: "Обновление пользователя",
+                    userDelete: "Удаление пользователя"
+                },
+                object: {
+                    productCreate: "Пользователь создал продукт",
+                    productUpdate: "Пользователь обновил продукт",
+                    productDelete: "Пользователь удалил продукт"
+                },
+                auth: {
+                    auth: "Аутентификация",
+                    login: "Пользователь вошёл в систему",
+                    logout: "Пользователь вышел из системы",
+                },
+                organization: {
+                    organizationCreate: "Пользователь создал организацию", 
+                    organizationUpdate: "Пользователь обновил организацию", 
+                    organizationDelete: "Пользователь удалил организацию"
+                },
+                types: {
+                    login: "Пользователь вошёл в систему",
+                    logout: "Пользователь вышел из системы",
+                    userRegistration: "Регистрация нового пользователя",
+                    passwordChange: "Пользователь изменил пароль",
+                    productCreate: "Пользователь создал продукт",
+                    productUpdate: "Пользователь обновил продукт",
+                    productDelete: "Пользователь удалил продукт",
+                    organizationCreate: "Пользователь создал организацию", 
+                    organizationUpdate: "Пользователь обновил организацию", 
+                    organizationDelete: "Пользователь удалил организацию",
+                    unassignCompanyFromUser: "Компания удалена у пользователя",
+                    assignCompanyToUser: "Компания назначена пользователю",
+                    userUpdate: "Обновление пользователя",
+                    userDelete: "Удаление пользователя"
+                }
+            },
+            categories: {
+                all: 'Все',
+                user: 'Пользователи',
+                product: 'Продукты',
+                auth: "Аутентификация",
+                organization: "Организации"
+            },
             sessionEndsIn: 'Окончание сессии через',
             search: {
                 byName: 'Поиск по имени',
@@ -278,13 +476,15 @@ export const resources = {
                 delete: 'Удалить',
                 cancel: 'Отмена',
                 save: 'Сохранить',
-                back: 'Назад'
+                back: 'Назад',
+                toProducts: "Перейти к продуктам"
             },
             navigation: {
                 products: "Продукция",
                 management: "Управление",
                 organization: "Организация",
                 users: "Пользователи",
+                audit: "Логи системы"
             },
             users: {
                 userRole: {
@@ -305,7 +505,7 @@ export const resources = {
                 messages: {
                     success: {
                         createUser: "Пользователь успешно создан",
-                        updateUser: "Пользователь успешно обновлён",
+                        updateUser: "Пользователь успешно обновлёна",
                         deleteUser: "Пользователь успешно удалён"
                     },
                     error: {
@@ -331,6 +531,19 @@ export const resources = {
                         role: 'Введите роль',
                         password: 'Введите пароль',
                         phone: 'Введите номер телефона',
+                    },
+                    required: {
+                        firstName: "Введите имя",
+                        lastName: "Введите фамилию",
+                        phone: "Введите номер телефона",
+                        email: "Введите email",
+                        role: "Выберите роль",
+                        password: "Введите пароль"
+                    },
+                    pattern: {
+                        phone: "Введите корректный номер телефона",
+                        email: "Введите корректный email",
+                        passwordMinLength: "Пароль должен содержать минимум 8 символов"
                     }
                 },
                 modalWindow: {
@@ -389,7 +602,9 @@ export const resources = {
                         person: 'Контактное лицо',
                         gcpCode: 'GCP код',
                         omsId: 'OMSID',
-                        turonToken: 'Turon token',
+                        turonToken: 'Turon токен',
+                        status: "Статус",
+                        deleted: 'Удалено'
                     },
                     placeholder: {
                         companyType: 'Введите тип компании',
@@ -412,6 +627,45 @@ export const resources = {
                         gcpCode: 'Введите GCP код',
                         omsId: 'Введите OSMID',
                         turonToken: 'Введите turon token',
+                    },
+                    validation:{
+                        required:{
+                            tin: "ИНН должен состоять из 9 цифр",
+                            productGroup: "Пожалуйста, введите название группы товара",
+                            companyType: "Пожалуйста, выберите тип компании",
+                            displayName: "Пожалуйста, введите название компании",
+                            legalName: "Пожалуйста, введите юридическое название компании",
+                            director: "Пожалуйста, введите имя директора",
+                            region: "Пожалуйста, введите регион",
+                            district: "Пожалуйста, введите район",
+                            address: "Пожалуйста, введите адрес",
+                            bankName:"Пожалуйста, введите название банка",
+                            ccea: "Пожалуйста, введите номер расчётного счёта",
+                            account: "Пожалуйста, введите номер счёта",
+                            mfo: "Пожалуйста, введите МФО банка",
+                            phone: "Пожалуйста, введите номер телефона",
+                            email: "Пожалуйста, введите email",
+                            url: "Пожалуйста, введите URL",
+                            person: "Введите корректный URL (например, https://example.com)",
+                            gcpCode: "Пожалуйста, введите GCP код",
+                            omsId: "Пожалуйста, введите OMS ID",
+                            turonToken: "Пожалуйста, введите Turon Token",
+                            gtin: "GTIN обязателен для заполнения"
+                        },
+                        pattern:{
+                            tin: "Пожалуйста, введите ИНН",
+                            ccea: "Номер расчётного счёта должен состоять из 20 цифр",
+                            account: "Номер счёта должен состоять из 20 цифр",
+                            mfo: "МФО банка должен состоять из 5 цифр",
+                            phone: "Номер телефона должен быть в формате +998XXXXXXXXX",
+                            email: "Введите корректный email",
+                            url: "Пожалуйста, введите контактное лицо",
+                            gcpCode: "GCP код должен содержать минимум 3 символа",
+                            omsId: "OMS ID должен содержать минимум 3 символа",
+                            turonToken: "Turon Token должен содержать минимум 5 символов",
+                            passwordMinLength: "Пароль должен содержать минимум 8 символов",
+                            gtin: "Введите корректный GTIN (14 цифр)"
+                        }
                     }
                 },
                 subtitles: {
@@ -436,6 +690,8 @@ export const resources = {
                 subtitle: 'Всего',
                 btnAdd: 'Добавить продукт',
                 status: 'Статус',
+                view: "Просмотр продукта",
+                edit: "Изменение продукта",
                 deleteUserQuestion: 'Вы уверены, что хотите удалить продукт',
                 messages: {
                     success: {
@@ -483,6 +739,31 @@ export const resources = {
                         gross: 'Введите вес брутто',
                         price: 'Введите цену',
                         companyId: 'Айди компании',
+                    },
+                    validation:{
+                        required:{
+                            gtin: "GTIN обязателен для заполнения",
+                            barcode: "Штрихкод обязателен для заполнения",
+                            icps: "ICPS обязателен для заполнения",
+                            productType: "Тип продукта обязателен для заполнения",
+                            aggregationQuantity: "Количество в агрегации обязательно для заполнения",   
+                            expiration: "Срок годности обязателен для заполнения",
+                            measurementUnit: "Единица измерения обязательна для заполнения",
+                            measurementAmount: "Количество обязательно для заполнения",
+                            weightNet: "Нетто обязательно для заполнения",
+                            name: "Название продукта обязательно для заполнения",
+                            shortName: "Краткое название продукта обязательно для заполнения"
+                        },
+                        pattern:{
+                            gtin: "Введите корректный GTIN (14 цифр)",
+                            barcode: "Введите корректный штрихкод (от 8 до 14 цифр)",
+                            icps: "Введите корректный ICPS (14 цифр)",
+                            aggregationQuantity: "Введите корректное число",
+                            expiration: "Введите корректное число",
+                            measurementUnit: "Максимальная длина — 10 символов",
+                            measurementAmount: "Введите корректное число (целое или с десятичной точкой)",
+                            weightNet: "Введите корректное число (целое или с десятичной точкой)"
+                        }
                     }
                 },
                 modalWindow: {
@@ -517,6 +798,10 @@ export const resources = {
                 },
                   
                 changePasswordForm: {
+                    message: {
+                        passwordsDontMatch: "Пароли не совпадают.",
+                        error: "Ошибка при смене пароля"
+                    },
                     label: {
                         currentPassword: 'Текущий пароль',
                         newPassword: 'Новый пароль',
@@ -526,13 +811,77 @@ export const resources = {
                         currentPassword: 'Введите текущий пароль',
                         newPassword: 'Введите новый пароль',
                         newPasswordConfirmation: 'Подтвердите новый пароль',
+                    },
+                    required: {
+                        currentPassword: "Введите текущий пароль",
+                        newPasswordRequired: "Введите новый пароль",
+                        newPassword: "Пароль должен содержать не менее 8 символов.",
                     }
                 }
+            },
+            auditLog:{
+                title: "Логи системы",
+                subtitle: "Мониторинг и анализ активности пользователей",
+                ip: "IP адресс",
+                id: "ID запроса",
+                session: "Сессия",
+                committed: "Совершил",
+                target: "Цель действия",
+
             }
         }
     },
     uz:{
         translation:{
+            logsActions: {
+                user: {
+                    userRegistration: "Yangi foydalanuvchini ro‘yxatdan o‘tkazish",
+                    passwordChange: "Foydalanuvchi parolni oʻzgartirdi",
+                    unassignCompanyFromUser: "Foydalanuvchidan kompaniya o‘chirildi",
+                    assignCompanyToUser: "Kompaniya foydalanuvchiga biriktirildi",
+                    userUpdate: "Foydalanuvchini yangilash",
+                    userDelete: "Foydalanuvchini o‘chirish"
+                },
+                object: {
+                    productCreate: "Foydalanuvchi mahsulot yaratdi",
+                    productUpdate: "Foydalanuvchi mahsulotni yangiladi",
+                    productDelete: "Foydalanuvchi mahsulotni oʻchirib tashladi"
+                },
+                auth: {
+                    auth: "Autentifikatsiya",
+                    login: "Foydalanuvchi tizimga kirdi",
+                    logout: "Foydalanuvchi tizimdan chiqdi",
+                },
+                organization: {
+                    organizationCreate: "Foydalanuvchi tashkilot yaratdi",
+                    organizationUpdate: "Foydalanuvchi tashkilotni yangiladi",
+                    organizationDelete: "Foydalanuvchi tashkilotni o‘chirdi"
+                },
+                types: {
+                    login: "Foydalanuvchi tizimga kirdi",
+                    logout: "Foydalanuvchi tizimdan chiqdi",
+                    userRegistration: "Yangi foydalanuvchini ro‘yxatdan o‘tkazish",
+                    passwordChange: "Foydalanuvchi parolni oʻzgartirdi",
+                    productCreate: "Foydalanuvchi mahsulot yaratdi",
+                    productUpdate: "Foydalanuvchi mahsulotni yangiladi",
+                    productDelete: "Foydalanuvchi mahsulotni oʻchirib tashladi",
+                    organizationCreate: "Foydalanuvchi tashkilot yaratdi",
+                    organizationUpdate: "Foydalanuvchi tashkilotni yangiladi",
+                    organizationDelete: "Foydalanuvchi tashkilotni o‘chirdi",
+                    unassignCompanyFromUser: "Foydalanuvchidan kompaniya o‘chirildi",
+                    assignCompanyToUser: "Kompaniya foydalanuvchiga biriktirildi",
+                    userUpdate: "Foydalanuvchini yangilash",
+                    userDelete: "Foydalanuvchini o‘chirish"
+                }
+            },
+            categories: {
+                all: 'Barchasi',
+                user: 'Foydalanuvchilar',
+                product: 'Mahsulotlar',
+                auth: "Autentifikatsiya",
+                companies: "Kompaniyalar",
+                organization: "Tashkilot"
+            },
             sessionEndsIn: 'Sessiya tugashiga',
             search: {
                 byName: 'Ism bo‘yicha qidirish',
@@ -544,13 +893,15 @@ export const resources = {
                 delete: 'Oʻchirish',
                 cancel: 'Bekor qilish',
                 save: 'Saqlash',
-                back: 'Orqaga'
+                back: 'Orqaga',
+                toProducts: "Mahsulotlarga o‘tish"
             },
             navigation: {
                 products: "Mahsulotlar",
                 management: "Boshqaruv",
                 organization: "Tashkilot",
                 users: "Foydalanuvchilar",
+                audit: "Tizim jurnallari"
             },
             users: {
                 userRole: {
@@ -597,6 +948,19 @@ export const resources = {
                         role: 'Rolni kiriting',
                         password: 'Parolni kiriting',
                         phone: 'Telefon raqamini kiriting',
+                    },
+                    required: {
+                        firstName: "Ismingizni kiriting",
+                        lastName: "Familiyangizni kiriting",
+                        phone: "Telefon raqamingizni kiriting",
+                        email: "Emailingizni kiriting",
+                        role: "Rolni tanlang",
+                        password: "Parolni kiriting"
+                    },
+                    pattern: {
+                        phone: "To‘g‘ri telefon raqamini kiriting",
+                        email: "To‘g‘ri email manzilini kiriting",
+                        passwordMinLength: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak"
                     }
                 },
                 modalWindow: {
@@ -655,6 +1019,8 @@ export const resources = {
                         gcpCode: "GCP kodi",
                         omsId: "OMSID",
                         turonToken: "Turon token",
+                        status: "Holat",
+                        deleted: "O‘chirildi"
                     },
                     placeholder: {
                         companyType: "Kompaniya turini kiriting",
@@ -677,6 +1043,45 @@ export const resources = {
                         gcpCode: "GCP kodini kiriting",
                         omsId: "OMSID ni kiriting",
                         turonToken: "Turon tokenni kiriting",
+                    },
+                    validation:{
+                        required:{
+                            tin: "STIR 9 ta raqamdan iborat bo‘lishi kerak",
+                            productGroup: "Iltimos, mahsulot guruhi nomini kiriting",
+                            companyType: "Iltimos, kompaniya turini tanlang",
+                            displayName: "Iltimos, kompaniya nomini kiriting",
+                            legalName: "Iltimos, kompaniyaning yuridik nomini kiriting",
+                            director: "Iltimos, direktor ismini kiriting",
+                            region: "Iltimos, mintaqani kiriting",
+                            district: "Iltimos, tumanni kiriting",
+                            address: "Iltimos, manzilni kiriting",
+                            bankName:"Iltimos, bank nomini kiriting",
+                            ccea: "Iltimos, hisob raqamini kiriting",
+                            account: "Iltimos, hisob raqamini kiriting",
+                            mfo: "Iltimos, bank MFO kodini kiriting",
+                            phone: "Iltimos, telefon raqamini kiriting",
+                            email: "Iltimos, email kiriting",
+                            url: "Iltimos, URL kiriting",
+                            person: "Iltimos, kontakt shaxsini kiriting",
+                            gcpCode: "Iltimos, GCP kodini kiriting",
+                            omsId: "Iltimos, OMS ID kiriting",
+                            turonToken: "Iltimos, Turon Token kiriting",
+                            gtin: "GTIN majburiy"
+                        },
+                        pattern:{
+                            tin: "Iltimos, STIR kiriting",
+                            ccea: "Hisob raqami 20 ta raqamdan iborat bo‘lishi kerak",
+                            account: "Hisob raqami 20 ta raqamdan iborat bo‘lishi kerak",
+                            mfo: "Bank MFO kodi 5 ta raqamdan iborat bo‘lishi kerak",
+                            phone: "Telefon raqami +998XXXXXXXXX formatida bo‘lishi kerak",
+                            email: "To‘g‘ri email kiriting",
+                            url: "To‘g‘ri URL kiriting (masalan, https://example.com)",
+                            gcpCode: "GCP kodi kamida 3 ta belgidan iborat bo‘lishi kerak",
+                            omsId: "OMS ID kamida 3 ta belgidan iborat bo‘lishi kerak",
+                            turonToken: "Turon Token kamida 5 ta belgidan iborat bo‘lishi kerak",
+                            passwordMinLength: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak",
+                            gtin: "To‘g‘ri GTIN kiriting (14 raqam)"
+                        }
                     }
                 },
                 subtitles: {
@@ -701,6 +1106,8 @@ export const resources = {
                 subtitle: "Jami",
                 btnAdd: "Mahsulot qo‘shish",
                 status: "Holat",
+                view: "Mahsulotni ko‘rish",
+                edit: "Mahsulotni tahrirlash",
                 deleteUserQuestion: "Mahsulotni o‘chirib tashlashni xohlaysizmi?",
                 messages: {
                     success: {
@@ -748,6 +1155,31 @@ export const resources = {
                         gross: "Brutto og‘irlikni kiriting",
                         price: "Narxni kiriting",
                         companyId: "Kompaniya ID ni kiriting",
+                    },
+                    validation:{
+                        required:{
+                            gtin: "GTIN majburiy",
+                            barcode: "Shtrix-kod majburiy",
+                            icps: "ICPS majburiy",
+                            productType: "Mahsulot turi majburiy",
+                            aggregationQuantity: "Agregatsiya miqdori majburiy",
+                            expiration: "Yaroqlilik muddati majburiy",
+                            measurementUnit: "O‘lchov birligi majburiy",
+                            measurementAmount: "Miqdor majburiy",
+                            weightNet: "Sof vazn majburiy",
+                            name: "Mahsulot nomi majburiy",
+                            shortName: "Mahsulotning qisqa nomi majburiy"
+                        },
+                        pattern:{
+                            gtin: "To‘g‘ri GTIN kiriting (14 raqam)",
+                            barcode: "To‘g‘ri shtrix-kod kiriting (8 dan 14 gacha raqam)",
+                            icps: "To‘g‘ri ICPS kiriting (14 raqam)",
+                            aggregationQuantity: "To‘g‘ri raqam kiriting",
+                            expiration: "To‘g‘ri raqam kiriting",
+                            measurementUnit: "Eng ko‘p uzunlik — 10 ta belgi",
+                            measurementAmount: "To‘g‘ri raqam kiriting (butun yoki o‘nlik)",
+                            weightNet: "To‘g‘ri raqam kiriting (butun yoki o‘nlik)"
+                        }
                     }
                 },
                 modalWindow: {
@@ -781,6 +1213,10 @@ export const resources = {
                     },
                 },
                 changePasswordForm: {
+                    message: {
+                        passwordsDontMatch: "Parollar mos kelmaydi.",
+                        error: "Parolni o‘zgartirishda xatolik"
+                    },
                     label: {
                         currentPassword: 'Joriy parol',
                         newPassword: 'Yangi parol',
@@ -790,8 +1226,23 @@ export const resources = {
                         currentPassword: 'Joriy parolni kiriting',
                         newPassword: 'Yangi parolni kiriting',
                         newPasswordConfirmation: 'Yangi parolni tasdiqlang',
+                    },
+                    required: {
+                        currentPassword: "Joriy parolni kiriting",
+                        newPasswordRequired: "Yangi parolni kiriting",
+                        newPassword: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak.",
                     }
                 }
+            },
+            auditLog:{
+                title: "Tizim jurnallari",
+                subtitle: "Foydalanuvchi faolligini kuzatish va tahlil qilish",
+                ip: "IP manzil",
+                id: "So‘rov ID",
+                session: "Sessiya",
+                committed: "Amalni bajargan",
+                target: "Harakat maqsadi",
+
             }
         }
     }

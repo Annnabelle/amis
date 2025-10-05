@@ -4,7 +4,7 @@ import CustomButton from '../../components/button';
 import type { OrganizationTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
-export const OrganizationsTableColumns = (t: TFunction, onEdit: (record: OrganizationTableDataType) => void, onDelete: (record: OrganizationTableDataType) => void) : TableProps<OrganizationTableDataType>["columns"] => [
+export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "Company", action: "retrieve" | "edit" | "delete", record: OrganizationTableDataType) => void, onDelete: (record: OrganizationTableDataType) => void) : TableProps<OrganizationTableDataType>["columns"] => [
   { 
     title: '№',
     dataIndex: "number",
@@ -55,7 +55,7 @@ export const OrganizationsTableColumns = (t: TFunction, onEdit: (record: Organiz
                   <CustomButton
                     type="button"
                     className="outline"
-                    onClick={(e) =>  {e.stopPropagation(); onEdit(record)}}
+                    onClick={(e) =>  {e.stopPropagation(); handleRowClick("Company", "edit", record);}}
                   >
                    {t('btn.edit')}
                   </CustomButton>

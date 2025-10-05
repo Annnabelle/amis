@@ -33,7 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       children: [
         {
           key: '/organization',
-          label: <Link to="/organization">{t('navigation.organization')}</Link>,
+          label: <Link to="/organization">{t("categories.organization")}</Link>,
         },
         // {
         //   key: '/products',
@@ -42,6 +42,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {
           key: '/users',
           label: <Link to="/users">{t('navigation.users')}</Link>,
+        },
+        {
+          key: '/audit-logs',
+          label: <Link to="/audit-logs">{t('navigation.audit')}</Link>,
         },
       ],
     },
@@ -60,9 +64,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <div className="layout-header-container-items-item">
               <Languages  />
             </div>
-            <div className="layout-header-container-items-item">
+            {/* <div className="layout-header-container-items-item">
               <Balance />
-            </div>
+            </div> */}
             <div className="layout-header-container-items-item">
               <Session />
             </div>

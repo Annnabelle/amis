@@ -6,6 +6,6 @@ export interface ProductTableDataType {
     icps: string,
     gtin: string, 
     measurement: string,
-    status: string,
+    // status: string,
     action: string
 }

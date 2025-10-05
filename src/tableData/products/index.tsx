@@ -4,7 +4,7 @@ import CustomButton from '../../components/button';
 import type { ProductTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
-export const ProductsTableColumns = (t: TFunction, onEdit: (record: ProductTableDataType) => void, onDelete: (record: ProductTableDataType) => void) : TableProps<ProductTableDataType>["columns"] => [
+export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Product", action: "retrieve" | "edit" | "delete",record: ProductTableDataType) => void, onDelete: (record: ProductTableDataType) => void) : TableProps<ProductTableDataType>["columns"] => [
   { 
     title: '№',
     dataIndex: "number",
@@ -41,12 +41,12 @@ export const ProductsTableColumns = (t: TFunction, onEdit: (record: ProductTable
     key: "measurement",
     render: (text) => <p className="table-text">{text}</p>,
   },
-  {
-    title: t('products.status'),
-    dataIndex: "status",
-    key: "status",
-    render: (text) => <p className="table-text">{text}</p>,
-  },
+  // {
+  //   title: t('products.status'),
+  //   dataIndex: "status",
+  //   key: "status",
+  //   render: (text) => <p className="table-text">{text}</p>,
+  // },
   {
     title: '',
     key: "action",
@@ -61,7 +61,7 @@ export const ProductsTableColumns = (t: TFunction, onEdit: (record: ProductTable
                   <CustomButton
                     type="button"
                     className="outline"
-                    onClick={(e) =>  {e.stopPropagation(); onEdit(record)}}
+                    onClick={(e) =>  {e.stopPropagation(); handleRowClick("Product", "edit", record);}}
                   >
                     {t('btn.edit')} 
                   </CustomButton>

@@ -3,12 +3,14 @@ import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux
 import { usersSlice } from "./users";
 import { organizationsSlice } from "./organization";
 import { productsSlice } from "./products";
+import {auditLogsSlice} from "./auditLog/index"
 
 export const store = configureStore({
     reducer: {
         users: usersSlice.reducer,
         organizations: organizationsSlice.reducer,
-        products: productsSlice.reducer
+        products: productsSlice.reducer,
+        auditLogs: auditLogsSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
