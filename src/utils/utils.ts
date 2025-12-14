@@ -20,3 +20,16 @@ export const FormatUzbekPhoneNumber = (raw: any) => {
 
   return raw; // если формат не подходит, возвращаем как есть
 };
+
+
+export const formatDate = (date: string | Date | undefined, locale = "ru-RU") => {
+  if (!date) return "-";
+
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+};

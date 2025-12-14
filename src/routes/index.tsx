@@ -1,8 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
-
-
 const LoginPage = lazy(() => import("../pages/login"));
 const MainPage = lazy(() => import("../pages/main"));
 const Users = lazy(() => import("../pages/users"));
@@ -16,6 +14,9 @@ const AuditLogsPage = lazy(() => import('../pages/auditLogs'))
 const ProductsView = lazy(() => import("../pages/products/viewPage")) 
 const OrganizationsEdit = lazy(() => import("../pages/organizations/organizationEdit"))
 const ProductsEdit = lazy(() => import("../pages/products/editProduct"))
+const MarkingCodes = lazy(() => import("../pages/markingCodes"))
+const MarkingCode = lazy(() => import("../pages/markingCode"))
+const MarkingCodeProduct = lazy(() => import( "../pages/markingCodeProduct"));
 
 const Router: React.FC = () => {
   return (
@@ -35,6 +36,9 @@ const Router: React.FC = () => {
         <Route path='/organization/:id/products/:id' element={<ProductsView/>}/>
         <Route path='organization/edit/:id' element={<OrganizationsEdit/>}/>
         <Route path='/organization/:id/products/edit/:id' element={<ProductsEdit/>}/>
+        <Route path='/marking-codes' element={<MarkingCodes/>}/>
+        <Route path='/marking-codes/:id' element={<MarkingCode/>}/>
+        <Route path='/marking-code/:id/product/:id' element={<MarkingCodeProduct/>}/>
       </Routes>
     </Suspense>
   );

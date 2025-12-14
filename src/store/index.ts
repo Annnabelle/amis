@@ -4,13 +4,17 @@ import { usersSlice } from "./users";
 import { organizationsSlice } from "./organization";
 import { productsSlice } from "./products";
 import {auditLogsSlice} from "./auditLog/index"
+import { markingCodesSlice } from "./markingCodes";
+import { referencesSlice } from "./references";
 
 export const store = configureStore({
     reducer: {
         users: usersSlice.reducer,
         organizations: organizationsSlice.reducer,
         products: productsSlice.reducer,
-        auditLogs: auditLogsSlice.reducer
+        auditLogs: auditLogsSlice.reducer,
+        markingCodes: markingCodesSlice.reducer,
+        references: referencesSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

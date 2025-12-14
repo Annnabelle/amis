@@ -128,6 +128,15 @@
                                 &-filters
                                     @include mix.flex-content(flex-start, row)
                                     column-gap: 20px
+                                .filters-large
+                                    width: 100%
+                                    overflow: auto
+                                    flex-wrap: wrap
+                                    justify-content: space-between
+                                    gap: 24px
+                                    .form-inputs
+                                        max-width: 250px
+                                        width: 100%
 .ant-dropdown-placement-bottomRight
     z-index: 1 !important
 

@@ -1,8 +1,11 @@
 
-
 export const resources = {
     en:{
         translation:{
+            statuses: {
+                active: "Active",
+                inactive: "Inactive",
+            },
             logsActions: {
                 user: {
                     userRegistration: "Registration of a new user",
@@ -54,7 +57,11 @@ export const resources = {
             sessionEndsIn: 'Session ends in',
             search: {
                 byName: 'Search by name',
-                byOrganization: 'Search by organization'
+                byOrganization: 'Search by organization',
+                selectProduct: 'Select product',
+                packageType: 'Package type',
+                selectStatus: 'Select status',
+                selectOrderPaymentType: 'Select order payment type'
             },
             btn: {
                 create: 'Create',
@@ -63,14 +70,16 @@ export const resources = {
                 cancel: 'Cancel',
                 save: 'Save',
                 back: 'Back',
-                toProducts: "Go to products"
+                toProducts: "Go to products",
+                sendToTuron: "Send to Turon"
             },
             navigation: {
                 products: "Products",
                 management: "Management",
                 organization: "Organization",
                 users: "Users",
-                audit: "System logs"
+                audit: "System logs",
+                markingCodes: "Marking codes"
             },
             users: {
                 userRole: {
@@ -412,11 +421,84 @@ export const resources = {
                 committed: "Performed by",
                 target: "Action purpose",
 
+            },
+            markingCodes: {
+                title: "KM Orders",
+                subtitle: "Total",
+                order: "Order",
+                markingCodes: "Marking codes",
+                backToOrders: "Back to Orders",
+                backToBatches: "Back to Batches",
+                markingCodesOrderStatus:{
+                    created: "Created",
+                    pending: "Pending",
+                    ready: "Ready",
+                    rejected: "Rejected",
+                    closed: "Closed",
+                    outsourced: "Outsourced"
+                },
+                batches: {
+                    title: "Batches",
+                    orderNumber: "Order number",
+                    orderTime: "Order time",
+                    orderStatus: "Order status",
+                    turonOrderID: "Turon order ID",
+                },
+                tableTitles: {
+                    number: "№",
+                    products: "Products",
+                    comments: "Comments",
+                    markingCodesQuantity: "Marking codes quantity",
+                    turonBatchID: "Turon batch ID",
+                    creationDate: "Creation date",
+                    turonMessage: "Turon message",
+                    orderNumber: "Order number",
+                    productName: "Product name",
+                    totalQuantity: "Total quantity",
+                    orderedMCQuantity: "Ordered MC quantity",
+                    remainingMCQuantity: "Remaining MC quantity",
+                    orderDate: "Order date",
+                    packageType: "Package type",
+                    paymentType : "Payment type",
+                    status: "Status",
+                    paid: "Paid",
+                    unPaid: "Unpaid"
+                },
+                orderCreation: {
+                    title: "Order Creation",
+                    product: "Product",
+                    packagingType: "Packaging Type",
+                    quantity: "Quantity",
+                    serialNumberGenerationMethod: "Serial Number Generation Method",
+                    selfGenerated: "Self-generated",
+                    byOperator: "By Operator",
+                    submitOrder: "Submit Order",
+                    orderHasBeenSuccessfullyCreated: "Order has been successfully created",
+                    failedToCreateOrder: "Failed to create order",
+                },
+                label:{
+                    chooseProduct: "Choose product",
+                    choosePackageType: "Choose package type",
+                    enterQuantity: "Enter quantity",
+                    chooseGenerationMethod: "Choose generation method"
+                },
+                markingCode: {
+                    product: "Product",
+                    comment: "Comment",
+                    mCQuantity: "MC Quantity",
+                    partyIDTuron: "Turon Party ID",
+                    creationDate: "Creation Date",
+                    messageFromTuron: "Message from Turon",
+                }
             }
         }
     },
     ru:{
         translation:{
+            statuses: {
+                active: "Активен",
+                inactive: "Неактивен",
+            },
             logsActions: {
                 user: {
                     userRegistration: "Регистрация нового пользователя",
@@ -468,7 +550,11 @@ export const resources = {
             sessionEndsIn: 'Окончание сессии через',
             search: {
                 byName: 'Поиск по имени',
-                byOrganization: 'Поиск по организациям'
+                byOrganization: 'Поиск по организациям',
+                selectProduct: 'Выберите продукцию',
+                packageType: 'Тип упаковки',
+                selectStatus: 'Выберите статус',
+                selectOrderPaymentType: 'Выберите тип оплаты заказа'
             },
             btn: {
                 create: 'Создать',
@@ -477,14 +563,16 @@ export const resources = {
                 cancel: 'Отмена',
                 save: 'Сохранить',
                 back: 'Назад',
-                toProducts: "Перейти к продуктам"
+                toProducts: "Перейти к продуктам",
+                sendToTuron: "Отправить в турон"
             },
             navigation: {
                 products: "Продукция",
                 management: "Управление",
                 organization: "Организация",
                 users: "Пользователи",
-                audit: "Логи системы"
+                audit: "Логи системы",
+                markingCodes: "Коды маркировки",
             },
             users: {
                 userRole: {
@@ -827,12 +915,84 @@ export const resources = {
                 session: "Сессия",
                 committed: "Совершил",
                 target: "Цель действия",
-
+            },
+            markingCodes: {
+                title: "Заказы КМ",
+                subtitle: "Всего",
+                order: "Заказать",
+                markingCodes: "Коды маркировки",
+                backToOrders: "Вернуться к заказам",
+                backToBatches: "Вернуться партиям",
+                markingCodesOrderStatus:{
+                    created: "Создано",
+                    pending: "В ожидании",
+                    ready: "Готово",
+                    rejected: "Отклонено",
+                    closed: "Закрыто",
+                    outsourced: "Передано на аутсорсинг"
+                },
+                batches: {
+                    title: "Партии",
+                    orderNumber: "Номер заказа",
+                    orderTime: "Время заказа",
+                    orderStatus: "Статус заказа",
+                    turonOrderID: "Turon order ID",
+                },
+                tableTitles: {
+                    number: "№",
+                    products: "Продукция",
+                    comments: "Название продукции",
+                    markingCodesQuantity: "Кол-во КМ",
+                    turonBatchID: "ID Партии турон",
+                    creationDate: "Дата создания",
+                    turonMessage: "Сообщение от турон",
+                    orderNumber: "Номер заказа",
+                    productName: "Название продукции",
+                    totalQuantity: "Общее количество",
+                    orderedMCQuantity: "Заказанное количество КМ",
+                    remainingMCQuantity: "Оставшееся количество КМ",
+                    orderDate: "Дата заказа",
+                    packageType: "Тип упаковки",
+                    paymentType : "Тип оплаты",
+                    status: "Статус",
+                    paid: "Оплачиваемый",
+                    unPaid: "Неоплачиваемый"
+                },
+                orderCreation: {
+                    title: "Создание заказа",
+                    product: "Продукция",
+                    packagingType: "Тип упаковки",
+                    quantity: "Количество",
+                    serialNumberGenerationMethod: "Метод генерации серийного номера",
+                    selfGenerated: "Самогенерируемый",
+                    byOperator: "Оператором",
+                    submitOrder: "Отправить заказ",
+                    orderHasBeenSuccessfullyCreated: "Заказ успешно создан",
+                    failedToCreateOrder: "Не удалось создать заказ",
+                },
+                label:{
+                    chooseProduct: "Выберите продукцию",
+                    choosePackageType: "Выберите тип упаковки",
+                    enterQuantity: "Введите количество",
+                    chooseGenerationMethod: "Выберите метод генерации"
+                },
+                markingCode: {
+                    product: "Продукция",
+                    comment: "Комментарий",
+                    mCQuantity: "Кол-во КМ",
+                    partyIDTuron: "ID Партии турон",
+                    creationDate: "Дата создания",
+                    messageFromTuron: "Сообщение от турон",
+                }
             }
         }
     },
     uz:{
         translation:{
+            statuses: {
+                active: "Faol",
+                inactive: "Faol emas",
+            },
             logsActions: {
                 user: {
                     userRegistration: "Yangi foydalanuvchini ro‘yxatdan o‘tkazish",
@@ -885,7 +1045,11 @@ export const resources = {
             sessionEndsIn: 'Sessiya tugashiga',
             search: {
                 byName: 'Ism bo‘yicha qidirish',
-                byOrganization: 'Tashkilotlar bo‘yicha qidirish'
+                byOrganization: 'Tashkilotlar bo‘yicha qidirish',
+                selectProduct: 'Mahsulotni tanlang',
+                packageType: 'Qadoq turi',
+                selectStatus: 'Holatni tanlang',
+                selectOrderPaymentType: 'Buyurtma toʻlov turini tanlang'
             },
             btn: {
                 create: 'Yaratish',
@@ -894,14 +1058,16 @@ export const resources = {
                 cancel: 'Bekor qilish',
                 save: 'Saqlash',
                 back: 'Orqaga',
-                toProducts: "Mahsulotlarga o‘tish"
+                toProducts: "Mahsulotlarga o‘tish",
+                sendToTuron: "Turonga yuborish"
             },
             navigation: {
                 products: "Mahsulotlar",
                 management: "Boshqaruv",
                 organization: "Tashkilot",
                 users: "Foydalanuvchilar",
-                audit: "Tizim jurnallari"
+                audit: "Tizim jurnallari",
+                markingCodes: "Markirovka kodlari"
             },
             users: {
                 userRole: {
@@ -1242,7 +1408,75 @@ export const resources = {
                 session: "Sessiya",
                 committed: "Amalni bajargan",
                 target: "Harakat maqsadi",
-
+            },
+            markingCodes: {
+                title: "KM buyurtmasi",
+                subtitle: "Jami",
+                order: "Buyurtma berish",
+                markingCodes: "Markirovka kodlari",
+                backToOrders: "Buyurtmalarga qaytish",
+                backToBatches: "Partiyalarga qaytish",
+                markingCodesOrderStatus:{
+                    created: "Yaratildi",
+                    pending: "Kutilmoqda",
+                    ready: "Tayyor",
+                    rejected: "Rad etildi",
+                    closed: "Yopildi",
+                    outsourced: "Tashqi manbaga berildi"
+                },
+                batches: {
+                    title: "Partiyalar",
+                    orderNumber: "Buyurtma raqami",
+                    orderTime: "Buyurtma vaqti",
+                    orderStatus: "Buyurtma holati",
+                    turonOrderID: "Turon buyurtma ID",
+                },
+                tableTitles: {
+                    number: "№",
+                    products: "Mahsulotlar",
+                    comments: "Mahsulot nomi",
+                    markingCodesQuantity: "KM soni",
+                    turonBatchID: "Turon partiya ID",
+                    creationDate: "Yaratilgan sana",
+                    turonMessage: "Turondan xabar",
+                    orderNumber: "Buyurtma raqami",
+                    productName: "Mahsulot nomi",
+                    totalQuantity: "Jami miqdor",
+                    orderedMCQuantity: "Buyurtma qilingan KM soni",
+                    remainingMCQuantity: "Qolgan KM soni",
+                    orderDate: "Buyurtma sanasi",
+                    packageType: "Qadoq turi",
+                    paymentType : "Toʻlov turi",
+                    status: "Holat",
+                    paid: "Toʻlangan",
+                    unPaid: "Toʻlanmagan"
+                },
+                orderCreation: {
+                    title: "Buyurtma yaratish",
+                    product: "Mahsulot",
+                    packagingType: "Qadoq turi",
+                    quantity: "Miqdor",
+                    serialNumberGenerationMethod: "Seriya raqamini yaratish usuli",
+                    selfGenerated: "O‘z-o‘zi yaratilgan",
+                    byOperator: "Operator tomonidan",
+                    submitOrder: "Buyurtmani yuborish",
+                    orderHasBeenSuccessfullyCreated: "Buyurtma muvaffaqiyatli yaratildi",
+                    failedToCreateOrder: "Buyurtma yaratishda xatolik",
+                },
+                label:{
+                    chooseProduct: "Mahsulotni tanlang",
+                    choosePackageType: "Qadoq turini tanlang",
+                    enterQuantity: "Miqdor kiriting",
+                    chooseGenerationMethod: "Yaratish usulini tanlang"
+                },
+                markingCode: {
+                    product: "Mahsulot",
+                    comment: "Izoh",
+                    mCQuantity: "KM soni",
+                    partyIDTuron: "Turon partiya ID",
+                    creationDate: "Yaratilgan sana",
+                    messageFromTuron: "Turondan xabar",
+                }
             }
         }
     }

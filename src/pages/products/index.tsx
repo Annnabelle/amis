@@ -27,6 +27,8 @@ const Products = () => {
     const dataTotal = useAppSelector((state) => state.products.total)
     const productById = useAppSelector((state) => state.products.productById)
     const shortNameEdited = useRef(false);
+    const [isSearching, setIsSearching] = useState(false);
+
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
@@ -55,13 +57,18 @@ const Products = () => {
     }, [productById, form])
 
     useEffect(() => {
-        dispatch(getAllProducts({
-            page: dataPage || 1,
-            limit: dataLimit || 10,
-            sortOrder: 'asc',
-            companyId: id,
-        })) 
-    }, [dispatch, id, dataPage, dataLimit])
+        if (!isSearching) {
+            dispatch(
+            getAllProducts({
+                page: dataPage || 1,
+                limit: dataLimit || 10,
+                sortOrder: "asc",
+                companyId: id,
+            })
+            );
+        }
+    }, [dispatch, id, dataPage, dataLimit, isSearching]);
+
 
    const ProductsData = useMemo(() => {
         return products.map((product, index) => ({
@@ -71,7 +78,7 @@ const Products = () => {
             productType: product.productType,
             icps: product.icps,
             gtin: product.gtin,
-            measurement: product.measurement.unit ,
+            measurement: product?.measurement?.unit ,
             // status: product,
             action: 'Действие', 
         }))
@@ -182,19 +189,31 @@ const Products = () => {
 
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.trim().length > 0) {
-            dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
+        const value = e.target.value.trim();
+
+        if (value.length > 0) {
+            setIsSearching(true);
+            dispatch(
+            searchProducts({
+                query: value,
+                page: 1,
+                limit: dataLimit || 10,
+                sortOrder: "asc",
+            })
+            );
         } else {
-            dispatch(getAllProducts({   
-            page: dataPage || 1,
-            limit: dataLimit || 10,
-            sortOrder: 'asc',
-            // status: 'active',
-            // sortBy: 'name',/
-            companyId: id, }));
+            setIsSearching(false);
+            dispatch(
+            getAllProducts({
+                page: 1,
+                limit: dataLimit || 10,
+                sortOrder: "asc",
+                companyId: id,
+            })
+            );
         }
     };
+
 
   return (
     <MainLayout>

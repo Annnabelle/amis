@@ -81,7 +81,7 @@ const Organizations = () => {
             director: organization.director,
             legalName: organization.legalName,
             contacts: organization.contacts.phone ?? '',
-            status: organization.status,
+            status: t(`statuses.${organization.status}`), 
             action: 'Действие', 
         }))
     }, [organizations]);

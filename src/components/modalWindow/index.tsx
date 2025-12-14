@@ -22,6 +22,7 @@ const ModalWindow: React.FC<ModalProps> = ({ children, ...props }) => {
   return (
     <Modal
       centered
+      width="auto"
       title={
         <div className='modal-heading-container'>
           <div className="modal-heading-title">

@@ -44,6 +44,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           label: <Link to="/users">{t('navigation.users')}</Link>,
         },
         {
+          key: '/marking-codes',
+          label: <Link to="/marking-codes">{t('navigation.markingCodes')}</Link>,
+        },
+        {
           key: '/audit-logs',
           label: <Link to="/audit-logs">{t('navigation.audit')}</Link>,
         },

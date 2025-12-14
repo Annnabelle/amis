@@ -2,7 +2,7 @@
 @use "../../styles/mixins.sass" as mix
 @use "../../styles/variables.sass" as vars
 .btn
-    +mix.typography(16px, 500, map.get(vars.$basic, 'black'))
+    +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
     @include mix.flex-content(center)
     text-align: center
     background: map.get(vars.$main, 'main' )
@@ -19,7 +19,7 @@
         border: 1px solid map.get(vars.$main, 'main')
         color: map.get(vars.$basic, 'black')
 .outline
-    +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+    +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
     background: transparent
     border: 1px solid map.get(vars.$main, 'main')
     &:hover
@@ -37,3 +37,8 @@
         background: map.get(vars.$events, 'red')
         border: 1px solid map.get(vars.$events, 'red')
         color: map.get(vars.$basic, 'black')
+
+.create-order-btn
+    padding: 8px 16px
+    width: 200px !important
+    height: 100%
