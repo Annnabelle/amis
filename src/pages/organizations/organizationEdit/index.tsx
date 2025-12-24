@@ -102,7 +102,7 @@ const OrganizationsEdit = () => {
                             handleUpdateOrganization(values);
                         }}
                     >
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   initialValue={organizationById.companyType}>
                                 <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')} />
                             </Form.Item>
@@ -110,7 +110,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input"  name="productGroup" label={t('organizations.addUserForm.label.productGroup')} initialValue={organizationById.productGroup}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.productGroup')}   />
                             </Form.Item>
@@ -118,7 +118,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.tin')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')} initialValue={organizationById.legalName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')}  />
                             </Form.Item>
@@ -129,7 +129,7 @@ const OrganizationsEdit = () => {
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.address')} </h4>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')} initialValue={organizationById.address.region}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.region')} />
                             </Form.Item>
@@ -137,7 +137,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.district')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['address', 'address']} label={t('organizations.addUserForm.label.address')} initialValue={organizationById.address.address}>
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.address')}  />
                             </Form.Item>
@@ -145,7 +145,7 @@ const OrganizationsEdit = () => {
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById.bankDetails.bankName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.bankName')}  />
                             </Form.Item>
@@ -153,7 +153,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.ccea')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById.bankDetails.account}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.account')}   />
                             </Form.Item>
@@ -164,7 +164,7 @@ const OrganizationsEdit = () => {
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}initialValue={organizationById.contacts.phone}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.phone')}  />
                             </Form.Item>
@@ -172,7 +172,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.email')}   />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['contacts', 'url']} label={t('organizations.addUserForm.label.url')} initialValue={organizationById.contacts.url}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.url')}  />
                             </Form.Item>
@@ -180,7 +180,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.person')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['accessCodes', 'gcpCode']} label={t('organizations.addUserForm.label.gcpCode')} initialValue={organizationById.accessCodes.gcpCode}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.gcpCode')}  />
                             </Form.Item>

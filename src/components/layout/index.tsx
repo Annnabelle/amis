@@ -1,112 +1,279 @@
-import React, { useState, type ReactNode } from 'react';
+import React, {
+  useState,
+  type ReactNode,
+  useEffect,
+  useMemo,
+} from 'react';
 import type { MenuProps } from 'antd';
 import { Button, Layout, Menu } from 'antd';
-import { AppstoreOutlined} from '@ant-design/icons';
+import {
+  ApartmentOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  AppstoreOutlined,
+  CodeOutlined,
+  ClusterOutlined,
+  BarChartOutlined,
+  BuildOutlined,
+} from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
 import { Link, useLocation } from 'react-router-dom';
 import UserInfo from '../widgets/userInfo';
 import Session from '../widgets/session';
-import Balance from '../widgets/balance';
 import Languages from '../languages';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { getAllOrganizations } from '../../store/organization';
 
 const { Header, Content, Sider } = Layout;
-
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  const menuItems: MenuProps['items'] = [
+  const organizations = useAppSelector(
+      (state) => state.organizations.organizations
+  );
+  const dataLimit = useAppSelector(
+      (state) => state.organizations.limit
+  );
+  const dataPage = useAppSelector(
+      (state) => state.organizations.page
+  );
+
+  const isSuperAdmin = true;
+
+  useEffect(() => {
+    dispatch(
+        getAllOrganizations({
+          page: dataPage || 1,
+          limit: dataLimit || 10,
+          sortOrder: 'asc',
+        })
+    );
+  }, [dispatch, dataPage, dataLimit]);
+
+  /* =========================
+     Маппинг организаций
+  ========================== */
+
+  const myOrganizations = useMemo(
+      () =>
+          organizations?.map((org) => ({
+            id: String(org.id),
+            name: org.displayName,
+          })) || [],
+      [organizations]
+  );
+
+  /* =========================
+     Подменю для организации
+  ========================== */
+
+  const getOrgSubMenuItems = (
+      orgId: string
+  ): MenuProps['items'] => [
     {
-      key: 'management',
-      icon: <AppstoreOutlined className='menu-icon' />,
-      label: t('navigation.management'),
-      children: [
-        {
-          key: '/organization',
-          label: <Link to="/organization">{t("categories.organization")}</Link>,
-        },
-        // {
-        //   key: '/products',
-        //   label: <Link to="/products">{t('navigation.products')}</Link>,
-        // },
-        {
-          key: '/users',
-          label: <Link to="/users">{t('navigation.users')}</Link>,
-        },
-        {
-          key: '/marking-codes',
-          label: <Link to="/marking-codes">{t('navigation.markingCodes')}</Link>,
-        },
-        {
-          key: '/audit-logs',
-          label: <Link to="/audit-logs">{t('navigation.audit')}</Link>,
-        },
-      ],
+      key: 'products',
+      icon: <AppstoreOutlined />,
+      label: (
+          <Link to={`/organization/${orgId}/products`}>
+            Продукты
+          </Link>
+      ),
+    },
+    {
+      key: 'marking-codes',
+      icon: <CodeOutlined />,
+      label: (
+          <Link to={`/organization/${orgId}/orders`}>
+            Коды маркировки
+          </Link>
+      ),
+    },
+    {
+      key: 'aggregations',
+      icon: <ClusterOutlined />,
+      label: (
+          <Link to={`/aggregations`}>
+            Агрегации
+          </Link>
+      ),
+    },
+    {
+      key: 'reports',
+      icon: <BarChartOutlined />,
+      label: (
+          <Link to={`/organization/${orgId}/reports`}>
+            Отчеты
+          </Link>
+      ),
     },
   ];
 
+  /* =========================
+     Мои организации (SubMenu)
+  ========================== */
+
+  const myOrganizationsItems: MenuProps['items'] =
+      myOrganizations.map((org) => ({
+        key: `my-org-${org.id}`,
+        icon: <BuildOutlined />,
+        label: org.name,
+        children: getOrgSubMenuItems(org?.id)?.map((item: any) => ({
+          ...item,
+          key: `${org.id}-${item.key}`,
+        })),
+      }));
+
+  /* =========================
+     Основное меню
+  ========================== */
+
+  const menuItems: MenuProps['items'] = [];
+
+  if (isSuperAdmin) {
+    menuItems.push({
+      key: '/organization',
+      icon: <ApartmentOutlined />,
+      label: (
+          <Link to="/organization">
+            {t('navigation.organizations') || 'Организации'}
+          </Link>
+      ),
+    });
+  }
+
+  menuItems.push({
+    key: '/users',
+    icon: <UserOutlined />,
+    label: (
+        <Link to="/users">
+          {t('navigation.users') || 'Пользователи'}
+        </Link>
+    ),
+  });
+
+  menuItems.push({
+    key: '/audit-logs',
+    icon: <FileTextOutlined />,
+    label: (
+        <Link to="/audit-logs">
+          {t('navigation.audit') || 'Логи системы'}
+        </Link>
+    ),
+  });
+
+  if (myOrganizations.length > 0) {
+    menuItems.push({
+      key: 'my-organizations-group',
+      icon: <ApartmentOutlined />,
+      label:
+          t('navigation.myOrganizations') ||
+          'Мои организации',
+      children: myOrganizationsItems,
+    });
+  }
+
+  /* =========================
+     Активный пункт меню
+  ========================== */
+
+  const selectedKeys = useMemo(() => {
+    const parts = location.pathname.split('/');
+    const orgId = parts[2];
+    const section = parts[3];
+
+    if (orgId && section) {
+      return [`${orgId}-${section}`];
+    }
+
+    return [location.pathname];
+  }, [location.pathname]);
+
   return (
-    <Layout className='layout'>
-      <Header className='layout-header'>
-        <div className="layout-header-container">
-          <div className="layout-header-container-items">
-            <div className="layout-header-container-items-item">
+      <Layout className="layout">
+        <Header className="layout-header">
+          <div className="layout-header-container">
+            <div className="layout-header-container-items">
               <h1 className="logo">logo</h1>
             </div>
-          </div>
-          <div className="layout-header-container-items">
-            <div className="layout-header-container-items-item">
-              <Languages  />
-            </div>
-            {/* <div className="layout-header-container-items-item">
-              <Balance />
-            </div> */}
-            <div className="layout-header-container-items-item">
+
+            <div className="layout-header-container-items">
+              <Languages />
               <Session />
-            </div>
-            <div className="layout-header-container-items-item">
               <UserInfo />
             </div>
           </div>
-        </div>
-      </Header>
-      <div className='layout-content-wrapper'>
-        <Layout className='layout-content'>
-          <Sider collapsible collapsed={collapsed} trigger={null} className={`layout-sider ${collapsed ? '' : 'sider-opened'}`}>
-            <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
-              <div className="layout-sider-trigger-container">
+        </Header>
+
+        <div className="layout-content-wrapper">
+          <Layout className="layout-content">
+            <Sider
+                collapsible
+                collapsed={collapsed}
+                trigger={null}
+                width="fit-content"
+                collapsedWidth={80}
+                className={`layout-sider ${
+                    collapsed ? 'is-collapsed' : 'is-opened'
+                }`}
+                style={{
+                  width: 'auto',
+                  minWidth: collapsed ? 80 : 220,
+                  maxWidth: collapsed ? 80 : 420,
+                  transition:
+                      'min-width 0.3s ease, max-width 0.3s ease',
+                }}
+            >
+              <div
+                  className={`layout-sider-trigger ${
+                      collapsed ? 'triggered' : ''
+                  }`}
+              >
                 <Button
-                  type="text"
-                  icon={collapsed ? <GiHamburgerMenu/> : <IoClose />}
-                  onClick={() => setCollapsed(!collapsed)}
-                  className='layout-sider-trigger-container-button'
+                    type="text"
+                    icon={
+                      collapsed ? (
+                          <GiHamburgerMenu />
+                      ) : (
+                          <IoClose />
+                      )
+                    }
+                    onClick={() =>
+                        setCollapsed(!collapsed)
+                    }
                 />
               </div>
-            </div>
-            <Menu
-              mode="inline"
-              selectedKeys={[location.pathname]} 
-              defaultOpenKeys={['management']}
-              style={{ height: '100%' }}
-              items={menuItems}
-              className='layout-sider-menu'
-            />
-          </Sider>
-          <Content className='layout-content-container'>{children}</Content>
-        </Layout>
-      </div>
-    </Layout>
+
+              <Menu
+                  mode="inline"
+                  inlineCollapsed={collapsed}
+                  selectedKeys={selectedKeys}
+                  defaultOpenKeys={['my-organizations-group']}
+                  items={menuItems}
+                  inlineIndent={24}
+                  className="layout-sider-menu"
+              />
+            </Sider>
+
+            <Content className="layout-content-container">
+              {children}
+            </Content>
+          </Layout>
+        </div>
+      </Layout>
   );
 };
 
 export default MainLayout;
+
+

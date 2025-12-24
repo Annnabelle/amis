@@ -195,12 +195,6 @@ export const AuditType = {
 
 export type AuditType = typeof AuditType[keyof typeof AuditType];
 
-type TargetResponseMap = {
-  [TargetEntity.User]: UserResponseDto;
-  [TargetEntity.Company]: CompanyResponseDto;
-  [TargetEntity.Product]: ProductResponseDto;
-};
-
 export type TargetResponseDto = UserResponseDto | CompanyResponseDto | ProductResponseDto | null;
 
 export type Identifier = {
@@ -209,3 +203,120 @@ export type Identifier = {
   toString(): string;
 }
 
+
+export const AvailablePackageType = {
+  Unit: "unit",
+  Group: "group",
+  BoxLv1: "box_lv_1",
+  BoxLv2: "box_lv_2",
+} as const;
+
+export type AvailablePackageType = (typeof AvailablePackageType)[keyof typeof AvailablePackageType];
+
+
+
+export const UtilizationReportStatus = {
+  New: "new",
+  Requested: 'requested',
+  Created: "created",
+  Validating: "validating",
+  InProgress: "in_process",
+  PartiallyProcessed: "partially_processed",
+  Success: "success",
+  Error: "error",
+} as const;
+
+export type UtilizationReportStatus = (typeof UtilizationReportStatus)[keyof typeof UtilizationReportStatus];
+
+export const UtilizationReportExternalStatus = {
+  Created: "CREATED", // Создан
+  Validating: "VALIDATING", // Проверяется
+  InProgress: "IN_PROCESS", // Обрабатывается
+  PartiallyProcessed: "PARTIALLY_PROCESSED", // Обработан частично (по одному или нескольким кодам выполнение операции было отклонено)
+  Success: "SUCCESS", // Обработан полностью (операции выполнены по всемкодам)
+  Error: "ERROR", // Отклонен (операции по кодам не выполнялись)
+} as const;
+
+export type UtilizationReportExternalStatus = (typeof UtilizationReportExternalStatus)[keyof typeof UtilizationReportExternalStatus];
+
+
+export const MarkingCodeStatus = {
+  // trash
+  Uploaded: 'UPLOADED',
+  Aggregated: 'AGGREGATED',
+
+
+  // actual
+  Received: "RECEIVED", // Получен
+  Applied: "APPLIED", // Нанесен
+  Introduced: "INTRODUCED", // В обороте
+  Withdrawn: "WITHDRAWN", // Выведен из оборота
+  WrittenOff: "WRITTEN_OFF", // Списан
+
+} as const;
+export type MarkingCodeStatus = typeof MarkingCodeStatus[keyof typeof MarkingCodeStatus];
+
+export const MarkingCodeState = {
+  Used: 'used',
+  NotUsed: 'notUsed',
+} as const;
+export type MarkingCodeState = typeof MarkingCodeState[keyof typeof MarkingCodeState];
+
+
+export const BatchStatus = {
+  New: "new",
+  Created: 'created',
+  VendorPending: 'vendor_pending',
+  ReadyForCodes: 'ready_for_codes',
+  CodesReceived: 'codes_received',
+  CodesUtilizationRequested: 'codes_utilization_requested',
+  CodesUtilized: 'codes_utilized',
+  Rejected: 'rejected',
+  Closed: 'closed',
+  Error: 'error',
+} as const;
+
+export type BatchStatus = typeof BatchStatus[keyof typeof BatchStatus];
+
+export const ExternalBatchStatus = {
+  Pending: "PENDING",
+  Active: "ACTIVE",
+  Exhausted: "EXHAUSTED",
+  Rejected: "REJECTED",
+  Closed: "CLOSED",
+} as const;
+
+export type ExternalBatchStatus = typeof ExternalBatchStatus[keyof typeof ExternalBatchStatus];
+
+export const ExternalOrderStatus = {
+  Created: "CREATED",
+  Pending: "PENDING",
+  Ready: "READY",
+  Rejected: "REJECTED",
+  Closed: "CLOSED",
+  Outsourced: "OUTSOURCED",
+} as const;
+
+export type ExternalOrderStatus = typeof ExternalOrderStatus[keyof typeof ExternalOrderStatus];
+
+export const AggregationReportExternalStatus = {
+  Created: "CREATED", // Создан
+  Validating: "VALIDATING", // Проверяется
+  InProgress: "IN_PROCESS", // Обрабатывается
+  Success: "SUCCESS", // Обработан полностью
+  Error: "ERROR", // Отклонен
+} as const;
+
+export type AggregationReportExternalStatus = (typeof AggregationReportExternalStatus)[keyof typeof AggregationReportExternalStatus];
+
+export const AggregationReportStatus = {
+  New: "new",
+  Requested: 'requested',
+  Created: "created",
+  Validating: "validating",
+  InProgress: "in_process",
+  Success: "success",
+  Error: "error",
+} as const;
+
+export type AggregationReportStatus = (typeof AggregationReportStatus)[keyof typeof AggregationReportStatus];

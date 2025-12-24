@@ -1,80 +1,139 @@
-import { Form } from 'antd'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { useEffect, useMemo, useState } from 'react'
+import {useEffect, useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
-import type { MarkingCodeTableDataType } from '../../tableData/markingCodes/types'
-import { MarkingCodeTableColumns } from '../../tableData/markingCode'
+import { useParams } from 'react-router-dom'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
-import ComponentTable from '../../components/table'
-import type { OrderResponse } from '../../types/markingCodes'
-import { getMarkingCodeById } from '../../store/markingCodes'
-import CustomButton from '../../components/button'
+import {getOrderProduct} from '../../store/markingCodes'
+import {Form, Select} from "antd";
+import {MarkingCodeStatus} from "../../dtos";
+import ComponentTable from "../../components/table";
+import type {OrderProductDataType} from "../../tableData/orderProduct/types.ts";
+import {OrderProductTableColumns} from "../../tableData/orderProduct";
+import MarkingCodeProductBatches from "./batches.tsx";
 
 const MarkingCodeProduct = () => {
-    const navigate = useNavigate()
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
-    const markingCodeById = useAppSelector((state) => state.markingCodes.markingCodeById)
-    const [form] = Form.useForm()
-    const { id } = useParams<{ id: string }>();
+    const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
+    const dataLimit = useAppSelector((state) => state.markingCodes.limit)
+    const dataPage = useAppSelector((state) => state.markingCodes.page)
+    const { orderId, batchId } = useParams<{
+        orderId: string;
+        batchId: string;
+    }>();
 
-     useEffect(() => {
-        if (id){
-            dispatch(getMarkingCodeById({id: id}))
+    const { Option } = Select;
+
+    useEffect(() => {
+        if (!orderId || !batchId) return;
+
+        dispatch(getOrderProduct({ orderId, batchId, page: dataPage || 1, limit: dataLimit || 10 }));
+    }, [dispatch, orderId, batchId]);
+
+    const markingCodeStatusOptions = [
+        { value: MarkingCodeStatus.Received, label: t("markingCodes.markingCodesStatusProduct.received")},
+        { value: MarkingCodeStatus.Applied, label: t("markingCodes.markingCodesStatusProduct.applied") },
+        { value: MarkingCodeStatus.Introduced, label: t("markingCodes.markingCodesStatusProduct.introduced") },
+        { value: MarkingCodeStatus.Withdrawn, label: t("markingCodes.markingCodesStatusProduct.withdrawn") },
+        { value: MarkingCodeStatus.WrittenOff, label: t("markingCodes.markingCodesStatusProduct.writtenOff") },
+    ];
+
+    const OrderProductData = useMemo(() => {
+        if (!orderProduct || !orderProduct.success || !('data' in orderProduct)) {
+            return [];
         }
-    }, [dispatch, id])
 
-    const productData = markingCodeById?.products
+        return orderProduct.data.map((product, index) => ({
+            key: `${index + 1}`,
+            code: product.code,
+            status: product.status,
+        }));
+    }, [orderProduct]);
 
-    const MarkingCodeData = useMemo(() => {
-        return productData?.map((product, index) => ({
-            key: index.toString() + 1,
-            productId: product.productId,
-            name: product.name,
-            gtin: product.gtin,
-            quantity: product.quantity,
-            cisType: product.cisType,
-            serialNumberType: product.serialNumberType,
-            serialNumbers: product.serialNumbers?.join(', ') ?? '',
-        }))
-    }, [productData]);
-
-    const [modalState, setModalState] = useState<{
-        retrieveMarkingCode: boolean;
-        markingCodeData: OrderResponse | null; 
-      }>({
-        retrieveMarkingCode: false,
-        markingCodeData: null, 
-      });
-
-    const handleModal = (modalName: string, value: boolean) => {
-        setModalState((prev) => ({...prev, [modalName] : value}));
-    }
-
-    const handleRowClick = (type: 'MarkingCode', action: 'retrieve' | 'edit' | 'delete', record: MarkingCodeTableDataType) => {
-        console.log(`Clicked on ${type}, action: ${action}, record:`, record);
-        if (type === "MarkingCode" && action === "retrieve") {
-            navigate(`/marking-code/1`); //${record.key}
-        }
-    };
-  return (
+    return (
     <MainLayout>
         <Heading 
             title={`${t('markingCodes.markingCodes')}`}
-        >
-            <CustomButton className='outline' onClick={() => navigate(`/marking-codes/${id}`)}>
-                {t("markingCodes.backToBatches")}
-            </CustomButton>
-        </Heading>
+        />
+        <MarkingCodeProductBatches/>
         <div className="box">
             <div className="box-container">
                 <div className="box-container-items">
-                    <ComponentTable<MarkingCodeTableDataType> 
-                        columns={MarkingCodeTableColumns(t, handleRowClick)}
-                        data={MarkingCodeData}
-                        onRowClick={(record) => handleRowClick('MarkingCode', 'retrieve', record)}
+                    <div className="box-container-items-item">
+                        <div className="box-container-items-item-filters filters-large filters-large-inputs">
+                            {/*<div className="form-inputs">*/}
+                            {/*    <Form.Item name="searchByName" className="input">*/}
+                            {/*        <Input*/}
+                            {/*            size="large"*/}
+                            {/*            className="input"*/}
+                            {/*            placeholder={t('search.byName')}*/}
+                            {/*            suffix={<IoSearch />}*/}
+                            {/*            allowClear*/}
+                            {/*            // onChange={handleSearchChange}*/}
+                            {/*        />*/}
+                            {/*    </Form.Item>*/}
+                            {/*</div>*/}
+                            {/*<div className="form-inputs">*/}
+                            {/*    <Form.Item name="product" className="input">*/}
+                            {/*        <Select*/}
+                            {/*            size="large"*/}
+                            {/*            placeholder={*/}
+                            {/*                <span className="custom-placeholder">*/}
+                            {/*                    {t("search.selectState")}*/}
+                            {/*                </span>*/}
+                            {/*            }*/}
+                            {/*            optionLabelProp="label"*/}
+                            {/*            showSearch*/}
+                            {/*            filterOption={false}*/}
+                            {/*            allowClear*/}
+                            {/*            // onSearch={handleProductSearch}*/}
+                            {/*            // options={products.map((product) => ({*/}
+                            {/*            //     value: product.id,     // 🆔 отправляем ID*/}
+                            {/*            //     label: product.name,   // 👀 показываем NAME*/}
+                            {/*            // }))}*/}
+                            {/*            // onChange={(value) => updateQueryParam('productId', value)}*/}
+                            {/*        />*/}
+                            {/*    </Form.Item>*/}
+                            {/*</div>*/}
+                            <div className="form-inputs">
+                                <Form.Item name="status" className="input">
+                                    <Select
+                                        size="large"
+                                        placeholder={<span className="custom-placeholder">{t('search.selectStatus')}</span>}
+                                        allowClear
+                                        // onChange={(value) => updateQueryParam('status', value)}
+                                    >
+                                        {markingCodeStatusOptions.map(option => (
+                                            <Option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </div>
+                            {/* <div className="form-inputs">
+                                <Form.Item name="paymentType" className="input">
+                                    <Select
+                                        size="large"
+                                        placeholder={
+                                            <span className="custom-placeholder">
+                                                {t('search.selectOrderPaymentType')}
+                                            </span>
+                                        }
+                                        allowClear
+                                        options={paymentTypeOptions}
+                                        onChange={(value) => updateQueryParam('paymentType', value)}
+                                    />
+                                </Form.Item>
+                            </div> */}
+                        </div>
+                    </div>
+                </div>
+                <div className="box-container-items">
+                    <ComponentTable<OrderProductDataType>
+                        columns={OrderProductTableColumns(t)}
+                        data={OrderProductData}
                     />
                 </div>
             </div>

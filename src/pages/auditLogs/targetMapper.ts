@@ -17,7 +17,7 @@ const targetRules: Record<TargetEntity, TargetRule> = {
   },
   product: {
     getName: (t) => t.name || null,
-    getPath: (t) => `/organization/${t.companyId}/products/${t.id}`,
+    getPath: (t) => `/products/${t.id}`,
   },
   auth: {
     getName: () => "Аутентификация",

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
 import ComponentTable from '../../components/table'
-import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations, updateOrganization } from '../../store/organization'
+import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations } from '../../store/organization'
 import { OrganizationsTableColumns } from '../../tableData/organizations'
 import type { OrganizationTableDataType } from '../../tableData/organizations/types'
 import type { CompanyResponse, CreateCompany } from '../../types/organization'  
@@ -216,7 +216,7 @@ const Organizations = () => {
                     </div>
                 </div>
                 <div className="box-container-items">
-                    <ComponentTable<OrganizationTableDataType> 
+                    <ComponentTable<OrganizationTableDataType>
                         columns={OrganizationsTableColumns(t, handleRowClick, handleDeleteOrganization)}
                         data={OrganizationsData}
                         onRowClick={(record) => handleRowClick('Company', 'retrieve', record)}
@@ -232,9 +232,9 @@ const Organizations = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
+        <ModalWindow className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
             <FormComponent onFinish={handleCreateCompany}>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   rules={[
                         {
                         required: true,
@@ -253,7 +253,7 @@ const Organizations = () => {
                         <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')} />
                     </Form.Item>
                 </div>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                    <Form.Item
                     className="input"
                     name="productGroup"
@@ -294,7 +294,7 @@ const Organizations = () => {
                         />
                     </Form.Item>
                 </div>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')}
                         rules={[
                             {
@@ -320,7 +320,7 @@ const Organizations = () => {
                 </div>
 
                 {/* AddressDto */}
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')}
                     rules={[
                         {
@@ -340,7 +340,7 @@ const Organizations = () => {
                         <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.district')} />
                     </Form.Item>
                 </div>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["address", "address"]}
@@ -365,7 +365,7 @@ const Organizations = () => {
                     <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["bankDetails", "bankName"]}
@@ -407,7 +407,7 @@ const Organizations = () => {
                     </Form.Item>
                     </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["bankDetails", "account"]}
@@ -459,7 +459,7 @@ const Organizations = () => {
                 </div>
 
                 {/* ContactsDto */}
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["contacts", "phone"]}
@@ -506,7 +506,7 @@ const Organizations = () => {
                     </div>
 
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["contacts", "url"]}
@@ -550,7 +550,7 @@ const Organizations = () => {
 
 
                 {/* AccessCodesDto */}
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["accessCodes", "gcpCode"]}
@@ -595,8 +595,7 @@ const Organizations = () => {
                         />
                     </Form.Item>
                     </div>
-
-                    <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["accessCodes", "turonToken"]}
@@ -618,9 +617,7 @@ const Organizations = () => {
                             placeholder={t("organizations.addUserForm.placeholder.turonToken")}
                         />
                     </Form.Item>
-                    </div>
-
-
+                </div>
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>

@@ -5,24 +5,39 @@ import type {
   GetOrderDto,
   GetOrderListResponseDto,
   GetOrderResponseDto,
-  OrderListRow,
   OrderStatus,
-  OrderResponseDto,
+  OrderResponseDto, GetBatchResponseDto, BatchResponseDto, GetBatchDto,
 } from "../../dtos/markingCodes";
 import type { PaginatedResponseDto } from "../../dtos";
 import { BASE_URL } from "../../utils/consts";
 import {
+  mapBatchesDtoToEntity,
+  mapGetOrderProductCodesDtoToEntity,
   mapMarkingCodeDtoToEntity,
   mapMarkingCodesDtoToEntity,
 } from "../../mappers/markingCodes";
-import type { OrderResponse } from "../../types/markingCodes";
+import type {
+  BatchResponse,
+  OrderBatchPopulatedResponse,
+  OrderProductResponse,
+  OrderResponse
+} from "../../types/markingCodes";
 import axiosInstance from "../../utils/axiosInstance";
+import type {
+  CodeRowDto,
+  GetBatchCodesParamDto,
+  GetOrderProductCodesResponseDto
+} from "../../dtos/markingCodes/order-product.ts";
+import type { GetOrderProductCodesResponse} from "../../types/markingCodes/order-product.ts";
 
 
 type MarkingCodesState = {
-  data: OrderListRow[];
+  data: OrderBatchPopulatedResponse[];
   markingCodeById?: OrderResponse;
   createdOrder?: OrderResponse;
+  orderProduct: OrderProductResponse | null;
+  orderProductCodes: GetOrderProductCodesResponse | null;
+  batch: BatchResponse | null;
   page: number;
   total: number;
   limit: number;
@@ -34,6 +49,9 @@ const initialState: MarkingCodesState = {
   data: [],
   markingCodeById: undefined,
   createdOrder: undefined,
+  orderProduct: null,
+  orderProductCodes: null,
+  batch: null,
   page: 1,
   total: 0,
   limit: 10,
@@ -48,27 +66,22 @@ export type OrderListQueryParams = {
   userId?: string;
   productId?: string;
   packageType?: string;
+  companyId?: string;
   status?: OrderStatus;
 };
 
-function isOrderListSuccess(
-  res: GetOrderListResponseDto
-): res is { success: true } & PaginatedResponseDto<OrderListRow> {
+function isOrderListSuccess( res: GetOrderListResponseDto): res is { success: true } & PaginatedResponseDto<OrderBatchPopulatedResponse> {
   return "success" in res && res.success === true;
 }
 
-export const fetchMarkingCodes = createAsyncThunk<
-  { data: OrderListRow[]; total: number; page: number; limit: number },
-  OrderListQueryParams,
-  { rejectValue: string }
->(
-  "markingCodes/fetchMarkingCodes",
-  async (params, { rejectWithValue }) => {
+
+export const fetchMarkingCodes = createAsyncThunk(
+  'markingCodes/fetchMarkingCodes',
+  async (params: OrderListQueryParams, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<GetOrderListResponseDto>(
-        `${BASE_URL}/orders`,
-        { params }
-      );
+       const response = await axiosInstance.get<GetOrderListResponseDto>(`${BASE_URL}/orders`, {
+        params,
+      });
 
       if (isOrderListSuccess(response.data)) {
         return {
@@ -78,8 +91,7 @@ export const fetchMarkingCodes = createAsyncThunk<
           limit: response.data.limit,
         };
       }
-
-      return rejectWithValue("Ошибка загрузки заказов");
+      return rejectWithValue("Ошибка загрузки компаний");
     } catch (err: any) {
       return rejectWithValue(err.message || "Ошибка сервера");
     }
@@ -147,6 +159,87 @@ export const createOrder = createAsyncThunk<
   }
 );
 
+function isGetOrderProductCodesSuccess(
+    dto: GetOrderProductCodesResponseDto
+): dto is { success: true } & PaginatedResponseDto<CodeRowDto> {
+  return (
+      typeof dto === "object" &&
+      dto !== null &&
+      'success' in dto &&
+      dto.success === true &&
+      'data' in dto
+  );
+}
+
+
+export const getOrderProduct = createAsyncThunk<
+    GetOrderProductCodesResponse,
+    GetBatchCodesParamDto,
+    { rejectValue: string }
+>(
+    "markingCodes/getOrderProduct",
+    async ({ orderId, batchId }, { rejectWithValue }) => {
+      try {
+        const response = await axiosInstance.get<GetOrderProductCodesResponseDto>(
+            `${BASE_URL}/codes/batches`,
+            {
+              params: {
+                orderId,
+                batchId,
+                page: 1,
+                limit: 10,
+              },
+            }
+        );
+
+        if (!isGetOrderProductCodesSuccess(response.data)) {
+          return rejectWithValue("Ошибка загрузки кодов продукта");
+        }
+
+        return mapGetOrderProductCodesDtoToEntity(response.data);
+      } catch (err: any) {
+        return rejectWithValue(err.message || "Ошибка сервера");
+      }
+    }
+);
+
+export const isGetBatchSuccess = (
+    data: GetBatchResponseDto
+): data is { success: true; batch: BatchResponseDto } => {
+  return (
+      typeof data === "object" &&
+      data !== null &&
+      "success" in data &&
+      data.success === true &&
+      "batch" in data
+  );
+};
+
+export const getBatch = createAsyncThunk<
+    BatchResponse,          // ✅ entity
+    GetBatchDto,            // params
+    { rejectValue: string }
+>(
+    "markingCodes/getBatch",
+    async ({ orderId, batchId }, { rejectWithValue }) => {
+      try {
+        const response = await axiosInstance.get<GetBatchResponseDto>(
+            `${BASE_URL}/orders/${orderId}/batches/${batchId}`
+        );
+
+        if (!isGetBatchSuccess(response.data)) {
+          return rejectWithValue("Ошибка загрузки партии");
+        }
+
+        return mapBatchesDtoToEntity(response.data.batch);
+      } catch (err: any) {
+        return rejectWithValue(err.message || "Ошибка сервера");
+      }
+    }
+);
+
+
+
 
 export const markingCodesSlice = createSlice({
   name: "markingCodes",
@@ -158,6 +251,14 @@ export const markingCodesSlice = createSlice({
       state.total = 0;
       state.error = null;
     },
+    setPage: (state, action: PayloadAction<number>) => {
+      state.page = action.payload;
+    },
+
+    setLimit: (state, action: PayloadAction<number>) => {
+      state.limit = action.payload;
+    }
+
   },
   extraReducers: (builder) => {
     builder
@@ -181,14 +282,15 @@ export const markingCodesSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchMarkingCodes.fulfilled, (state, action) => {
-        state.data = action.payload.data;
-        state.page = action.payload.page;
-        state.total = action.payload.total;
         state.loading = false;
+        state.data = action.payload.data;
+        state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.limit = action.payload.limit;
       })
       .addCase(fetchMarkingCodes.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Ошибка загрузки заказов";
+        state.error = action.payload as string;
       })
       .addCase(getMarkingCodeById.pending, (state) => {
         state.loading = true;
@@ -204,8 +306,35 @@ export const markingCodesSlice = createSlice({
       .addCase(getMarkingCodeById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Ошибка загрузки заказа";
+      })
+
+      .addCase(getOrderProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOrderProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orderProductCodes = action.payload; // ✅ payload типа GetOrderProductCodesResponse
+      })
+      .addCase(getOrderProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? "Ошибка загрузки кодов продукта";
+      })
+      .addCase(getBatch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBatch.fulfilled, (state, action) => {
+        state.loading = false;
+        state.batch = action.payload;
+      })
+      .addCase(getBatch.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? "Ошибка загрузки партии";
       });
+
   },
 });
 
+export const { resetOrders, setPage, setLimit } = markingCodesSlice.actions;
 export default markingCodesSlice.reducer;

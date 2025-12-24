@@ -30,12 +30,15 @@ const OrderForm = () => {
   const [form] = Form.useForm<OrderFormValues>();
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
-  const references = useAppSelector((state) => state.references.data)
+  const packTypeReferences =
+      useAppSelector(state => state.references.references.cisType) ?? []
   const { products } = useAppSelector((state) => state.products);
 
   useEffect(() => {
     dispatch(fetchReferencesByType("cisType"));
   }, [dispatch]);
+
+  console.log("packTypeReferences", packTypeReferences)
 
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
@@ -51,11 +54,14 @@ const OrderForm = () => {
   };
 
   const packageTypeOptions = useMemo(() => {
-    return references.map((ref) => ({
-        value: ref.alias,
-        label: ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en, // fallback
+    return packTypeReferences.map((ref) => ({
+      value: ref.alias,
+      label: typeof ref.title === "string"
+          ? ref.title
+          : ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en,
     }));
-  }, [references, i18n.language]);
+  }, [packTypeReferences, i18n.language]);
+
 
   // 📤 Отправка формы
   const handleCreateMarkingCode = async (values: OrderFormValues) => {
@@ -97,7 +103,6 @@ const OrderForm = () => {
                 key={field.key}
                 className="form-inputs create-order-items-item"
               >
-                {/* 🔍 ПРОДУКТ С ПОИСКОМ */}
                 <Form.Item
                   className="input"
                   name={[field.name, "product"]}
@@ -122,7 +127,6 @@ const OrderForm = () => {
                   />
                 </Form.Item>
 
-                {/* 📦 ТИП УПАКОВКИ */}
                 <Form.Item
                   className="input"
                   name={[field.name, "packType"]}
@@ -142,7 +146,6 @@ const OrderForm = () => {
                   />
                 </Form.Item>
 
-                {/* 🔢 КОЛ-ВО */}
                 <Form.Item
                   className="input"
                   name={[field.name, "quantity"]}
@@ -161,7 +164,6 @@ const OrderForm = () => {
                   />
                 </Form.Item>
 
-                {/* ⚙️ СПОСОБ ГЕНЕРАЦИИ */}
                 <Form.Item
                   className="input"
                   name={[field.name, "generation"]}
@@ -183,7 +185,6 @@ const OrderForm = () => {
                   />
                 </Form.Item>
 
-                {/* ➕ / ❌ */}
                 {index === fields.length - 1 ? (
                   <Button
                     type="primary"

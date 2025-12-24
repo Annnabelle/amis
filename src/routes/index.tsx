@@ -15,8 +15,9 @@ const ProductsView = lazy(() => import("../pages/products/viewPage"))
 const OrganizationsEdit = lazy(() => import("../pages/organizations/organizationEdit"))
 const ProductsEdit = lazy(() => import("../pages/products/editProduct"))
 const MarkingCodes = lazy(() => import("../pages/markingCodes"))
-const MarkingCode = lazy(() => import("../pages/markingCode"))
+const Batches = lazy(() => import("../pages/batches"));
 const MarkingCodeProduct = lazy(() => import( "../pages/markingCodeProduct"));
+const Aggregations = lazy(() => import("../pages/aggregation"));
 
 const Router: React.FC = () => {
   return (
@@ -33,12 +34,13 @@ const Router: React.FC = () => {
         <Route path= 'organization/:id/products' element={<Products/>}/>
         <Route path='/profile' element={<UserSettings/>}/>
         <Route path='/audit-logs' element={<AuditLogsPage/>}/>
-        <Route path='/organization/:id/products/:id' element={<ProductsView/>}/>
+        <Route path='/products/:id' element={<ProductsView/>}/>
         <Route path='organization/edit/:id' element={<OrganizationsEdit/>}/>
-        <Route path='/organization/:id/products/edit/:id' element={<ProductsEdit/>}/>
-        <Route path='/marking-codes' element={<MarkingCodes/>}/>
-        <Route path='/marking-codes/:id' element={<MarkingCode/>}/>
-        <Route path='/marking-code/:id/product/:id' element={<MarkingCodeProduct/>}/>
+        <Route path='/products/edit/:id' element={<ProductsEdit/>}/>
+        <Route path='/organization/:id/orders' element={<MarkingCodes/>}/>
+        <Route path='/orders/:id' element={<Batches/>}/>
+        <Route path='/orderId/:orderId/batchId/:batchId' element={<MarkingCodeProduct/>}/>
+        <Route path='/aggregations' element={<Aggregations/>}/>
       </Routes>
     </Suspense>
   );

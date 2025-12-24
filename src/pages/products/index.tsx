@@ -1,4 +1,4 @@
-import { Form, Input } from 'antd'
+import {Form, Input, Select} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { toast } from 'react-toastify'
@@ -15,6 +15,8 @@ import { ProductsTableColumns } from '../../tableData/products'
 import type { ProductTableDataType } from '../../tableData/products/types'
 import type { CreateProduct, ProductResponse } from '../../types/products'
 import { useNavigate, useParams } from 'react-router-dom'
+import TextArea from "antd/es/input/TextArea";
+import {fetchReferencesByType} from "../../store/references";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -28,7 +30,26 @@ const Products = () => {
     const productById = useAppSelector((state) => state.products.productById)
     const shortNameEdited = useRef(false);
     const [isSearching, setIsSearching] = useState(false);
+    const countryReferences =
+        useAppSelector(state => state.references.references.countryCode) ?? [];
 
+    const productGroupReferences =
+        useAppSelector(state => state.references.references.productGroup) ?? [];
+    const supportedLangs = ['ru', 'en', 'uz'] as const;
+    type Lang = typeof supportedLangs[number];
+
+    const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
+
+
+    useEffect(() => {
+        dispatch(fetchReferencesByType("countryCode"));
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
+
+
+    console.log("referencesCoutry", countryReferences)
+
+    console.log("referencesCoutry", productGroupReferences)
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
@@ -43,7 +64,6 @@ const Products = () => {
             shortName: productById.shortName,
             description: productById.description,
             gtin: productById.gtin,
-            barcode: productById.barcode,
             icps: productById.icps,
             productType: productById.productType,
             aggregationQuantity: productById.aggregationQuantity,
@@ -69,18 +89,17 @@ const Products = () => {
         }
     }, [dispatch, id, dataPage, dataLimit, isSearching]);
 
-
    const ProductsData = useMemo(() => {
         return products.map((product, index) => ({
-            key: product.id,                
-            number: index + 1,         
+            key: product.id,
+            number: index + 1,
             name: product.name,
             productType: product.productType,
             icps: product.icps,
-            gtin: product.gtin,
+            gtin: product.gtin.unit,
             measurement: product?.measurement?.unit ,
             // status: product,
-            action: 'Действие', 
+            action: 'Действие',
         }))
     }, [products]);
 
@@ -109,14 +128,21 @@ const Products = () => {
             await dispatch(createProduct(newData)).unwrap();
 
             toast.success(t("products.messages.success.createProduct"));
+
+            // очистка полей формы
+            form.resetFields();
+
+            // закрытие модалки через 1 секунду
             setTimeout(() => {
-            handleModal("addProduct", false);
-            window.location.reload();
+                handleModal("addProduct", false);
+                // если нужно, можно убрать window.location.reload()
             }, 1000);
+
         } catch (err: any) {
             toast.error(err || t("products.messages.error.createProduct"));
         }
     };
+
 
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
@@ -132,10 +158,10 @@ const Products = () => {
                 productData: product
             }));
             if (action === "retrieve") {
-                navigate(`/organization/${id}/products/${record.key}`);
+                navigate(`/products/${record.key}`);
             }
             if(action === 'edit'){
-                navigate(`/organization/${id}/products/edit/${record.key}`)
+                navigate(`/products/edit/${record.key}`)
             }
         }
     };
@@ -244,7 +270,7 @@ const Products = () => {
                     </div>
                 </div>
                 <div className="box-container-items">
-                    <ComponentTable<ProductTableDataType> 
+                    <ComponentTable<ProductTableDataType>
                         columns={ProductsTableColumns(t, handleRowClick, handleDeleteProduct)}
                         data={ProductsData}
                         onRowClick={(record) => handleRowClick('Product', 'retrieve', record)}
@@ -265,6 +291,7 @@ const Products = () => {
             title={t('products.modalWindow.product')}
             openModal={modalState.addProduct}
             closeModal={() => handleModal('addProduct', false)}
+            className="modal-large"
             >
             <FormComponent onFinish={handleRegisterProduct}
               form={form}
@@ -280,7 +307,7 @@ const Products = () => {
                     }
                 }}
             >
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="name"
@@ -303,79 +330,159 @@ const Products = () => {
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.shortName')} />
                     </Form.Item>
                 </div>
-
-                <div className="form-inputs">
-                <Form.Item
-                    className="input"
-                    name="description"
-                    label={t('products.addProductForm.label.description')}
-                >
-                    <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.description')} />
-                </Form.Item>
-
-                <Form.Item
-                    className="input"
-                    name="gtin"
-                    label={t('products.addProductForm.label.gtin')}
-                    rules={[
-                    { required: true, message: t('products.addProductForm.validation.required.gtin') },
-                   { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
-                    ]}
-                >
-                    <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
-                </Form.Item>
-                </div>
-
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
-                        name="barcode"
-                        label={t('products.addProductForm.label.barcode')}
+                        name="manufacturerCountry"
+                        label={t('products.addProductForm.label.manufacturerCountry')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.barcode') },
-                        { pattern: /^\d{8,14}$/, message: t('products.addProductForm.validation.pattern.barcode') },
+                            {
+                                required: true,
+                                message: t('products.addProductForm.validation.required.manufacturerCountry'),
+                            },
                         ]}
                     >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.barcode')} />
+                        <Select
+                            showSearch
+                            allowClear
+                            size="large"
+                            className="input"
+                            placeholder={t('products.addProductForm.placeholder.manufacturerCountry')}
+                            optionFilterProp="label"
+                            filterOption={(input, option) =>
+                                (option?.label ?? '')
+                                    .toString()
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
+                            options={countryReferences.map(ref => ({
+                                label:
+                                    ref.title?.[currentLang] ?? // текущий язык
+                                    ref.title?.ru ??
+                                    ref.title?.en ??
+                                    ref.alias,
+                                value: ref.alias, // будет отправляться в POST
+                            }))}
+                        />
                     </Form.Item>
 
+                    <Form.Item
+                        className="input"
+                        name="expiration"
+                        label={t('products.addProductForm.label.expiration')}
+                        rules={[
+                            { required: true, message: t('products.addProductForm.validation.required.expiration') },
+                            {
+                                pattern: /^[0-9]{1,2}$/,
+                                message: t('products.messages.error.invalidExpiration') // добавь новую строку перевода
+                            },
+                        ]}
+                    >
+                        <Input
+                            min={0}
+                            max={99}
+                            step={1}
+                            type="number"
+                            className="input" size="large" placeholder={t('products.addProductForm.placeholder.expiration')} />
+                    </Form.Item>
+                </div>
+
+
+                <div className="form-inputs form-inputs-row">
+                    <Form.Item
+                        className="input"
+                        name="description"
+                        label={t('products.addProductForm.label.description')}
+                    >
+                        <TextArea className="input" size="large" placeholder={t('products.addProductForm.placeholder.description')} />
+                    </Form.Item>
+                </div>
+
+                <div className="form-inputs form-inputs-row">
+                    <Form.Item
+                        className="input"
+                        name={['gtin', 'unit']}
+                        label={t('products.gtin.unit')}
+                        rules={[
+                            { required: true, message: t('products.addProductForm.validation.required.gtin') },
+                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
+                        ]}
+                    >
+                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
+                    </Form.Item>
+                    <Form.Item
+                        className="input"
+                        name={['gtin', 'group']}
+                        label={t('products.gtin.group')}
+                        rules={[
+                            { required: false},
+                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
+                        ]}
+                    >
+                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
+                    </Form.Item>
+                </div>
+
+                <div className="form-inputs form-inputs-row">
+                    <Form.Item
+                        className="input"
+                        name={['gtin', 'box_lv_1']}
+                        label={t('products.gtin.box_lv_1')}
+                        rules={[
+                            { required: false},
+                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
+                        ]}
+                    >
+                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
+                    </Form.Item>
+                    <Form.Item
+                        className="input"
+                        name={['gtin', 'box_lv_2']}
+                        label={t('products.gtin.box_lv_2')}
+                        rules={[
+                            { required: false},
+                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
+                        ]}
+                    >
+                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
+                    </Form.Item>
+                </div>
+
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="icps"
                         label={t('products.addProductForm.label.icps')}
                         rules={[
-                        { required: true, message:  t('products.addProductForm.validation.required.icps') },
-                        { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.icps')  },
+                            { required: true, message:  t('products.addProductForm.validation.required.icps') },
+                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.icps')  },
                         ]}
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
                     </Form.Item>
-                </div>
-
-                <div className="form-inputs">
                     <Form.Item
                         className="input"
                         name="productType"
                         label={t('products.addProductForm.label.productType')}
-                        rules={[{ required: true, message: t('products.addProductForm.validation.required.productType') }]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.productType')} />
-                    </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name="aggregationQuantity"
-                        label={t('products.addProductForm.label.aggregationQuantity')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') },
-                        { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.aggregationQuantity') },
+                            { required: true, message: t('products.addProductForm.validation.required.productType') }
                         ]}
                     >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.aggregationQuantity')} />
+                        <Select
+                            key={currentLang} // перерендер при смене языка
+                            className="input"
+                            size="large"
+                            placeholder={t('products.addProductForm.placeholder.productType')}
+                            options={productGroupReferences.map(ref => ({
+                                label: ref.title?.[currentLang as Lang] ?? ref.title?.ru ?? ref.title?.en ?? ref.alias,
+                                value: ref.alias,
+                            }))}
+                        />
                     </Form.Item>
+
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     {/* <Form.Item
                         className="input"
                         name="expiration"
@@ -387,6 +494,17 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.expiration')} />
                     </Form.Item> */}
+                    <Form.Item
+                        className="input"
+                        name="aggregationQuantity"
+                        label={t('products.addProductForm.label.aggregationQuantity')}
+                        rules={[
+                            { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') },
+                            { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.aggregationQuantity') },
+                        ]}
+                    >
+                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.aggregationQuantity')} />
+                    </Form.Item>
 
                     <Form.Item
                         className="input"
@@ -399,9 +517,10 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.unit')} />
                     </Form.Item>
+
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={['measurement', 'amount']}
@@ -427,7 +546,7 @@ const Products = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={['weight', 'gross']}

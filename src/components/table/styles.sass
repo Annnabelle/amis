@@ -11,6 +11,12 @@
             padding: 5px 10зч
             .table-text
                 +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+            .link
+                text-decoration: none
+                +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+                transition: color 0.3s ease
+                &:hover
+                    +mix.typography(16px, 400, map.get(vars.$main, 'main'))
     .clickable-row
         cursor: pointer
 :where(.css-dev-only-do-not-override-1kl99jq).ant-dropdown .ant-dropdown-menu

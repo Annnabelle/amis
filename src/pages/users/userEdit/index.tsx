@@ -31,7 +31,7 @@ const UsersEdit = () => {
 
     useEffect(() => {
         if (id) {
-            dispatch(clearUserById());
+            // dispatch(clearUserById());
             dispatch(getUserById({ id })).finally(() => setIsInitialLoading(false));
         }
     }, [dispatch, id]);

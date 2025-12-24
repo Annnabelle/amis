@@ -1,7 +1,12 @@
+import {AggregationReportStatus} from "../dtos";
 
 export const resources = {
     en:{
         translation:{
+            common:{
+                yes: "Yes",
+                no: "No"
+            },
             statuses: {
                 active: "Active",
                 inactive: "Inactive",
@@ -61,7 +66,8 @@ export const resources = {
                 selectProduct: 'Select product',
                 packageType: 'Package type',
                 selectStatus: 'Select status',
-                selectOrderPaymentType: 'Select order payment type'
+                selectOrderPaymentType: 'Select order payment type',
+                selectState: 'Select state',
             },
             btn: {
                 create: 'Create',
@@ -71,12 +77,16 @@ export const resources = {
                 save: 'Save',
                 back: 'Back',
                 toProducts: "Go to products",
-                sendToTuron: "Send to Turon"
+                sendToTuron: "Send to Turon",
+                apply: "Apply",
+                applyAll: "Apply all"
             },
             navigation: {
                 products: "Products",
                 management: "Management",
                 organization: "Organization",
+                organizations: "Organizations",
+                myOrganizations: "My organizations",
                 users: "Users",
                 audit: "System logs",
                 markingCodes: "Marking codes"
@@ -296,8 +306,15 @@ export const resources = {
                     error: {
                         createUser: "Error while creating product",
                         updateUser: "Error while updating product",
-                        deleteUser: "Error while deleting product"
+                        deleteUser: "Error while deleting product",
+                        invalidExpiration: "Expiration must be an integer with up to 2 digits"
                     },
+                },
+                gtin: {
+                    unit: "GTIN consumer packaging",
+                    group: "GTIN group packaging",
+                    box_lv_1: "GTIN box",
+                    box_lv_2: "GTIN pallet",
                 },
                 addProductForm: {
                     label: {
@@ -316,6 +333,7 @@ export const resources = {
                         gross: "Gross weight",
                         price: "Price",
                         companyId: "Company ID",
+                        manufacturerCountry: "Manufacturer country",
                     },
                     placeholder: {
                         name: "Enter name",
@@ -333,6 +351,7 @@ export const resources = {
                         gross: "Enter gross weight",
                         price: "Enter price",
                         companyId: "Enter company ID",
+                        countrySearch: "Enter country",
                     },
                     validation:{
                         required:{
@@ -429,6 +448,14 @@ export const resources = {
                 markingCodes: "Marking codes",
                 backToOrders: "Back to Orders",
                 backToBatches: "Back to Batches",
+                orderNumber: "Order",
+                markingCodesStatusProduct: {
+                    received: "Received",
+                    applied: "Applied",
+                    introduced: "Introduced",
+                    withdrawn: "Withdrawn",
+                    writtenOff: "Written off",
+                },
                 markingCodesOrderStatus:{
                     created: "Created",
                     pending: "Pending",
@@ -437,12 +464,74 @@ export const resources = {
                     closed: "Closed",
                     outsourced: "Outsourced"
                 },
+                orderProduct: {
+                    markingCodesStatus:{
+                        received: "Received",
+                        applied: "Applied",
+                        introduced: "In circulation",
+                        withdrawn: "Withdrawn from circulation",
+                        writtenOff: "Written off",
+                        uploaded: "Uploaded",
+                        aggregated: "Aggregated",
+                    },
+                },
                 batches: {
                     title: "Batches",
                     orderNumber: "Order number",
                     orderTime: "Order time",
                     orderStatus: "Order status",
                     turonOrderID: "Turon order ID",
+                    batchesOrderStatus: {
+                        new: "New",
+                        created: 'Created',
+                        vendorPending: 'Vendor pending',
+                        readyForCodes: 'Ready for codes',
+                        codesReceived: 'Codes received',
+                        codesUtilizationRequested: 'Codes utilization_requested',
+                        codesUtilized: 'Codes utilized',
+                        rejected: 'Rejected',
+                        closed: 'Closed',
+                    },
+                    orderNotExternalStatus: {
+                        new: "New",
+                        vendor_pending: "Vendor pending",
+                        ready_for_codes: "Ready for codes",
+                        codes_received: "Codes received",
+                        codes_utilized: "Codes utilized",
+                        rejected: "Rejected",
+                        closed: "Closed"
+                    },
+                    batchData:{
+                        batchNumber: "Batch number",
+                        packagingType: "Packaging type",
+                        orderNumber: "Order number",
+                        executor: "Executor",
+                        productName: "Product name",
+                        gtin: "GTIN",
+                        orderTime: "Order time",
+                        numberOfMarkingCodes: "Number of marking codes",
+                        turonOrderID: "Turon order ID",
+                        batchStatus: "Batch status",
+                        orderStatus: "Order status",
+                        turonOrderStatus: "Turon order status",
+                        batchStatusInTuron: "Batch status in Turon",
+                        externalStatus:{
+                            pending: "Pending",
+                            active: "Active",
+                            exhausted: "Exhausted",
+                            rejected: "Rejected",
+                            closed: "Closed"
+                        },
+                        order:{
+                            batchExternalStatus:{
+                                pending: "Pending",
+                                active: "Active",
+                                exhausted: "Exhausted",
+                                rejected: "Rejected",
+                                closed: "Closed"
+                            }
+                        }
+                    }
                 },
                 tableTitles: {
                     number: "№",
@@ -456,13 +545,17 @@ export const resources = {
                     productName: "Product name",
                     totalQuantity: "Total quantity",
                     orderedMCQuantity: "Ordered MC quantity",
-                    remainingMCQuantity: "Remaining MC quantity",
+                    codesHaveBeenExported: "Codes have been exported",
                     orderDate: "Order date",
                     packageType: "Package type",
                     paymentType : "Payment type",
                     status: "Status",
                     paid: "Paid",
-                    unPaid: "Unpaid"
+                    unPaid: "Unpaid",
+                    batchNumber: "Batch number",
+                    gtin: "GTIN",
+                    numberOfMarkingCodes: "Number of Marking Codes",
+                    code: "Code",
                 },
                 orderCreation: {
                     title: "Order Creation",
@@ -489,12 +582,55 @@ export const resources = {
                     partyIDTuron: "Turon Party ID",
                     creationDate: "Creation Date",
                     messageFromTuron: "Message from Turon",
+                    gtin: "GTIN",
+                    packageType: "Package Type",
+                    status: "Status",
+                },
+                 orderStatus: {
+                    created: "Created",
+                    pending: "Pending",
+                    ready: "Ready",
+                    rejected: "Rejected",
+                    closed: "Closed",
+                    outsourced: "Outsourced"
+                },
+                packageType: {
+                    unit: "Consumer",
+                    group: "Group",
+                    box_lv_1: "Box",
+                    box_lv_2: "Pallet",
+                },
+            },
+            aggregations: {
+                title: "Aggregation codes",
+                aggregationsTableTitle: {
+                    status: "Status",
+                    orderDate: "Order date",
+                    quantityPerPackage: "Quantity per package",
+                    numberOfPackages: "Number of packages",
+                    productName: "Product name",
+                    childBatch: "Child batch",
+                    parentBatch: "Parent batch",
+                    aggregationReportNumber: "Aggregation report number",
+                },
+                aggregationReportStatus: {
+                    new: "New",
+                    requested: "Requested",
+                    created: "Created",
+                    validating: "Validating",
+                    in_process: "In progress",
+                    success: "Success",
+                    error: "Error",
                 }
             }
         }
     },
     ru:{
         translation:{
+            common:{
+                yes: "Да",
+                no: "Нет"
+            },
             statuses: {
                 active: "Активен",
                 inactive: "Неактивен",
@@ -554,7 +690,8 @@ export const resources = {
                 selectProduct: 'Выберите продукцию',
                 packageType: 'Тип упаковки',
                 selectStatus: 'Выберите статус',
-                selectOrderPaymentType: 'Выберите тип оплаты заказа'
+                selectOrderPaymentType: 'Выберите тип оплаты заказа',
+                selectState: 'Выберите состояние',
             },
             btn: {
                 create: 'Создать',
@@ -564,12 +701,16 @@ export const resources = {
                 save: 'Сохранить',
                 back: 'Назад',
                 toProducts: "Перейти к продуктам",
-                sendToTuron: "Отправить в турон"
+                sendToTuron: "Отправить в турон",
+                apply: "Нанести",
+                applyAll: "Нанести все"
             },
             navigation: {
                 products: "Продукция",
                 management: "Управление",
                 organization: "Организация",
+                organizations: "Организации",
+                myOrganizations: "Мои организации",
                 users: "Пользователи",
                 audit: "Логи системы",
                 markingCodes: "Коды маркировки",
@@ -790,8 +931,15 @@ export const resources = {
                     error: {
                         createProduct: "Ошибка при создании Продукта",
                         updateProduct: "Ошибка при обновлении Продукта",
-                        deleteProduct: "Ошибка при удалении Продукта"
+                        deleteProduct: "Ошибка при удалении Продукта",
+                        invalidExpiration: "Срок годности должен быть целым числом до 2-х цифр"
                     },
+                },
+                gtin: {
+                    unit: "GTIN потребительской упаковки",
+                    group: "GTIN групповой упаковки",
+                    box_lv_1: "GTIN коробки",
+                    box_lv_2: "GTIN паллеты",
                 },
                 addProductForm: {
                     label: {
@@ -810,6 +958,7 @@ export const resources = {
                         gross: 'Вес брутто',
                         price: 'Цена',
                         companyId: 'Айди компании',
+                        manufacturerCountry: "Страна производителя",
                     },
                     placeholder: {
                         name: 'Введите название продукции',
@@ -827,6 +976,7 @@ export const resources = {
                         gross: 'Введите вес брутто',
                         price: 'Введите цену',
                         companyId: 'Айди компании',
+                        manufacturerCountry: "Поиск стран"
                     },
                     validation:{
                         required:{
@@ -918,11 +1068,19 @@ export const resources = {
             },
             markingCodes: {
                 title: "Заказы КМ",
+                orderNumber: "Заказ",
                 subtitle: "Всего",
                 order: "Заказать",
                 markingCodes: "Коды маркировки",
                 backToOrders: "Вернуться к заказам",
                 backToBatches: "Вернуться партиям",
+                markingCodesStatusProduct: {
+                    received: "Получен",
+                    applied: "Нанесен",
+                    introduced: "В обороте",
+                    withdrawn: "Выведен из оборота",
+                    writtenOff: "Списан",
+                },
                 markingCodesOrderStatus:{
                     created: "Создано",
                     pending: "В ожидании",
@@ -931,12 +1089,74 @@ export const resources = {
                     closed: "Закрыто",
                     outsourced: "Передано на аутсорсинг"
                 },
+                orderProduct: {
+                    markingCodesStatus:{
+                        received: "Получен",
+                        applied: "Нанесен",
+                        introduced: " В обороте",
+                        withdrawn: "Выведен из оборота",
+                        writtenOff: "Списан",
+                        uploaded: "Загружен",
+                        aggregated: "Агрегирован",
+                    },
+                },
                 batches: {
                     title: "Партии",
                     orderNumber: "Номер заказа",
                     orderTime: "Время заказа",
                     orderStatus: "Статус заказа",
                     turonOrderID: "Turon order ID",
+                    batchesOrderStatus: {
+                        new: "Новый",
+                        created: "Создан",
+                        vendor_pending: "Ожидает поставщика",
+                        ready_for_codes: "Готов к кодам",
+                        codes_received: "Коды получены",
+                        codes_utilization_requested: "Запрошено использование кодов",
+                        codes_utilized: "Коды использованы",
+                        rejected: "Отклонено",
+                        closed: "Закрыто"
+                    },
+                    orderNotExternalStatus: {
+                        new: "Новый",
+                        vendor_pending: "Ожидает поставщика",
+                        ready_for_codes: "Готов к кодам",
+                        codes_received: "Коды получены",
+                        codes_utilized: "Коды использованы",
+                        rejected: "Отклонено",
+                        closed: "Закрыто"
+                    },
+                    batchData:{
+                        batchNumber: "Номер партии",
+                        packagingType: "Тип упаковки",
+                        orderNumber: "Номер заказа",
+                        executor: "Испольнитель",
+                        productName: "Название продукта",
+                        gtin: "GTIN",
+                        orderTime: "Время заказа",
+                        numberOfMarkingCodes: "Кол-во КМ",
+                        turonOrderID: "ID заказа Турон",
+                        batchStatus: "Статус партии",
+                        orderStatus: "Статус заказа",
+                        turonOrderStatus: "Статус заказа Турон",
+                        batchStatusInTuron: "Статус партии в Турон",
+                        externalStatus:{
+                            pending: "В ожидании",
+                            active: "Активна",
+                            exhausted: "Исчерпана",
+                            rejected: "Отклонена",
+                            closed: "Закрыта"
+                        },
+                        order:{
+                            batchExternalStatus:{
+                                pending: "В ожидании",
+                                active: "Активна",
+                                exhausted: "Исчерпана",
+                                rejected: "Отклонена",
+                                closed: "Закрыта"
+                            }
+                        }
+                    }
                 },
                 tableTitles: {
                     number: "№",
@@ -950,13 +1170,17 @@ export const resources = {
                     productName: "Название продукции",
                     totalQuantity: "Общее количество",
                     orderedMCQuantity: "Заказанное количество КМ",
-                    remainingMCQuantity: "Оставшееся количество КМ",
+                    codesHaveBeenExported: "Коды были экспортированы",
                     orderDate: "Дата заказа",
                     packageType: "Тип упаковки",
                     paymentType : "Тип оплаты",
                     status: "Статус",
                     paid: "Оплачиваемый",
-                    unPaid: "Неоплачиваемый"
+                    unPaid: "Неоплачиваемый",
+                    batchNumber: "Номер партии",
+                    gtin: "GTIN",
+                    numberOfMarkingCodes: "Колличество КМ",
+                    code: "Код"
                 },
                 orderCreation: {
                     title: "Создание заказа",
@@ -983,12 +1207,56 @@ export const resources = {
                     partyIDTuron: "ID Партии турон",
                     creationDate: "Дата создания",
                     messageFromTuron: "Сообщение от турон",
+                    gtin: "GTIN",
+                    packageType: "Тип упаковки",
+                    status: "Статус",
+                },
+                orderStatus: {
+                    created: "Создан",
+                    pending: "В ожидании",
+                    ready: "Готов",
+                    rejected: "Отклонен",
+                    closed: "Закрыт",
+                    outsourced: "Аутсорсинг"
+                },
+                packageType: {
+                    unit: "Потребительская",
+                    group: "Групповая",
+                    box_lv_1: "Коробка",
+                    box_lv_2: "Паллета",
+                }
+            },
+            aggregations: {
+                title: "Коды аггрегации",
+                btnAdd: "Добавить код аггрегации",
+                aggregationsTableTitle: {
+                    status: "Статус",
+                    orderDate: "Дата заказа",
+                    quantityPerPackage: "Кол-во в упаковке",
+                    numberOfPackages: "Кол-во упаковок",
+                    productName: "Название продукта",
+                    childBatch: "Дочерняя партия",
+                    parentBatch: "Родительская партия",
+                    aggregationReportNumber: "Номер отчета об агрегации",
+                },
+                aggregationReportStatus: {
+                    new: "Новый",
+                    requested: "Запрошен",
+                    created: "Создан",
+                    validating: "Проверяется",
+                    in_process: "В процессе",
+                    success: "Успешно",
+                    error: "Ошибка",
                 }
             }
         }
     },
     uz:{
         translation:{
+            common:{
+                yes: "Ha",
+                no: "Yoʻq"
+            },
             statuses: {
                 active: "Faol",
                 inactive: "Faol emas",
@@ -1049,7 +1317,8 @@ export const resources = {
                 selectProduct: 'Mahsulotni tanlang',
                 packageType: 'Qadoq turi',
                 selectStatus: 'Holatni tanlang',
-                selectOrderPaymentType: 'Buyurtma toʻlov turini tanlang'
+                selectOrderPaymentType: 'Buyurtma toʻlov turini tanlang',
+                selectState: 'Holatni tanlang',
             },
             btn: {
                 create: 'Yaratish',
@@ -1059,12 +1328,16 @@ export const resources = {
                 save: 'Saqlash',
                 back: 'Orqaga',
                 toProducts: "Mahsulotlarga o‘tish",
-                sendToTuron: "Turonga yuborish"
+                sendToTuron: "Turonga yuborish",
+                apply: "Qo‘llash",
+                applyAll: "Hammasini qo‘llash",
             },
             navigation: {
                 products: "Mahsulotlar",
                 management: "Boshqaruv",
                 organization: "Tashkilot",
+                organizations: "Tashkilotlar",
+                myOrganizations: "Mening tashkilotlarim",
                 users: "Foydalanuvchilar",
                 audit: "Tizim jurnallari",
                 markingCodes: "Markirovka kodlari"
@@ -1284,8 +1557,15 @@ export const resources = {
                     error: {
                         createUser: "Mahsulotni yaratishda xatolik",
                         updateUser: "Mahsulotni yangilashda xatolik",
-                        deleteUser: "Mahsulotni o‘chirishda xatolik"
+                        deleteUser: "Mahsulotni o‘chirishda xatolik",
+                        invalidExpiration: "Yaroqlilik muddati 2 raqamdan oshmagan butun son bo‘lishi kerak"
                     },
+                },
+                gtin: {
+                    unit: "GTIN iste’molchi qadoqlanishi",
+                    group: "GTIN guruhli qadoqlanish",
+                    box_lv_1: "GTIN quti",
+                    box_lv_2: "GTIN palleta",
                 },
                 addProductForm: {
                     label: {
@@ -1304,6 +1584,7 @@ export const resources = {
                         gross: "Brutto og‘irlik",
                         price: "Narx",
                         companyId: "Kompaniya ID",
+                        manufacturerCountry: "Ishlab chiqaruvchi mamlakati",
                     },
                     placeholder: {
                         name: "Nomini kiriting",
@@ -1321,6 +1602,7 @@ export const resources = {
                         gross: "Brutto og‘irlikni kiriting",
                         price: "Narxni kiriting",
                         companyId: "Kompaniya ID ni kiriting",
+                        countrySearch: "Mamlakatlarni qidirish"
                     },
                     validation:{
                         required:{
@@ -1416,6 +1698,14 @@ export const resources = {
                 markingCodes: "Markirovka kodlari",
                 backToOrders: "Buyurtmalarga qaytish",
                 backToBatches: "Partiyalarga qaytish",
+                orderNumber: "Buyurtma",
+                markingCodesStatusProduct: {
+                    received: "Qabul qilindi",
+                    applied: "Qo‘llangan",
+                    introduced: "Aylanishda",
+                    withdrawn: "Aylanishdan chiqarilgan",
+                    writtenOff: "Yaroqsizlangan",
+                },
                 markingCodesOrderStatus:{
                     created: "Yaratildi",
                     pending: "Kutilmoqda",
@@ -1424,12 +1714,74 @@ export const resources = {
                     closed: "Yopildi",
                     outsourced: "Tashqi manbaga berildi"
                 },
+                orderProduct: {
+                  markingCodesStatus:{
+                      received: "Qabul qilingan",
+                      applied: "Belgilangan",
+                      introduced: "Muomalada",
+                      withdrawn: "Muomaladan chiqarilgan",
+                      writtenOff: "Hisobdan chiqarilgan",
+                      uploaded: "Yuklangan",
+                      aggregated: "Agregatsiyalangan",
+                  }
+                },
                 batches: {
                     title: "Partiyalar",
                     orderNumber: "Buyurtma raqami",
                     orderTime: "Buyurtma vaqti",
                     orderStatus: "Buyurtma holati",
                     turonOrderID: "Turon buyurtma ID",
+                    batchesOrderStatus: {
+                        new: "Yangi",
+                        created: "Yaratildi",
+                        vendor_pending: "Yetkazib beruvchi kutmoqda",
+                        ready_for_codes: "Kodlarga tayyor",
+                        codes_received: "Kodlar qabul qilindi",
+                        codes_utilization_requested: "Kodlardan foydalanish so‘raldi",
+                        codes_utilized: "Kodlar ishlatildi",
+                        rejected: "Rad etildi",
+                        closed: "Yopildi"
+                    },
+                    orderNotExternalStatus: {
+                        new: "Yangi",
+                        vendor_pending: "Yetkazib beruvchi kutmoqda",
+                        ready_for_codes: "Kodlarga tayyor",
+                        codes_received: "Kodlar qabul qilindi",
+                        codes_utilized: "Kodlar ishlatildi",
+                        rejected: "Rad etildi",
+                        closed: "Yopildi"
+                    },
+                    batchData:{
+                        batchNumber: "Partiya raqami",
+                        packagingType: "Qadoqlash turi",
+                        orderNumber: "Buyurtma raqami",
+                        executor: "Ijrochi",
+                        productName: "Mahsulot nomi",
+                        gtin: "GTIN",
+                        orderTime: "Buyurtma vaqti",
+                        numberOfMarkingCodes: "Markirovka kodlari soni",
+                        turonOrderID: "Turon buyurtma ID",
+                        batchStatus: "Partiya holati",
+                        orderStatus: "Buyurtma holati",
+                        turonOrderStatus: "Turon buyurtma holati",
+                        batchStatusInTuron: "Turondagi partiya holati",
+                        externalStatus:{
+                            pending: "Kutilmoqda",
+                            active: "Faol",
+                            exhausted: "Tugagan",
+                            rejected: "Rad etilgan",
+                            closed: "Yopilgan"
+                        },
+                        order:{
+                            batchExternalStatus:{
+                                pending: "Kutilmoqda",
+                                active: "Faol",
+                                exhausted: "Tugagan",
+                                rejected: "Rad etilgan",
+                                closed: "Yopilgan"
+                            }
+                        }
+                    }
                 },
                 tableTitles: {
                     number: "№",
@@ -1443,13 +1795,17 @@ export const resources = {
                     productName: "Mahsulot nomi",
                     totalQuantity: "Jami miqdor",
                     orderedMCQuantity: "Buyurtma qilingan KM soni",
-                    remainingMCQuantity: "Qolgan KM soni",
+                    codesHaveBeenExported: "Kodlar eksport qilindi",
                     orderDate: "Buyurtma sanasi",
                     packageType: "Qadoq turi",
                     paymentType : "Toʻlov turi",
                     status: "Holat",
                     paid: "Toʻlangan",
-                    unPaid: "Toʻlanmagan"
+                    unPaid: "Toʻlanmagan",
+                    batchNumber: "Partiya raqami",
+                    gtin: "GTIN",
+                    numberOfMarkingCodes: "Belgilash kodlari soni",
+                    code: "Code"
                 },
                 orderCreation: {
                     title: "Buyurtma yaratish",
@@ -1476,6 +1832,45 @@ export const resources = {
                     partyIDTuron: "Turon partiya ID",
                     creationDate: "Yaratilgan sana",
                     messageFromTuron: "Turondan xabar",
+                    gtin: "GTIN",
+                    packageType: "Qadoq turi",
+                    status: "Holat",
+                },
+                orderStatus: {
+                    created: "Yaratildi",
+                    pending: "Kutilmoqda",
+                    ready: "Tayyor",
+                    rejected: "Rad etildi",
+                    closed: "Yopildi",
+                    outsourced: "Tashqi manbaga berildi"
+                },
+                packageType: {
+                    unit: "Iste’molchi",
+                    group: "Guruhli",
+                    box_lv_1: "Quti",
+                    box_lv_2: "Palleta",
+                }
+            },
+            aggregations: {
+                title: "Agregatsiya kodlari",
+                aggregationsTableTitle: {
+                    status: "Holati",
+                    orderDate: "Buyurtma sanasi",
+                    quantityPerPackage: "Qadoqdagi miqdor",
+                    numberOfPackages: "Qadoqlar soni",
+                    productName: "Mahsulot nomi",
+                    childBatch: "Quyi partiya",
+                    parentBatch: "Asosiy partiya",
+                    aggregationReportNumber: "Agregatsiya hisobot raqami",
+                },
+                aggregationReportStatus: {
+                    new: "Yangi",
+                    requested: "So‘ralgan",
+                    created: "Yaratilgan",
+                    validating: "Tekshirilmoqda",
+                    in_process: "Jarayonda",
+                    success: "Muvaffaqiyatli",
+                    error: "Xatolik",
                 }
             }
         }

@@ -1,10 +1,7 @@
-import { Form, Input, Select} from 'antd'
-import { IoSearch } from 'react-icons/io5'
+import { Form, Select} from 'antd'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getAllOrganizations, searchOrganizations } from '../../store/organization'
-import { useNavigate } from 'react-router-dom'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
 import ComponentTable from '../../components/table'
@@ -12,52 +9,56 @@ import CustomButton from '../../components/button'
 import ModalWindow from '../../components/modalWindow'
 import { MarkingCodesTableColumns } from '../../tableData/markingCodes'
 import type { MarkingCodesTableDataType } from '../../tableData/markingCodes/types'
-import { fetchMarkingCodes } from '../../store/markingCodes'
-import type { GetMarkingCodes } from '../../types/markingCodes'
+import { fetchMarkingCodes  } from '../../store/markingCodes'
 import OrderForm from './createOrder'
 import { formatDate } from '../../utils/utils'
 import { fetchReferencesByType } from '../../store/references'
+import type { OrderBatchPopulatedResponse } from '../../types/markingCodes'
+import type { OrderListQueryParams } from '../../dtos/markingCodes'
+import { searchProducts } from '../../store/products'
+import {createUtilizationReport} from "../../store/utilization";
+import {toast} from "react-toastify";
 
 const MarkingCodes = () => {
-    const navigate = useNavigate()
     const { t, i18n  } = useTranslation();
     const dispatch = useAppDispatch()
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)
     const dataTotal = useAppSelector((state) => state.markingCodes.total)
-    const references = useAppSelector((state) => state.references.data)
-    const [form] = Form.useForm()
-
+    const packTypeReferences =
+        useAppSelector(state => state.references.references.cisType) ?? [];
+    const { products } = useAppSelector((state) => state.products);
+    const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
+        page: dataPage || 1,
+        // companyId: id,
+        limit: dataLimit || 10,
+    });
     useEffect(() => {
-        dispatch(fetchMarkingCodes({ page: dataPage, limit: dataLimit}))
-    }, [dispatch])
+        dispatch(fetchMarkingCodes(queryParams));
+    }, [dispatch, queryParams]);
 
     useEffect(() => {
         dispatch(fetchReferencesByType("cisType"));
     }, [dispatch]);
 
-    console.log('====================================');
-    console.log("references", references);
-    console.log('====================================');
-
-    console.log('====================================');
-    console.log("markingCodes", markingCodes);
-    console.log('====================================');
-
     const packageTypeMap = useMemo(() => {
-        const lang = i18n.language as keyof (typeof references)[number]["title"];
+        const lang = i18n.language as keyof (typeof packTypeReferences)[number]["title"];
 
-        return references.reduce<Record<string, string>>((acc, ref) => {
+        return packTypeReferences.reduce<Record<string, string>>((acc, ref) => {
             acc[ref.alias] = ref.title[lang] ?? ref.title.en;
             return acc;
         }, {});
-    }, [references, i18n.language]);
+    }, [packTypeReferences, i18n.language]);
 
-    const MarkingCodesData = useMemo(() => {
+     const MarkingCodesData = useMemo(() => {
         return markingCodes.map((markingCode, index) => ({
-            key: markingCode.id,                
-            number: index + 1,  
+            key: index.toString() + 1,
+            number: index + 1,
+            batchNumber: markingCode.batchNumber,
+            batchId: markingCode.batchId,
+            productId: markingCode.productId,
+            orderId: markingCode.orderId,
             orderNumber: markingCode.orderNumber,
             isPaid: markingCode.isPaid,
             productName: markingCode.productName,
@@ -65,15 +66,19 @@ const MarkingCodes = () => {
             orderedQuantity: markingCode.orderedQuantity,
             remainderQuantity: markingCode.remainderQuantity,
             orderedAt: formatDate(markingCode.orderedAt),
-            packageType: packageTypeMap[markingCode.packageType] ?? markingCode.packageType,
-            status: markingCode.status,
+            codesHaveBeenExported:
+                markingCode.totalQuantity === markingCode.orderedQuantity
+                    ? t('common.yes')
+                    : t('common.no'),
+            packageType: markingCode.packageType,
+            status: markingCode.externalStatus,
         }))
-    }, [markingCodes, t]);
+    }, [markingCodes, dataPage, dataLimit, packageTypeMap])
 
     const [modalState, setModalState] = useState<{
         addMarkingCodes: boolean;
         retrieveMarkingCodes: boolean;
-        markingCodesData: GetMarkingCodes | null; 
+        markingCodesData: OrderBatchPopulatedResponse | null; 
       }>({
         addMarkingCodes: false,
         retrieveMarkingCodes: false,
@@ -83,35 +88,13 @@ const MarkingCodes = () => {
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
-     const handleRowClick = (type: 'MarkingCodes', action: 'retrieve' | 'edit' | 'delete', record: MarkingCodesTableDataType) => {
-        console.log(`Clicked on ${type}, action: ${action}, record:`, record);
-        if (type === "MarkingCodes" && action === "retrieve") {
-            navigate(`/marking-codes/${record.key}`);
-        }
-    };
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.trim().length > 0) {
-            dispatch(searchOrganizations({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
-        } else {
-            dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: 'asc' }));
-        }
-    };
-
-    const productOptions = [
-        { label: "Product A", value: "A" },
-        { label: "Product B", value: "B" },
-    ];
 
     const packageTypeOptions = useMemo(() => {
-        return references.map((ref) => ({
+        return packTypeReferences.map((ref) => ({
             value: ref.alias,
             label: ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en, // fallback
         }));
-    }, [references, i18n.language]);
-
-
+    }, [packTypeReferences, i18n.language]);
 
     const statusOptions = [
         { label: t('markingCodes.markingCodesOrderStatus.created'), value: "CREATED" },
@@ -122,19 +105,59 @@ const MarkingCodes = () => {
         { label:  t('markingCodes.markingCodesOrderStatus.outsourced'), value: "OUTSOURCED" },
     ];
 
-    const paymentTypeOptions = [
-        { label: "Cash", value: "cash" },
-        { label: "Card", value: "card" },
-    ];
+    const handleProductSearch = (value: string) => {
+        if (value.trim()) {
+          dispatch(
+            searchProducts({
+              query: value,
+              page: 1,
+              limit: 10,
+              sortOrder: "asc",
+            })
+          );
+        }
+      };
 
-    const handleSelectChange = (value: any, field: any) => {
-        console.log("Selected:", field, value);
-        // Здесь можно отправлять запрос или фильтровать данные
+    const updateQueryParam = <K extends keyof OrderListQueryParams>(
+        key: K,
+        value: OrderListQueryParams[K]
+        ) => {
+        setQueryParams(prev => ({
+            ...prev,
+            page: 1,
+            [key]: value || undefined,
+        }));
+    };
+
+    const handleAppoint = async (
+        e: React.MouseEvent,
+        record: MarkingCodesTableDataType
+    ) => {
+        e.stopPropagation();
+
+        try {
+            const result = await dispatch(
+                createUtilizationReport({
+                    orderId: record.orderId,
+                    batchId: record.batchId,
+                })
+            ).unwrap();
+
+            // result — это то, что ты вернул из fulfilled
+            // т.е. mapUtilizationDtoToEntity(data.report)
+
+            toast.success(
+                `Созданы отчеты о нанесении: номер ${result.reportNumber}`
+            );
+        } catch (error: any) {
+            toast.error(
+                error || 'Ошибка при создании отчета о нанесении'
+            );
+        }
     };
 
 
-
-  return (
+    return (
     <MainLayout>
         <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount='100'>
             <div className="btns-group">
@@ -146,18 +169,18 @@ const MarkingCodes = () => {
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         <div className="box-container-items-item-filters filters-large">
-                            <div className="form-inputs">
-                                <Form.Item name="searchByName" className="input">
-                                    <Input
-                                        size="large"
-                                        className="input"
-                                        placeholder={t('search.byName')}
-                                        suffix={<IoSearch />}
-                                        allowClear
-                                        onChange={handleSearchChange}
-                                    />
-                                </Form.Item>
-                            </div>
+                            {/*<div className="form-inputs">*/}
+                            {/*    <Form.Item name="searchByName" className="input">*/}
+                            {/*        <Input*/}
+                            {/*            size="large"*/}
+                            {/*            className="input"*/}
+                            {/*            placeholder={t('search.byName')}*/}
+                            {/*            suffix={<IoSearch />}*/}
+                            {/*            allowClear*/}
+                            {/*            onChange={handleSearchChange}*/}
+                            {/*        />*/}
+                            {/*    </Form.Item>*/}
+                            {/*</div>*/}
                             <div className="form-inputs">
                                 <Form.Item name="product" className="input">
                                     <Select
@@ -167,9 +190,16 @@ const MarkingCodes = () => {
                                                 {t("search.selectProduct")}
                                             </span>
                                         }
+                                        optionLabelProp="label" 
+                                        showSearch
+                                        filterOption={false}
                                         allowClear
-                                        options={productOptions}
-                                        onChange={handleSelectChange}
+                                        onSearch={handleProductSearch}
+                                        options={products.map((product) => ({
+                                            value: product.id,     // 🆔 отправляем ID
+                                            label: product.name,   // 👀 показываем NAME
+                                        }))}
+                                        onChange={(value) => updateQueryParam('productId', value)}
                                     />
                                 </Form.Item>
                             </div>
@@ -184,7 +214,7 @@ const MarkingCodes = () => {
                                         }
                                         allowClear
                                         options={packageTypeOptions}
-                                        onChange={handleSelectChange}
+                                        onChange={(value) => updateQueryParam('packageType', value)}
                                     />
                                 </Form.Item>
                             </div>
@@ -199,11 +229,11 @@ const MarkingCodes = () => {
                                         }
                                         allowClear
                                         options={statusOptions}
-                                        onChange={handleSelectChange}
+                                        onChange={(value) => updateQueryParam('status', value)}
                                     />
                                 </Form.Item>
                             </div>
-                            <div className="form-inputs">
+                            {/* <div className="form-inputs">
                                 <Form.Item name="paymentType" className="input">
                                     <Select
                                         size="large"
@@ -214,25 +244,30 @@ const MarkingCodes = () => {
                                         }
                                         allowClear
                                         options={paymentTypeOptions}
-                                        onChange={handleSelectChange}
+                                        onChange={(value) => updateQueryParam('paymentType', value)}
                                     />
                                 </Form.Item>
-                            </div>
-
+                            </div> */}
                         </div>
                     </div>
                 </div>
                 <div className="box-container-items">
-                    <ComponentTable<MarkingCodesTableDataType> 
-                        columns={MarkingCodesTableColumns(t, handleRowClick)}
+                    <ComponentTable<MarkingCodesTableDataType>
+                        columns={MarkingCodesTableColumns(t, handleAppoint)}
                         data={MarkingCodesData}
-                        onRowClick={(record) => handleRowClick('MarkingCodes', 'retrieve', record)}
+                        // onRowClick={(record) =>
+                        //     handleRowClick('MarkingCodes', 'retrieve', record)
+                        // }
                         pagination={{
-                            current: dataPage || 1,
-                            pageSize: dataLimit || 10,
-                            total: dataTotal || 0,
-                            onChange: (newPage, newLimit) => {
-                                dispatch(getAllOrganizations({ page: newPage, limit: newLimit, sortOrder: "asc" }));
+                            current: queryParams.page,
+                            pageSize: queryParams.limit,
+                            total: dataTotal,
+                            onChange: (page, limit) => {
+                                setQueryParams(prev => ({
+                                ...prev,
+                                page,
+                                limit,
+                                }));
                             },
                         }}
                     />
@@ -240,10 +275,11 @@ const MarkingCodes = () => {
             </div>
         </div>
         <ModalWindow
+            width={"auto"}
             openModal={modalState.addMarkingCodes}
             closeModal={() => handleModal('addMarkingCodes', false)}
             title={t('markingCodes.orderCreation.title')}
-            >
+        >
             <OrderForm />
         </ModalWindow>
 

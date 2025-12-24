@@ -6,36 +6,40 @@ import type { Reference, ReferenceBookType } from "../../types/references";
 import { mapReferenceDtoToReference } from "../../mappers/references";
 
 type ReferencesState = {
-  data: Reference[];
+  references:  Record<string, Reference[]>;
   loading: boolean;
   error: string | null;
 };
 
 const initialState: ReferencesState = {
-    
-  data: [],
+
+  references: {},
   loading: false,
   error: null,
 };
 
 export const fetchReferencesByType = createAsyncThunk<
-  Reference[],
-  ReferenceBookType,
-  { rejectValue: string }
+    { type: ReferenceBookType; data: Reference[] },
+    ReferenceBookType,
+    { rejectValue: string }
 >(
-  "references/fetchByType",
-  async (type, { rejectWithValue }) => {
-    try {
-      const { data } = await axiosInstance.get<GetReferenceByTypeDto>(
-        `${BASE_URL}/references/${type}`
-      );
+    "references/fetchByType",
+    async (type, { rejectWithValue }) => {
+      try {
+        const { data } = await axiosInstance.get<GetReferenceByTypeDto>(
+            `${BASE_URL}/references/${type}`
+        );
 
-      return data.references.map(mapReferenceDtoToReference);
-    } catch (err: any) {
-      return rejectWithValue(err.message ?? "Ошибка загрузки справочников");
+        return {
+          type,
+          data: data.references.map(mapReferenceDtoToReference),
+        };
+      } catch (err: any) {
+        return rejectWithValue(err.message ?? "Ошибка загрузки справочников");
+      }
     }
-  }
 );
+
 
 
 
@@ -44,7 +48,7 @@ export const referencesSlice = createSlice({
   initialState,
   reducers: {
     resetOrders: (state) => {
-      state.data = [];
+      state.references = {};
       state.error = null;
     },
   },
@@ -55,7 +59,9 @@ export const referencesSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchReferencesByType.fulfilled, (state, action) => {
-        state.data = action.payload;
+        const { type, data } = action.payload;
+
+        state.references[type] = data;
         state.loading = false;
       })
       .addCase(fetchReferencesByType.rejected, (state, action) => {

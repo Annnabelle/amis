@@ -24,7 +24,7 @@ const UserInfo: React.FC = () => {
 
 
   console.log('====================================');
-  console.log(user);
+  console.log("user", user);
   console.log('====================================');
 
   // клик вне дропдауна

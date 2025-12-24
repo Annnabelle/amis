@@ -185,14 +185,6 @@ const Users = () => {
     };
 
 
-    const handleTableChange = (pagination: any) => {
-        dispatch(getAllUsers({
-            page: pagination.current,
-            limit: pagination.pageSize,
-            sortOrder: 'asc',
-        }));
-    };
-
   return (
     <MainLayout>
         <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount='100'>
@@ -238,9 +230,9 @@ const Users = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
+        <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
             <FormComponent onFinish={handleRegisterUser}>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="firstName"
@@ -272,7 +264,7 @@ const Users = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="phone"
@@ -302,7 +294,7 @@ const Users = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="role"

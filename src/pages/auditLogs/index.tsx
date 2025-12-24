@@ -278,7 +278,7 @@ const AuditLogsPage: React.FC = () => {
         path = `/organization/${entityId}`;
         break;
       case "product":
-        path = `/organization/${target.companyId}/products/${target.id}`;
+        path = `/products/${target.id}`;
         break;
     }
 
