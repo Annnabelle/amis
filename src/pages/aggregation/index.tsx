@@ -158,8 +158,8 @@ const Aggregations = () => {
                     </div>
                 </div>
                 <ModalWindow
-                    titleAction={t('products.modalWindow.adding')}
-                    title={t('products.modalWindow.product')}
+                    // titleAction={t('products.modalWindow.adding')}
+                    title={t('aggregations.addAggregation')}
                     openModal={modalState.addAggregation}
                     closeModal={() => handleModal('addAggregation', false)}
                     className="modal-large"
@@ -168,8 +168,8 @@ const Aggregations = () => {
                         <div className="form-inputs">
                             <Form.Item
                                 name="parent"
-                                label="Родительская партия"
-                                rules={[{ required: true }]}
+                                label={t("aggregations.addAggregationFields.parentBatch")}
+                                rules={[{ required: true, message: t("products.addProductForm.validation.required.requiredField") }]}
                                 className="input"
                             >
                                 <Select
@@ -186,9 +186,9 @@ const Aggregations = () => {
 
                             <Form.Item
                                 name="child"
-                                label="Дочерняя партия"
+                                label={t("aggregations.addAggregationFields.childBatch")}
                                 className="input"
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: t("products.addProductForm.validation.required.requiredField") }]}
                             >
                                 <Select size="large" className="input" options={childOptions} />
                             </Form.Item>
@@ -196,9 +196,9 @@ const Aggregations = () => {
                         <div className="form-inputs">
                             <Form.Item
                                 name="documentDate"
-                                label="Дата упаковки"
+                                label={t("aggregations.addAggregationFields.packagingDate")}
                                 initialValue={dayjs()}
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: t("products.addProductForm.validation.required.requiredField") }]}
                                 className="input"
                             >
                                 <DatePicker size="large" className="input" />

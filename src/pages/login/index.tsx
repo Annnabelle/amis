@@ -22,7 +22,7 @@ const LoginPage = () => {
             .then(() => {
                 toast.success(t('login.messages.successLogin'));
                 setTimeout(() => {
-                    navigate('/home');
+                    navigate('/organization');
                 }, 1000); 
 
             })
@@ -54,7 +54,7 @@ const LoginPage = () => {
                                     <Input placeholder={t('login.enterUserName')} className='input' size='large'/>
                                 </Form.Item>
                                 <Form.Item label={t('users.addUserForm.label.password')} className='input'  name="password" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
-                                    <Input placeholder={t('users.addUserForm.placeholder.password')} className='input' size='large'/>
+                                    <Input type="password" placeholder={t('users.addUserForm.placeholder.password')} className='input' size='large'/>
                                 </Form.Item>
                             </div>
                             <div className="form-inputs">

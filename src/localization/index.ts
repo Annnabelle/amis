@@ -87,7 +87,8 @@ export const resources = {
                 myOrganizations: "My organizations",
                 users: "Users",
                 audit: "System logs",
-                markingCodes: "Marking codes"
+                markingCodes: "Marking codes",
+                aggregations: "Aggregations"
             },
             users: {
                 userRole: {
@@ -324,14 +325,14 @@ export const resources = {
                         icps: "ICPS",
                         productType: "Product type",
                         aggregationQuantity: "Aggregation quantity",
-                        expiration: "Expiration date",
+                        expiration: "Shelf life (days)",
                         unit: "Unit of measurement",
                         amount: "Amount",
                         net: "Net weight",
                         gross: "Gross weight",
                         price: "Price",
                         companyId: "Company ID",
-                        manufacturerCountry: "Manufacturer country",
+                        manufacturerCountry: "Country of origin",
                     },
                     placeholder: {
                         name: "Enter name",
@@ -363,7 +364,9 @@ export const resources = {
                             measurementAmount: "Amount is required",
                             weightNet: "Net weight is required",
                             name: "Product name is required",
-                            shortName: "Product short name is required"
+                            shortName: "Product short name is required",
+                            manufacturerCountry: "Select a country",
+                            requiredField: "This field is required"
                         },
                         pattern:{
                             gtin: "Enter a valid GTIN (14 digits)",
@@ -447,6 +450,13 @@ export const resources = {
                 backToOrders: "Back to Orders",
                 backToBatches: "Back to Batches",
                 orderNumber: "Order",
+                applyAll: {
+                    confirmApplyAll: "Create utilization reports for all {{count}} batches?",
+                    applyAllSuccess: "Successfully created reports: {{success}} out of {{total}}",
+                    applyAllPartialError: "Failed to create {{error}} report(s)",
+                    noBatchesToApply: "No batches available to apply",
+                    unexpectedError: "An unexpected error occurred"
+                },
                 markingCodesStatusProduct: {
                     received: "Received",
                     applied: "Applied",
@@ -458,6 +468,7 @@ export const resources = {
                     created: "Created",
                     pending: "Pending",
                     ready: "Ready",
+                    exhausted: "Exhausted",
                     rejected: "Rejected",
                     closed: "Closed",
                     outsourced: "Outsourced"
@@ -601,6 +612,8 @@ export const resources = {
             },
             aggregations: {
                 title: "Aggregation codes",
+                btnAdd: "Add aggregation code",
+                addAggregation: "To aggregate",
                 aggregationsTableTitle: {
                     status: "Status",
                     orderDate: "Order date",
@@ -619,6 +632,11 @@ export const resources = {
                     in_process: "In progress",
                     success: "Success",
                     error: "Error",
+                },
+                addAggregationFields: {
+                    parentBatch: "Parent batch",
+                    childBatch: "Child batch",
+                    packagingDate: "Packaging date",
                 }
             }
         }
@@ -712,6 +730,7 @@ export const resources = {
                 users: "Пользователи",
                 audit: "Логи системы",
                 markingCodes: "Коды маркировки",
+                aggregations: "Аггрегации",
             },
             users: {
                 userRole: {
@@ -949,14 +968,14 @@ export const resources = {
                         icps: 'ИКПУ',
                         productType: 'Тип продукции',
                         aggregationQuantity: 'Количество в агрегации',
-                        expiration: 'Срок годности',
+                        expiration: 'Срок годности в днях',
                         unit: 'Единица измерения',
                         amount: 'Количество',
                         net: 'Вес нетто',
                         gross: 'Вес брутто',
                         price: 'Цена',
                         companyId: 'Айди компании',
-                        manufacturerCountry: "Страна производителя",
+                        manufacturerCountry: "Страна-производитель",
                     },
                     placeholder: {
                         name: 'Введите название продукции',
@@ -980,7 +999,7 @@ export const resources = {
                         required:{
                             gtin: "GTIN обязателен для заполнения",
                             barcode: "Штрихкод обязателен для заполнения",
-                            icps: "ICPS обязателен для заполнения",
+                            icps: "ИКПУ обязателен для заполнения",
                             productType: "Тип продукта обязателен для заполнения",
                             aggregationQuantity: "Количество в агрегации обязательно для заполнения",   
                             expiration: "Срок годности обязателен для заполнения",
@@ -988,7 +1007,9 @@ export const resources = {
                             measurementAmount: "Количество обязательно для заполнения",
                             weightNet: "Нетто обязательно для заполнения",
                             name: "Название продукта обязательно для заполнения",
-                            shortName: "Краткое название продукта обязательно для заполнения"
+                            shortName: "Краткое название продукта обязательно для заполнения",
+                            manufacturerCountry: "Выберите страну",
+                            requiredField: "Поле должно быть заполненно"
                         },
                         pattern:{
                             gtin: "Введите корректный GTIN (14 цифр)",
@@ -1072,6 +1093,13 @@ export const resources = {
                 markingCodes: "Коды маркировки",
                 backToOrders: "Вернуться к заказам",
                 backToBatches: "Вернуться партиям",
+                applyAll: {
+                    confirmApplyAll: "Создать отчеты о нанесении для всех {{count}} батчей?",
+                    applyAllSuccess: "Успешно создано отчетов: {{success}} из {{total}}",
+                    applyAllPartialError: "Не удалось создать {{error}} отчет(ов)",
+                    noBatchesToApply: "Нет батчей для нанесения",
+                    unexpectedError: "Произошла непредвиденная ошибка"
+                },
                 markingCodesStatusProduct: {
                     received: "Получен",
                     applied: "Нанесен",
@@ -1083,6 +1111,7 @@ export const resources = {
                     created: "Создано",
                     pending: "В ожидании",
                     ready: "Готово",
+                    exhausted: "Исчерпан",
                     rejected: "Отклонено",
                     closed: "Закрыто",
                     outsourced: "Передано на аутсорсинг"
@@ -1159,16 +1188,16 @@ export const resources = {
                 tableTitles: {
                     number: "№",
                     products: "Продукция",
-                    comments: "Название продукции",
-                    markingCodesQuantity: "Кол-во КМ",
+                    comments: "Название продукта",
+                    markingCodesQuantity: "Количествово КМ",
                     turonBatchID: "ID Партии турон",
                     creationDate: "Дата создания",
                     turonMessage: "Сообщение от турон",
                     orderNumber: "Номер заказа",
-                    productName: "Название продукции",
+                    productName: "Название продукта",
                     totalQuantity: "Общее количество",
                     orderedMCQuantity: "Заказанное количество КМ",
-                    codesHaveBeenExported: "Коды были экспортированы",
+                    codesHaveBeenExported: "Коды выгружены",
                     orderDate: "Дата заказа",
                     packageType: "Тип упаковки",
                     paymentType : "Тип оплаты",
@@ -1227,6 +1256,7 @@ export const resources = {
             aggregations: {
                 title: "Коды аггрегации",
                 btnAdd: "Добавить код аггрегации",
+                addAggregation: "Аггрегировать",
                 aggregationsTableTitle: {
                     status: "Статус",
                     orderDate: "Дата заказа",
@@ -1245,6 +1275,11 @@ export const resources = {
                     in_process: "В процессе",
                     success: "Успешно",
                     error: "Ошибка",
+                },
+                addAggregationFields: {
+                    parentBatch: "Родительская партия",
+                    childBatch: "Дочерняя партия",
+                    packagingDate: "Дата упаковки",
                 }
             }
         }
@@ -1338,7 +1373,8 @@ export const resources = {
                 myOrganizations: "Mening tashkilotlarim",
                 users: "Foydalanuvchilar",
                 audit: "Tizim jurnallari",
-                markingCodes: "Markirovka kodlari"
+                markingCodes: "Markirovka kodlari",
+                aggregations: "Aggregatsiyalar",
             },
             users: {
                 userRole: {
@@ -1575,14 +1611,14 @@ export const resources = {
                         icps: "IKPU",
                         productType: "Mahsulot turi",
                         aggregationQuantity: "Aggregatsiya miqdori",
-                        expiration: "Yaroqlilik muddati",
+                        expiration: "Yaroqlilik muddati (kunlarda)",
                         unit: "O‘lchov birligi",
                         amount: "Miqdor",
                         net: "Sof og‘irlik",
                         gross: "Brutto og‘irlik",
                         price: "Narx",
                         companyId: "Kompaniya ID",
-                        manufacturerCountry: "Ishlab chiqaruvchi mamlakati",
+                        manufacturerCountry: "Ishlab chiqarilgan mamlakat",
                     },
                     placeholder: {
                         name: "Nomini kiriting",
@@ -1614,7 +1650,9 @@ export const resources = {
                             measurementAmount: "Miqdor majburiy",
                             weightNet: "Sof vazn majburiy",
                             name: "Mahsulot nomi majburiy",
-                            shortName: "Mahsulotning qisqa nomi majburiy"
+                            shortName: "Mahsulotning qisqa nomi majburiy",
+                            manufacturerCountry: "Mamlakatni tanlang",
+                            requiredField: "Ushbu maydon toʻldirilishi shart",
                         },
                         pattern:{
                             gtin: "To‘g‘ri GTIN kiriting (14 raqam)",
@@ -1697,6 +1735,13 @@ export const resources = {
                 backToOrders: "Buyurtmalarga qaytish",
                 backToBatches: "Partiyalarga qaytish",
                 orderNumber: "Buyurtma",
+                applyAll: {
+                    confirmApplyAll: "Barcha {{count}} ta partiya uchun qo‘llash hisobotlarini yaratishni tasdiqlaysizmi?",
+                    applyAllSuccess: "Muvaffaqiyatli yaratildi: {{total}} tadan {{success}} ta hisobot",
+                    applyAllPartialError: "{{error}} ta hisobotni yaratib bo‘lmadi",
+                    noBatchesToApply: "Qo‘llash uchun partiyalar mavjud emas",
+                    unexpectedError: "Kutilmagan xatolik yuz berdi"
+                },
                 markingCodesStatusProduct: {
                     received: "Qabul qilindi",
                     applied: "Qo‘llangan",
@@ -1709,6 +1754,7 @@ export const resources = {
                     pending: "Kutilmoqda",
                     ready: "Tayyor",
                     rejected: "Rad etildi",
+                    exhausted: "Holdan toygan",
                     closed: "Yopildi",
                     outsourced: "Tashqi manbaga berildi"
                 },
@@ -1851,6 +1897,8 @@ export const resources = {
             },
             aggregations: {
                 title: "Agregatsiya kodlari",
+                btnAdd: "Agregatsiya kodini qo'shish",
+                addAggregation: "Agregatsiya qilmoq",
                 aggregationsTableTitle: {
                     status: "Holati",
                     orderDate: "Buyurtma sanasi",
@@ -1869,6 +1917,11 @@ export const resources = {
                     in_process: "Jarayonda",
                     success: "Muvaffaqiyatli",
                     error: "Xatolik",
+                },
+                addAggregationFields: {
+                    parentBatch: "Asosiy partiya",
+                    childBatch: "Farzand partiya",
+                    packagingDate: "Qadoqlash sanasi",
                 }
             }
         }

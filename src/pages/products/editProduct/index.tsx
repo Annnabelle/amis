@@ -185,34 +185,34 @@ const ProductsEdit = () => {
                             >
                                 <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
                             </Form.Item>
-                            <Form.Item className="input" name={['gtin', 'group']} label={t('products.addProductForm.label.icps')}
+                            <Form.Item className="input" name={['gtin', 'group']} label={t('products.gtin.group')}
                                        initialValue={productById.gtin.group}
                                        rules={[
                                            { required: false},
                                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
                                        ]}
                             >
-                                <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
+                                <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')}/>
                             </Form.Item>
                         </div>
                         <div className="form-inputs  form-inputs-row">
-                            <Form.Item className="input" name={['gtin', 'box_lv_1']} label={t('products.addProductForm.label.icps')}
+                            <Form.Item className="input" name={['gtin', 'box_lv_1']} label={t('products.gtin.box_lv_1')}
                                        initialValue={productById.gtin.box_lv_1}
                                        rules={[
                                            { required: false},
                                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
                                        ]}
                             >
-                                <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
+                                <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
                             </Form.Item>
-                            <Form.Item className="input" name={['gtin', 'box_lv_2']} label={t('products.addProductForm.label.icps')}
+                            <Form.Item className="input" name={['gtin', 'box_lv_2']} label={t('products.gtin.box_lv_2')}
                                        initialValue={productById.gtin.box_lv_2}
                                        rules={[
                                            { required: false},
                                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
                                        ]}
                             >
-                                <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
+                                <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
                             </Form.Item>
                         </div>
                         <div className="form-inputs  form-inputs-row">
@@ -259,7 +259,7 @@ const ProductsEdit = () => {
                             <Form.Item className="input" name="aggregationQuantity" label={t('products.addProductForm.label.aggregationQuantity')}
                                        initialValue={productById.aggregationQuantity}
                                        rules={[
-                                           { required: true, message: t('products.validation.required') },
+                                           { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') },
                                            { pattern: /^\d+$/, message: t('products.validation.number') },
                                        ]}
                             >
@@ -268,7 +268,7 @@ const ProductsEdit = () => {
                             <Form.Item className="input" name={['measurement', 'unit']} label={t('products.addProductForm.label.unit')}
                                 initialValue={productById.measurement.unit}
                                 rules={[
-                                    { required: true, message: t('products.validation.required') },
+                                    { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') },
                                     { max: 10, message: t('products.validation.max10') },
                                 ]}
                             >

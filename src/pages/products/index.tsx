@@ -526,7 +526,7 @@ const Products = () => {
                         name={['measurement', 'amount']}
                         label={t('products.addProductForm.label.amount')}
                         rules={[
-                        { required: true, message: t('products.validation.required') },
+                        { required: true, message: t('products.addProductForm.validation.required.requiredField') },
                         { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') },
                         ]}
                     >
@@ -538,7 +538,7 @@ const Products = () => {
                         name={['weight', 'net']}
                         label={t('products.addProductForm.label.net')}
                         rules={[
-                        { required: true, message: t('products.validation.required') },
+                        { required: true, message: t('products.addProductForm.validation.required.requiredField') },
                         { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') },
                         ]}
                     >

@@ -319,6 +319,7 @@ const Users = () => {
                         ]}
                     >
                     <Input.Password
+                        type="password"
                         className="input"
                         size="large"
                         placeholder={t('users.addUserForm.placeholder.password')}

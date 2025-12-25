@@ -34,13 +34,18 @@ export const createUtilizationReport = createAsyncThunk(
                 payload
             );
 
-            if (data.success && data.report) {
-                return mapUtilizationDtoToEntity(data);
+            // Исправлено: проверяем data.reports (массив), а не data.report
+            if (data.success && data.reports && data.reports.length > 0) {
+                // Если mapUtilizationDtoToEntity ожидает объект с report — возьми первый
+                // Или переделай маппер под массив, как удобнее
+                return mapUtilizationDtoToEntity(data); // или data.reports[0], смотри ниже
             }
 
-            return rejectWithValue("Ошибка регистрации отчета");
+            // Если success: true, но reports пустой — это тоже ошибка
+            return rejectWithValue("Отчет не был создан: пустой ответ сервера");
         } catch (err: any) {
-            return rejectWithValue(err.message || "Ошибка сервера");
+            const message = err.response?.data?.message || err.message || "Ошибка сервера";
+            return rejectWithValue(message);
         }
     }
 );

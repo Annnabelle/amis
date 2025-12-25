@@ -13,7 +13,6 @@ import {
   AppstoreOutlined,
   CodeOutlined,
   ClusterOutlined,
-  BarChartOutlined,
   BuildOutlined,
 } from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -38,10 +37,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-
-  const organizations = useAppSelector(
-      (state) => state.organizations.organizations
-  );
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const organizations = useAppSelector((state) => state.organizations.organizations);
   const dataLimit = useAppSelector(
       (state) => state.organizations.limit
   );
@@ -49,17 +46,30 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       (state) => state.organizations.page
   );
 
-  const isSuperAdmin = true;
+      const isSuperAdmin = true;
 
-  useEffect(() => {
-    dispatch(
-        getAllOrganizations({
-          page: dataPage || 1,
-          limit: dataLimit || 10,
-          sortOrder: 'asc',
-        })
-    );
-  }, [dispatch, dataPage, dataLimit]);
+    useEffect(() => {
+        const parts = location.pathname.split('/');
+        const orgId = parts[2];
+
+        if (orgId) {
+            setOpenKeys([
+                'my-organizations-group',
+                `my-org-${orgId}`,
+            ]);
+        }
+    }, [location.pathname]);
+
+
+    useEffect(() => {
+        dispatch(
+            getAllOrganizations({
+              page: dataPage || 1,
+              limit: dataLimit || 10,
+              sortOrder: 'asc',
+            })
+        );
+    }, [dispatch, dataPage, dataLimit]);
 
   /* =========================
      Маппинг организаций
@@ -78,45 +88,43 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
      Подменю для организации
   ========================== */
 
-  const getOrgSubMenuItems = (
-      orgId: string
-  ): MenuProps['items'] => [
+  const getOrgSubMenuItems = (orgId: string): MenuProps['items'] => [
     {
       key: 'products',
       icon: <AppstoreOutlined />,
       label: (
           <Link to={`/organization/${orgId}/products`}>
-            Продукты
+              {t("navigation.products")}
           </Link>
       ),
     },
     {
-      key: 'marking-codes',
+      key: 'orders',
       icon: <CodeOutlined />,
       label: (
           <Link to={`/organization/${orgId}/orders`}>
-            Коды маркировки
+              {t("navigation.markingCodes")}
           </Link>
       ),
-    },
-    {
-      key: 'aggregations',
-      icon: <ClusterOutlined />,
-      label: (
-          <Link to={`/aggregations`}>
-            Агрегации
-          </Link>
-      ),
-    },
-    {
-      key: 'reports',
-      icon: <BarChartOutlined />,
-      label: (
-          <Link to={`/organization/${orgId}/reports`}>
-            Отчеты
-          </Link>
-      ),
-    },
+        },
+      {
+          key: 'aggregations',
+          icon: <ClusterOutlined />,
+          label: (
+              <Link to={`/organization/${orgId}/aggregations`}>
+                  {t("navigation.aggregations")}
+              </Link>
+          ),
+      },
+      // {
+      //     key: 'reports',
+      //     icon: <BarChartOutlined />,
+      //     label: (
+      //         <Link to={`/organization/${orgId}/reports`}>
+      //           Отчеты
+      //         </Link>
+      //     ),
+      // },
   ];
 
   /* =========================
@@ -187,19 +195,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
      Активный пункт меню
   ========================== */
 
-  const selectedKeys = useMemo(() => {
-    const parts = location.pathname.split('/');
-    const orgId = parts[2];
-    const section = parts[3];
+    const selectedKeys = useMemo(() => {
+        const parts = location.pathname.split('/');
+        const orgId = parts[2];
+        const section = parts[3];
 
-    if (orgId && section) {
-      return [`${orgId}-${section}`];
-    }
+        if (orgId && section) {
+            return [`${orgId}-${section}`];
+        }
 
-    return [location.pathname];
-  }, [location.pathname]);
+        return [];
+    }, [location.pathname]);
 
-  return (
+    const handleOpenChange = (keys: string[]) => {
+        setOpenKeys(keys);
+    };
+
+
+
+    return (
       <Layout className="layout">
         <Header className="layout-header">
           <div className="layout-header-container">
@@ -258,7 +272,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   mode="inline"
                   inlineCollapsed={collapsed}
                   selectedKeys={selectedKeys}
-                  defaultOpenKeys={['my-organizations-group']}
+                  openKeys={collapsed ? [] : openKeys}
+                  onOpenChange={handleOpenChange}
                   items={menuItems}
                   inlineIndent={24}
                   className="layout-sider-menu"
