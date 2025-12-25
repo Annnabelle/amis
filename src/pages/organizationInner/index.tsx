@@ -13,13 +13,9 @@ import { useNavigationBack } from '../../utils/utils'
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const dispatch = useAppDispatch()
     const navigateBack = useNavigationBack();
-    const organizations = useAppSelector((state) => state.organizations.organizations)
-    const dataLimit = useAppSelector((state) => state.organizations.limit)
-    const dataPage = useAppSelector((state) => state.organizations.page)
-    const dataTotal = useAppSelector((state) => state.organizations.total)
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
 
     const [form] = Form.useForm()

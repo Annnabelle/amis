@@ -10,7 +10,7 @@ import ComponentTable from '../../components/table'
 import CustomButton from '../../components/button'
 import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
-import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts, updateProduct } from '../../store/products'
+import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from '../../store/products'
 import { ProductsTableColumns } from '../../tableData/products'
 import type { ProductTableDataType } from '../../tableData/products/types'
 import type { CreateProduct, ProductResponse } from '../../types/products'
@@ -295,7 +295,7 @@ const Products = () => {
             >
             <FormComponent onFinish={handleRegisterProduct}
               form={form}
-                onValuesChange={(changedValues, allValues) => {
+                onValuesChange={(changedValues) => {
                     // если пользователь сам вводит shortName — запоминаем
                     if (changedValues.shortName !== undefined) {
                     shortNameEdited.current = true;

@@ -71,7 +71,7 @@ const MarkingCodes = () => {
                     ? t('common.yes')
                     : t('common.no'),
             packageType: markingCode.packageType,
-            status: markingCode.externalStatus,
+            status: markingCode.externalStatus ?? null,
         }))
     }, [markingCodes, dataPage, dataLimit, packageTypeMap])
 
@@ -255,9 +255,6 @@ const MarkingCodes = () => {
                     <ComponentTable<MarkingCodesTableDataType>
                         columns={MarkingCodesTableColumns(t, handleAppoint)}
                         data={MarkingCodesData}
-                        // onRowClick={(record) =>
-                        //     handleRowClick('MarkingCodes', 'retrieve', record)
-                        // }
                         pagination={{
                             current: queryParams.page,
                             pageSize: queryParams.limit,

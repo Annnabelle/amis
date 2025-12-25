@@ -4,10 +4,10 @@ import { LuUserRound } from "react-icons/lu";
 import { IoIosArrowDown } from "react-icons/io";
 import { useAppSelector, useAppDispatch } from "../../../store";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CustomButton from "../../button";
 import "./styles.sass";
-import { clearUser, logout } from "../../../store/users";
+import { logout } from "../../../store/users";
 
 const UserInfo: React.FC = () => {
   const { t, i18n } = useTranslation();

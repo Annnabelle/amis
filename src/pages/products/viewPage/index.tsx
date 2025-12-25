@@ -1,4 +1,4 @@
-import {Form, Input, Select} from 'antd'
+import {Form, Input} from 'antd'
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '../../../store';
@@ -107,7 +107,7 @@ const ProductsView = () => {
                             )}
                             {productById.expiration && (
                                 <Form.Item className="input" name="expiration" label={t('products.addProductForm.label.expiration')}>
-                                    <Input className="input" size='large' placeholder={productById.expiration} disabled />
+                                    <Input className="input" size='large' placeholder={productById.expiration.toString()} disabled />
                                 </Form.Item>
                             )}
                         </div>

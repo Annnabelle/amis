@@ -1,5 +1,3 @@
-import {AggregationReportStatus} from "../dtos";
-
 export const resources = {
     en:{
         translation:{

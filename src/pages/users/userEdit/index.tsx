@@ -2,7 +2,7 @@ import { Form, Input, Select, Spin, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {assignUserToCompany, clearUserById, getUserById, unassignUserToCompany, updateUser } from '../../../store/users'
+import {assignUserToCompany, getUserById, unassignUserToCompany, updateUser } from '../../../store/users'
 import { useAppDispatch, useAppSelector } from '../../../store'
 import { IoSearch } from 'react-icons/io5'
 import { getAllOrganizations, searchOrganizations } from '../../../store/organization'
@@ -24,7 +24,6 @@ const UsersEdit = () => {
     const isLoadingOrganizations = useAppSelector((state) => state.organizations.isLoading);
     const [searchValue, setSearchValue] = useState("");
     const [assignedOrganizations, setAssignedOrganizations] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const isUserLoading = useAppSelector((state) => state.users.isLoading);
     const navigateBack = useNavigationBack();
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -39,7 +38,6 @@ const UsersEdit = () => {
     
     const handleAssignOrganization = async (companyId: string) => {
         if (!id) return;
-        setIsLoading(true);
         try {
             const resultAction = await dispatch(
                 assignUserToCompany({ userId: id, companyId })
@@ -59,7 +57,8 @@ const UsersEdit = () => {
                 toast.success(t("organizations.messages.success.assignOrganization"));
             }
         } finally {
-            setIsLoading(false);
+            // setIsLoading(false);
+            console.log("error in handleAssignOrganization")
         }
     };
     

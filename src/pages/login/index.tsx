@@ -16,7 +16,7 @@ const LoginPage = () => {
     const form = useFormInstance();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const onFinish = (values: LoginForm) => {
         dispatch(Login(values)).unwrap()
             .then(() => {

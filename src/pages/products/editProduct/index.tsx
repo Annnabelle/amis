@@ -2,7 +2,7 @@ import {Form, Input, Select} from 'antd'
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { getProductById, updateProduct } from '../../../store/products';
 import { toast } from 'react-toastify';
 import MainLayout from '../../../components/layout';

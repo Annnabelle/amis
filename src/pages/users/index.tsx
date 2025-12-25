@@ -30,7 +30,7 @@ const Users = () => {
     const dataPage = useAppSelector((state) => state.users.page)
     const dataTotal = useAppSelector((state) => state.users.total)
 
-    const [form] = Form.useForm()
+    // const [form] = Form.useForm()
 
     useEffect(() => {
         dispatch(getAllUsers({
@@ -91,8 +91,6 @@ const Users = () => {
         }
     };
 
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-
     const handleRowClick = (
         type: "User",
         action: "retrieve" | "edit" | "delete",
@@ -100,7 +98,7 @@ const Users = () => {
         ) => {
         if (type === "User") {
             const user = users.find((user) => user.id === record.key) ?? null;
-            setSelectedUserId(record.key);
+            // setSelectedUserId(record.key);
 
             setModalState((prev) => ({
                 ...prev,
@@ -134,7 +132,7 @@ const Users = () => {
     const handleDeleteUser = (record: UserTableDataType) => {
         const user = users.find((u) => u.id === record.key) ?? null;
         if (user) {
-            setSelectedUserId(user.id);
+            // setSelectedUserId(user.id);
             setModalState((prev) => ({
             ...prev,
             deleteUser: true,

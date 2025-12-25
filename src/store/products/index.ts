@@ -2,7 +2,7 @@ import type { PaginatedResponseDto } from "../../dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
-import type { ProductResponse, ProductState, UpdateProduct } from "../../types/products";
+import type { ProductResponse, ProductState } from "../../types/products";
 import type { CreateProductDto, DeleteProductDto, DeleteProductResponseDto, GetProductDto, GetProductResponseDto, GetProductsDto, GetProductsResponseDto, ProductResponseDto, UpdateProductDto, UpdateProductResponseDto } from "../../dtos/products";
 import { mapProductDtoToEntity } from "../../mappers/products";
 
@@ -45,13 +45,6 @@ export const getAllProducts = createAsyncThunk(
     }
   }
 );
-
-function isProductCreateSuccessResponse(
-  res: ProductResponseDto
-): res is ProductResponseDto & { success: boolean; product: ProductResponseDto } {
-  return "success" in res && res.success === true && "product" in res;
-}
-
 export const createProduct = createAsyncThunk(
   "products/createProduct",
   async (payload: CreateProductDto, { rejectWithValue }) => {
