@@ -271,6 +271,7 @@ export const BatchStatus = {
   CodesReceived: 'codes_received',
   CodesUtilizationRequested: 'codes_utilization_requested',
   CodesUtilized: 'codes_utilized',
+  CodesAggregated: 'codes_aggregated',
   Rejected: 'rejected',
   Closed: 'closed',
   Error: 'error',

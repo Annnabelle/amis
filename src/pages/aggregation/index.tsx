@@ -146,7 +146,7 @@ const Aggregations = () => {
                     <div className="box-container-items">
                         <div className="box-container-items-item">
                             <div className="box-container-items-item-filters filters-large filters-large-inputs">
-                                filters
+                                {/*filters*/}
                             </div>
                         </div>
                     </div>

@@ -26,12 +26,14 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
   { 
     title: '№',
     dataIndex: "number",
+    ellipsis: true,
     key: "number",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: t("markingCodes.tableTitles.batchNumber"),
     dataIndex: "batchNumber",
+    ellipsis: true,
     key: "batchNumber",
     render: (_, record) => (
       <Link
@@ -45,6 +47,7 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
   {
     title: t("markingCodes.tableTitles.orderNumber"),
     dataIndex: "orderNumber",
+    ellipsis: true,
     key: "orderNumber",
     render: (_, record) => (
       <Link
@@ -56,13 +59,20 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
     ),
   },
    {
-    title: t("markingCodes.tableTitles.productName"),
+    title: t("markingCodes.tableTitles.products"),
     dataIndex: "productName",
+     width: 250,
     key: "productName",
     render: (_, record) => (
       <Link
         className="table-text link"
         to={`/products/${record?.productId}`}
+        style={{
+          maxWidth: 100,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
       >
         {record.productName}
       </Link>
@@ -71,33 +81,45 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
   {
     title: t("markingCodes.tableTitles.totalQuantity"),
     dataIndex: "totalQuantity",
+    ellipsis: true,
     key: "totalQuantity",
     render: (text) => <p className="table-text">{text}</p>,
   },
-  {
-    title: t("markingCodes.tableTitles.orderedMCQuantity"),
-    dataIndex: "orderedQuantity",
-    key: "orderedQuantity",
-    render: (text) => <p className="table-text">{text}</p>
-  },
-  {
-    title: t("markingCodes.tableTitles.codesHaveBeenExported"),
-    dataIndex: "codesHaveBeenExported",
-    key: "codesHaveBeenExported",
-    render: (text) => <p className="table-text">{text}</p>,
-  },
+  // {
+  //   title: t("markingCodes.tableTitles.orderedMCQuantity"),
+  //   dataIndex: "orderedQuantity",
+  //   ellipsis: true,
+  //   key: "orderedQuantity",
+  //   render: (text) => <p className="table-text">{text}</p>
+  // },
+  // {
+  //   title: t("markingCodes.tableTitles.codesHaveBeenExported"),
+  //   dataIndex: "codesHaveBeenExported",
+  //   ellipsis: true,
+  //   key: "codesHaveBeenExported",
+  //   render: (text) => <p className="table-text">{text}</p>,
+  // },
   {
     title: t("markingCodes.tableTitles.orderDate"),
     dataIndex: "orderedAt",
+    ellipsis: true,
     key: "orderedAt",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: t("markingCodes.tableTitles.packageType"),
     dataIndex: "packageType",
+    ellipsis: true,
     key: "packageType",
     render: (text: string) => (
-        <p className="table-text">
+        <p
+            style={{
+              maxWidth: 100,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+            }}
+            className="table-text">
           {t(`markingCodes.packageType.${text?.toLowerCase()}`)}
         </p>
     ),
@@ -115,26 +137,47 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
   {
     title: t("markingCodes.tableTitles.status"),
     dataIndex: "status",
+    ellipsis: true,
     key: "status",
     render: (status: string) => (
       status && (
         <Tag color={statusColors[status]}>
-          {t(`markingCodes.markingCodesOrderStatus.${status?.toLowerCase()}`)}
+          {t(`markingCodes.batches.batchesOrderStatus.${status?.toLowerCase()}`)}
         </Tag>
       )
     ),
   },
   {
-    title: '',
-    key: 'action',
-    render: (_, record) => (
-        <CustomButton
-            type="button"
-            className="outline"
-            onClick={(e) => handleAppoint(e, record)}
-        >
-          {t('btn.apply')}
-        </CustomButton>
+    title: t("markingCodes.tableTitles.externalStatus"),
+    dataIndex: "externalStatus",
+    ellipsis: true,
+    key: "externalStatus",
+    render: (status: string) => (
+        status && (
+            <Tag color={statusColors[status]}>
+              {t(`markingCodes.markingCodesOrderStatus.${status?.toLowerCase()}`)}
+            </Tag>
+        )
     ),
-  }
+  },
+  {
+    title: '', // или t('table.actions') если нужно заголовок
+    key: 'action',
+    render: (_, record) => {
+      // Показываем кнопку "Нанести" только если статус === 'codes_received'
+      if (record.status !== 'codes_received') {
+        return null; // или можно вернуть <span>—</span> или другой плейсхолдер
+      }
+
+      return (
+          <CustomButton
+              type="button"
+              className="outline"
+              onClick={(e) => handleAppoint(e, record)}
+          >
+            {t('btn.apply')}
+          </CustomButton>
+      );
+    },
+  },
 ];

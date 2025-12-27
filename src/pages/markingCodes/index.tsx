@@ -71,7 +71,8 @@ const MarkingCodes = () => {
                     ? t('common.yes')
                     : t('common.no'),
             packageType: markingCode.packageType,
-            status: markingCode.externalStatus ?? null,
+            status: markingCode.status ?? null,
+            externalStatus: markingCode.externalStatus ?? null,
         }))
     }, [markingCodes, dataPage, dataLimit, packageTypeMap])
 
@@ -272,7 +273,8 @@ const MarkingCodes = () => {
             </div>
         </div>
         <ModalWindow
-            width={"auto"}
+            // width={"auto"}
+            className="modal-large"
             openModal={modalState.addMarkingCodes}
             closeModal={() => handleModal('addMarkingCodes', false)}
             title={t('markingCodes.orderCreation.title')}

@@ -46,7 +46,7 @@ export const MarkingCodeTableColumns = (t: TFunction) : TableProps<BatchTableDat
     ),
   },
   {
-    title: t("markingCodes.tableTitles.productName"),
+    title: t("markingCodes.tableTitles.products"),
     dataIndex: "productName",
     key: "productName",
     render: (_, record) => (
@@ -68,7 +68,9 @@ export const MarkingCodeTableColumns = (t: TFunction) : TableProps<BatchTableDat
     title: t("markingCodes.tableTitles.packageType"),
     dataIndex: "packageType",
     key: "packageType",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <p className="table-text">
+      {t(`markingCodes.packageType.${text?.toLowerCase()}`)}
+    </p>
   },
   {
     title: t("markingCodes.tableTitles.numberOfMarkingCodes"),

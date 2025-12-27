@@ -38,7 +38,9 @@ const MarkingCodeProductBatches = () => {
                                 <h5 className="title">{t("markingCodes.batches.batchData.packagingType")} :</h5>
                             </div>
                             <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.packageType}</p>
+                                <p className="subtitle">
+                                    {t(`markingCodes.packageType.${orderProductBatch?.packageType?.toLowerCase()}`)}
+                                </p>
                             </div>
                         </div>
                     )}

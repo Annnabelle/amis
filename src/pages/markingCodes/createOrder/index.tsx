@@ -104,26 +104,29 @@ const OrderForm = () => {
                 className="form-inputs create-order-items-item"
               >
                 <Form.Item
-                  className="input"
-                  name={[field.name, "product"]}
-                  rules={[
-                    {
-                      required: true,
-                      message: t("markingCodes.label.chooseProduct"),
-                    },
-                  ]}
+                    className="input"
+                    name={[field.name, "product"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: t("markingCodes.label.chooseProduct"),
+                      },
+                    ]}
                 >
                   <Select
-                    size="large"
-                    showSearch
-                    placeholder={t("markingCodes.orderCreation.product")}
-                    filterOption={false}
-                    optionLabelProp="label"   // 🔥 ВАЖНО
-                    onSearch={handleProductSearch}
-                    options={products.map((product) => ({
-                      value: product.id,     // 🆔 отправляем ID
-                      label: product.name,   // 👀 показываем NAME
-                    }))}
+                      size="large"
+                      className="input"
+                      style={{maxWidth: 250, width: "100%", minWidth: 250}}
+                      showSearch
+                      placeholder={t("markingCodes.orderCreation.product")}
+                      filterOption={false}
+                      optionLabelProp="label"// 🔥 ВАЖНО
+                      dropdownMatchSelectWidth={false}
+                      onSearch={handleProductSearch}
+                      options={products.map((product) => ({
+                        value: product.id,     // 🆔 отправляем ID
+                        label: product.name,   // 👀 показываем NAME
+                      }))}
                   />
                 </Form.Item>
 
@@ -140,6 +143,7 @@ const OrderForm = () => {
                   <Select
                     size="large"
                     options={packageTypeOptions}
+                    style={{ maxWidth: 250, width: "100%", minWidth: 250}}
                     placeholder={t(
                       "markingCodes.orderCreation.packagingType"
                     )}
@@ -159,7 +163,7 @@ const OrderForm = () => {
                   <InputNumber
                     min={1}
                     size="large"
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", minWidth: 50 }}
                     placeholder="0"
                   />
                 </Form.Item>
@@ -178,6 +182,7 @@ const OrderForm = () => {
                 >
                   <Select
                     size="large"
+                    style={{ maxWidth: 150, width: "100%", minWidth: 150}}
                     options={generateOptions}
                     placeholder={t(
                       "markingCodes.orderCreation.serialNumberGenerationMethod"

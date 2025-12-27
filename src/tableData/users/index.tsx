@@ -18,7 +18,14 @@ export const UsersTableColumns = (
     title: t('users.addUserForm.label.email'),
     dataIndex: "email",
     key: "email",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <p
+        style={{
+          maxWidth: 100,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+        className="table-text">{text}</p>
   },
   {
     title: t('users.addUserForm.label.firstName'),

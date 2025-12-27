@@ -27,11 +27,11 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         dataIndex: "aggregationNumber",
         key: "aggregationNumber",
         render: (_, record) => (
-            <Link
-                to={`/aggregations/${record?.id}`}
+            <p
+                // to={`/aggregations/${record?.id}`}
                 className="table-text">
                 {record.aggregationNumber}
-            </Link>
+            </p>
         )
     },
     {
@@ -40,7 +40,7 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         key: "batchNumberParent",
         render: (_, record) => (
             <Link
-                to={`/orders/${record?.orderIdParent}/batches/${record?.batchIdParent}`}
+                to={`/orderId/${record?.orderIdParent}/batchId/${record?.batchIdParent}`}
                 className="table-text">
                 {record.batchNumberParent}
             </Link>
@@ -52,9 +52,9 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         key: "batchNumberChild",
         render: (_, record) => (
             <Link
-                to={`/orders/${record?.childOrderId}/batches/${record?.batchOrderId}`}
+                to={`/orderId/${record?.childOrderId}/batchId/${record?.batchOrderId}`}
                 className="table-text">
-                {record.batchNumberParent}
+                {record.batchNumberChild}
             </Link>
         )
     },
@@ -62,7 +62,16 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         title: t("aggregations.aggregationsTableTitle.productName"),
         dataIndex: "productName",
         key: "productName",
-        render: (text) => <p className="table-text">{text}</p>
+        render: (text) => <p
+            style={{
+                maxWidth: 100,
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+            }}
+            className="table-text">
+            {text}
+        </p>
     },
     {
         title: t("aggregations.aggregationsTableTitle.numberOfPackages"),

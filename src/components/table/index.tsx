@@ -17,6 +17,7 @@ const ComponentTable = <T extends object>({ onRowClick, columns, data, loading, 
       className="amis-table"
       columns={columns}
       dataSource={data}
+      // tableLayout="fixed"
       scroll={{ x: 'max-content' }}
       loading={loading}
       pagination={pagination}

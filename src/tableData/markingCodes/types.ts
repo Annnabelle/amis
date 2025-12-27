@@ -1,4 +1,4 @@
-import type {ExternalBatchStatus} from "../../dtos";
+import type {BatchStatus, ExternalBatchStatus} from "../../dtos";
 
 export interface MarkingCodesTableDataType {
     key: string,
@@ -14,7 +14,8 @@ export interface MarkingCodesTableDataType {
     remainderQuantity: number;
     orderedAt: string;
     packageType: string;
-    status: ExternalBatchStatus | null;
+    status: BatchStatus | null;
+    externalStatus: ExternalBatchStatus | null
 }
 
 export interface BatchTableDataType {
