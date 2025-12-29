@@ -36,25 +36,64 @@ const initialState: AggregationState = {
     status: null,
 };
 
-export const createAggregationReport = createAsyncThunk(
+export interface ApiErrorResponse {
+    success: false;
+    errorCode: number;
+    errorMessage: {
+        ru: string;
+        en: string;
+        uz: string;
+    };
+}
+
+
+export const createAggregationReport = createAsyncThunk<
+    AggregationReportResponse,
+    CreateAggregationReport,
+    { rejectValue: ApiErrorResponse }
+>(
     "aggregation/createAggregationReport",
-    async (payload: CreateAggregationReport, { rejectWithValue }) => {
+    async (payload, { rejectWithValue }) => {
         try {
             const { data } = await axiosInstance.post(
                 `${BASE_URL}/reports/aggregation`,
                 payload
             );
 
-            if (data.success && data.aggregation) {
-                return mapAggregationListDtoToEntity(data);
+            if (data.success && data.report) {
+                return mapAggregationListDtoToEntity(data.report);
             }
 
-            return rejectWithValue("Ошибка регистрации аггрегации");
+            // ❗ бизнес-ошибка от сервера
+            if (data.success === false) {
+                return rejectWithValue(data as ApiErrorResponse);
+            }
+
+            return rejectWithValue({
+                success: false,
+                errorCode: -1,
+                errorMessage: {
+                    ru: "Неизвестная ошибка",
+                    en: "Unknown error",
+                    uz: "Noma’lum xatolik",
+                },
+            });
         } catch (err: any) {
-            return rejectWithValue(err.message || "Ошибка сервера");
+            // ❗ HTTP / network ошибка
+            return rejectWithValue({
+                success: false,
+                errorCode: err.response?.status ?? -500,
+                errorMessage: {
+                    ru: "Ошибка сервера",
+                    en: "Server error",
+                    uz: "Server xatosi",
+                },
+            });
         }
     }
 );
+
+
 
 export function isGetAggregationReportsSuccess(
     res: GetAggregationReportsResponseDto

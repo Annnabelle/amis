@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
 import ComponentTable from "../../components/table";
-import {createAggregationReport, fetchAggregations} from "../../store/aggregation";
+import {type ApiErrorResponse, createAggregationReport, fetchAggregations} from "../../store/aggregation";
 import {AggregationColumns} from "../../tableData/aggregation";
 import type {AggregationDataType} from "../../tableData/aggregation/types.ts";
 import CustomButton from "../../components/button";
@@ -18,7 +18,7 @@ import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 
 const Aggregations = () => {
-    const { t } = useTranslation();
+    const { t , i18n} = useTranslation();
     const params = useParams();
     const orgId = params.id;
     const dispatch = useAppDispatch()
@@ -114,14 +114,16 @@ const Aggregations = () => {
         dispatch(createAggregationReport(payload))
             .unwrap()
             .then(() => {
-                toast.success('Агрегация успешно создана!');
-                handleModal('addAggregation', false);
+                toast.success(t("aggregation.create.success"));
+                handleModal("addAggregation", false);
                 dispatch(fetchAggregations({ page: 1, limit: 10 }));
             })
-            .catch((err: any) => {
-                console.error(err);
-                toast.error(`Ошибка создания агрегации: ${err}`);
+            .catch((err: ApiErrorResponse) => {
+                const lang = i18n.language as "ru" | "en" | "uz";
+
+                toast.error(err.errorMessage?.[lang] ?? t("errors.unknown"));
             });
+
     };
 
 
