@@ -1,8 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
-
-
 const LoginPage = lazy(() => import("../pages/login"));
 const MainPage = lazy(() => import("../pages/main"));
 const Users = lazy(() => import("../pages/users"));
@@ -16,6 +14,10 @@ const AuditLogsPage = lazy(() => import('../pages/auditLogs'))
 const ProductsView = lazy(() => import("../pages/products/viewPage")) 
 const OrganizationsEdit = lazy(() => import("../pages/organizations/organizationEdit"))
 const ProductsEdit = lazy(() => import("../pages/products/editProduct"))
+const MarkingCodes = lazy(() => import("../pages/markingCodes"))
+const Batches = lazy(() => import("../pages/batches"));
+const MarkingCodeProduct = lazy(() => import( "../pages/markingCodeProduct"));
+const Aggregations = lazy(() => import("../pages/aggregation"));
 
 const Router: React.FC = () => {
   return (
@@ -28,13 +30,17 @@ const Router: React.FC = () => {
         <Route path="/users/:id/edit" element={<UsersEdit />} />
         {/* <Route path='/products' element={<Products/>}/> */}
         <Route path='/organization' element={<Organizations/>}/>
-        <Route path='organization/:id' element={<OrganizationsInner/>}/>
-        <Route path= 'organization/:id/products' element={<Products/>}/>
+        <Route path='/organization/:id' element={<OrganizationsInner/>}/>
+        <Route path= '/organization/:id/products' element={<Products/>}/>
         <Route path='/profile' element={<UserSettings/>}/>
         <Route path='/audit-logs' element={<AuditLogsPage/>}/>
-        <Route path='/organization/:id/products/:id' element={<ProductsView/>}/>
-        <Route path='organization/edit/:id' element={<OrganizationsEdit/>}/>
-        <Route path='/organization/:id/products/edit/:id' element={<ProductsEdit/>}/>
+        <Route path='/organization/:orgId/products/:id' element={<ProductsView/>}/>
+        <Route path='/organization/:id/edit' element={<OrganizationsEdit/>}/>
+        <Route path='/organization/:orgId/products/:id/edit' element={<ProductsEdit/>}/>
+        <Route path='/organization/:id/orders' element={<MarkingCodes/>}/>
+        <Route path='/organization/:orgId/orders/:orderId' element={<Batches/>}/>
+        <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={<MarkingCodeProduct/>}/>
+        <Route path='/organization/:id/aggregations' element={<Aggregations/>}/>
       </Routes>
     </Suspense>
   );

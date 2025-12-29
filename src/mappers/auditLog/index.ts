@@ -1,7 +1,7 @@
 import type { AuditLogResponseDto } from "../../dtos/auditLog";
 import type { AuditLogResponse } from "../../types/auditLog";
 
-export  function mapAuditLogResponseDtoToEntity(dto: AuditLogResponseDto): AuditLogResponse {
+export function mapAuditLogResponseDtoToEntity(dto: AuditLogResponseDto): AuditLogResponse {
   return {
     id: dto.id,
     occurredAt: new Date(dto.occurredAt),

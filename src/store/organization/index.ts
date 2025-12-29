@@ -4,8 +4,7 @@ import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
 import type { CompanyResponse, OrganizationState } from "../../types/organization";
 import type { CompanyResponseDto, CreateCompanyDto, DeleteCompanyDto, DeleteCompanyResponseDto, GetCompaniesDto, GetCompaniesResponseDto, GetCompanyDto, GetCompanyResponseDto, UpdateCompanyDto, UpdateCompanyResponseDto } from "../../dtos/organization";
-import { mapCompanyResponseDtoToEntity, mapOrganizationDtoToEntity, mapUpdateOrganizationDtoToEntity } from "../../mappers/organization";
-import type { GetUsersDto } from "../../dtos/users/login";
+import { mapOrganizationDtoToEntity } from "../../mappers/organization";
 
 const initialState: OrganizationState = {
   organization: null,

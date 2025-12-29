@@ -4,8 +4,6 @@
 .modal-window
     // border: 10px solid map.get(vars.$main, 'main')
     padding: 0
-    width: 100% !important
-    max-width: 800px
     .ant-modal-content
         border-radius: 20px
         background: map.get(vars.$basic, 'white')
@@ -72,3 +70,5 @@
         margin-top: 40px
         @include mix.flex-content(space-between, row)
         column-gap: 20px
+.modal-large
+    width: 900px !important

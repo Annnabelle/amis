@@ -2,7 +2,7 @@ import { Form, Input, Select, Spin, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {assignUserToCompany, clearUserById, getUserById, unassignUserToCompany, updateUser } from '../../../store/users'
+import {assignUserToCompany, getUserById, unassignUserToCompany, updateUser } from '../../../store/users'
 import { useAppDispatch, useAppSelector } from '../../../store'
 import { IoSearch } from 'react-icons/io5'
 import { getAllOrganizations, searchOrganizations } from '../../../store/organization'
@@ -24,14 +24,13 @@ const UsersEdit = () => {
     const isLoadingOrganizations = useAppSelector((state) => state.organizations.isLoading);
     const [searchValue, setSearchValue] = useState("");
     const [assignedOrganizations, setAssignedOrganizations] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const isUserLoading = useAppSelector((state) => state.users.isLoading);
     const navigateBack = useNavigationBack();
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     useEffect(() => {
         if (id) {
-            dispatch(clearUserById());
+            // dispatch(clearUserById());
             dispatch(getUserById({ id })).finally(() => setIsInitialLoading(false));
         }
     }, [dispatch, id]);
@@ -39,7 +38,6 @@ const UsersEdit = () => {
     
     const handleAssignOrganization = async (companyId: string) => {
         if (!id) return;
-        setIsLoading(true);
         try {
             const resultAction = await dispatch(
                 assignUserToCompany({ userId: id, companyId })
@@ -59,16 +57,14 @@ const UsersEdit = () => {
                 toast.success(t("organizations.messages.success.assignOrganization"));
             }
         } finally {
-            setIsLoading(false);
+            // setIsLoading(false);
+            console.log("error in handleAssignOrganization")
         }
     };
     
     
     const handleUnAssignOrganization = async (companyId: string) => {
         if (!id) return;
-        console.log('====================================');
-        console.log(id, companyId);
-        console.log('====================================');
         try {
             const resultAction = await dispatch(
                 unassignUserToCompany({ userId: id, companyId })
@@ -145,27 +141,31 @@ const UsersEdit = () => {
 
   return (
     <MainLayout>
+        <FormComponent
+            form={form}
+            onFinish={(values) => {
+                handleUpdateUser(values);
+            }}
+            initialValues={userById}
+        >
         <Heading 
             title={
                 !isInitialLoading 
                 ? `${t('users.modalWindow.editing')} ${t('users.modalWindow.user')}: ${userById?.firstName || ""}`
                 : t('users.modalWindow.editing')
             } 
-            subtitle={t('organizations.subtitle')} totalAmount='100'> 
+            subtitle={t('organizations.subtitle')} totalAmount='100'>
+            <div className="btns-group">
+                <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 <CustomButton onClick={() => navigateBack('/users')}>{t('btn.back')}</CustomButton>
+            </div>
         </Heading>
         <div className="box">
             <div className="box-container">
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         {userById && (
-                            <FormComponent
-                                form={form}
-                                onFinish={(values) => {
-                                    handleUpdateUser(values);
-                                }}
-                                initialValues={userById}
-                            >
+                            <>
                                 <div className="form-inputs form-inputs-row">
                                     <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')} >
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.firstName')}  />
@@ -241,14 +241,15 @@ const UsersEdit = () => {
                                         )}
                                     </div>
                                 </div>
-                                <CustomButton type="submit">{t('btn.save')} </CustomButton>
-                            </FormComponent>
+                                <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
+                            </>
                         )}
                     </div>
                 </div>
             </div>
         </div>
 
+    </FormComponent>
     </MainLayout>
   )
 }

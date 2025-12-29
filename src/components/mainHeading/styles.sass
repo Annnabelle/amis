@@ -5,6 +5,7 @@
     &-container
         &-items
             @include mix.flex-content(space-between, row)
+            column-gap: 20px
             &-item
                 &-title
                     margin-bottom: 5px
@@ -14,7 +15,13 @@
                     .subtitle
                         +mix.typography(14px, 600, map.get(vars.$basic, 'black'))
                         &-primary
+                            margin-left: 5px
                             +mix.typography(14px, 600, map.get(vars.$main, 'main'))
+                .extra-subtitles
+                    margin-top: 15px
+                    @include mix.flex-content(space-between, row)
+                    gap: 15px
+                    flex-wrap: wrap
                 .btns-group
                     @include mix.flex-content(center, row)
                     gap: 15px

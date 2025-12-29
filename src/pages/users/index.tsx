@@ -30,7 +30,7 @@ const Users = () => {
     const dataPage = useAppSelector((state) => state.users.page)
     const dataTotal = useAppSelector((state) => state.users.total)
 
-    const [form] = Form.useForm()
+    // const [form] = Form.useForm()
 
     useEffect(() => {
         dispatch(getAllUsers({
@@ -91,8 +91,6 @@ const Users = () => {
         }
     };
 
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-
     const handleRowClick = (
         type: "User",
         action: "retrieve" | "edit" | "delete",
@@ -100,7 +98,7 @@ const Users = () => {
         ) => {
         if (type === "User") {
             const user = users.find((user) => user.id === record.key) ?? null;
-            setSelectedUserId(record.key);
+            // setSelectedUserId(record.key);
 
             setModalState((prev) => ({
                 ...prev,
@@ -134,7 +132,7 @@ const Users = () => {
     const handleDeleteUser = (record: UserTableDataType) => {
         const user = users.find((u) => u.id === record.key) ?? null;
         if (user) {
-            setSelectedUserId(user.id);
+            // setSelectedUserId(user.id);
             setModalState((prev) => ({
             ...prev,
             deleteUser: true,
@@ -185,14 +183,6 @@ const Users = () => {
     };
 
 
-    const handleTableChange = (pagination: any) => {
-        dispatch(getAllUsers({
-            page: pagination.current,
-            limit: pagination.pageSize,
-            sortOrder: 'asc',
-        }));
-    };
-
   return (
     <MainLayout>
         <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount='100'>
@@ -238,9 +228,9 @@ const Users = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
+        <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
             <FormComponent onFinish={handleRegisterUser}>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="firstName"
@@ -272,7 +262,7 @@ const Users = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="phone"
@@ -302,7 +292,7 @@ const Users = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name="role"
@@ -329,6 +319,7 @@ const Users = () => {
                         ]}
                     >
                     <Input.Password
+                        type="password"
                         className="input"
                         size="large"
                         placeholder={t('users.addUserForm.placeholder.password')}

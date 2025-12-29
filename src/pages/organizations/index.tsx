@@ -1,4 +1,4 @@
-import { Form, Input, Select} from 'antd'
+import { Form, Input} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { useEffect, useMemo, useState } from 'react'
@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
 import ComponentTable from '../../components/table'
-import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations, updateOrganization } from '../../store/organization'
+import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations } from '../../store/organization'
 import { OrganizationsTableColumns } from '../../tableData/organizations'
 import type { OrganizationTableDataType } from '../../tableData/organizations/types'
 import type { CompanyResponse, CreateCompany } from '../../types/organization'  
@@ -125,12 +125,11 @@ const Organizations = () => {
     const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
 
      const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
-        console.log(`Clicked on ${type}, action: ${action}, record:`, record);
         if (type === "Company" && action === "retrieve") {
             navigate(`/organization/${record.key}`); 
         }
         if (action === "edit") {
-            navigate(`/organization/edit/${record.key}`);
+            navigate(`/organization/${record.key}/edit`);
         }
     };
 
@@ -181,15 +180,15 @@ const Organizations = () => {
             dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: 'asc' }));
         }
     };
-
-    const companyTypeOption = [
-        { value: "type1", label: 'Type1'},
-        { value: "inactive", label: 'Inactive' },
-    ];
+    //
+    // const companyTypeOption = [
+    //     { value: "type1", label: 'Type1'},
+    //     { value: "inactive", label: 'Inactive' },
+    // ];
 
   return (
     <MainLayout>
-        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount='100'>
+        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')}>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                 <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
@@ -216,7 +215,7 @@ const Organizations = () => {
                     </div>
                 </div>
                 <div className="box-container-items">
-                    <ComponentTable<OrganizationTableDataType> 
+                    <ComponentTable<OrganizationTableDataType>
                         columns={OrganizationsTableColumns(t, handleRowClick, handleDeleteOrganization)}
                         data={OrganizationsData}
                         onRowClick={(record) => handleRowClick('Company', 'retrieve', record)}
@@ -232,17 +231,17 @@ const Organizations = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
+        <ModalWindow className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
             <FormComponent onFinish={handleCreateCompany}>
-                <div className="form-inputs">
-                    <Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   rules={[
-                        {
-                        required: true,
-                        message: t("organizations.addUserForm.validation.required.companyType"),
-                        },
-                    ]} >
-                        <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')}/>
-                    </Form.Item>
+                <div className="form-inputs form-inputs-row">
+                    {/*<Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   rules={[*/}
+                    {/*    {*/}
+                    {/*    required: true,*/}
+                    {/*    message: t("organizations.addUserForm.validation.required.companyType"),*/}
+                    {/*    },*/}
+                    {/*]} >*/}
+                    {/*    <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')}/>*/}
+                    {/*</Form.Item>*/}
                     <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}
                         rules={[
                             {
@@ -252,18 +251,16 @@ const Organizations = () => {
                         ]}>
                         <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')} />
                     </Form.Item>
-                </div>
-                <div className="form-inputs">
-                   <Form.Item
-                    className="input"
-                    name="productGroup"
-                    label={t("organizations.addUserForm.label.productGroup")}
-                    rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.productGroup"),
-                        },
-                    ]}
+                    <Form.Item
+                        className="input"
+                        name="productGroup"
+                        label={t("organizations.addUserForm.label.productGroup")}
+                        rules={[
+                            {
+                                required: true,
+                                message: t("organizations.addUserForm.validation.required.productGroup"),
+                            },
+                        ]}
                     >
                         <Input
                             className="input"
@@ -271,6 +268,8 @@ const Organizations = () => {
                             placeholder={t("organizations.addUserForm.placeholder.productGroup")}
                         />
                     </Form.Item>
+                </div>
+                <div className="form-inputs form-inputs-row">
 
                    <Form.Item
                         className="input"
@@ -293,8 +292,6 @@ const Organizations = () => {
                             placeholder={t("organizations.addUserForm.placeholder.tin")}
                         />
                     </Form.Item>
-                </div>
-                <div className="form-inputs">
                     <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')}
                         rules={[
                             {
@@ -304,6 +301,8 @@ const Organizations = () => {
                         ]}>
                         <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')} />
                     </Form.Item>
+                </div>
+                <div className="form-inputs form-inputs-row">
                     <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')}
                         rules={[
                             {
@@ -320,7 +319,7 @@ const Organizations = () => {
                 </div>
 
                 {/* AddressDto */}
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')}
                     rules={[
                         {
@@ -340,7 +339,7 @@ const Organizations = () => {
                         <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.district')} />
                     </Form.Item>
                 </div>
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["address", "address"]}
@@ -365,7 +364,7 @@ const Organizations = () => {
                     <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["bankDetails", "bankName"]}
@@ -407,7 +406,7 @@ const Organizations = () => {
                     </Form.Item>
                     </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["bankDetails", "account"]}
@@ -459,7 +458,7 @@ const Organizations = () => {
                 </div>
 
                 {/* ContactsDto */}
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["contacts", "phone"]}
@@ -506,7 +505,7 @@ const Organizations = () => {
                     </div>
 
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["contacts", "url"]}
@@ -550,7 +549,7 @@ const Organizations = () => {
 
 
                 {/* AccessCodesDto */}
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["accessCodes", "gcpCode"]}
@@ -595,8 +594,7 @@ const Organizations = () => {
                         />
                     </Form.Item>
                     </div>
-
-                    <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
                         name={["accessCodes", "turonToken"]}
@@ -618,9 +616,7 @@ const Organizations = () => {
                             placeholder={t("organizations.addUserForm.placeholder.turonToken")}
                         />
                     </Form.Item>
-                    </div>
-
-
+                </div>
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>

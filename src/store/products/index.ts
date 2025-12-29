@@ -2,7 +2,7 @@ import type { PaginatedResponseDto } from "../../dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
-import type { ProductResponse, ProductState, UpdateProduct } from "../../types/products";
+import type { ProductResponse, ProductState } from "../../types/products";
 import type { CreateProductDto, DeleteProductDto, DeleteProductResponseDto, GetProductDto, GetProductResponseDto, GetProductsDto, GetProductsResponseDto, ProductResponseDto, UpdateProductDto, UpdateProductResponseDto } from "../../dtos/products";
 import { mapProductDtoToEntity } from "../../mappers/products";
 
@@ -45,13 +45,6 @@ export const getAllProducts = createAsyncThunk(
     }
   }
 );
-
-function isProductCreateSuccessResponse(
-  res: ProductResponseDto
-): res is ProductResponseDto & { success: boolean; product: ProductResponseDto } {
-  return "success" in res && res.success === true && "product" in res;
-}
-
 export const createProduct = createAsyncThunk(
   "products/createProduct",
   async (payload: CreateProductDto, { rejectWithValue }) => {
@@ -193,23 +186,23 @@ export const productsSlice = createSlice({
             state.error = action.payload as string;
         })
         .addCase(searchProducts.fulfilled, (state, action) => {
-            const { data = [], total, page, limit } = action.payload;
+          const { data = [], total, page, limit } = action.payload;
 
-            state.products = data.map((product: any) => ({
-                id: product.id,
-                displayName: product.displayName,
-                director: product.director,
-                legalName: product.legalName,
-                contacts: product.contacts ? {
-                    phone: product.contacts.phone
-                } : {},
-                status: product.status,
-            }));
+          state.products = data.map((product: any) => ({
+            id: product.id,
+            name: product.name,
+            productType: product.productType,
+            icps: product.icps,
+            gtin: product.gtin,
+            measurement: product.measurement,
+            status: product.status,
+          }));
 
-            state.total = total;
-            state.page = page;
-            state.limit = limit;
+          state.total = total;
+          state.page = page;
+          state.limit = limit;
         })
+
         .addCase(createProduct.pending, (state) => {
             state.isLoading = true;
             state.error = null;

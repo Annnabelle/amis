@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo, type JSX } from "react";
 import {
   List,
-  Badge,
   Space,
   Tag,
   Pagination,
@@ -38,11 +37,10 @@ const { Panel } = Collapse;
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
-  const { data, loading, page, total } = useAppSelector(
+  const { data, loading } = useAppSelector(
     (state) => state.auditLogs
   );
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  const supportedLangs = ['ru', 'en', 'uz'] as const;
   const dataLimit = useAppSelector((state) => state.auditLogs.limit)
   const dataPage = useAppSelector((state) => state.auditLogs.page)
   const dataTotal = useAppSelector((state) => state.auditLogs.total)
@@ -134,15 +132,6 @@ const AuditLogsPage: React.FC = () => {
     company: "#BA68C8",     // насыщенный фиолетовый
     product: "#FDD835",     // ярко-жёлтый акцент
   };
-
-
-  const uniqueCategories = useMemo(() => {
-    return Array.from(new Set(logs.map((l) => l.category))).filter(
-      (c) => c && c !== "-"
-    );
-  }, [logs]);
-
-  
 
   const targetFieldMap: Record<string, { label: string; icon: JSX.Element }> = {
     // User
@@ -278,7 +267,7 @@ const AuditLogsPage: React.FC = () => {
         path = `/organization/${entityId}`;
         break;
       case "product":
-        path = `/organization/${target.companyId}/products/${target.id}`;
+        path = `/products/${target.id}`;
         break;
     }
 

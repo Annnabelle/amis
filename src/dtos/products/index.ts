@@ -1,4 +1,7 @@
-import type { ErrorDto, HexString, MeasurementDto, PaginatedDto, PaginatedResponseDto, ProductSortField, ProductStatus, WeightDto } from "..";
+import type {
+  AvailablePackageType,
+  ErrorDto, HexString, MeasurementDto, PaginatedDto, PaginatedResponseDto, ProductSortField, ProductStatus, WeightDto
+} from "..";
 
 export type ProductResponseDto = {
   id: string;
@@ -6,13 +9,19 @@ export type ProductResponseDto = {
   shortName: string;
   description?: string | null;
 
-  gtin: string;
-  barcode: string;
+  gtin: {
+    unit: string,
+    group?: string,
+    box_lv_1?: string,
+    box_lv_2?: string,
+  };
   icps: string;
   productType: string;
+  packageTypes: AvailablePackageType[];
 
   aggregationQuantity: number;
   expiration?: number | null;
+  manufacturerCountry: string
 
   measurement: { unit: string; amount: number };
   weight: { net: number; gross: number };
@@ -21,16 +30,23 @@ export type ProductResponseDto = {
   companyId: string;
 };
 
-export type CreateProductDto  = { 
+export type GtinDto = {
+  unit: string;
+  group?: string;
+  box_lv_1?: string;
+  box_lv_2?: string;
+}
+
+export type CreateProductDto  = {
   name: string;
   shortName: string;
   description?: string;
-  gtin: string;
-  barcode: string;
+  gtin: GtinDto;
   icps: string;
   productType: string;
+  manufacturerCountry: string;
   aggregationQuantity: number;
-  expiration?: number;
+  expiration: number;
   measurement: MeasurementDto;
   weight: WeightDto;
   price: number;
@@ -74,19 +90,19 @@ export type SearchProductsDto = PaginatedDto & {
   companyId?: string;
 }
 
-export type UpdateProductDto = { 
-  name?: string;    
-  shortName?: string;   
-  description?: string; 
-  gtin?: string;    
-  barcode?: string; 
-  icps?: string;    
-  productType?: string; 
-  aggregationQuantity?: number; 
-  expiration?: number;  
-  measurement?: MeasurementDto; 
-  weight?: WeightDto;   
-  price?: number;   
+export type UpdateProductDto = {
+  name?: string;
+  shortName?: string;
+  description?: string;
+  gtin?: GtinDto;
+  icps?: string;
+  productType?: string;
+  aggregationQuantity?: number;
+  manufacturerCountry?: string;
+  expiration?: number;
+  measurement?: MeasurementDto;
+  weight?: WeightDto;
+  price?: number;
   companyId?: HexString;
 }
 

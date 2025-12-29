@@ -1,8 +1,9 @@
-import { type TableProps, Dropdown, Menu, Button } from 'antd';
+import {type TableProps, Dropdown, Menu, Button, Tag} from 'antd';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import CustomButton from '../../components/button';
 import type { OrganizationTableDataType } from './types';
 import type { TFunction } from 'i18next';
+import {statusColors} from "../../components/statuses.tsx";
 
 export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "Company", action: "retrieve" | "edit" | "delete", record: OrganizationTableDataType) => void, onDelete: (record: OrganizationTableDataType) => void) : TableProps<OrganizationTableDataType>["columns"] => [
   { 
@@ -15,7 +16,14 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
     title: t('organizations.addUserForm.label.displayName'),
     dataIndex: "displayName",
     key: "displayName",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <p
+        style={{
+          maxWidth: 100,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+        className="table-text">{text}</p>
   },
   {
     title: t('organizations.addUserForm.label.director'),
@@ -27,7 +35,14 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
     title: t('organizations.addUserForm.label.legalName'),
     dataIndex: "legalName",
     key: "legalName",
-    render: (text) => <p className="table-text">{text}</p>,
+    render: (text) => <p
+        style={{
+          maxWidth: 100,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+        className="table-text">{text}</p>,
   },
   {
     title: t('organizations.addUserForm.label.phone'),
@@ -39,7 +54,20 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
     title: t('organizations.status'),
     dataIndex: "status",
     key: "status",
-    render: (text) => <p className="table-text">{text}</p>,
+    render: (status: string) => (
+        status ? (
+            <Tag color={statusColors[status]}
+                 style={{
+                     maxWidth: 150,
+                     overflow: "hidden",
+                     whiteSpace: "nowrap",
+                     textOverflow: "ellipsis",
+                 }}
+            >
+                {t(`statuses.${status}`)}
+            </Tag>
+        ) : null
+    ),
   },
    {
     title: '',

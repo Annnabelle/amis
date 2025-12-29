@@ -16,12 +16,14 @@ export interface ModalProps {
     handleCancel?: () => void
     className?: string
     classDangerName?: string
+    width?: string
 }
 
 const ModalWindow: React.FC<ModalProps> = ({ children, ...props }) => {
   return (
     <Modal
       centered
+      width={props.width}
       title={
         <div className='modal-heading-container'>
           <div className="modal-heading-title">

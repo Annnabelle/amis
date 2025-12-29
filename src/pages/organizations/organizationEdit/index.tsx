@@ -8,7 +8,7 @@ import MainLayout from "../../../components/layout";
 import Heading from "../../../components/mainHeading";
 import CustomButton from "../../../components/button";
 import FormComponent from "../../../components/formComponent";
-import { Form, Input, Select } from "antd";
+import { Form, Input } from "antd";
 import { useNavigationBack } from "../../../utils/utils";
 
 const OrganizationsEdit = () => {
@@ -83,45 +83,49 @@ const OrganizationsEdit = () => {
         }
     };
 
-    const companyTypeOption = [
-        { value: "type1", label: 'Type1'},
-        { value: "inactive", label: 'Inactive' },
-    ];
+    // const companyTypeOption = [
+    //     { value: "type1", label: 'Type1'},
+    //     { value: "inactive", label: 'Inactive' },
+    // ];
 
   return (
     <MainLayout>
-        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount='100'>
-            <CustomButton onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
+        <FormComponent
+            form={form}
+            onFinish={(values) => {
+                handleUpdateOrganization(values);
+            }}
+        >
+        <Heading title={t('organizations.edit')} subtitle={t('organizations.subtitle')}>
+            <div className="btns-group">
+                <CustomButton type="submit">{t('btn.save')} </CustomButton>
+                <CustomButton onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
+            </div>
         </Heading>
         <div className="box">
             <div className="box-container">
                 {organizationById  && (
-                    <FormComponent
-                        form={form}
-                        onFinish={(values) => {
-                            handleUpdateOrganization(values);
-                        }}
-                    >
-                        <div className="form-inputs">
-                            <Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   initialValue={organizationById.companyType}>
-                                <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')} />
-                            </Form.Item>
+                    <>
+                        <div className="form-inputs form-inputs-row">
+                            {/*<Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   initialValue={organizationById.companyType}>*/}
+                            {/*    <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')} />*/}
+                            {/*</Form.Item>*/}
                             <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')} initialValue={organizationById.displayName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')}  />
                             </Form.Item>
-                        </div>
-                        <div className="form-inputs">
                             <Form.Item className="input"  name="productGroup" label={t('organizations.addUserForm.label.productGroup')} initialValue={organizationById.productGroup}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.productGroup')}   />
                             </Form.Item>
+                        </div>
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')} initialValue={organizationById.tin}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.tin')}  />
                             </Form.Item>
-                        </div>
-                        <div className="form-inputs">
                             <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')} initialValue={organizationById.legalName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')}  />
                             </Form.Item>
+                        </div>
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')} initialValue={organizationById.director}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.director')}  />
                             </Form.Item>
@@ -129,7 +133,7 @@ const OrganizationsEdit = () => {
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.address')} </h4>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')} initialValue={organizationById.address.region}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.region')} />
                             </Form.Item>
@@ -137,7 +141,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.district')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['address', 'address']} label={t('organizations.addUserForm.label.address')} initialValue={organizationById.address.address}>
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.address')}  />
                             </Form.Item>
@@ -145,7 +149,7 @@ const OrganizationsEdit = () => {
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById.bankDetails.bankName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.bankName')}  />
                             </Form.Item>
@@ -153,7 +157,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.ccea')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById.bankDetails.account}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.account')}   />
                             </Form.Item>
@@ -164,7 +168,7 @@ const OrganizationsEdit = () => {
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}initialValue={organizationById.contacts.phone}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.phone')}  />
                             </Form.Item>
@@ -172,7 +176,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.email')}   />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['contacts', 'url']} label={t('organizations.addUserForm.label.url')} initialValue={organizationById.contacts.url}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.url')}  />
                             </Form.Item>
@@ -180,7 +184,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.person')}  />
                             </Form.Item>
                         </div>
-                        <div className="form-inputs">
+                        <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name={['accessCodes', 'gcpCode']} label={t('organizations.addUserForm.label.gcpCode')} initialValue={organizationById.accessCodes.gcpCode}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.gcpCode')}  />
                             </Form.Item>
@@ -193,11 +197,12 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.turonToken')}  />
                             </Form.Item>
                         </div>
-                        <CustomButton type="submit">{t('btn.save')} </CustomButton>
-                    </FormComponent>
+                        <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
+                    </>
                 )}
             </div>
         </div>
+</FormComponent>
     </MainLayout>
   )
 }
