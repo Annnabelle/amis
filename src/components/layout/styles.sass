@@ -57,7 +57,11 @@
                         transition: all 0.3s ease
                         margin-top: 0
                     .ant-menu-submenu-title
-                        +mix.typography(18px, 600, map.get(vars.$main, 'main'))
+                        max-width: 250px
+                        overflow: hidden
+                        white-space: nowrap
+                        text-overflow: ellipsis
+                        +mix.typography(16px, 600, map.get(vars.$main, 'main'))
                         padding-left: 8px !important
                         &:hover
                             color: map.get(vars.$main, 'main')
@@ -156,7 +160,7 @@
                                     width: 100%
                                     overflow: auto
                                     flex-wrap: wrap
-                                    justify-content: space-between
+                                    justify-content: flex-start
                                     gap: 24px
                                     .form-inputs
                                         max-width: 250px
@@ -169,7 +173,9 @@
     z-index: 1 !important
 
 .ant-tag
+    width: 100%
     border-radius: 6px
+    text-align: center
     border: 1px solid map.get(vars.$main, 'main')
     +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
     padding: 4px 8px

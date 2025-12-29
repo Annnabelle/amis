@@ -37,7 +37,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
+    const [openKeys, setOpenKeys] = useState<string[]>(() => {
+        const parts = window.location.pathname.split('/');
+        if (parts[1] === 'organization' && parts[2]) {
+            return ['my-organizations-group', `my-org-${parts[2]}`];
+        }
+        return [];
+    });
   const organizations = useAppSelector((state) => state.organizations.organizations);
   const dataLimit = useAppSelector(
       (state) => state.organizations.limit
@@ -46,20 +52,29 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       (state) => state.organizations.page
   );
 
-      const isSuperAdmin = true;
+    const isSuperAdmin = true;
 
     useEffect(() => {
+        if (collapsed) return;
+
         const parts = location.pathname.split('/');
-        const orgId = parts[2];
-
-        if (orgId) {
-            setOpenKeys([
-                'my-organizations-group',
-                `my-org-${orgId}`,
-            ]);
+        if (parts[1] !== 'organization' || !parts[2]) {
+            return;
         }
-    }, [location.pathname]);
 
+        const orgId = parts[2];
+        const requiredKeys = ['my-organizations-group', `my-org-${orgId}`];
+
+        setOpenKeys((prev) => {
+            const hasAll = requiredKeys.every(key => prev.includes(key));
+            if (hasAll) {
+                return prev;
+            }
+            const newSet = new Set(prev);
+            requiredKeys.forEach(key => newSet.add(key));
+            return Array.from(newSet);
+        });
+    }, [location.pathname, collapsed]);
 
     useEffect(() => {
         dispatch(
@@ -71,10 +86,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         );
     }, [dispatch, dataPage, dataLimit]);
 
-  /* =========================
-     Маппинг организаций
-  ========================== */
-
   const myOrganizations = useMemo(
       () =>
           organizations?.map((org) => ({
@@ -83,10 +94,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           })) || [],
       [organizations]
   );
-
-  /* =========================
-     Подменю для организации
-  ========================== */
 
   const getOrgSubMenuItems = (orgId: string): MenuProps['items'] => [
     {
@@ -127,10 +134,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       // },
   ];
 
-  /* =========================
-     Мои организации (SubMenu)
-  ========================== */
-
   const myOrganizationsItems: MenuProps['items'] =
       myOrganizations.map((org) => ({
         key: `my-org-${org.id}`,
@@ -141,10 +144,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           key: `${org.id}-${item.key}`,
         })),
       }));
-
-  /* =========================
-     Основное меню
-  ========================== */
 
   const menuItems: MenuProps['items'] = [];
 
@@ -191,26 +190,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
-  /* =========================
-     Активный пункт меню
-  ========================== */
-
     const selectedKeys = useMemo(() => {
         const parts = location.pathname.split('/');
+
+        // Страницы организаций
         const orgId = parts[2];
         const section = parts[3];
-
-        if (orgId && section) {
+        if (orgId && ['products', 'orders', 'aggregations'].includes(section)) {
             return [`${orgId}-${section}`];
         }
 
-        return [];
-    }, [location.pathname]);
-
-    const handleOpenChange = (keys: string[]) => {
-        setOpenKeys(keys);
-    };
-
+        // Верхний уровень меню
+        const topLevel = `/${parts[1]}`;
+        return menuItems.some(item => item?.key === topLevel) ? [topLevel] : [];
+    }, [location.pathname, menuItems]);
 
 
     return (
@@ -269,11 +262,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </div>
 
               <Menu
+                  key={`menu-${collapsed ? 'collapsed' : 'open'}`}
                   mode="inline"
                   inlineCollapsed={collapsed}
                   selectedKeys={selectedKeys}
                   openKeys={collapsed ? [] : openKeys}
-                  onOpenChange={handleOpenChange}
+                  onOpenChange={setOpenKeys}
                   items={menuItems}
                   inlineIndent={24}
                   className="layout-sider-menu"

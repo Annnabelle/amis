@@ -18,9 +18,12 @@ import type { OrderListQueryParams } from '../../dtos/markingCodes'
 import { searchProducts } from '../../store/products'
 import {createUtilizationReport} from "../../store/utilization";
 import {toast} from "react-toastify";
+import {useParams} from "react-router-dom";
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
+    const { id } = useParams<{ id: string }>();
+    const orgId = id
     const dispatch = useAppDispatch()
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
@@ -144,8 +147,7 @@ const MarkingCodes = () => {
                 })
             ).unwrap();
 
-            // result — это то, что ты вернул из fulfilled
-            // т.е. mapUtilizationDtoToEntity(data.report)
+            console.log("result", result)
 
             toast.success(
                 `Созданы отчеты о нанесении: номер ${result.reportNumber}`
@@ -254,7 +256,7 @@ const MarkingCodes = () => {
                 </div>
                 <div className="box-container-items">
                     <ComponentTable<MarkingCodesTableDataType>
-                        columns={MarkingCodesTableColumns(t, handleAppoint)}
+                        columns={MarkingCodesTableColumns(t, orgId, handleAppoint)}
                         data={MarkingCodesData}
                         pagination={{
                             current: queryParams.page,

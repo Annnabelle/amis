@@ -2,24 +2,13 @@ import {type TableProps, Tag} from 'antd';
 import type { TFunction } from 'i18next';
 import type {AggregationDataType} from "./types.ts";
 import {Link} from "react-router-dom";
+import {statusColors} from "../../components/statuses.tsx";
 
-const statusColors: Record<string, string> = {
-    new: "green",
-    created: "green",
-    vendorPending: "gold",
-    readyForCodes: "green",
-    codesUtilized: "red",
-    codesUtilizationRequested: "gray",
-    codesReceived: "purple",
-    rejected: "red",
-    closed: "red"
-};
-
-export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataType>["columns"] => [
+export const AggregationColumns = (t: TFunction, orgId: string | undefined) : TableProps<AggregationDataType>["columns"] => [
     {
         title: '№',
-        dataIndex: "key",
-        key: "key",
+        dataIndex: "number",
+        key: "number",
         render: (text) => <p className="table-text" >{text}</p>
     },
     {
@@ -40,7 +29,7 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         key: "batchNumberParent",
         render: (_, record) => (
             <Link
-                to={`/orderId/${record?.orderIdParent}/batchId/${record?.batchIdParent}`}
+                to={`/organization/${orgId}/orderId/${record?.orderIdParent}/batchId/${record?.batchIdParent}`}
                 className="table-text">
                 {record.batchNumberParent}
             </Link>
@@ -52,7 +41,7 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         key: "batchNumberChild",
         render: (_, record) => (
             <Link
-                to={`/orderId/${record?.childOrderId}/batchId/${record?.batchOrderId}`}
+                to={`/organization/${orgId}/orderId/${record?.childOrderId}/batchId/${record?.batchOrderId}`}
                 className="table-text">
                 {record.batchNumberChild}
             </Link>
@@ -97,7 +86,14 @@ export const AggregationColumns = (t: TFunction) : TableProps<AggregationDataTyp
         key: "status",
         render: (status: string) => (
             status ? (
-                <Tag color={statusColors[status]}>
+                <Tag color={statusColors[status]}
+                     style={{
+                         maxWidth: 150,
+                         overflow: "hidden",
+                         whiteSpace: "nowrap",
+                         textOverflow: "ellipsis",
+                     }}
+                >
                     {t(`aggregations.aggregationReportStatus.${status}`)}
                 </Tag>
             ) : null

@@ -3,25 +3,11 @@ import CustomButton from '../../components/button';
 import type { TFunction } from 'i18next';
 import type { MarkingCodesTableDataType } from './types';
 import { Link } from 'react-router-dom';
+import {statusColors} from "../../components/statuses.tsx";
 
-const statusColors: Record<string, string> = {
-  CREATED: "green",
-  PENDING: "gold",
-  READY: "green",
-  REJECTED: "red",
-  CLOSED: "gray",
-  OUTSOURCED: "purple",
-};
-
-export type HandleAppointFn = (
+export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined,  handleAppoint: (
     e: React.MouseEvent,
-    record: MarkingCodesTableDataType
-) => void;
-
-
-export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
-    e: React.MouseEvent,
-    record: MarkingCodesTableDataType
+    record: MarkingCodesTableDataType,
 ) => void): TableProps<MarkingCodesTableDataType>["columns"] => [
   { 
     title: '№',
@@ -38,7 +24,7 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
     render: (_, record) => (
       <Link
         className="table-text link"
-        to={`/orderId/${record?.orderId}/batchId/${record?.batchId}`}
+        to={`/organization/${orgId}/orderId/${record?.orderId}/batchId/${record?.batchId}`}
       >
         {record.batchNumber}
       </Link>
@@ -52,7 +38,7 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
     render: (_, record) => (
       <Link
         className="table-text link"
-        to={`/orders/${record?.orderId}`}
+        to={`/organization/${orgId}/orders/${record?.orderId}`}
       >
         {record.orderNumber}
       </Link>
@@ -66,7 +52,7 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
     render: (_, record) => (
       <Link
         className="table-text link"
-        to={`/products/${record?.productId}`}
+        to={`/organization/${orgId}/products/${record?.productId}`}
         style={{
           maxWidth: 100,
           overflow: "hidden",
@@ -141,7 +127,14 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
     key: "status",
     render: (status: string) => (
       status && (
-        <Tag color={statusColors[status]}>
+        <Tag color={statusColors[status]}
+             style={{
+                 maxWidth: 150,
+                 overflow: "hidden",
+                 whiteSpace: "nowrap",
+                 textOverflow: "ellipsis",
+             }}
+        >
           {t(`markingCodes.batches.batchesOrderStatus.${status?.toLowerCase()}`)}
         </Tag>
       )
@@ -154,7 +147,14 @@ export const MarkingCodesTableColumns = (t: TFunction,  handleAppoint: (
     key: "externalStatus",
     render: (status: string) => (
         status && (
-            <Tag color={statusColors[status]}>
+            <Tag color={statusColors[status]}
+                 style={{
+                     maxWidth: 150,
+                     overflow: "hidden",
+                     whiteSpace: "nowrap",
+                     textOverflow: "ellipsis",
+                 }}
+            >
               {t(`markingCodes.markingCodesOrderStatus.${status?.toLowerCase()}`)}
             </Tag>
         )

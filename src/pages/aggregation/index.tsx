@@ -15,9 +15,12 @@ import dayjs from "dayjs";
 import type {CreateAggregationReport} from "../../types/aggregation";
 import {fetchMarkingCodes} from "../../store/markingCodes";
 import {toast} from "react-toastify";
+import {useParams} from "react-router-dom";
 
 const Aggregations = () => {
     const { t } = useTranslation();
+    const params = useParams();
+    const orgId = params.id;
     const dispatch = useAppDispatch()
     const aggregations = useAppSelector((state) => state.aggregations.aggregations)
     const dataLimit = useAppSelector((state) => state.aggregations.limit)
@@ -36,8 +39,6 @@ const Aggregations = () => {
         dispatch(fetchAggregations({  page: dataPage || 1, limit: dataLimit || 10 }));
     }, [dispatch]);
 
-    console.log("aggregations", aggregations)
-
     useEffect(() => {
         if (modalState.addAggregation) {
             dispatch(fetchMarkingCodes({ page: 1, limit: 15 }));
@@ -51,7 +52,7 @@ const Aggregations = () => {
     const AggregationsData = useMemo(() => {
         return aggregations.map((aggregation, index) => ({
             key: index.toString() + 1,
-            number: String(index + 1),
+            number: index + 1,
             aggregationNumber: aggregation.aggregationNumber,
             id: aggregation.id,
             batchNumberParent: aggregation.parent.batchNumber,
@@ -69,27 +70,17 @@ const Aggregations = () => {
     }, [aggregations, dataPage, dataLimit])
 
     useEffect(() => {
-        // Формируем опции родительских партий
-        const filteredParent = orders.filter(item => item.status === 'codes_utilized');
-        setParentOptions(
-            filteredParent.map(item => ({
-                label: `${item.batchNumber}`,
-                value: `${item.orderId}`,
-            }))
+        const filteredParent = orders.filter(
+            item => item.orderStatus === 'codes_utilized'
         );
-    }, [orders]);
 
-    useEffect(() => {
-        const filteredParent = orders.filter(item => item.status === 'codes_utilized');
         setParentOptions(
             filteredParent.map(item => ({
-                label: `${item.batchNumber}`,
+                label: item.batchNumber,
                 value: `${item.orderId}|${item.batchId}`,
             }))
         );
     }, [orders]);
-
-
 
     const childOptions = useMemo(() => {
         if (!chosenParentOrderId || !chosenParentBatchId) return [];
@@ -152,7 +143,7 @@ const Aggregations = () => {
                     </div>
                     <div className="box-container-items">
                         <ComponentTable<AggregationDataType>
-                            columns={AggregationColumns(t)}
+                            columns={AggregationColumns(t, orgId)}
                             data={AggregationsData}
                         />
                     </div>
@@ -198,12 +189,20 @@ const Aggregations = () => {
                                 name="documentDate"
                                 label={t("aggregations.addAggregationFields.packagingDate")}
                                 initialValue={dayjs()}
-                                rules={[{ required: true, message: t("products.addProductForm.validation.required.requiredField") }]}
+                                rules={[
+                                    { required: true, message: t("products.addProductForm.validation.required.requiredField") }
+                                ]}
                                 className="input"
                             >
-                                <DatePicker size="large" className="input" />
+                                <DatePicker
+                                    size="large"
+                                    className="input"
+                                    showTime
+                                    format="YYYY-MM-DD HH:mm"
+                                />
                             </Form.Item>
                         </div>
+
 
 
                         <CustomButton type="submit">

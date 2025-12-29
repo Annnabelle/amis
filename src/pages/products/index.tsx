@@ -37,6 +37,7 @@ const Products = () => {
         useAppSelector(state => state.references.references.productGroup) ?? [];
     const supportedLangs = ['ru', 'en', 'uz'] as const;
     type Lang = typeof supportedLangs[number];
+    const orgId = id
 
     const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
 
@@ -45,11 +46,6 @@ const Products = () => {
         dispatch(fetchReferencesByType("countryCode"));
         dispatch(fetchReferencesByType("productGroup"));
     }, [dispatch]);
-
-
-    console.log("referencesCoutry", countryReferences)
-
-    console.log("referencesCoutry", productGroupReferences)
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
@@ -147,7 +143,6 @@ const Products = () => {
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
     const handleRowClick = (type: 'Product', action: 'retrieve' | 'edit' | 'delete', record: ProductTableDataType) => {
-        console.log(`Clicked on ${type}, action: ${action}, record:`, record);
         if (type === 'Product'){
             const product = products.find((user) => user.id === record.key) ?? null
             setSelectedProductId(record.key);
@@ -158,10 +153,10 @@ const Products = () => {
                 productData: product
             }));
             if (action === "retrieve") {
-                navigate(`/products/${record.key}`);
+                navigate(`/organization/${orgId}/products/${record.key}`);
             }
             if(action === 'edit'){
-                navigate(`/products/edit/${record.key}`)
+                navigate(`/organization/${orgId}/products/${record.key}/edit`)
             }
         }
     };

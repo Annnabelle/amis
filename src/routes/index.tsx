@@ -30,16 +30,16 @@ const Router: React.FC = () => {
         <Route path="/users/:id/edit" element={<UsersEdit />} />
         {/* <Route path='/products' element={<Products/>}/> */}
         <Route path='/organization' element={<Organizations/>}/>
-        <Route path='organization/:id' element={<OrganizationsInner/>}/>
-        <Route path= 'organization/:id/products' element={<Products/>}/>
+        <Route path='/organization/:id' element={<OrganizationsInner/>}/>
+        <Route path= '/organization/:id/products' element={<Products/>}/>
         <Route path='/profile' element={<UserSettings/>}/>
         <Route path='/audit-logs' element={<AuditLogsPage/>}/>
-        <Route path='/products/:id' element={<ProductsView/>}/>
-        <Route path='organization/edit/:id' element={<OrganizationsEdit/>}/>
-        <Route path='/products/edit/:id' element={<ProductsEdit/>}/>
+        <Route path='/organization/:orgId/products/:id' element={<ProductsView/>}/>
+        <Route path='/organization/:id/edit' element={<OrganizationsEdit/>}/>
+        <Route path='/organization/:orgId/products/:id/edit' element={<ProductsEdit/>}/>
         <Route path='/organization/:id/orders' element={<MarkingCodes/>}/>
-        <Route path='/orders/:id' element={<Batches/>}/>
-        <Route path='/orderId/:orderId/batchId/:batchId' element={<MarkingCodeProduct/>}/>
+        <Route path='/organization/:orgId/orders/:orderId' element={<Batches/>}/>
+        <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={<MarkingCodeProduct/>}/>
         <Route path='/organization/:id/aggregations' element={<Aggregations/>}/>
       </Routes>
     </Suspense>

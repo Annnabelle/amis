@@ -5,7 +5,11 @@ export const OrderStatusType = {
     VendorPending: 'vendor_pending',
     ReadyForCodes: 'ready_for_codes',
     CodesReceived: 'codes_received',
+    CodesUtilizationRequested: 'codes_utilization_requested',
+    CodesPartiallyUtilized: 'codes_partially_utilized',
     CodesUtilized: 'codes_utilized',
+    CodesPartiallyAggregated: 'codes_partially_aggregated',
+    CodesAggregated: 'codes_aggregated',
     Rejected: 'rejected',
     Closed: 'closed',
 } as const;

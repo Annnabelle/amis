@@ -2,29 +2,9 @@ import { Tag, type TableProps } from 'antd';
 import type { TFunction } from 'i18next';
 import { Link } from 'react-router-dom';
 import type { BatchTableDataType } from '../markingCodes/types';
+import {statusColors} from "../../components/statuses.tsx";
 
-const statusColors: Record<string, string> = {
-  new: "green",
-  created: "green",
-  vendorPending: "gold",
-  readyForCodes: "green",
-  codesUtilized: "red",
-  codesUtilizationRequested: "gray",
-  codesReceived: "purple",
-  rejected: "red",
-  closed: "red"
-};
-
-// const statusKeyMap: Record<string, string> = {
-//   CREATED: "created",
-//   PENDING: "pending",
-//   READY: "ready",
-//   REJECTED: "rejected",
-//   CLOSED: "closed",
-//   OUTSOURCED: "outsourced"
-// };
-
-export const MarkingCodeTableColumns = (t: TFunction) : TableProps<BatchTableDataType>["columns"] => [
+export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined) : TableProps<BatchTableDataType>["columns"] => [
   { 
     title: '№',
     dataIndex: "key",
@@ -39,7 +19,7 @@ export const MarkingCodeTableColumns = (t: TFunction) : TableProps<BatchTableDat
       <Link
         className="table-text link"
         // to=""
-        to={`/orderId/${record?.id}/batchId/${record?.batchId}`}
+        to={`/organization/${orgId}/orderId/${record?.id}/batchId/${record?.batchId}`}
       >
         {record.batchNumber}
       </Link>
@@ -52,7 +32,7 @@ export const MarkingCodeTableColumns = (t: TFunction) : TableProps<BatchTableDat
     render: (_, record) => (
       <Link
         className="table-text link"
-        to={`/products/${record?.productId}`}
+        to={`/organization/${orgId}/products/${record?.productId}`}
       >
         {record.productName}
       </Link>
@@ -84,7 +64,14 @@ export const MarkingCodeTableColumns = (t: TFunction) : TableProps<BatchTableDat
     key: "status",
     render: (status: string) => (
         status ? (
-            <Tag color={statusColors[status]}>
+            <Tag color={statusColors[status]}
+                 style={{
+                   maxWidth: 150,
+                   overflow: "hidden",
+                   whiteSpace: "nowrap",
+                   textOverflow: "ellipsis",
+                 }}
+            >
               {t(`markingCodes.batches.batchesOrderStatus.${status}`)}
             </Tag>
         ) : null

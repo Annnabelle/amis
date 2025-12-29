@@ -3,6 +3,17 @@ import {useEffect} from 'react'
 import { useTranslation } from 'react-i18next'
 import {getBatch} from '../../store/markingCodes'
 import {Link, useParams} from "react-router-dom";
+import BatchItem from "./batchItem.tsx";
+import {Tag} from "antd";
+import {statusColors} from "../../components/statuses.tsx";
+import "./styles.sass"
+
+const getStatusColor = (status?: string | null) => {
+    if (!status) return 'default';
+
+    return statusColors[status.toLowerCase()] ?? 'default';
+};
+
 
 const MarkingCodeProductBatches = () => {
     const { t } = useTranslation();
@@ -19,164 +30,109 @@ const MarkingCodeProductBatches = () => {
     }, [dispatch]);
 
     return (
-        <div className="box">
+        <div className="box batch-inner-box">
             <div className="box-batch-container">
-                <div className="box-batch-container-items">
-                    {orderProductBatch?.batchNumber && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title"> {t("markingCodes.batches.batchData.batchNumber")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.batchNumber}</p>
-                            </div>
-                        </div>
-                    )}
-                    {orderProductBatch?.packageType && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.packagingType")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">
-                                    {t(`markingCodes.packageType.${orderProductBatch?.packageType?.toLowerCase()}`)}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="box-batch-container-items">
-                    {orderProductBatch?.order.orderNumber && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.orderNumber")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <Link to={`/orders/${orderProductBatch.order.id}`} className="subtitle link">{orderProductBatch?.order.orderNumber}</Link>
-                            </div>
-                        </div>
-                    )}
-                    {orderProductBatch?.order.userId && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.executor")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.order.userId}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="box-batch-container-items">
+
+                {/* ===== PRODUCT ===== */}
+                <section className="batch-section">
+                    <h4 className="section-title">{t("markingCodes.batches.batchData.productName")}:</h4>
                     {orderProductBatch?.productName && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.productName")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <Link to={`/products/${orderProductBatch.productId}`} className="subtitle link">{orderProductBatch?.productName}</Link>
-                            </div>
+                        <div className="product-title">
+                            <Link to={`/products/${orderProductBatch.productId}`}>
+                                {orderProductBatch.productName}
+                            </Link>
                         </div>
                     )}
-                    {orderProductBatch?.gtin && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.gtin")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.gtin}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="box-batch-container-items">
-                    {orderProductBatch?.order?.orderedAt && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.orderTime")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.order?.orderedAt}</p>
-                            </div>
-                        </div>
-                    )}
-                    {orderProductBatch?.quantity && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.numberOfMarkingCodes")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.quantity}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="box-batch-container-items">
-                    {orderProductBatch?.order?.providerOrderId && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.turonOrderID")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">{orderProductBatch?.order?.providerOrderId}</p>
-                            </div>
-                        </div>
-                    )}
-                    {orderProductBatch?.status && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.batchStatus")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">
-                                    {t(`markingCodes.batches.batchesOrderStatus.${orderProductBatch?.status.toLowerCase()}`)}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="box-batch-container-items">
-                    {orderProductBatch?.order?.status && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.orderStatus")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">
-                                    {t(`markingCodes.batches.orderNotExternalStatus.${orderProductBatch?.order?.status.toLowerCase()}`)}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                    {orderProductBatch?.order?.externalStatus && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.turonOrderStatus")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">
-                                    {t(`markingCodes.markingCodesOrderStatus.${orderProductBatch?.order?.externalStatus.toLowerCase()}`)}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="box-batch-container-items">
-                    {orderProductBatch?.externalStatus && (
-                        <div className="box-batch-container-items-item">
-                            <div className="box-batch-container-items-item-title">
-                                <h5 className="title">{t("markingCodes.batches.batchData.batchStatusInTuron")} :</h5>
-                            </div>
-                            <div className="box-batch-container-items-item-subtitle">
-                                <p className="subtitle">
-                                    {t(`markingCodes.batches.batchData.externalStatus.${orderProductBatch?.externalStatus.toLowerCase()}`)}
-                                 </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
+
+                    <div className="grid">
+                        {orderProductBatch?.gtin && (
+                            <BatchItem label={t('markingCodes.batches.batchData.gtin')}>
+                                {orderProductBatch.gtin}
+                            </BatchItem>
+                        )}
+
+                        {orderProductBatch?.packageType && (
+                            <BatchItem label={t('markingCodes.batches.batchData.packagingType')}>
+                                {t(`markingCodes.packageType.${orderProductBatch.packageType.toLowerCase()}`)}
+                            </BatchItem>
+                        )}
+
+                        {orderProductBatch?.quantity && (
+                            <BatchItem label={t('markingCodes.batches.batchData.numberOfMarkingCodes')}>
+                                {orderProductBatch.quantity}
+                            </BatchItem>
+                        )}
+                    </div>
+                </section>
+
+                {/* ===== ORDER ===== */}
+                <section className="batch-section">
+                    <h4 className="section-title">{t('markingCodes.batches.sections.order')}</h4>
+
+                    <div className="grid">
+                        <BatchItem label={t('markingCodes.batches.batchData.orderNumber')}>
+                            <Link to={`/orders/${orderProductBatch?.order.id}`}>
+                                {orderProductBatch?.order.orderNumber}
+                            </Link>
+                        </BatchItem>
+
+                        <BatchItem label={t('markingCodes.batches.batchData.executor')}>
+                            {orderProductBatch?.order.userId}
+                        </BatchItem>
+
+                        <BatchItem label={t('markingCodes.batches.batchData.orderTime')}>
+                            {orderProductBatch?.order.orderedAt}
+                        </BatchItem>
+
+                        <BatchItem label={t('markingCodes.batches.batchData.turonOrderID')}>
+                            {orderProductBatch?.order.providerOrderId}
+                        </BatchItem>
+                    </div>
+                </section>
+
+                {/* ===== BATCH STATUSES ===== */}
+                <section className="batch-section">
+                    <h4 className="section-title">{t('markingCodes.batches.sections.batchStatus')}</h4>
+
+                    <div className="grid">
+                        <BatchItem label={t('markingCodes.batches.batchData.batchStatus')}>
+                            <Tag color={getStatusColor(orderProductBatch?.status)}>
+                                {t(`markingCodes.batches.batchesOrderStatus.${orderProductBatch?.status?.toLowerCase()}`)}
+                            </Tag>
+                        </BatchItem>
+
+                        <BatchItem label={t('markingCodes.batches.batchData.batchStatusInTuron')}>
+                            <Tag color={getStatusColor(orderProductBatch?.externalStatus)}>
+                                {t(
+                                    `markingCodes.batches.batchData.externalStatus.${orderProductBatch?.externalStatus?.toLowerCase()}`
+                                )}
+                            </Tag>
+                        </BatchItem>
+                    </div>
+                </section>
+
+                {/* ===== ORDER STATUSES ===== */}
+                <section className="batch-section">
+                    <h4 className="section-title">{t('markingCodes.batches.sections.orderStatus')}</h4>
+
+                    <div className="grid">
+                        <BatchItem label={t('markingCodes.batches.batchData.orderStatus')}>
+                            <Tag color={getStatusColor(orderProductBatch?.order?.status)}>
+                                {t(`markingCodes.batches.orderNotExternalStatus.${orderProductBatch?.order?.status?.toLowerCase()}`)}
+                            </Tag>
+                        </BatchItem>
+
+                        <BatchItem label={t('markingCodes.batches.batchData.turonOrderStatus')}>
+                            <Tag color={getStatusColor(orderProductBatch?.order?.externalStatus)} >
+                                {t(`markingCodes.markingCodesOrderStatus.${orderProductBatch?.order?.externalStatus?.toLowerCase()}`)}
+                            </Tag>
+                        </BatchItem>
+                    </div>
+                </section>
+
             </div>
         </div>
+
     )
 }
 

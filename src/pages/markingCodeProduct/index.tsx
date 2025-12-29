@@ -4,9 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import MainLayout from '../../components/layout'
 import Heading from '../../components/mainHeading'
-import {getOrderProduct} from '../../store/markingCodes'
-import {Form, Select} from "antd";
-import {MarkingCodeStatus} from "../../dtos";
+import {getBatch, getOrderProduct} from '../../store/markingCodes'
 import ComponentTable from "../../components/table";
 import type {OrderProductDataType} from "../../tableData/orderProduct/types.ts";
 import {OrderProductTableColumns} from "../../tableData/orderProduct";
@@ -16,6 +14,7 @@ const MarkingCodeProduct = () => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
     const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
+    const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)
     const { orderId, batchId } = useParams<{
@@ -23,21 +22,25 @@ const MarkingCodeProduct = () => {
         batchId: string;
     }>();
 
-    const { Option } = Select;
-
     useEffect(() => {
         if (!orderId || !batchId) return;
 
         dispatch(getOrderProduct({ orderId, batchId, page: dataPage || 1, limit: dataLimit || 10 }));
     }, [dispatch, orderId, batchId]);
 
-    const markingCodeStatusOptions = [
-        { value: MarkingCodeStatus.Received, label: t("markingCodes.markingCodesStatusProduct.received")},
-        { value: MarkingCodeStatus.Applied, label: t("markingCodes.markingCodesStatusProduct.applied") },
-        { value: MarkingCodeStatus.Introduced, label: t("markingCodes.markingCodesStatusProduct.introduced") },
-        { value: MarkingCodeStatus.Withdrawn, label: t("markingCodes.markingCodesStatusProduct.withdrawn") },
-        { value: MarkingCodeStatus.WrittenOff, label: t("markingCodes.markingCodesStatusProduct.writtenOff") },
-    ];
+    useEffect(() => {
+        if (!orderId || !batchId) return;
+        dispatch(getBatch({orderId: orderId, batchId: batchId}))
+    }, [dispatch]);
+
+
+    // const markingCodeStatusOptions = [
+    //     { value: MarkingCodeStatus.Received, label: t("markingCodes.markingCodesStatusProduct.received")},
+    //     { value: MarkingCodeStatus.Applied, label: t("markingCodes.markingCodesStatusProduct.applied") },
+    //     { value: MarkingCodeStatus.Introduced, label: t("markingCodes.markingCodesStatusProduct.introduced") },
+    //     { value: MarkingCodeStatus.Withdrawn, label: t("markingCodes.markingCodesStatusProduct.withdrawn") },
+    //     { value: MarkingCodeStatus.WrittenOff, label: t("markingCodes.markingCodesStatusProduct.writtenOff") },
+    // ];
 
     const OrderProductData = useMemo(() => {
         if (!orderProduct || !orderProduct.success || !('data' in orderProduct)) {
@@ -54,7 +57,7 @@ const MarkingCodeProduct = () => {
     return (
     <MainLayout>
         <Heading 
-            title={`${t('markingCodes.markingCodes')}`}
+            title={`${t('markingCodes.tableTitles.batchNumber')}: ${orderProductBatch?.batchNumber}`}
         />
         <MarkingCodeProductBatches/>
         <div className="box">
@@ -63,70 +66,21 @@ const MarkingCodeProduct = () => {
                     <div className="box-container-items-item">
                         <div className="box-container-items-item-filters filters-large filters-large-inputs">
                             {/*<div className="form-inputs">*/}
-                            {/*    <Form.Item name="searchByName" className="input">*/}
-                            {/*        <Input*/}
-                            {/*            size="large"*/}
-                            {/*            className="input"*/}
-                            {/*            placeholder={t('search.byName')}*/}
-                            {/*            suffix={<IoSearch />}*/}
-                            {/*            allowClear*/}
-                            {/*            // onChange={handleSearchChange}*/}
-                            {/*        />*/}
-                            {/*    </Form.Item>*/}
-                            {/*</div>*/}
-                            {/*<div className="form-inputs">*/}
-                            {/*    <Form.Item name="product" className="input">*/}
+                            {/*    <Form.Item name="status" className="input">*/}
                             {/*        <Select*/}
                             {/*            size="large"*/}
-                            {/*            placeholder={*/}
-                            {/*                <span className="custom-placeholder">*/}
-                            {/*                    {t("search.selectState")}*/}
-                            {/*                </span>*/}
-                            {/*            }*/}
-                            {/*            optionLabelProp="label"*/}
-                            {/*            showSearch*/}
-                            {/*            filterOption={false}*/}
+                            {/*            placeholder={<span className="custom-placeholder">{t('search.selectStatus')}</span>}*/}
                             {/*            allowClear*/}
-                            {/*            // onSearch={handleProductSearch}*/}
-                            {/*            // options={products.map((product) => ({*/}
-                            {/*            //     value: product.id,     // 🆔 отправляем ID*/}
-                            {/*            //     label: product.name,   // 👀 показываем NAME*/}
-                            {/*            // }))}*/}
-                            {/*            // onChange={(value) => updateQueryParam('productId', value)}*/}
-                            {/*        />*/}
+                            {/*            // onChange={(value) => updateQueryParam('status', value)}*/}
+                            {/*        >*/}
+                            {/*            {markingCodeStatusOptions.map(option => (*/}
+                            {/*                <Option key={option.value} value={option.value}>*/}
+                            {/*                    {option.label}*/}
+                            {/*                </Option>*/}
+                            {/*            ))}*/}
+                            {/*        </Select>*/}
                             {/*    </Form.Item>*/}
                             {/*</div>*/}
-                            <div className="form-inputs">
-                                <Form.Item name="status" className="input">
-                                    <Select
-                                        size="large"
-                                        placeholder={<span className="custom-placeholder">{t('search.selectStatus')}</span>}
-                                        allowClear
-                                        // onChange={(value) => updateQueryParam('status', value)}
-                                    >
-                                        {markingCodeStatusOptions.map(option => (
-                                            <Option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                            </div>
-                            {/* <div className="form-inputs">
-                                <Form.Item name="paymentType" className="input">
-                                    <Select
-                                        size="large"
-                                        placeholder={
-                                            <span className="custom-placeholder">
-                                                {t('search.selectOrderPaymentType')}
-                                            </span>
-                                        }
-                                        allowClear
-                                        options={paymentTypeOptions}
-                                        onChange={(value) => updateQueryParam('paymentType', value)}
-                                    />
-                                </Form.Item>
-                            </div> */}
                         </div>
                     </div>
                 </div>

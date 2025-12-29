@@ -91,6 +91,7 @@ export const fetchMarkingCodes = createAsyncThunk(
           limit: response.data.limit,
         };
       }
+
       return rejectWithValue("Ошибка загрузки компаний");
     } catch (err: any) {
       return rejectWithValue(err.message || "Ошибка сервера");

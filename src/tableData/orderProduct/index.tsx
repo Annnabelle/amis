@@ -1,16 +1,7 @@
 import { type TableProps, Tag } from 'antd';
 import type { TFunction } from 'i18next';
 import type {OrderProductDataType} from "./types.ts";
-
-const statusColors: Record<string, string> = {
-  CREATED: "green",
-  PENDING: "gold",
-  READY: "green",
-  REJECTED: "red",
-  CLOSED: "gray",
-  OUTSOURCED: "purple",
-};
-
+import {statusColors} from "../../components/statuses.tsx";
 
 export const OrderProductTableColumns = (t: TFunction): TableProps<OrderProductDataType>["columns"] => [
   { 
@@ -31,7 +22,14 @@ export const OrderProductTableColumns = (t: TFunction): TableProps<OrderProductD
     key: "status",
     render: (status: string) => (
       status && (
-        <Tag color={statusColors[status]}>
+        <Tag color={statusColors[status]}
+             style={{
+               maxWidth: 150,
+               overflow: "hidden",
+               whiteSpace: "nowrap",
+               textOverflow: "ellipsis",
+             }}
+        >
           {t(`markingCodes.orderProduct.markingCodesStatus.${status?.toLowerCase()}`)}
         </Tag>
       )

@@ -13,7 +13,9 @@ import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "../../../store/references";
 
 const ProductsView = () => {
-    const { id } = useParams<{ id: string }>();
+    const params = useParams();
+    const orgId = params.orgId;
+    const productId = params.id;
     const dispatch = useAppDispatch()
     const { t, i18n } = useTranslation();
     const navigateBack = useNavigationBack();
@@ -26,8 +28,6 @@ const ProductsView = () => {
 
     const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
     const [countryLabel, setCountryLabel] = useState<string>("");
-
-    console.log(countryLabel)
 
     useEffect(() => {
         dispatch(fetchReferencesByType("countryCode"));
@@ -45,17 +45,17 @@ const ProductsView = () => {
         }
     }, [productById, countryReferences, currentLang]);
 
-    if (!id) {
+    if (!productId) {
         throw new Error("Company ID is required but not found in route params");
     }
 
     const [form] = Form.useForm()
 
      useEffect(() => {
-        if (id) {
-            dispatch(getProductById({id}));
+        if (productId) {
+            dispatch(getProductById({id: productId}));
         }
-    }, [dispatch, id]);
+    }, [dispatch, productId]);
 
     useEffect(() => {
         if (productById) {
@@ -81,7 +81,7 @@ const ProductsView = () => {
     return (
     <MainLayout>
         <Heading title={t('products.view')} >
-             <CustomButton onClick={() => navigateBack(`/organization/${id}/products`)}>{t('btn.back')}</CustomButton>
+             <CustomButton onClick={() => navigateBack(`/organization/${orgId}/products`)}>{t('btn.back')}</CustomButton>
         </Heading>
         <div className="box">
             <div className="box-container">

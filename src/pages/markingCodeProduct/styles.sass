@@ -1,0 +1,21 @@
+@use "sass:map"
+@use "../../styles/mixins.sass" as mix
+@use "../../styles/variables.sass" as vars
+
+.batch-inner-box
+  .batch-section
+    margin-bottom: 24px
+  .section-title
+    margin-bottom: 12px
+    +mix.typography(16px, 600, map.get(vars.$main, "box-shadow"))
+  .grid
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: 12px 24px
+  .product-title
+    +mix.typography(16px, 600, map.get(vars.$basic, "black"))
+    margin-bottom: 12px
+  .box-batch-container-items-item-subtitle
+    +mix.typography(14px, 500, map.get(vars.$basic, "black"))
+
+

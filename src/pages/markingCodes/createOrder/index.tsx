@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../../store";
 import type { CreateOrderDto } from "../../../dtos/markingCodes";
 import { createOrder } from "../../../store/markingCodes";
 import { searchProducts } from "../../../store/products";
-import { useEffect, useMemo } from "react";
+import {useEffect, useMemo, useState} from "react";
 import { fetchReferencesByType } from "../../../store/references";
 
 type OrderFormValues = {
@@ -33,12 +33,11 @@ const OrderForm = () => {
   const packTypeReferences =
       useAppSelector(state => state.references.references.cisType) ?? []
   const { products } = useAppSelector((state) => state.products);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     dispatch(fetchReferencesByType("cisType"));
   }, [dispatch]);
-
-  console.log("packTypeReferences", packTypeReferences)
 
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
@@ -65,6 +64,10 @@ const OrderForm = () => {
 
   // 📤 Отправка формы
   const handleCreateMarkingCode = async (values: OrderFormValues) => {
+    if (isSubmitting) return; // 🔒 защита от двойного клика
+
+    setIsSubmitting(true);
+
     const payload: CreateOrderDto = {
       products: values.items.map((item) => ({
         id: item.product,
@@ -79,17 +82,21 @@ const OrderForm = () => {
 
       if (createOrder.fulfilled.match(resultAction)) {
         toast.success(
-          t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated")
+            t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated")
         );
+
+        // 🔄 перезагрузка страницы
         setTimeout(() => window.location.reload(), 1000);
       } else {
-        toast.error(t("markingCodes.messages.error.createOrder"));
+        throw new Error();
       }
     } catch (error) {
       toast.error(
-        (error as string) ||
           t("markingCodes.orderCreation.failedToCreateOrder")
       );
+
+      // ❗ если ошибка — разрешаем повторную отправку
+      setIsSubmitting(false);
     }
   };
 
@@ -211,7 +218,7 @@ const OrderForm = () => {
         )}
       </Form.List>
 
-      <CustomButton type="submit" className="outline full-width">
+      <CustomButton  disabled={isSubmitting} type="submit" className="outline full-width">
         {t("markingCodes.orderCreation.submitOrder")}
       </CustomButton>
     </FormComponent>

@@ -19,19 +19,19 @@
             &:focus
                 border-color: map.get(vars.$main, 'main')
             &::placeholder
-                +mix.typography(18px, 400, rgb(230 230 230 / 70%))
+                +mix.typography(14px, 400, rgb(230 230 230 / 70%))
             &:disabled
                 cursor: default
             .ant-select-disabled:where(.css-dev-only-do-not-override-7t2xvq).ant-select:not(.ant-select-customize-input) .ant-select-selector
                 cursor: default !important
             label
-                +mix.typography(18px, 500, map.get(vars.$main, 'main'))
+                +mix.typography(14px, 500, map.get(vars.$main, 'main'))
                 margin-bottom: 10px
             .ant-select-selection-search
                 .ant-select-selection-search-input
                     cursor: default !important
         .ant-select-selection-placeholder
-            +mix.typography(18px, 400, map.get(vars.$basic, 'black'))
+            +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
     .form-inputs-row
         width: 100%
         @include mix.flex-content(space-between, row)

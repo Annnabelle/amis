@@ -18,14 +18,17 @@ const Batches = () => {
     const navigate = useNavigate()
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
+    const { orgId, orderId } = useParams<{
+        orgId: string;
+        orderId: string;
+    }>();
     const markingCodeById = useAppSelector((state) => state.markingCodes.markingCodeById)
-    const { id } = useParams<{ id: string }>();
 
-     useEffect(() => {
-        if (id){
-            dispatch(getMarkingCodeById({id: id}))
+    useEffect(() => {
+        if (orderId){
+            dispatch(getMarkingCodeById({id: orderId}))
         }
-    }, [dispatch, id])
+    }, [dispatch, orderId])
 
     const batchData = markingCodeById?.batches
 
@@ -47,13 +50,12 @@ const Batches = () => {
     }, [batchData, markingCodeById]);
 
     const handleApplyAll = async () => {
-        if (!markingCodeById || !batchData || batchData.length === 0) {
-            toast.warning(t('markingCodes.applyAll.noBatchesToApply'));
+        if (!markingCodeById || !batchData?.length) {
+            toast.warning(t("markingCodes.applyAll.noBatchesToApply"));
             return;
         }
 
         let successCount = 0;
-        let alreadyAppliedCount = 0;
 
         for (const batch of batchData) {
             try {
@@ -64,37 +66,26 @@ const Batches = () => {
                     })
                 ).unwrap();
 
-                const reportsArray = result;
-                const reportNum = Array.isArray(reportsArray) && reportsArray.length > 0
-                    ? reportsArray[0].reportNumber
-                    : null;
+                successCount++;
 
-                if (reportNum) {
-                    // Новый отчёт успешно создан
-                    successCount++;
-                    toast.success(`Батч ${batch.batchNumber}: отчет №${reportNum} создан`);
-                } else {
-                    // Отчёт уже был создан ранее
-                    alreadyAppliedCount++;
-                    toast.info(`Батч ${batch.batchNumber}: отчет уже был создан ранее`);
-                }
+                toast.success(
+                    `Батч ${batch.batchNumber}: отчет №${result.reportNumber} создан`
+                );
             } catch (err: any) {
-                const msg = err?.message || 'Ошибка создания отчета';
-                toast.error(`Батч ${batch.batchNumber}: ${msg}`);
+                toast.info(
+                    `Батч ${batch.batchNumber}: отчет уже был создан ранее`
+                );
             }
         }
 
-        // Итоговое сообщение
         if (successCount > 0) {
             toast.success(`Создано новых отчетов: ${successCount}`);
         }
-        if (alreadyAppliedCount > 0) {
-            toast.info(`Уже были созданы ранее: ${alreadyAppliedCount} батч(ей)`);
-        }
 
-        // Обновляем данные в любом случае — статусы могли измениться
         dispatch(getMarkingCodeById({ id: markingCodeById.id }));
     };
+
+    console.log("markingCodeById?.status?", markingCodeById?.status)
     return (
     <MainLayout>
         <Heading
@@ -128,14 +119,14 @@ const Batches = () => {
                         {t('btn.applyAll')}
                     </CustomButton>
                 )}
-                <CustomButton className='outline' onClick={() => navigate(`/orders`)}>{t("markingCodes.backToOrders")}</CustomButton>
+                <CustomButton className='outline' onClick={() => navigate(`/organization/${orgId}/orders`)}>{t("markingCodes.backToOrders")}</CustomButton>
             </div>
         </Heading>
         <div className="box">
             <div className="box-container">
                 <div className="box-container-items">
                     <ComponentTable<BatchTableDataType>
-                        columns={MarkingCodeTableColumns(t)}
+                        columns={MarkingCodeTableColumns(t, orgId)}
                         data={MarkingCodeData}
                     />
                 </div>

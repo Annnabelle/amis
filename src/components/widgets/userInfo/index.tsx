@@ -21,12 +21,6 @@ const UserInfo: React.FC = () => {
 
 
   const currentLang = (i18n.language as Lang) || 'en';
-
-
-  console.log('====================================');
-  console.log("user", user);
-  console.log('====================================');
-
   // клик вне дропдауна
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {

@@ -18,6 +18,9 @@
         background: transparent
         border: 1px solid map.get(vars.$main, 'main')
         color: map.get(vars.$basic, 'black')
+    &:disabled
+        background: map.get(vars.$main, "box-shadow")
+        color: map.get(vars.$basic, 'black')
 .outline
     +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
     background: transparent

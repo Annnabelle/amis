@@ -1,6 +1,6 @@
     export type AggregationDataType = {
         key: string,
-        number: string,
+        number: number,
         aggregationNumber: string,
         id: string,
         batchNumberParent: string,

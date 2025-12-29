@@ -1,9 +1,9 @@
-import { type TableProps, Dropdown, Menu, Button } from 'antd';
+import {type TableProps, Dropdown, Menu, Button, Tag} from 'antd';
 import type { UserTableDataType } from './types';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import CustomButton from '../../components/button';
 import type { TFunction } from 'i18next';
-
+import {statusColors} from "../../components/statuses.tsx";
 export const UsersTableColumns = (
   t: TFunction,
   handleRowClick: (type: "User", action: "retrieve" | "edit" | "delete", record: UserTableDataType) => void
@@ -55,7 +55,20 @@ export const UsersTableColumns = (
     title: t('organizations.status'),
     dataIndex: "status",
     key: "status",
-    render: (text) => <p className="table-text">{text}</p>
+  render: (status: string) => (
+      status ? (
+          <Tag color={statusColors[status]}
+               style={{
+                   maxWidth: 150,
+                   overflow: "hidden",
+                   whiteSpace: "nowrap",
+                   textOverflow: "ellipsis",
+               }}
+          >
+              {t(`statuses.${status}`)}
+          </Tag>
+      ) : null
+  ),
   },
   {
     title: '',

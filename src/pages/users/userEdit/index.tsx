@@ -65,9 +65,6 @@ const UsersEdit = () => {
     
     const handleUnAssignOrganization = async (companyId: string) => {
         if (!id) return;
-        console.log('====================================');
-        console.log(id, companyId);
-        console.log('====================================');
         try {
             const resultAction = await dispatch(
                 unassignUserToCompany({ userId: id, companyId })
@@ -144,27 +141,31 @@ const UsersEdit = () => {
 
   return (
     <MainLayout>
+        <FormComponent
+            form={form}
+            onFinish={(values) => {
+                handleUpdateUser(values);
+            }}
+            initialValues={userById}
+        >
         <Heading 
             title={
                 !isInitialLoading 
                 ? `${t('users.modalWindow.editing')} ${t('users.modalWindow.user')}: ${userById?.firstName || ""}`
                 : t('users.modalWindow.editing')
             } 
-            subtitle={t('organizations.subtitle')} totalAmount='100'> 
+            subtitle={t('organizations.subtitle')} totalAmount='100'>
+            <div className="btns-group">
+                <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 <CustomButton onClick={() => navigateBack('/users')}>{t('btn.back')}</CustomButton>
+            </div>
         </Heading>
         <div className="box">
             <div className="box-container">
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         {userById && (
-                            <FormComponent
-                                form={form}
-                                onFinish={(values) => {
-                                    handleUpdateUser(values);
-                                }}
-                                initialValues={userById}
-                            >
+                            <>
                                 <div className="form-inputs form-inputs-row">
                                     <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')} >
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.firstName')}  />
@@ -240,14 +241,15 @@ const UsersEdit = () => {
                                         )}
                                     </div>
                                 </div>
-                                <CustomButton type="submit">{t('btn.save')} </CustomButton>
-                            </FormComponent>
+                                <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
+                            </>
                         )}
                     </div>
                 </div>
             </div>
         </div>
 
+    </FormComponent>
     </MainLayout>
   )
 }

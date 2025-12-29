@@ -163,6 +163,7 @@ export const resources = {
                     type1: "type1",
                     inactive: "Inactive",
                 },
+                edit: "Edit Organization",
                 title: "Organizations",
                 subtitle: "Total",
                 btnAdd: "Add organization",
@@ -467,6 +468,7 @@ export const resources = {
                 markingCodesOrderStatus:{
                     created: "Created",
                     pending: "Pending",
+                    active: "Active",
                     ready: "Ready",
                     exhausted: "Exhausted",
                     rejected: "Rejected",
@@ -490,6 +492,12 @@ export const resources = {
                     orderTime: "Order time",
                     orderStatus: "Order status",
                     turonOrderID: "Turon order ID",
+                    sections: {
+                        product: "Product & Batch Details",
+                        order: "Order Information",
+                        batchStatus: "Batch Statuses",
+                        orderStatus: "Order Statuses"
+                    },
                     batchesOrderStatus: {
                         new: "New",
                         created: 'Created',
@@ -618,9 +626,9 @@ export const resources = {
                 },
             },
             aggregations: {
-                title: "Aggregation codes",
+                title: "Aggregation Reports",
                 btnAdd: "Add aggregation code",
-                addAggregation: "To aggregate",
+                addAggregation: "Create Report",
                 aggregationsTableTitle: {
                     status: "Status",
                     orderDate: "Order date",
@@ -758,7 +766,7 @@ export const resources = {
                 messages: {
                     success: {
                         createUser: "Пользователь успешно создан",
-                        updateUser: "Пользователь успешно обновлёна",
+                        updateUser: "Пользователь успешно обновлён",
                         deleteUser: "Пользователь успешно удалён"
                     },
                     error: {
@@ -812,6 +820,7 @@ export const resources = {
                     type1: "type1",
                     inactive: "Inactive",
                 },
+                edit: "Изменение организации",
                 title: "Организации",
                 subtitle: 'Всего',
                 btnAdd: 'Добавить организацию',
@@ -922,7 +931,7 @@ export const resources = {
                     }
                 },
                 subtitles: {
-                    address: 'Адресс:',
+                    address: 'Адрес:',
                     bankDetails: 'Банковские реквизиты:',
                     contactDetails: 'Контактные данные:'
                 },
@@ -1086,7 +1095,7 @@ export const resources = {
             auditLog:{
                 title: "Логи системы",
                 subtitle: "Мониторинг и анализ активности пользователей",
-                ip: "IP адресс",
+                ip: "IP адрес",
                 id: "ID запроса",
                 session: "Сессия",
                 committed: "Совершил",
@@ -1116,6 +1125,7 @@ export const resources = {
                 },
                 markingCodesOrderStatus:{
                     created: "Создано",
+                    active: "Активный",
                     pending: "В ожидании",
                     ready: "Готово",
                     exhausted: "Исчерпан",
@@ -1140,15 +1150,21 @@ export const resources = {
                     orderTime: "Время заказа",
                     orderStatus: "Статус заказа",
                     turonOrderID: "Turon order ID",
+                    sections: {
+                        product: "Продукт и партия",
+                        order: "Информация о заказе",
+                        batchStatus: "Статусы партии",
+                        orderStatus: "Статусы заказа"
+                    },
                     batchesOrderStatus: {
                         new: "Новый",
                         created: "Создан",
                         vendor_pending: "Ожидает поставщика",
                         ready_for_codes: "Готов к кодам",
                         codes_received: "Коды получены",
-                        codes_utilization_requested: "Запрошено использование кодов",
-                        codes_aggregated: "Агрегированы",
-                        codes_utilized: "Коды использованы",
+                        codes_utilization_requested: "Запрошено нанесение кодов",
+                        codes_aggregated: "Агрегировано",
+                        codes_utilized: "Коды нанесены",
                         rejected: "Отклонено",
                         closed: "Закрыто",
                         error: "Ошибка"
@@ -1158,11 +1174,11 @@ export const resources = {
                         vendor_pending: "Ожидает поставщика",
                         ready_for_codes: "Готов к кодам",
                         codes_received: "Коды получены",
-                        codes_utilized: "Коды использованы",
-                        codes_utilization_requested:"Запрошено использование",
-                        codes_partially_utilized: "Частично использованы",
+                        codes_utilized: "Коды нанесены",
+                        codes_utilization_requested:"Запрошено нанесение",
+                        codes_partially_utilized: "Частично нанесен",
                         codes_partially_aggregated: "Частично агрегированы",
-                        codes_aggregated: "Агрегированы",
+                        codes_aggregated: "Агрегировано",
                         rejected: "Отклонено",
                         closed: "Закрыто"
                     },
@@ -1170,7 +1186,7 @@ export const resources = {
                         batchNumber: "Номер партии",
                         packagingType: "Тип упаковки",
                         orderNumber: "Номер заказа",
-                        executor: "Испольнитель",
+                        executor: "Исполнитель",
                         productName: "Название продукта",
                         gtin: "GTIN",
                         orderTime: "Время заказа",
@@ -1220,7 +1236,7 @@ export const resources = {
                     unPaid: "Неоплачиваемый",
                     batchNumber: "Партия",
                     gtin: "GTIN",
-                    numberOfMarkingCodes: "Колличество КМ",
+                    numberOfMarkingCodes: "Количество",
                     code: "Код"
                 },
                 orderCreation: {
@@ -1268,9 +1284,9 @@ export const resources = {
                 }
             },
             aggregations: {
-                title: "Коды аггрегации",
-                btnAdd: "Добавить код аггрегации",
-                addAggregation: "Аггрегировать",
+                title: "Отчеты об агрегации",
+                btnAdd: "Создать отчет",
+                addAggregation: "Агрегировать",
                 aggregationsTableTitle: {
                     status: "Статус",
                     orderDate: "Дата заказа",
@@ -1464,6 +1480,7 @@ export const resources = {
                     inactive: "Faol emas",
                 },
                 title: "Tashkilotlar",
+                edit: "Tashkilotni o'zgartirish",
                 subtitle: "Jami",
                 btnAdd: "Tashkilot qo‘shish",
                 status: 'Holat',
@@ -1765,6 +1782,7 @@ export const resources = {
                 },
                 markingCodesOrderStatus:{
                     created: "Yaratildi",
+                    active: "Faol",
                     pending: "Kutilmoqda",
                     ready: "Tayyor",
                     rejected: "Rad etildi",
@@ -1789,6 +1807,12 @@ export const resources = {
                     orderTime: "Buyurtma vaqti",
                     orderStatus: "Buyurtma holati",
                     turonOrderID: "Turon buyurtma ID",
+                    sections: {
+                        product: "Mahsulot va partiya maʼlumotlari",
+                        order: "Buyurtma maʼlumotlari",
+                        batchStatus: "Partiya holatlari",
+                        orderStatus: "Buyurtma holatlari"
+                    },
                     batchesOrderStatus: {
                         new: "Yangi",
                         created: "Yaratildi",
@@ -1917,9 +1941,9 @@ export const resources = {
                 }
             },
             aggregations: {
-                title: "Agregatsiya kodlari",
+                title: "Agregatsiya hisobotlari",
                 btnAdd: "Agregatsiya kodini qo'shish",
-                addAggregation: "Agregatsiya qilmoq",
+                addAggregation: "Hisobot yaratish",
                 aggregationsTableTitle: {
                     status: "Holati",
                     orderDate: "Buyurtma sanasi",
