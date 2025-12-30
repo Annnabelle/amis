@@ -86,11 +86,11 @@ const Aggregations = () => {
 
         setParentOptions(
             filteredParent.map(item => ({
-                label: item.batchNumber,
+                label: `${item.batchNumber} - ${truncateString(item.productName, 30)} (${t(`markingCodes.packageType.${item.packageType.toLowerCase()}`)})`,
                 value: `${item.orderId}|${item.batchId}`,
             }))
         );
-    }, [orders]);
+    }, [orders, t]);
 
     const childOptions = useMemo(() => {
         if (!chosenParentOrderId || !chosenParentBatchId) return [];
@@ -103,11 +103,18 @@ const Aggregations = () => {
                     item.batchId !== chosenParentBatchId
             )
             .map(item => ({
-                label: `${item.batchNumber}`,
+                label: `${item.batchNumber} - ${truncateString(item.productName, 30)} (${t(`markingCodes.packageType.${item.packageType.toLowerCase()}`)})`,
                 value: `${item.orderId}|${item.batchId}`,
             }));
-    }, [orders, chosenParentOrderId, chosenParentBatchId]);
+    }, [orders, chosenParentOrderId, chosenParentBatchId, t]);
 
+
+    function truncateString(str: string, num: number) {
+        if (str.length <= num) {
+            return str;
+        }
+        return str.slice(0, num) + '...';
+    }
 
     const handleCreateAggregation = (values: any) => {
         const [parentOrderId, parentBatchId] = values.parent.split('|');
