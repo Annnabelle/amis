@@ -238,7 +238,7 @@ const Products = () => {
 
   return (
     <MainLayout>
-        <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount='100'>
+        <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                 <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>

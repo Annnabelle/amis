@@ -115,11 +115,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       ),
         },
       {
-          key: 'aggregations',
+          key: 'agregations',
           icon: <ClusterOutlined />,
           label: (
-              <Link to={`/organization/${orgId}/aggregations`}>
-                  {t("navigation.aggregations")}
+              <Link to={`/organization/${orgId}/agregations`}>
+                  {t("navigation.agregations")}
               </Link>
           ),
       },
@@ -196,7 +196,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         // Страницы организаций
         const orgId = parts[2];
         const section = parts[3];
-        if (orgId && ['products', 'orders', 'aggregations'].includes(section)) {
+        if (orgId && ['products', 'orders', 'agregations'].includes(section)) {
             return [`${orgId}-${section}`];
         }
 
@@ -211,7 +211,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <Header className="layout-header">
           <div className="layout-header-container">
             <div className="layout-header-container-items">
-              <h1 className="logo">logo</h1>
+              <h1 className="logo">AMIS</h1>
             </div>
 
             <div className="layout-header-container-items">

@@ -25,7 +25,9 @@ const Aggregations = () => {
     const aggregations = useAppSelector((state) => state.aggregations.aggregations)
     const dataLimit = useAppSelector((state) => state.aggregations.limit)
     const dataPage = useAppSelector((state) => state.aggregations.page)
+    const dataTotal = useAppSelector((state) => state.aggregations.total)
     const orders = useAppSelector(state => state.markingCodes.data);
+    const error = useAppSelector(state => state.aggregations.error);
     const [parentOptions, setParentOptions] = useState<{ label: string; value: string }[]>([]);
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
@@ -44,6 +46,14 @@ const Aggregations = () => {
             dispatch(fetchMarkingCodes({ page: 1, limit: 15 }));
         }
     }, [modalState.addAggregation, dispatch]);
+
+    useEffect(() => {
+        if (error) {
+            const lang = i18n.language as "ru" | "en" | "uz";
+            toast.error(error.errorMessage?.[lang] ?? t("aggregations.messages.createError"));
+        }
+    }, [error, i18n.language, t]);
+
 
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
@@ -114,16 +124,13 @@ const Aggregations = () => {
         dispatch(createAggregationReport(payload))
             .unwrap()
             .then(() => {
-                toast.success(t("aggregation.create.success"));
+                toast.success(t("aggregations.messages.createSuccess"));
                 handleModal("addAggregation", false);
                 dispatch(fetchAggregations({ page: 1, limit: 10 }));
             })
             .catch((err: ApiErrorResponse) => {
-                const lang = i18n.language as "ru" | "en" | "uz";
-
-                toast.error(err.errorMessage?.[lang] ?? t("errors.unknown"));
+                console.error(err);
             });
-
     };
 
 
@@ -131,6 +138,7 @@ const Aggregations = () => {
         <MainLayout>
             <Heading
                 title={`${t('aggregations.title')}`}
+                subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}
             >
                 <CustomButton onClick={() => handleModal('addAggregation', true)}>{t('aggregations.btnAdd')}</CustomButton>
             </Heading>

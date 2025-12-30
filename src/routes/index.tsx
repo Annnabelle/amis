@@ -40,7 +40,7 @@ const Router: React.FC = () => {
         <Route path='/organization/:id/orders' element={<MarkingCodes/>}/>
         <Route path='/organization/:orgId/orders/:orderId' element={<Batches/>}/>
         <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={<MarkingCodeProduct/>}/>
-        <Route path='/organization/:id/aggregations' element={<Aggregations/>}/>
+        <Route path='/organization/:id/agregations' element={<Aggregations/>}/>
       </Routes>
     </Suspense>
   );

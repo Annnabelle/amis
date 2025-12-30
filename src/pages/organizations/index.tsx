@@ -188,7 +188,7 @@ const Organizations = () => {
 
   return (
     <MainLayout>
-        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')}>
+        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                 <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>

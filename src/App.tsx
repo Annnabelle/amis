@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import Router from './routes'
-import './App.sass'
 import { ConfigProvider, theme } from 'antd';
+import './App.sass'
 
 function App() {
   const { darkAlgorithm } = theme;

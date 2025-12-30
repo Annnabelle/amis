@@ -32,7 +32,7 @@ const UsersRetrieve = () => {
 
   return (
     <MainLayout>
-        <Heading title={t('users.modalWindow.viewing') + " " + t('users.modalWindow.user') + ":" + " " + userById?.firstName} subtitle={t('organizations.subtitle')} totalAmount='100'>
+        <Heading title={t('users.modalWindow.viewing') + " " + t('users.modalWindow.user') + ":" + " " + userById?.firstName} subtitle={t('organizations.subtitle')}>
             <CustomButton onClick={() => navigateBack('/users')}>{t('btn.back')}</CustomButton>
         </Heading>
         <div className="box">

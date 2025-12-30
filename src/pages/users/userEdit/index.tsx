@@ -154,7 +154,7 @@ const UsersEdit = () => {
                 ? `${t('users.modalWindow.editing')} ${t('users.modalWindow.user')}: ${userById?.firstName || ""}`
                 : t('users.modalWindow.editing')
             } 
-            subtitle={t('organizations.subtitle')} totalAmount='100'>
+            subtitle={t('organizations.subtitle')}>
             <div className="btns-group">
                 <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 <CustomButton onClick={() => navigateBack('/users')}>{t('btn.back')}</CustomButton>

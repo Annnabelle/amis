@@ -313,9 +313,8 @@ export type AggregationReportExternalStatus = (typeof AggregationReportExternalS
 export const AggregationReportStatus = {
   New: "new",
   Requested: 'requested',
-  Created: "created",
-  Validating: "validating",
-  InProgress: "in_process",
+  VendorPending: "vendor_pending",
+  PartiallyProcessed: 'partially_processed',
   Success: "success",
   Error: "error",
 } as const;

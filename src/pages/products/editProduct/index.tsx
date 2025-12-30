@@ -96,7 +96,7 @@ const ProductsEdit = () => {
                 handleUpdateProduct(values);
             }}
         >
-            <Heading title={t('products.edit')} subtitle={t('users.subtitle')} totalAmount='100'>
+            <Heading title={t('products.edit')} subtitle={t('users.subtitle')}>
                 <div className="btns-group">
                     <CustomButton type="submit">{t('btn.save')} </CustomButton>
                    <CustomButton onClick={() => navigateBack(`/organization/${id}/products`)}>{t('btn.back')}</CustomButton>

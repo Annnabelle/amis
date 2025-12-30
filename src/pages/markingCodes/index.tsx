@@ -162,7 +162,7 @@ const MarkingCodes = () => {
 
     return (
     <MainLayout>
-        <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount='100'>
+        <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
                 <CustomButton onClick={() => handleModal('addMarkingCodes', true)}>{t('markingCodes.order')}</CustomButton>
             </div>

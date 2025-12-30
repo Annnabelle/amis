@@ -39,6 +39,18 @@ const OrderForm = () => {
     dispatch(fetchReferencesByType("cisType"));
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(
+        searchProducts({
+          query: "",        // 👈 пустой запрос = начальный список
+          page: 1,
+          limit: 10,
+          sortOrder: "asc",
+        })
+    );
+  }, [dispatch]);
+
+
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
       dispatch(
@@ -178,6 +190,7 @@ const OrderForm = () => {
                 <Form.Item
                   className="input"
                   name={[field.name, "generation"]}
+                  initialValue="operator"
                   rules={[
                     {
                       required: true,
