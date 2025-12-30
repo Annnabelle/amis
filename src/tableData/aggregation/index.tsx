@@ -16,11 +16,11 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         dataIndex: "aggregationNumber",
         key: "aggregationNumber",
         render: (_, record) => (
-            <p
-                // to={`/aggregations/${record?.id}`}
+            <Link
+                to={`/organization/${orgId}/aggregations/${record?.id}`}
                 className="table-text">
                 {record.aggregationNumber}
-            </p>
+            </Link>
         )
     },
     {

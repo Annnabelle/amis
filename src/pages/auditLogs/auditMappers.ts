@@ -4,6 +4,7 @@ export const CategoryMap: Record<string, string> = {
     product: "categories.product",
     auth: "categories.auth",
     company: 'categories.organization',
+    order: "categories.order",
   };
 
 export const ActionsMap: Record<string, Record<string, string>> = {
@@ -29,6 +30,16 @@ export const ActionsMap: Record<string, Record<string, string>> = {
     },
     auth: {
       userRegistration: "logsActions.user.userRegistration",
+    },
+    order: {
+        orderCreate: "logsActions.order.orderCreate",
+        orderStatusChanged: "logsActions.order.orderStatusChanged",
+        orderBatchStatusChanged:"logsActions.order.orderBatchStatusChanged",
+        orderCodesRegistered: "logsActions.order.orderCodesRegistered",
+        orderCodesUtilized: "logsActions.order.orderCodesUtilized",
+        orderReportCreated: "logsActions.order.orderReportCreated",
+        orderClosed: "logsActions.order.orderClosed",
+        orderRejected: "logsActions.order.orderRejected"
     }
   };
 
@@ -47,5 +58,13 @@ export const TypeMap: Record<string, string> = {
     assignCompanyToUser: "logsActions.user.assignCompanyToUser",
     userUpdate: "logsActions.user.userUpdate",
     userDelete: "logsActions.user.userDelete",
+    orderCreate: "logsActions.order.orderCreate",
+    orderStatusChanged: "logsActions.order.orderStatusChanged",
+    orderBatchStatusChanged:"logsActions.order.orderBatchStatusChanged",
+    orderCodesRegistered: "logsActions.order.orderCodesRegistered",
+    orderCodesUtilized: "logsActions.order.orderCodesUtilized",
+    orderReportCreated: "logsActions.order.orderReportCreated",
+    orderClosed: "logsActions.order.orderClosed",
+    orderRejected: "logsActions.order.orderRejected"
   };
 

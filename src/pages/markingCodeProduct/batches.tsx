@@ -38,7 +38,7 @@ const MarkingCodeProductBatches = () => {
                     <h4 className="section-title">{t("markingCodes.batches.batchData.productName")}:</h4>
                     {orderProductBatch?.productName && (
                         <div className="product-title">
-                            <Link to={`/products/${orderProductBatch.productId}`}>
+                            <Link to={`/organization/${orderId}/products/${orderProductBatch.productId}`}>
                                 {orderProductBatch.productName}
                             </Link>
                         </div>

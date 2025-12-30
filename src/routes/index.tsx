@@ -18,7 +18,7 @@ const MarkingCodes = lazy(() => import("../pages/markingCodes"))
 const Batches = lazy(() => import("../pages/batches"));
 const MarkingCodeProduct = lazy(() => import( "../pages/markingCodeProduct"));
 const Aggregations = lazy(() => import("../pages/aggregation"));
-
+const AggregationReportPage = lazy(() => import("../pages/aggregation/viewAgregation"))
 const Router: React.FC = () => {
   return (
     <Suspense fallback={<div>Загрузка...</div>}>
@@ -41,6 +41,7 @@ const Router: React.FC = () => {
         <Route path='/organization/:orgId/orders/:orderId' element={<Batches/>}/>
         <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={<MarkingCodeProduct/>}/>
         <Route path='/organization/:id/agregations' element={<Aggregations/>}/>
+        <Route path='/organization/:orgId/aggregations/:id' element={<AggregationReportPage/>}/>
       </Routes>
     </Suspense>
   );

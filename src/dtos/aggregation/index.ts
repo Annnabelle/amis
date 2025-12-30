@@ -92,3 +92,12 @@ export type GetAggregationReportsResponse = {
 export type GetAggregationReportsResponseDto = {
     success: boolean;
 } & PaginatedResponseDto<GetAggregationReportsResponse> | ErrorDto;
+
+export type GetOneAggregationReportDto = {
+    id: HexString;
+}
+
+export type GetOneAggregationReportResponseDto = {
+    success: boolean;
+    report: AggregationReportResponseDto;
+} | ErrorDto;

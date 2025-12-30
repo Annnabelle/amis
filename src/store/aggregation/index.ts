@@ -8,9 +8,10 @@ import type {
 } from "../../types/aggregation";
 import {mapAggregationListDtoToEntity, mapGetAggregationDtoToEntity} from "../../mappers/aggregation";
 import type {
+    AggregationReportResponseDto,
     GetAggregationReportsParamsDto,
     GetAggregationReportsResponse,
-    GetAggregationReportsResponseDto
+    GetAggregationReportsResponseDto, GetOneAggregationReportDto, GetOneAggregationReportResponseDto
 } from "../../dtos/aggregation";
 import type {PaginatedResponseDto} from "../../dtos";
 
@@ -28,6 +29,7 @@ export interface ApiErrorResponse {
 export type AggregationState = {
     aggregation: AggregationReportResponse[];
     aggregations: GetAggregationReportsResponseTypes[];
+    oneAggregation: AggregationReportResponse | null;
     isLoading: boolean;
     error: ApiErrorResponse | null; // ✅ всегда объект
     status: string | null;
@@ -39,6 +41,7 @@ export type AggregationState = {
 const initialState: AggregationState = {
     aggregation: [],
     aggregations: [],
+    oneAggregation: null,
     total: 0,
     page: 1,
     limit: 10,
@@ -136,6 +139,54 @@ export const fetchAggregations = createAsyncThunk<
     }
 );
 
+
+function isGetOneAggregationSuccess(
+    data: GetOneAggregationReportResponseDto
+): data is { success: true; report: AggregationReportResponseDto } {
+    return (data as any).success === true && 'report' in data;
+}
+
+export const fetchOneAggregationReport = createAsyncThunk<
+    AggregationReportResponse,
+    GetOneAggregationReportDto,
+    { rejectValue: ApiErrorResponse }
+>(
+    "aggregation/fetchOneAggregationReport",
+    async ({ id }, { rejectWithValue }) => {
+        try {
+            const { data } = await axiosInstance.get<GetOneAggregationReportResponseDto>(
+                `${BASE_URL}/reports/aggregation/${id}`
+            );
+
+            if (isGetOneAggregationSuccess(data)) {
+                return mapAggregationListDtoToEntity(data.report);
+            }
+
+            return rejectWithValue({
+                success: false,
+                errorCode: -1,
+                errorMessage: {
+                    ru: "Ошибка загрузки агрегации",
+                    en: "Failed to load aggregation",
+                    uz: "Agregatsiyani yuklashda xatolik",
+                },
+            });
+        } catch (err: any) {
+            return rejectWithValue({
+                success: false,
+                errorCode: err.response?.status ?? -500,
+                errorMessage: {
+                    ru: "Ошибка сервера",
+                    en: "Server error",
+                    uz: "Server xatosi",
+                },
+            });
+        }
+    }
+);
+
+
+
 export const  aggregationSlice = createSlice({
     name: 'aggregation',
     initialState,
@@ -177,7 +228,29 @@ export const  aggregationSlice = createSlice({
                     errorCode: -1,
                     errorMessage: { ru: "Неизвестная ошибка", en: "Unknown error", uz: "Noma’lum xatolik" },
                 };
-            });
+            })
+            .addCase(fetchOneAggregationReport.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+                state.oneAggregation = null; // сброс предыдущего
+            })
+            .addCase(fetchOneAggregationReport.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.oneAggregation = action.payload;
+            })
+            .addCase(fetchOneAggregationReport.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload ?? {
+                    success: false,
+                    errorCode: -1,
+                    errorMessage: {
+                        ru: "Неизвестная ошибка",
+                        en: "Unknown error",
+                        uz: "Noma’lum xatolik",
+                    },
+                };
+                state.oneAggregation = null;
+            })
     },
 });
 

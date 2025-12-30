@@ -97,32 +97,13 @@ const AuditLogsPage: React.FC = () => {
   });
 }, [data, i18n.language]);
 
-
-
-
-  // const categoryColors: Record<string, string> = {
-  //   user: "#FFF3E0",     
-  //   auth: "#E0F7FA",   
-  //   "-": "#F5F5F5",    
-  //   company: "#F3E5F5",
-  //   product: "#FFFDE7", 
-  // };
-
-  // const categoryBorders: Record<string, string> = {
-  //   user: "#FF9800",
-  //   auth: "#00BFA6",
-
-  //   "-": "#BDBDBD",
-  //   company: "#9C27B0",  
-  //   product: "#FBC02D"
-  // };
-
   const categoryColors: Record<string, string> = {
     user: "#3B2A1A",        // тёплый тёмно-коричневый, аналог светло-оранжевого (#FFF3E0)
     auth: "#103C43",        // глубокий бирюзово-синий, аналог #E0F7FA
     "-": "#2A2A2A",         // нейтрально-серый фон
     company: "#2E1A35",     // тёмно-фиолетовый, аналог #F3E5F5
     product: "#3A3620",     // тёмно-золотисто-коричневый, аналог #FFFDE7
+    order: "#3B1A1A"
   };
 
   const categoryBorders: Record<string, string> = {
@@ -131,6 +112,7 @@ const AuditLogsPage: React.FC = () => {
     "-": "#757575",         // серый границы
     company: "#BA68C8",     // насыщенный фиолетовый
     product: "#FDD835",     // ярко-жёлтый акцент
+    order: "#E57373"
   };
 
   const targetFieldMap: Record<string, { label: string; icon: JSX.Element }> = {
@@ -199,103 +181,147 @@ const AuditLogsPage: React.FC = () => {
     return Array.isArray(value) ? value.map(String).join(", ") : String(value);
   };
 
-  const renderTargetFields = (
-    target: Record<string, any>,
-    targetEntity?: string
-  ) => {
+  const renderTargetFields = (target: Record<string, any>, targetEntity?: string) => {
+    // Спец-обработка заказов (orderNumber + batches)
+    if (targetEntity === "markingCodeOrder") {
+      const orgId = target.companyId || target.orgId; // если есть
+      const orderId = target.id;
+
+      const orderNumberItem = target.orderNumber ? (
+          <div className="content-items" key="orderNumber">
+            <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TagOutlined style={{ color: "#999" }} />
+              <h5 className="title">{t("orders.orderNumber")}:</h5>
+            </div>
+            <div className="content-items-item-description">
+              <h5 className="description">
+                <Link
+                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${target.batches?.[0]?.id || ""}`}
+                    className="actor-link-hover"
+                    style={{ color: "inherit" }}
+                >
+                  {target.orderNumber}
+                </Link>
+              </h5>
+            </div>
+          </div>
+      ) : null;
+
+      const batchesItems = target.batches?.map((batch: any, index: number) => (
+          <div className="content-items" key={`batch-${index}`}>
+            <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TagOutlined style={{ color: "#999" }} />
+              <h5 className="title">{t("markingCodes.tableTitles.batchNumber")} {index + 1}:</h5>
+            </div>
+            <div className="content-items-item-description">
+              <h5 className="description">
+                <Link
+                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id}`}
+                    className="actor-link-hover"
+                    style={{ color: "inherit" }}
+                >
+                  {batch.id}
+                </Link>
+              </h5>
+            </div>
+          </div>
+      ));
+
+      return (
+          <>
+            {orderNumberItem}
+            {batchesItems}
+          </>
+      );
+    }
+
+    // 🔹 Существующий flatten + map для всех остальных targetEntity
     const flatten = (obj: any, prefix = ""): [string, any][] => {
       return Object.entries(obj).flatMap(([key, value]) => {
         const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (
-          value &&
-          typeof value === "object" &&
-          !Array.isArray(value) &&
-          !(value instanceof Date)
-        ) {
+        if (value && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date)) {
           return flatten(value, fullKey);
         }
         return [[fullKey, value]];
       });
-  };
-
-  const excludedFieldsByEntity: Record<string, string[]> = {
-    user: ["companyIds", "id", "status", "firstName", "lastName"],
-    company: ["id", "companyId"],
-    product: ["id", "companyId"],
-  };
-
-  const linkFieldByEntity: Record<string, string> = {
-    user: "fullName",
-    company: "displayName",
-    product: "name",
-  };
-
-  if (targetEntity === "user" && target.firstName && target.lastName) {
-    target = {
-      fullName: `${target.firstName} ${target.lastName}`,
-      ...target,
     };
-  }
 
-  const excludedFields = excludedFieldsByEntity[targetEntity || ""] || [];
-  const linkField = linkFieldByEntity[targetEntity || ""];
+    const excludedFieldsByEntity: Record<string, string[]> = {
+      user: ["companyIds", "id", "status", "firstName", "lastName"],
+      company: ["id", "companyId"],
+      product: ["id", "companyId"],
+    };
 
-  const entityId = target.id;
+    const linkFieldByEntity: Record<string, string> = {
+      user: "fullName",
+      company: "displayName",
+      product: "name",
+    };
 
-  return flatten(target)
-    .filter(([key, value]) => {
-      const baseKey = key.split(".").pop() || key;
-      if (excludedFields.includes(baseKey)) return false;
-      return value !== null && value !== undefined;
-    })
-    .map(([key, value], index) => {
-  const baseKey = key.split(".").pop() || key;
-  const config = targetFieldMap[key] || targetFieldMap[baseKey] || {
-    label: baseKey,
-    icon: <TagOutlined style={{ color: "#999" }} />,
+    if (targetEntity === "user" && target.firstName && target.lastName) {
+      target = {
+        fullName: `${target.firstName} ${target.lastName}`,
+        ...target,
+      };
+    }
+
+    const excludedFields = excludedFieldsByEntity[targetEntity || ""] || [];
+    const linkField = linkFieldByEntity[targetEntity || ""];
+    const entityId = target.id;
+
+    return flatten(target)
+        .filter(([key, value]) => {
+          const baseKey = key.split(".").pop() || key;
+          if (excludedFields.includes(baseKey)) return false;
+          return value !== null && value !== undefined;
+        })
+        .map(([key, value], index) => {
+          const baseKey = key.split(".").pop() || key;
+          const config = targetFieldMap[key] || targetFieldMap[baseKey] || {
+            label: baseKey,
+            icon: <TagOutlined style={{ color: "#999" }} />,
+          };
+
+          let formattedValue: React.ReactNode = formatValueByKey(baseKey, value);
+
+          if (baseKey === linkField && typeof value === "string" && entityId) {
+            let path = "";
+            switch (targetEntity) {
+              case "user":
+                path = `/users/${entityId}`;
+                break;
+              case "company":
+                path = `/organization/${entityId}`;
+                break;
+              case "product":
+                path = `/products/${target.id}`;
+                break;
+            }
+
+            if (path) {
+              formattedValue = (
+                  <Link to={path} className="actor-link-hover" style={{ color: "inherit" }}>
+                    {value}
+                  </Link>
+              );
+            }
+          }
+
+          return (
+              <div className="content-items" key={index}>
+                <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Tooltip title={key}>{config.icon}</Tooltip>
+                  <h5 className="title">{config.label}:</h5>
+                </div>
+                <div className="content-items-item-description">
+                  <h5 className="description">{formattedValue}</h5>
+                </div>
+              </div>
+          );
+        });
   };
 
-  let formattedValue: React.ReactNode = formatValueByKey(baseKey, value);
-
-  if (baseKey === linkField && typeof value === "string" && entityId) {
-    let path = "";
-    switch (targetEntity) {
-      case "user":
-        path = `/users/${entityId}`;
-        break;
-      case "company":
-        path = `/organization/${entityId}`;
-        break;
-      case "product":
-        path = `/products/${target.id}`;
-        break;
-    }
-
-    if (path) {
-      formattedValue = (
-        <Link to={path} className="actor-link-hover" style={{ color: "inherit" }}>
-          {value}
-        </Link>
-      );
-    }
-  }
-
-  return (
-    <div className="content-items" key={index}>
-      <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Tooltip title={key}>{config.icon}</Tooltip>
-        <h5 className="title">{config.label}:</h5>
-      </div>
-      <div className="content-items-item-description">
-        <h5 className="description">{formattedValue}</h5>
-      </div>
-    </div>
-  );
-})
-
-};
-
-const handleFilterChange = (filter: string) => {
+  const handleFilterChange = (filter: string) => {
   setActiveFilter(filter);
 
   dispatch(
@@ -326,53 +352,6 @@ const handleFilterChange = (filter: string) => {
           <div className="box-container-items">
             <div className="box-container-items-item"></div>
             <div className="box-container-items-item">
-              {/* <Space wrap style={{ marginBottom: 16 }}>
-                <Badge count={logs.length} showZero offset={[-10, 0]} color="green">
-                  <div style={{ display: "inline-block", lineHeight: "22px" }}>
-                    <Tag
-                      className="interactive-tag"
-                      // style={{
-                      //   backgroundColor: "#E6F4EA",
-                      //   color: "#52C41A",
-                      //   border: "1px solid #52C41A",
-                      // }}
-                      style={{
-                        backgroundColor: "#1B2A1E", // тёмно-зелёный, приглушённый фон
-                        color: "#73D13D",           // свежий, читаемый зелёный текст
-                        border: "1px solid #389E0D" // немного темнее, чтобы не светился слишком ярко
-                      }}
-
-                      onClick={() => setActiveFilter("all")}
-                    >
-                      {t("categories.all")}
-                    </Tag>
-                  </div>
-                </Badge>
-
-                {uniqueCategories.map((cat) => (
-                  <Badge
-                    key={cat}
-                    offset={[-10, 0]}
-                    count={logs.filter((l) => l.category === cat).length}
-                    color={categoryBorders[cat] || "gray"}
-                  >
-                    <div style={{ display: "inline-block", lineHeight: "22px" }}>
-                      <Tag
-                        className="interactive-tag"
-                        style={{
-                          backgroundColor: categoryColors[cat],
-                          color: categoryBorders[cat],
-                          border: `1px solid ${categoryBorders[cat]}`,
-                        }}
-                        onClick={() => setActiveFilter(cat)}
-                      >
-                        {t(CategoryMap[cat] || cat)}
-                      </Tag>
-                    </div>
-                  </Badge>
-                ))}
-                
-              </Space> */}
               <Space wrap style={{ marginBottom: 16 }}>
                 {[
                   { key: "all", label: t("categories.all"), color: "#73D13D", bg: "#1B2A1E", border: "#389E0D" },
@@ -380,6 +359,7 @@ const handleFilterChange = (filter: string) => {
                   { key: "user", label: t("categories.user"), color: categoryBorders.user, bg: categoryColors.user },
                   { key: "company", label: t("categories.organization"), color: categoryBorders.company, bg: categoryColors.company },
                   { key: "product", label: t("categories.product"), color: categoryBorders.product, bg: categoryColors.product },
+                  { key: "order", label: t("categories.order"), color: categoryBorders.order, bg: categoryColors.order },
                 ].map((cat) => (
                   <Tag
                     key={cat.key}
@@ -535,16 +515,6 @@ const handleFilterChange = (filter: string) => {
                                 </div>
                               }
                             />
-                            {/* <Tag
-                              color="blue"
-                              style={{
-                                borderRadius: 16,
-                                padding: "4px 12px",
-                                marginLeft: "auto",
-                              }}
-                            >
-                              {item.time}
-                            </Tag> */}
                           </List.Item>
                         }
                       >

@@ -1,6 +1,7 @@
 import type { CompanyResponseDto } from "./organization";
 import type { ProductResponseDto } from "./products";
 import type { UserResponseDto } from "./users/login";
+import type {OrderResponseDto} from "./markingCodes";
 
 export type HexString = string;
 
@@ -159,12 +160,14 @@ export const TargetEntity = {
   User: "user",
   Company: "company",
   Product: "product",
+  MarkingCodeOrder: "markingCodeOrder",
 } as const;
 
 export const AuditCategory = {
   Auth: 'auth',
   User: 'user',
   Product: 'product',
+  Order: 'order',
   Company: 'company',
 } as const;
 
@@ -190,12 +193,21 @@ export const AuditType = {
   CompanyUpdate: 'companyUpdate',
   CompanyDelete: 'companyDelete',
 
+  OrderCreate: 'orderCreate',
+  OrderStatusChanged: 'orderStatusChanged',
+  OrderBatchStatusChanged: 'orderBatchStatusChanged',
+  OrderCodesRegistered: 'orderCodesRegistered',
+  OrderCodesUtilized: 'orderCodesUtilized',
+  OrderReportCreated: 'orderReportCreated',
+  OrderClosed: 'orderClosed',
+  OrderRejected: 'orderRejected',
+
   // ...
 } as const;
 
 export type AuditType = typeof AuditType[keyof typeof AuditType];
 
-export type TargetResponseDto = UserResponseDto | CompanyResponseDto | ProductResponseDto | null;
+export type TargetResponseDto = UserResponseDto | CompanyResponseDto | ProductResponseDto | OrderResponseDto | null;
 
 export type Identifier = {
   type: 'Identifier';

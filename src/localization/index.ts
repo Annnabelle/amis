@@ -28,6 +28,16 @@ export const resources = {
                     login: "User logged in",
                     logout: "User logged out",
                 },
+                order: {
+                    orderCreate: "Order created",
+                    orderStatusChanged: "Order status changed",
+                    orderBatchStatusChanged: "Order batch status changed",
+                    orderCodesRegistered: "Code registered",
+                    orderCodesUtilized: "Code applied",
+                    orderReportCreated: "Report created",
+                    orderClosed: "Order closed",
+                    orderRejected: "Order rejected"
+                },
                 organization: {
                     organizationCreate: "User created an organization",
                     organizationUpdate: "User updated an organization",
@@ -47,7 +57,15 @@ export const resources = {
                     unassignCompanyFromUser: "The company has been deleted from the user",
                     assignCompanyToUser: "Company assigned to the user",
                     userUpdate: "User update",
-                    userDelete: "User deletion"
+                    userDelete: "User deletion",
+                    orderCreate: "Order created",
+                    orderStatusChanged: "Order status changed",
+                    orderBatchStatusChanged: "Order batch status changed",
+                    orderCodesRegistered: "Code registered",
+                    orderCodesUtilized: "Code applied",
+                    orderReportCreated: "Report created",
+                    orderClosed: "Order closed",
+                    orderRejected: "Order rejected"
                 }
             },
             categories: {
@@ -55,7 +73,8 @@ export const resources = {
                 user: 'Users',
                 product: 'product',
                 auth: "Authentication",
-                organization: "Organization"
+                organization: "Organization",
+                order: "Orders",
             },
             sessionEndsIn: 'Session ends in',
             search: {
@@ -655,6 +674,33 @@ export const resources = {
                     parentBatch: "Parent batch",
                     childBatch: "Child batch",
                     packagingDate: "Packaging date",
+                },
+                agregationReportPage: {
+                    productName: "Product Name",
+                    orders: "Orders",
+                    batches: "Batches",
+                    aggregation: "Aggregation",
+                    aggregations: "Aggregations",
+                    quantityPerPackage: "Quantity per Package",
+                    aggregationQuantity: "Aggregation Quantity",
+                    productionOrderNumber: "Production Order Number",
+                    parentOrderNumber: "Parent Order Number",
+                    childOrderNumber: "Child Order Number",
+                    parentBatchNumber: "Parent Batch Number",
+                    childBatchNumber: "Child Batch Number",
+                    unitsTable: {
+                        unitSerialNumber: "Unit Serial Number",
+                        aggregationItemsCount: "Number of Codes",
+                        aggregationUnitCapacity: "Unit Capacity",
+                        codesCount: "Codes Count",
+                        shouldBeUnbundled: "Should Be Unbundled",
+                        state: "Status"
+                    },
+                    unitState: {
+                        active: "Active",
+                        inactive: "Inactive",
+                        blocked: "Blocked"
+                    }
                 }
             }
         }
@@ -693,6 +739,16 @@ export const resources = {
                     organizationUpdate: "Пользователь обновил организацию", 
                     organizationDelete: "Пользователь удалил организацию"
                 },
+                order: {
+                    orderCreate: "Создание заказа",
+                    orderStatusChanged: "Изменение статуса заказа",
+                    orderBatchStatusChanged: "Изменение статуса партии заказа",
+                    orderCodesRegistered: "Код зарегестрирован",
+                    orderCodesUtilized: "Код нанесён",
+                    orderReportCreated: "Отчет создан",
+                    orderClosed: "Заказ закрыт",
+                    orderRejected: "Заказ отклонен"
+                },
                 types: {
                     login: "Пользователь вошёл в систему",
                     logout: "Пользователь вышел из системы",
@@ -707,7 +763,15 @@ export const resources = {
                     unassignCompanyFromUser: "Компания удалена у пользователя",
                     assignCompanyToUser: "Компания назначена пользователю",
                     userUpdate: "Обновление пользователя",
-                    userDelete: "Удаление пользователя"
+                    userDelete: "Удаление пользователя",
+                    orderCreate: "Создание заказа",
+                    orderStatusChanged: "Изменение статуса заказа",
+                    orderBatchStatusChanged: "Изменение статуса партии заказа",
+                    orderCodesRegistered: "Код зарегестрирован",
+                    orderCodesUtilized: "Код нанесён",
+                    orderReportCreated: "Отчет создан",
+                    orderClosed: "Заказ закрыт",
+                    orderRejected: "Заказ отклонен"
                 }
             },
             categories: {
@@ -715,7 +779,8 @@ export const resources = {
                 user: 'Пользователи',
                 product: 'Продукты',
                 auth: "Аутентификация",
-                organization: "Организации"
+                organization: "Организации",
+                order: "Заказы",
             },
             sessionEndsIn: 'Окончание сессии через',
             search: {
@@ -1316,6 +1381,33 @@ export const resources = {
                     parentBatch: "Родительская партия",
                     childBatch: "Дочерняя партия",
                     packagingDate: "Дата упаковки",
+                },
+                agregationReportPage: {
+                    productName: "Название продукта",
+                    orders: "Заказы",
+                    batches: "Партии",
+                    aggregations: "Агрегации",
+                    aggregation: "Агрегация",
+                    quantityPerPackage: "Количество в упаковке",
+                    aggregationQuantity: "Количество агрегации",
+                    productionOrderNumber: "Номер производственного заказа",
+                    parentOrderNumber: "Номер родительского заказа",
+                    childOrderNumber: "Номер дочернего заказа",
+                    parentBatchNumber: "Номер родительской партии",
+                    childBatchNumber: "Номер дочерней партии",
+                    unitsTable: {
+                        unitSerialNumber: "Серийный номер единицы",
+                        aggregationItemsCount: "Кол-во кодов",
+                        aggregationUnitCapacity: "Кол-во в единице",
+                        codesCount: "Кол-во",
+                        shouldBeUnbundled: "Требуется разборка",
+                        state: "Статус"
+                    },
+                    unitState: {
+                        active: "Активен",
+                        inactive: "Неактивен",
+                        blocked: "Заблокирован"
+                    }
                 }
             }
         }
@@ -1354,6 +1446,16 @@ export const resources = {
                     organizationUpdate: "Foydalanuvchi tashkilotni yangiladi",
                     organizationDelete: "Foydalanuvchi tashkilotni o‘chirdi"
                 },
+                order: {
+                    orderCreate: "Buyurtma yaratildi",
+                    orderStatusChanged: "Buyurtma holati o‘zgartirildi",
+                    orderBatchStatusChanged: "Buyurtma partiyasi holati o‘zgartirildi",
+                    orderCodesRegistered: "Kod ro‘yxatdan o‘tkazildi",
+                    orderCodesUtilized: "Kod qo‘llandi",
+                    orderReportCreated: "Hisobot yaratildi",
+                    orderClosed: "Buyurtma yopildi",
+                    orderRejected: "Buyurtma rad etildi"
+                },
                 types: {
                     login: "Foydalanuvchi tizimga kirdi",
                     logout: "Foydalanuvchi tizimdan chiqdi",
@@ -1368,7 +1470,15 @@ export const resources = {
                     unassignCompanyFromUser: "Foydalanuvchidan kompaniya o‘chirildi",
                     assignCompanyToUser: "Kompaniya foydalanuvchiga biriktirildi",
                     userUpdate: "Foydalanuvchini yangilash",
-                    userDelete: "Foydalanuvchini o‘chirish"
+                    userDelete: "Foydalanuvchini o‘chirish",
+                    orderCreate: "Buyurtma yaratildi",
+                    orderStatusChanged: "Buyurtma holati o‘zgartirildi",
+                    orderBatchStatusChanged: "Buyurtma partiyasi holati o‘zgartirildi",
+                    orderCodesRegistered: "Kod ro‘yxatdan o‘tkazildi",
+                    orderCodesUtilized: "Kod qo‘llandi",
+                    orderReportCreated: "Hisobot yaratildi",
+                    orderClosed: "Buyurtma yopildi",
+                    orderRejected: "Buyurtma rad etildi"
                 }
             },
             categories: {
@@ -1377,7 +1487,8 @@ export const resources = {
                 product: 'Mahsulotlar',
                 auth: "Autentifikatsiya",
                 companies: "Kompaniyalar",
-                organization: "Tashkilot"
+                organization: "Tashkilot",
+                order: "Buyurtmalar",
             },
             sessionEndsIn: 'Sessiya tugashiga',
             search: {
@@ -1976,6 +2087,33 @@ export const resources = {
                     parentBatch: "Asosiy partiya",
                     childBatch: "Farzand partiya",
                     packagingDate: "Qadoqlash sanasi",
+                },
+                agregationReportPage: {
+                    productName: "Mahsulot nomi",
+                    orders: "Buyurtmalar",
+                    batches: "Partiyalar",
+                    aggregation: "Agregatsiya",
+                    aggregations: "Agregatsiya",
+                    quantityPerPackage: "Har paketdagi miqdor",
+                    aggregationQuantity: "Agregatsiya miqdori",
+                    productionOrderNumber: "Ishlab chiqarish buyurtmasi raqami",
+                    parentOrderNumber: "Asosiy buyurtma raqami",
+                    childOrderNumber: "Qaram buyurtma raqami",
+                    parentBatchNumber: "Asosiy partiya raqami",
+                    childBatchNumber: "Qaram partiya raqami",
+                    unitsTable: {
+                        unitSerialNumber: "Birlik seriya raqami",
+                        aggregationItemsCount: "Kodlar soni",
+                        aggregationUnitCapacity: "Birlik sig‘imi",
+                        codesCount: "Kodlar soni",
+                        shouldBeUnbundled: "Ajratilishi kerak",
+                        state: "Holat"
+                    },
+                    unitState: {
+                        active: "Faol",
+                        inactive: "Faol emas",
+                        blocked: "Bloklangan"
+                    }
                 }
             }
         }
