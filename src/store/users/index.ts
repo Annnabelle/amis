@@ -40,6 +40,9 @@ export const Login = createAsyncThunk(
       if (mapped.success && mapped.user) {
         localStorage.setItem('accessToken', mapped.accessToken!);
         localStorage.setItem('refreshToken', mapped.refreshToken!);
+
+        localStorage.setItem('user', JSON.stringify(mapped.user));
+
         localStorage.setItem('userName', mapped.user.firstName);
         localStorage.setItem('userRole', mapped.user.role?.name.en || '');
         localStorage.setItem("userId", mapped.user.id);
@@ -294,27 +297,26 @@ export const usersSlice = createSlice({
       })
       .addCase(Login.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user!;
-        state.accessToken = action.payload.accessToken!;
-        state.refreshToken = action.payload.refreshToken!;
-        state.sessionStart = Date.now();
 
-        state.currentUser = action.payload.user!;
+        const { user, accessToken, refreshToken } = action.payload;
 
-        if (action.payload.user) {
-          state.user = action.payload.user;
-          state.currentUser = action.payload.user;
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-        } else {
-          const storedUser = localStorage.getItem("user");
-          if (storedUser) {
-            state.user = JSON.parse(storedUser);
-            state.currentUser = JSON.parse(storedUser);
-          }
+        if (!user || !accessToken) {
+          state.isAuthenticated = false;
+          return;
         }
+
+        state.user = user;
+        state.currentUser = user;
+        state.accessToken = accessToken;
+        // state.refreshToken = refreshToken;
+        state.sessionStart = Date.now();
+        state.isAuthenticated = true;
+
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("accessToken", accessToken);
+        // localStorage.setItem("refreshToken", refreshToken);
       })
-      .addCase(Login.rejected, (state, action) => {
+        .addCase(Login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
