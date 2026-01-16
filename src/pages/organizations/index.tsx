@@ -188,7 +188,6 @@ const Organizations = () => {
 
         if (values.accessCodes?.xTrace?.token) {
             payload.accessCodes = {
-                gcpCode: null,
                 xTrace: {
                     token: values.accessCodes.xTrace.token,
                     expireDate: values.accessCodes.xTrace.expireDate,

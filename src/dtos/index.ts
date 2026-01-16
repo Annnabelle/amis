@@ -105,7 +105,7 @@ export type XTraceTokenData = {
 }
 
 export type AccessCodesDto = {
-  gcpCode: string;
+  gcpCode?: string;
   xTrace: XTraceTokenData;
 }
 
