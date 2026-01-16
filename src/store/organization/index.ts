@@ -2,9 +2,20 @@ import type { PaginatedResponseDto } from "../../dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
-import type { CompanyResponse, OrganizationState } from "../../types/organization";
-import type { CompanyResponseDto, CreateCompanyDto, DeleteCompanyDto, DeleteCompanyResponseDto, GetCompaniesDto, GetCompaniesResponseDto, GetCompanyDto, GetCompanyResponseDto, UpdateCompanyDto, UpdateCompanyResponseDto } from "../../dtos/organization";
-import { mapOrganizationDtoToEntity } from "../../mappers/organization";
+import type {CompanyResponse, OrganizationState} from "../../types/organization";
+import type {
+    CompanyResponseDto,
+    CreateCompanyDto,
+    DeleteCompanyDto,
+    DeleteCompanyResponseDto,
+    GetCompaniesDto,
+    GetCompaniesResponseDto,
+    GetCompanyDto,
+    GetCompanyResponseDto,
+    UpdateCompanyDto,
+    UpdateCompanyResponseDto,
+} from "../../dtos/organization";
+import {mapCreateOrganizationDtoToEntity, mapOrganizationDtoToEntity} from "../../mappers/organization";
 
 const initialState: OrganizationState = {
   organization: null,
@@ -46,6 +57,7 @@ export const getAllOrganizations = createAsyncThunk(
   }
 );
 
+
 function isCompanyCreateSuccessResponse(
   res: CompanyResponseDto
 ): res is CompanyResponseDto & { success: boolean; company: CompanyResponseDto } {
@@ -61,8 +73,10 @@ export const createOrganization = createAsyncThunk(
         payload
       );
 
+        console.log("CreateCompany response:", response.data);
+
       if (isCompanyCreateSuccessResponse(response.data)) {
-        return mapOrganizationDtoToEntity(response.data);
+        return mapCreateOrganizationDtoToEntity(response.data);
       }
 
       return rejectWithValue("Ошибка регистрации компании");

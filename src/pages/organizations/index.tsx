@@ -1,4 +1,4 @@
-import { Form, Input} from 'antd'
+import {Form, Input, Tag} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { useEffect, useMemo, useState } from 'react'
@@ -9,61 +9,82 @@ import ComponentTable from '../../components/table'
 import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations } from '../../store/organization'
 import { OrganizationsTableColumns } from '../../tableData/organizations'
 import type { OrganizationTableDataType } from '../../tableData/organizations/types'
-import type { CompanyResponse, CreateCompany } from '../../types/organization'  
+import type {CompanyResponse} from '../../types/organization'
 import { toast } from 'react-toastify'
 import CustomButton from '../../components/button'
 import ModalWindow from '../../components/modalWindow'
 import FormComponent from '../../components/formComponent'
 import { useNavigate } from 'react-router-dom'
+import type {CreateCompanyDto} from "../../dtos/organization";
+import type {MultiLanguage} from "../../dtos";
+import type {LanguageKey} from "../../utils/utils.ts";
+import XTraceFormSection from "./xTraceFormSection";
+import {fetchReferencesByType} from "../../store/references";
 
 const Organizations = () => {
     const navigate = useNavigate()
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const organizations = useAppSelector((state) => state.organizations.organizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)
     const dataPage = useAppSelector((state) => state.organizations.page)
     const dataTotal = useAppSelector((state) => state.organizations.total)
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
-    const [form] = Form.useForm()
+    const [form] = Form.useForm();
+    const [isXTraceValidated, setIsXTraceValidated] = useState(false);
+    const lang = i18n.language as LanguageKey;
+    const productGroupReferences = useAppSelector(
+        (state) => state.references.references.productGroup
+    ) ?? [];
 
     useEffect(() => {
-        if (organizationById) {
-            form.setFieldsValue({
-                  companyType: organizationById.companyType,
-                  displayName: organizationById.displayName,
-                  productGroup: organizationById.productGroup,
-                  tin: organizationById.tin,
-                  legalName: organizationById.legalName,
-                  director: organizationById.director,
-                  address: {
-                    region: organizationById.address?.region,
-                    district: organizationById.address?.district,
-                    address: organizationById.address?.address
-                  },
-                  bankDetails: {
-                    bankName: organizationById.bankDetails?.bankName,
-                    ccea: organizationById.bankDetails?.ccea,
-                    account: organizationById.bankDetails?.account,
-                    mfo: organizationById.bankDetails?.mfo,
-                  },
-                  contacts: {
-                    phone: organizationById.contacts?.phone,
-                    email: organizationById.contacts?.email,
-                    url: organizationById.contacts?.url,
-                    person: organizationById.contacts?.person,
-                  },
-                  accessCodes: {
-                    gcpCode: organizationById.accessCodes?.gcpCode,
-                    omsId: organizationById.accessCodes?.omsId,
-                    turonToken: organizationById.accessCodes?.turonToken,
-                  },
-                  status: organizationById.status,
-                  deleted: organizationById.deleted,
-                  deletedAt: organizationById.deletedAt
-            })
-        }
-    }, [organizationById, form])
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (!organizationById) return;
+
+        const lang = i18n.language.split('-')[0] as keyof MultiLanguage;
+
+        form.setFieldsValue({
+            displayName: organizationById.displayName,
+
+            productGroups: organizationById.productGroups,
+
+            tin: organizationById.tin,
+
+            legalName: organizationById.legalName[lang],
+
+            director: organizationById.director,
+
+            address: {
+                region: organizationById.address?.region,
+                district: organizationById.address?.district,
+                address: organizationById.address?.address,
+            },
+
+            bankDetails: {
+                bankName: organizationById.bankDetails?.bankName,
+                ccea: organizationById.bankDetails?.ccea,
+                account: organizationById.bankDetails?.account,
+                mfo: organizationById.bankDetails?.mfo,
+            },
+
+            contacts: {
+                phone: organizationById.contacts?.phone,
+                email: organizationById.contacts?.email,
+                url: organizationById.contacts?.url,
+                person: organizationById.contacts?.person,
+            },
+
+            accessCodes: {
+                gcpCode: organizationById.accessCodes?.gcpCode,
+                token: organizationById.accessCodes?.xTrace?.token,
+            },
+
+            status: organizationById.status,
+        });
+    }, [organizationById, form, i18n.language]);
 
     useEffect(() => {
         dispatch(getAllOrganizations({
@@ -73,18 +94,18 @@ const Organizations = () => {
         })) 
     }, [dispatch, dataPage, dataLimit])
 
-   const OrganizationsData = useMemo(() => {
+    const OrganizationsData = useMemo<OrganizationTableDataType[]>(() => {
         return organizations.map((organization, index) => ({
-            key: organization.id,                
-            number: index + 1,         
+            key: organization.id,
+            number: index + 1,
             displayName: organization.displayName,
             director: organization.director,
-            legalName: organization.legalName,
+            legalName: organization.legalName[lang], // ✅ string
             contacts: organization.contacts.phone ?? '',
             status: organization.status,
-            action: 'Действие', 
-        }))
-    }, [organizations]);
+            action: 'Действие',
+        }));
+    }, [organizations, lang]);
 
     const [modalState, setModalState] = useState<{
         addCompany: boolean;
@@ -102,29 +123,105 @@ const Organizations = () => {
 
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
+        if (modalName === 'addCompany' && value) {
+            form.resetFields();
+            setIsXTraceValidated(false);
+        }
     }
 
-    const handleCreateCompany = async (values: CreateCompany) => {
+    const handleCreateCompany = async (values: any) => {
+        if (!isXTraceValidated) {
+            toast.error(t("organizations.addUserForm.validation.xTrace.notValidated"));
+            return;
+        }
+
+        const langKey = i18n.language as LanguageKey;
+
+        const payload: CreateCompanyDto = {
+            companyType: "type1",
+            displayName: values.displayName ?? values.name?.[langKey] ?? "",
+            name: values.name ?? { ru: "", uz: "" },
+            legalName: values.legalName ?? { ru: "", uz: "" },
+            tin: values.tin,
+            productGroups: values.productGroups ?? [],
+            isTest: Boolean(values.isTest),
+        };
+
+        if (values.director) {
+            payload.director = values.director;
+        }
+
+        if (values.address?.region || values.address?.district || values.address?.address) {
+            payload.address = {
+                region: values.address.region,
+                district: values.address.district,
+                address: values.address.address,
+            };
+        }
+
+        if (
+            values.bankDetails?.bankName ||
+            values.bankDetails?.account ||
+            values.bankDetails?.mfo
+        ) {
+            payload.bankDetails = {
+                bankName: values.bankDetails.bankName,
+                ccea: values.bankDetails.ccea,
+                account: values.bankDetails.account,
+                mfo: values.bankDetails.mfo,
+            };
+        }
+
+        if (
+            values.contacts?.phone ||
+            values.contacts?.email ||
+            values.contacts?.url ||
+            values.contacts?.person
+        ) {
+            payload.contacts = {
+                phone: values.contacts.phone,
+                email: values.contacts.email,
+                url: values.contacts.url,
+                person: values.contacts.person,
+            };
+        }
+
+        if (values.accessCodes?.xTrace?.token) {
+            payload.accessCodes = {
+                gcpCode: null,
+                xTrace: {
+                    token: values.accessCodes.xTrace.token,
+                    expireDate: values.accessCodes.xTrace.expireDate,
+                },
+            };
+        }
+
         try {
-            const resultAction = await dispatch(createOrganization(values));
-        
-            if (createOrganization.fulfilled.match(resultAction)) {
-                toast.success(t('organizations.messages.success.createUser')); //заменить
-                setTimeout(() => {
-                    handleModal('addCompany', false);
-                    window.location.reload(); 
-                }, 1000); 
+            const result = await dispatch(createOrganization(payload));
+
+            if (result.meta.requestStatus === "fulfilled") {
+                toast.success(t("organizations.messages.success.createUser"));
+                handleModal("addCompany", false);
+
+                // 🔄 Перезагрузка страницы
+                window.location.reload();
             } else {
-                toast.error(t('organizations.messages.error.createUser')); //заменить
+                const errorMessage =
+                    typeof result.payload === "string"
+                        ? result.payload
+                        : t("organizations.messages.error.createUser");
+
+                toast.error(errorMessage);
             }
-        } catch (err) {
-            toast.error((err as string) || t('organizations.messages.error.createUser')); //заменить
+        } catch (error) {
+            console.error(error);
+            toast.error(t("organizations.messages.error.createUser"));
         }
     };
 
     const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
 
-     const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
+    const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
         if (type === "Company" && action === "retrieve") {
             navigate(`/organization/${record.key}`); 
         }
@@ -180,472 +277,539 @@ const Organizations = () => {
             dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: 'asc' }));
         }
     };
-    //
-    // const companyTypeOption = [
-    //     { value: "type1", label: 'Type1'},
-    //     { value: "inactive", label: 'Inactive' },
-    // ];
 
-  return (
-    <MainLayout>
-        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
-            <div className="btns-group">
-                <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
-                <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
-            </div>
-        </Heading>
-        <div className="box">
-            <div className="box-container">
-                <div className="box-container-items">
-                    <div className="box-container-items-item">
-                        <div className="box-container-items-item-filters">
-                               <div className="form-inputs">
-                                    <Form.Item name="searchExpert" className="input">
-                                        <Input
-                                            size="large"
-                                            className="input"
-                                            placeholder={t('search.byOrganization')}
-                                            suffix={<IoSearch />}
-                                            allowClear
-                                            onChange={handleSearchChange}
-                                        />
-                                    </Form.Item>
-                                </div>
+    const referencesProductGroups = useMemo(() => {
+        return productGroupReferences.reduce((acc, item) => {
+            acc[item.alias] = item.title[lang] ?? ""; // title is MultiLanguage, pick current lang
+            return acc;
+        }, {} as Record<string, string>);
+    }, [productGroupReferences, lang]);
+
+    console.log("group", productGroupReferences)
+
+    const isFieldDisabled = (name: any) => {
+        const value = form.getFieldValue(name);
+        return isXTraceValidated && value !== undefined && value !== null && value !== "";
+    };
+
+    return (
+        <MainLayout>
+            <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
+                <div className="btns-group">
+                    <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                    <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
+                </div>
+            </Heading>
+            <div className="box">
+                <div className="box-container">
+                    <div className="box-container-items">
+                        <div className="box-container-items-item">
+                            <div className="box-container-items-item-filters">
+                                   <div className="form-inputs">
+                                        <Form.Item name="searchExpert" className="input">
+                                            <Input
+                                                size="large"
+                                                className="input"
+                                                placeholder={t('search.byOrganization')}
+                                                suffix={<IoSearch />}
+                                                allowClear
+                                                onChange={handleSearchChange}
+                                            />
+                                        </Form.Item>
+                                    </div>
+                            </div>
                         </div>
                     </div>
+                    <div className="box-container-items">
+                        <ComponentTable<OrganizationTableDataType>
+                            columns={OrganizationsTableColumns(t, handleRowClick, handleDeleteOrganization)}
+                            data={OrganizationsData}
+                            onRowClick={(record) => handleRowClick('Company', 'retrieve', record)}
+                            pagination={{
+                                current: dataPage || 1,
+                                pageSize: dataLimit || 10,
+                                total: dataTotal || 0,
+                                onChange: (newPage, newLimit) => {
+                                dispatch(getAllOrganizations({ page: newPage, limit: newLimit, sortOrder: "asc" }));
+                                },
+                            }}
+                        />
+                    </div>
                 </div>
-                <div className="box-container-items">
-                    <ComponentTable<OrganizationTableDataType>
-                        columns={OrganizationsTableColumns(t, handleRowClick, handleDeleteOrganization)}
-                        data={OrganizationsData}
-                        onRowClick={(record) => handleRowClick('Company', 'retrieve', record)}
-                        pagination={{
-                            current: dataPage || 1,
-                            pageSize: dataLimit || 10,
-                            total: dataTotal || 0,
-                            onChange: (newPage, newLimit) => {
-                            dispatch(getAllOrganizations({ page: newPage, limit: newLimit, sortOrder: "asc" }));
-                            },
-                        }}
+            </div>
+            <ModalWindow className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
+                <FormComponent
+                    form={form}
+                    onFinish={handleCreateCompany}
+                >
+                    <XTraceFormSection
+                        form={form}
+                        setIsValidated={setIsXTraceValidated}
+                        isFieldDisabled={isFieldDisabled}
+                        referencesProductGroups={referencesProductGroups}
                     />
-                </div>
-            </div>
-        </div>
-        <ModalWindow className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
-            <FormComponent onFinish={handleCreateCompany}>
-                <div className="form-inputs form-inputs-row">
-                    {/*<Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   rules={[*/}
-                    {/*    {*/}
-                    {/*    required: true,*/}
-                    {/*    message: t("organizations.addUserForm.validation.required.companyType"),*/}
-                    {/*    },*/}
-                    {/*]} >*/}
-                    {/*    <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')}/>*/}
-                    {/*</Form.Item>*/}
-                    <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}
-                        rules={[
-                            {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.displayName"),
-                            },
-                        ]}>
-                        <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')} />
-                    </Form.Item>
-                    <Form.Item
-                        className="input"
-                        name="productGroup"
-                        label={t("organizations.addUserForm.label.productGroup")}
-                        rules={[
-                            {
-                                required: true,
-                                message: t("organizations.addUserForm.validation.required.productGroup"),
-                            },
-                        ]}
-                    >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t("organizations.addUserForm.placeholder.productGroup")}
-                        />
-                    </Form.Item>
-                </div>
-                <div className="form-inputs form-inputs-row">
+                    {isXTraceValidated && (
+                        <>
+                            <div className="form-inputs form-inputs-row small">
+                                <Form.Item
+                                    name={["accessCodes", "xTrace", "expireDate"]} // для сабмита
+                                    label={t('organizations.addUserForm.label.expireDate')}
+                                    className="input"
+                                >
+                                    <Input
+                                        size="large"
+                                        className="input"
+                                        disabled
+                                        readOnly
+                                        placeholder={t('organizations.addUserForm.placeholder.expireDate')}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}
+                                           rules={[
+                                               {
+                                                   required: true,
+                                                   message: t("organizations.addUserForm.validation.required.displayName"),
+                                               },
+                                           ]}>
+                                    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')} disabled={!isXTraceValidated} />
+                                </Form.Item>
+                                <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')}>
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.director')}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row small">
+                                <Form.Item name="productGroups" hidden />
+                                <Form.Item
+                                    className="input"
+                                    label={t("organizations.addUserForm.label.productGroup")}
+                                    shouldUpdate={(prev, cur) =>
+                                        prev.productGroups !== cur.productGroups
+                                    }
+                                >
+                                    {() => {
+                                        const productGroups = form.getFieldValue("productGroups");
 
-                   <Form.Item
-                        className="input"
-                        name="tin"
-                        label={t("organizations.addUserForm.label.tin")}
-                        rules={[
-                            {
-                                required: true,
-                                message: t("organizations.addUserForm.validation.required.tin"),
-                            },
-                            {
-                                pattern: /^[0-9]{9}$/,
-                                message: t("organizations.addUserForm.validation.pattern.tin"),
-                            },
-                        ]}
-                    >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t("organizations.addUserForm.placeholder.tin")}
-                        />
-                    </Form.Item>
-                    <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')}
-                        rules={[
-                            {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.legalName"),
-                            },
-                        ]}>
-                        <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')} />
-                    </Form.Item>
-                </div>
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')}
-                        rules={[
-                            {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.director"),
-                            },
-                        ]}>
-                        <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.director')} />
-                    </Form.Item>
-                </div>
+                                        if (!Array.isArray(productGroups) || productGroups.length === 0) {
+                                            return (
+                                                <Input size="large" className="input" disabled />
+                                            );
+                                        }
 
-                <div className="form-divider-title">
-                    <h4 className="title">{t('organizations.subtitles.address')}</h4>
-                </div>
+                                        return (
+                                            <Input
+                                                size="large"
+                                                className="input"
+                                                disabled
+                                                value={undefined} // 🔥 важно
+                                                prefix={
+                                                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                                        {productGroups.map((alias: string) => {
+                                                            const ref = productGroupReferences.find(
+                                                                (r) => r.alias === alias
+                                                            );
 
-                {/* AddressDto */}
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')}
-                    rules={[
-                        {
-                        required: true,
-                        message: t("organizations.addUserForm.validation.required.region"),
-                        },
-                    ]}>
-                        <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.region')} />
-                    </Form.Item>
-                    <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')}
-                    rules={[
-                        {
-                        required: true,
-                        message: t("organizations.addUserForm.validation.required.district"),
-                        },
-                    ]}>
-                        <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.district')} />
-                    </Form.Item>
-                </div>
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["address", "address"]}
-                        label={t("organizations.addUserForm.label.address")}
-                        rules={[
-                            {
-                                required: true,
-                                message: t("organizations.addUserForm.validation.required.address"),
-                            },
-                        ]}
-                        >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t("organizations.addUserForm.placeholder.address")}
-                        />
-                        </Form.Item>
+                                                            const title =
+                                                                ref?.title?.[lang] ??
+                                                                ref?.title?.ru ??
+                                                                "";
 
-                </div>
+                                                            return (
+                                                                <Tag
+                                                                    key={alias}
+                                                                    color="blue"
+                                                                    style={{
+                                                                        margin: 0,
+                                                                        fontSize: 12,
+                                                                        padding: "4px 6px",
+                                                                    }}
+                                                                >
+                                                                    {title}
+                                                                </Tag>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                }
+                                            />
+                                        );
+                                    }}
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item className="input" name={["name", "ru"]} label={`${t('organizations.addUserForm.label.companyName')} RU`}
+                                    // rules={[
+                                    //     {
+                                    //         required: true,
+                                    //         message: t("organizations.addUserForm.validation.required.displayName"),
+                                    //     },
+                                    // ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.companyName')}
+                                        disabled={isFieldDisabled(["name", "ru"])}
+                                    />
+                                </Form.Item>
+                                <Form.Item className="input" name={["name", "en"]} label={`${t('organizations.addUserForm.label.companyName')} EN`}
+                                           // rules={[
+                                           //     {
+                                           //         required: true,
+                                           //         message: t("organizations.addUserForm.validation.required.displayName"),
+                                           //     },
+                                           // ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.companyName')}
+                                        disabled={isFieldDisabled(["name", "en"])}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row small">
+                                <Form.Item className="input" name={["name", "uz"]} label={`${t('organizations.addUserForm.label.companyName')} UZ`}
+                                    // rules={[
+                                    //     {
+                                    //         required: true,
+                                    //         message: t("organizations.addUserForm.validation.required.displayName"),
+                                    //     },
+                                    // ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.companyName')}
+                                        disabled={isFieldDisabled(["name", "uz"])}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item className="input" name={["legalName", "ru"]} label={`${t('organizations.addUserForm.label.legalName')} RU`}
+                                           // rules={[
+                                           //     {
+                                           //         required: true,
+                                           //         message: t("organizations.addUserForm.validation.required.legalName"),
+                                           //     },
+                                           // ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.legalName')}
+                                        disabled={isFieldDisabled(["legalName", "ru"])}
+                                    />
+                                </Form.Item>
+                                <Form.Item className="input" name={["legalName", "en"]} label={`${t('organizations.addUserForm.label.legalName')} EN`}
+                                           // rules={[
+                                           //     {
+                                           //         required: true,
+                                           //         message: t("organizations.addUserForm.validation.required.legalName"),
+                                           //     },
+                                           // ]}
+                                    >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.legalName')}
+                                        disabled={isFieldDisabled(["legalName", "en"])}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row small">
+                                <Form.Item className="input" name={["legalName", "uz"]} label={`${t('organizations.addUserForm.label.legalName')} UZ`}
+                                           // rules={[
+                                           //     {
+                                           //         required: true,
+                                           //         message: t("organizations.addUserForm.validation.required.legalName"),
+                                           //     },
+                                           // ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.legalName')}
+                                        disabled={isFieldDisabled(["legalName", "uz"])}
+                                    />
+                                </Form.Item>
 
-                <div className="form-divider-title">
-                    <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
-                </div>
+                            </div>
+                            <div className="form-divider-title">
+                                <h4 className="title">{t('organizations.subtitles.address')}</h4>
+                            </div>
 
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["bankDetails", "bankName"]}
-                        label={t("organizations.addUserForm.label.bankName")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.bankName"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.bankName")}
-                        />
-                    </Form.Item>
+                            {/* AddressDto */}
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')}>
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.region')}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+                                <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')}
+                                           rules={[
+                                               {
+                                                   required: true,
+                                                   message: t("organizations.addUserForm.validation.required.district"),
+                                               },
+                                           ]}>
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t('organizations.addUserForm.placeholder.district')}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    className="input"
+                                    name={["address", "address"]}
+                                    label={t("organizations.addUserForm.label.address")}
+                                    >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.address")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                    </Form.Item>
 
-                    <Form.Item
-                        className="input"
-                        name={["bankDetails", "ccea"]}
-                        label={t("organizations.addUserForm.label.ccea")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.ccea"),
-                        },
-                        {
-                            pattern: /^[0-9]{20}$/,
-                            message: t("organizations.addUserForm.validation.pattern.ccea"),
-                        },
-                        ]}
-                    >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t("organizations.addUserForm.placeholder.ccea")}
-                        />
-                    </Form.Item>
+                            </div>
+
+                            <div className="form-divider-title">
+                                <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
+                            </div>
+
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    className="input"
+                                    name={["bankDetails", "bankName"]}
+                                    label={t("organizations.addUserForm.label.bankName")}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: t("organizations.addUserForm.validation.required.bankName"),
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.bankName")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    className="input"
+                                    name={["bankDetails", "ccea"]}
+                                    label={t("organizations.addUserForm.label.ccea")}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: t("organizations.addUserForm.validation.required.ccea"),
+                                        },
+                                        {
+                                            pattern: /^[0-9]{20}$/,
+                                            message: t("organizations.addUserForm.validation.pattern.ccea"),
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.ccea")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+                                </div>
+
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    className="input"
+                                    name={["bankDetails", "account"]}
+                                    label={t("organizations.addUserForm.label.account")}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: t("organizations.addUserForm.validation.required.account"),
+                                        },
+                                        {
+                                            pattern: /^[0-9]{20}$/,
+                                            message: t("organizations.addUserForm.validation.pattern.account"),
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.account")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    className="input"
+                                    name={["bankDetails", "mfo"]}
+                                    label={t("organizations.addUserForm.label.mfo")}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: t("organizations.addUserForm.validation.required.mfo"),
+                                        },
+                                        {
+                                            pattern: /^[0-9]{5}$/,
+                                            message: t("organizations.addUserForm.validation.pattern.mfo"),
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.mfo")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+                            </div>
+
+
+                             <div className="form-divider-title">
+                                <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
+                            </div>
+
+                            {/* ContactsDto */}
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    className="input"
+                                    name={["contacts", "phone"]}
+                                    label={t("organizations.addUserForm.label.phone")}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.phone")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    className="input"
+                                    name={["contacts", "email"]}
+                                    label={t("organizations.addUserForm.label.email")}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.email")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+                                </div>
+
+
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    className="input"
+                                    name={["contacts", "url"]}
+                                    label={t("organizations.addUserForm.label.url")}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: t("organizations.addUserForm.validation.required.url"),
+                                        },
+                                        {
+                                            type: "url",
+                                            message: t("organizations.addUserForm.validation.pattern.url"),
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.url")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    className="input"
+                                    name={["contacts", "person"]}
+                                    label={t("organizations.addUserForm.label.person")}
+                                >
+                                    <Input
+                                        className="input"
+                                        size="large"
+                                        placeholder={t("organizations.addUserForm.placeholder.person")}
+                                        disabled={!isXTraceValidated}
+                                    />
+                                </Form.Item>
+                                </div>
+
+
+                            {/* AccessCodesDto */}
+                            {/*<div className="form-inputs form-inputs-row">*/}
+                            {/*    <Form.Item*/}
+                            {/*        className="input"*/}
+                            {/*        name={["accessCodes", "gcpCode"]}*/}
+                            {/*        label={t("organizations.addUserForm.label.gcpCode")}*/}
+                            {/*        rules={[*/}
+                            {/*            {*/}
+                            {/*                required: true,*/}
+                            {/*                message: t("organizations.addUserForm.validation.required.gcpCode"),*/}
+                            {/*            },*/}
+                            {/*            {*/}
+                            {/*                min: 3,*/}
+                            {/*                message: t("organizations.addUserForm.validation.pattern.gcpCode"),*/}
+                            {/*            },*/}
+                            {/*        ]}*/}
+                            {/*    >*/}
+                            {/*        <Input*/}
+                            {/*            className="input"*/}
+                            {/*            size="large"*/}
+                            {/*            placeholder={t("organizations.addUserForm.placeholder.gcpCode")}*/}
+                            {/*            disabled={!isXTraceValidated}*/}
+                            {/*        />*/}
+                            {/*    </Form.Item>*/}
+                            {/*</div>*/}
+                            <CustomButton type="submit">{t('btn.create')}</CustomButton>
+                        </>
+                    )}
+                </FormComponent>
+            </ModalWindow>
+            <ModalWindow
+                titleAction={t('organizations.modalWindow.deletion')}
+                title={t('organizations.modalWindow.organization')}
+                openModal={modalState.deleteCompany}
+                closeModal={() => handleModal("deleteCompany", false)}
+                classDangerName='danger-title'
+                >
+                <div className="delete-modal">
+                    <div className="delete-modal-title">
+                        <p className='title'>
+                            {t('organizations.deleteUserQuestion')}: {" "}
+                        </p>
+                        <p className="subtitle">{modalState.companyData?.legalName?.[lang]} ? </p>
                     </div>
-
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["bankDetails", "account"]}
-                        label={t("organizations.addUserForm.label.account")}
-                        rules={[
-                            {
-                                required: true,
-                                message: t("organizations.addUserForm.validation.required.account"),
-                            },
-                            {
-                                pattern: /^[0-9]{20}$/,
-                                message: t("organizations.addUserForm.validation.pattern.account"),
-                            },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.account")}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name={["bankDetails", "mfo"]}
-                        label={t("organizations.addUserForm.label.mfo")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.mfo"),
-                        },
-                        {
-                            pattern: /^[0-9]{5}$/,
-                            message: t("organizations.addUserForm.validation.pattern.mfo"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.mfo")}
-                        />
-                    </Form.Item>
+                    <div className="delete-modal-btns">
+                        <CustomButton className="danger" onClick={confirmDeleteOrganization}>
+                            {t('btn.delete')}
+                        </CustomButton>
+                        <CustomButton onClick={() => handleModal("deleteUser", false)} className="outline">
+                            {t('btn.cancel')}
+                        </CustomButton>
                     </div>
-
-
-                 <div className="form-divider-title">
-                    <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
                 </div>
+            </ModalWindow>
 
-                {/* ContactsDto */}
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["contacts", "phone"]}
-                        label={t("organizations.addUserForm.label.phone")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.phone"),
-                        },
-                        {
-                            pattern: /^\+998\d{9}$/,
-                            message: t("organizations.addUserForm.validation.pattern.phone"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.phone")}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name={["contacts", "email"]}
-                        label={t("organizations.addUserForm.label.email")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.email"),
-                        },
-                        {
-                            type: "email",
-                            message: t("organizations.addUserForm.validation.pattern.email"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.email")}
-                        />
-                    </Form.Item>
-                    </div>
-
-
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["contacts", "url"]}
-                        label={t("organizations.addUserForm.label.url")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.url"),
-                        },
-                        {
-                            type: "url",
-                            message: t("organizations.addUserForm.validation.pattern.url"),
-                        },
-                        ]}
-                    >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t("organizations.addUserForm.placeholder.url")}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name={["contacts", "person"]}
-                        label={t("organizations.addUserForm.label.person")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.person"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.person")}
-                        />
-                    </Form.Item>
-                    </div>
-
-
-                {/* AccessCodesDto */}
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["accessCodes", "gcpCode"]}
-                        label={t("organizations.addUserForm.label.gcpCode")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.gcpCode"),
-                        },
-                        {
-                            min: 3,
-                            message: t("organizations.addUserForm.validation.pattern.gcpCode"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.gcpCode")}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name={["accessCodes", "omsId"]}
-                        label={t("organizations.addUserForm.label.omsId")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.omsId"),
-                        },
-                        {
-                            min: 3,
-                            message: t("organizations.addUserForm.validation.pattern.omsId"),
-                        },
-                        ]}
-                    >
-                        <Input
-                        className="input"
-                        size="large"
-                        placeholder={t("organizations.addUserForm.placeholder.omsId")}
-                        />
-                    </Form.Item>
-                    </div>
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name={["accessCodes", "turonToken"]}
-                        label={t("organizations.addUserForm.label.turonToken")}
-                        rules={[
-                        {
-                            required: true,
-                            message: t("organizations.addUserForm.validation.required.turonToken"),
-                        },
-                        {
-                            min: 5,
-                            message: t("organizations.addUserForm.validation.pattern.turonToken"),
-                        },
-                        ]}
-                    >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t("organizations.addUserForm.placeholder.turonToken")}
-                        />
-                    </Form.Item>
-                </div>
-                <CustomButton type="submit">{t('btn.create')}</CustomButton>
-            </FormComponent>
-        </ModalWindow>
-        <ModalWindow
-            titleAction={t('organizations.modalWindow.deletion')}
-            title={t('organizations.modalWindow.organization')}
-            openModal={modalState.deleteCompany}
-            closeModal={() => handleModal("deleteCompany", false)}
-            classDangerName='danger-title'  
-            >
-            <div className="delete-modal">
-                <div className="delete-modal-title">
-                    <p className='title'>
-                        {t('organizations.deleteUserQuestion')}: {" "}
-                    </p>
-                    <p className="subtitle">{modalState.companyData?.legalName} ? </p>
-                </div>
-                <div className="delete-modal-btns">
-                    <CustomButton className="danger" onClick={confirmDeleteOrganization}>
-                        {t('btn.delete')}
-                    </CustomButton>
-                    <CustomButton onClick={() => handleModal("deleteUser", false)} className="outline">
-                        {t('btn.cancel')}
-                    </CustomButton>
-                </div>
-            </div>
-        </ModalWindow>
-
-    </MainLayout>
+        </MainLayout>
   )
 }
 

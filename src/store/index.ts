@@ -8,6 +8,7 @@ import { markingCodesSlice } from "./markingCodes";
 import { referencesSlice } from "./references";
 import {utilizationSlice} from "./utilization";
 import {aggregationSlice} from "./aggregation";
+import {xTraceSlice} from "./xTrace";
 
 export const store = configureStore({
     reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
         references: referencesSlice.reducer,
         utilization: utilizationSlice.reducer,
         aggregations: aggregationSlice.reducer,
+        xTrace: xTraceSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
