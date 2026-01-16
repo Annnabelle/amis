@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import type { MenuProps } from 'antd';
+import { type MenuProps} from 'antd';
 import { Button, Layout, Menu } from 'antd';
 import {
   ApartmentOutlined,
@@ -86,14 +86,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         );
     }, [dispatch, dataPage, dataLimit]);
 
-  const myOrganizations = useMemo(
-      () =>
-          organizations?.map((org) => ({
-            id: String(org.id),
-            name: org.displayName,
-          })) || [],
-      [organizations]
-  );
+    // const myOrganizations = useMemo(
+    //     () =>
+    //         organizations?.map((org) => ({
+    //             id: String(org.id),
+    //             name: org.displayName,
+    //             isTest: org.isTest,   // ← берём поле, если нет — false
+    //         })) || [],
+    //     [organizations]
+    // );
 
   const getOrgSubMenuItems = (orgId: string): MenuProps['items'] => [
     {
@@ -134,18 +135,55 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       // },
   ];
 
-  const myOrganizationsItems: MenuProps['items'] =
-      myOrganizations.map((org) => ({
-        key: `my-org-${org.id}`,
-        icon: <BuildOutlined />,
-        label: org.name,
-        children: getOrgSubMenuItems(org?.id)?.map((item: any) => ({
-          ...item,
-          key: `${org.id}-${item.key}`,
-        })),
-      }));
+    const myOrganizations = useMemo(
+        () => {
+            const mapped = organizations?.map((org) => {
+                console.log(`Организация ${org.id} (${org.displayName}): isTest =`, org.isTest);  // ← вот этот лог
+                return {
+                    id: String(org.id),
+                    name: org.displayName,
+                    isTest: !!org.isTest,   // преобразуем в boolean
+                };
+            }) || [];
 
-  const menuItems: MenuProps['items'] = [];
+            console.log("Всего организаций:", mapped.length);
+            console.log("Есть ли хоть одна с isTest = true?", mapped.some(o => o.isTest));
+
+            return mapped;
+        },
+        [organizations]
+    );
+
+    const myOrganizationsItems: MenuProps['items'] = myOrganizations.map((org) => ({
+        key: `my-org-${org.id}`,
+        icon: (
+            <>
+                <BuildOutlined />
+                {org.isTest && (
+                    <span className="org-test-badge">
+                        Тест
+                      </span>
+                )}
+            </>
+        ),
+
+        label: (
+            <span className="org-name">
+                {org.name}
+            </span>
+        ),
+        className: org.isTest ? 'test-org-menu-item' : undefined,
+        title: org.isTest ? `${org.name} (Тест)` : org.name,
+        children: getOrgSubMenuItems(org.id)?.map((item: any) => ({
+            ...item,
+            key: `${org.id}-${item.key}`,
+        })),
+    }));
+
+
+
+
+    const menuItems: MenuProps['items'] = [];
 
   if (isSuperAdmin) {
     menuItems.push({
@@ -183,6 +221,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     menuItems.push({
       key: 'my-organizations-group',
       icon: <ApartmentOutlined />,
+        className: 'no-left-margin',
       label:
           t('navigation.myOrganizations') ||
           'Мои организации',

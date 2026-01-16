@@ -1,58 +1,67 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store";
-import { useEffect } from "react";
+import {useEffect} from "react";
 import { getOrganizationById, updateOrganization } from "../../../store/organization";
 import { toast } from "react-toastify";
 import MainLayout from "../../../components/layout";
 import Heading from "../../../components/mainHeading";
 import CustomButton from "../../../components/button";
 import FormComponent from "../../../components/formComponent";
-import { Form, Input } from "antd";
-import { useNavigationBack } from "../../../utils/utils";
+import {Form, Input, Tag} from "antd";
+import {type LanguageKey, useNavigationBack} from "../../../utils/utils";
+import {fetchReferencesByType} from "../../../store/references";
 
 const OrganizationsEdit = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigateBack = useNavigationBack();
     const dispatch = useAppDispatch()
     const { id } = useParams<{ id: string }>();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const [form] = Form.useForm()
+    const lang = i18n.language as LanguageKey;
+    const productGroupReferences = useAppSelector(
+        (state) => state.references.references.productGroup
+    ) ?? [];
+
+    useEffect(() => {
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
 
     useEffect(() => {
         if (organizationById) {
             form.setFieldsValue({
-                  companyType: organizationById.companyType,
+                  // companyType: organizationById.companyType,
                   displayName: organizationById.displayName,
-                  productGroup: organizationById.productGroup,
+                  productGroup: organizationById.productGroups,
                   tin: organizationById.tin,
-                  legalName: organizationById.legalName,
+                  legalName: organizationById.legalName[lang],
                   director: organizationById.director,
-                  address: {
-                    region: organizationById.address?.region,
-                    district: organizationById.address?.district,
-                    address: organizationById.address?.address
-                  },
-                  bankDetails: {
-                    bankName: organizationById.bankDetails?.bankName,
-                    ccea: organizationById.bankDetails?.ccea,
-                    account: organizationById.bankDetails?.account,
-                    mfo: organizationById.bankDetails?.mfo,
-                  },
-                  contacts: {
-                    phone: organizationById.contacts?.phone,
-                    email: organizationById.contacts?.email,
-                    url: organizationById.contacts?.url,
-                    person: organizationById.contacts?.person,
-                  },
-                  accessCodes: {
-                    gcpCode: organizationById.accessCodes?.gcpCode,
-                    omsId: organizationById.accessCodes?.omsId,
-                    turonToken: organizationById.accessCodes?.turonToken,
-                  },
-                  status: organizationById.status,
-                  deleted: organizationById.deleted,
-                  deletedAt: organizationById.deletedAt
+                    address: {
+                        region: organizationById.address?.region,
+                        district: organizationById.address?.district,
+                        address: organizationById.address?.address,
+                    },
+                    bankDetails: {
+                        bankName: organizationById.bankDetails?.bankName,
+                        ccea: organizationById.bankDetails?.ccea,
+                        account: organizationById.bankDetails?.account,
+                        mfo: organizationById.bankDetails?.mfo,
+                    },
+
+                    contacts: {
+                        phone: organizationById.contacts?.phone,
+                        email: organizationById.contacts?.email,
+                        url: organizationById.contacts?.url,
+                        person: organizationById.contacts?.person,
+                    },
+
+                    accessCodes: {
+                        gcpCode: organizationById.accessCodes?.gcpCode,
+                        token: organizationById.accessCodes?.xTrace?.token,
+                    },
+
+                    status: organizationById.status,
             })
         }
     }, [organizationById, form])
@@ -83,10 +92,12 @@ const OrganizationsEdit = () => {
         }
     };
 
-    // const companyTypeOption = [
-    //     { value: "type1", label: 'Type1'},
-    //     { value: "inactive", label: 'Inactive' },
-    // ];
+    // const referencesProductGroups = useMemo(() => {
+    //     return productGroupReferences.reduce((acc, item) => {
+    //         acc[item.alias] = item.title[lang] ?? ""; // title is MultiLanguage, pick current lang
+    //         return acc;
+    //     }, {} as Record<string, string>);
+    // }, [productGroupReferences, lang]);
 
   return (
     <MainLayout>
@@ -113,9 +124,63 @@ const OrganizationsEdit = () => {
                             <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')} initialValue={organizationById.displayName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')}  />
                             </Form.Item>
-                            <Form.Item className="input"  name="productGroup" label={t('organizations.addUserForm.label.productGroup')} initialValue={organizationById.productGroup}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.productGroup')}   />
-                            </Form.Item>
+                            <div className="form-inputs form-inputs-row small">
+                                <Form.Item name="productGroups" hidden />
+                                <Form.Item
+                                    className="input"
+                                    label={t("organizations.addUserForm.label.productGroup")}
+                                    shouldUpdate={(prev, cur) =>
+                                        prev.productGroups !== cur.productGroups
+                                    }
+                                >
+                                    {() => {
+                                        const productGroups = form.getFieldValue("productGroups");
+
+                                        if (!Array.isArray(productGroups) || productGroups.length === 0) {
+                                            return (
+                                                <Input size="large" className="input" disabled />
+                                            );
+                                        }
+
+                                        return (
+                                            <Input
+                                                size="large"
+                                                className="input"
+                                                disabled
+                                                value={undefined} // 🔥 важно
+                                                prefix={
+                                                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                                        {productGroups.map((alias: string) => {
+                                                            const ref = productGroupReferences.find(
+                                                                (r) => r.alias === alias
+                                                            );
+
+                                                            const title =
+                                                                ref?.title?.[lang] ??
+                                                                ref?.title?.ru ??
+                                                                "";
+
+                                                            return (
+                                                                <Tag
+                                                                    key={alias}
+                                                                    color="blue"
+                                                                    style={{
+                                                                        margin: 0,
+                                                                        fontSize: 12,
+                                                                        padding: "4px 6px",
+                                                                    }}
+                                                                >
+                                                                    {title}
+                                                                </Tag>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                }
+                                            />
+                                        );
+                                    }}
+                                </Form.Item>
+                            </div>
                         </div>
                         <div className="form-inputs form-inputs-row">
                             <Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')} initialValue={organizationById.tin}>
@@ -150,18 +215,18 @@ const OrganizationsEdit = () => {
                             <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                         </div>
                         <div className="form-inputs form-inputs-row">
-                            <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById.bankDetails.bankName}>
+                            <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById?.bankDetails?.bankName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.bankName')}  />
                             </Form.Item>
-                            <Form.Item className="input" name={['bankDetails', 'ccea']} label={t('organizations.addUserForm.label.ccea')} initialValue={organizationById.bankDetails.ccea}>
+                            <Form.Item className="input" name={['bankDetails', 'ccea']} label={t('organizations.addUserForm.label.ccea')} initialValue={organizationById?.bankDetails?.ccea}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.ccea')}  />
                             </Form.Item>
                         </div>
                         <div className="form-inputs form-inputs-row">
-                            <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById.bankDetails.account}>
+                            <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById?.bankDetails?.account}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.account')}   />
                             </Form.Item>
-                            <Form.Item className="input" name={['bankDetails', 'mfo']} label={t('organizations.addUserForm.label.mfo')} initialValue={organizationById.bankDetails.mfo}>
+                            <Form.Item className="input" name={['bankDetails', 'mfo']} label={t('organizations.addUserForm.label.mfo')} initialValue={organizationById?.bankDetails?.mfo}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.mfo')} />
                             </Form.Item>
                         </div>
@@ -188,12 +253,12 @@ const OrganizationsEdit = () => {
                             <Form.Item className="input" name={['accessCodes', 'gcpCode']} label={t('organizations.addUserForm.label.gcpCode')} initialValue={organizationById.accessCodes.gcpCode}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.gcpCode')}  />
                             </Form.Item>
-                            <Form.Item className="input" name={['accessCodes', 'omsId']} label={t('organizations.addUserForm.label.omsId')} initialValue={organizationById.accessCodes.omsId}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.omsId')}  />
-                            </Form.Item>
+                            {/*<Form.Item className="input" name={['accessCodes', 'omsId']} label={t('organizations.addUserForm.label.omsId')} initialValue={organizationById.accessCodes.gcpCode}>*/}
+                            {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.omsId')}  />*/}
+                            {/*</Form.Item>*/}
                         </div>
                         <div className="form-inputs">
-                            <Form.Item className="input" name={['accessCodes', 'turonToken']} label={t('organizations.addUserForm.label.turonToken')} initialValue={organizationById.accessCodes.turonToken}>
+                            <Form.Item className="input" name={['accessCodes', 'xTrace', 'token']} label={t('organizations.addUserForm.label.turonToken')} initialValue={organizationById.accessCodes.xTrace.token}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.turonToken')}  />
                             </Form.Item>
                         </div>
