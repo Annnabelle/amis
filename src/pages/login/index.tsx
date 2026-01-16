@@ -1,29 +1,27 @@
 import type { LoginForm } from '../../types/users';
 import { Form, Input } from 'antd';
-import { useAppDispatch } from '../../store';
+import {useAppDispatch, useAppSelector} from '../../store';
 import { Login } from '../../store/users';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-// import mainBG from '../../assets/main-bg.png';
 import mainBG from '../../assets/bg-black.png';
 import FormComponent from '../../components/formComponent';
 import CustomButton from '../../components/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import './styles.sass';
+import {useEffect} from "react";
 
 const LoginPage = () => {
     const form = useFormInstance();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const isAuthenticated = useAppSelector(state => state.users.isAuthenticated);
     const { t } = useTranslation();
     const onFinish = (values: LoginForm) => {
         dispatch(Login(values)).unwrap()
             .then(() => {
                 toast.success(t('login.messages.successLogin'));
-                setTimeout(() => {
-                    navigate('/organization');
-                }, 1000); 
 
             })
             .catch((error) => {
@@ -31,6 +29,12 @@ const LoginPage = () => {
                 console.error(error);
             }); 
     };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/organization');
+        }
+    }, [isAuthenticated, navigate]);
 
 
   return (

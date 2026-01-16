@@ -1,20 +1,34 @@
-import type { AccessCodesDto, AddressDto, BankDetailsDto, CompanySortField, CompanyStatus, CompanyType, ContactsDto, ErrorDto, HexString, PaginatedDto, PaginatedResponseDto } from "..";
+import type {
+  AccessCodesDto,
+  AddressDto,
+  BankDetailsDto,
+  CompanySortField,
+  CompanyStatus,
+  CompanyType,
+  ContactsDto,
+  ErrorDto,
+  HexString,
+  MultiLanguage,
+  PaginatedDto,
+  PaginatedResponseDto
+} from "..";
 import type { UserResponseDto } from "../users/login";
 
 export type CompanyResponseDto = {
   id: string;
-  companyType: CompanyType;
-  displayName: string;
-  productGroup: string;
   tin: string;
-  legalName: string;
+  // companyType: CompanyType;
+  displayName: string;
+  name: MultiLanguage;
+  legalName: MultiLanguage;
+  productGroups: string[];
   director: string;
   address: {
     region?: string;
     district?: string;
     address?: string;
   };
-  bankDetails: {
+  bankDetails?: {
     bankName?: string;
     ccea?: string;
     account?: string;
@@ -28,25 +42,32 @@ export type CompanyResponseDto = {
   };
   accessCodes: {
     gcpCode?: string;
-    omsId?: string;
-    turonToken?: string;
+    xTrace: {
+      id?: string;
+      token: string;
+      expireDate: string; //ISO 8601
+      updateDate?: string; //ISO 8601
+    };
   };
   status: CompanyStatus;
   deleted: boolean;
   deletedAt: Date | null;
+  isTest: boolean;
 };
 
 export type CreateCompanyDto = {
-  companyType: CompanyType;
-  displayName: string;
-  productGroup: string;
+  companyType?: CompanyType;
   tin: string;
-  legalName: string;
-  director: string;
-  address: AddressDto;
-  bankDetails: BankDetailsDto;
-  contacts: ContactsDto;
-  accessCodes: AccessCodesDto;
+  displayName: string;
+  name: MultiLanguage;
+  legalName: MultiLanguage;
+  productGroups: string[];
+  director?: string;
+  address?: AddressDto;
+  bankDetails?: BankDetailsDto;
+  contacts?: ContactsDto;
+  accessCodes?: AccessCodesDto;
+  isTest: boolean;
 }
 
 export type GetUserResponseDto = {
@@ -89,7 +110,6 @@ export class UpdateCompanyDto {
   displayName?: string;
   productGroup?: string;
   tin?: string;
-  legalName?: string;
   director?: string;
   address?: AddressDto;
   bankDetails?: BankDetailsDto;

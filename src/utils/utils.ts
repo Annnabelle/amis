@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import type {MultiLanguage} from "../dtos";
 
 export const useNavigationBack = () => {
   const navigate = useNavigate();
@@ -33,3 +34,5 @@ export const formatDate = (date: string | Date | undefined, locale = "ru-RU") =>
     minute: "2-digit",
   }).format(new Date(date));
 };
+
+export type LanguageKey = keyof MultiLanguage;

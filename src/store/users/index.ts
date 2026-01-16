@@ -29,32 +29,36 @@ const initialState: UsersState = {
 };
 
 export const Login = createAsyncThunk(
-  'users/login',
-  async (data: LoginForm, { rejectWithValue }) => {
-    try {
-      const dto = mapLoginFormToLoginDto(data);
-      const response = await axiosInstance.post<LoginResponseDto>(`${BASE_URL}/users/login`, dto);
+    'users/login',
+    async (data: LoginForm, { rejectWithValue }) => {
+      try {
+        const dto = mapLoginFormToLoginDto(data);
+        const response = await axiosInstance.post<LoginResponseDto>(`${BASE_URL}/users/login`, dto);
 
-      const mapped = mapLoginResponseDtoToLoginResponse(response.data);
+        const mapped = mapLoginResponseDtoToLoginResponse(response.data);
 
-      if (mapped.success && mapped.user) {
-        localStorage.setItem('accessToken', mapped.accessToken!);
-        localStorage.setItem('refreshToken', mapped.refreshToken!);
+        if (mapped.success && mapped.user) {
+          console.log("[LOGIN THUNK] Успешный ответ сервера → сохраняем в LS");
+          localStorage.setItem('accessToken', mapped.accessToken!);
+          localStorage.setItem('refreshToken', mapped.refreshToken!);
+          localStorage.setItem('user', JSON.stringify(mapped.user));
+          // ... остальные setItem
 
-        localStorage.setItem('user', JSON.stringify(mapped.user));
+          console.log("[LOGIN THUNK] Токен сохранён:", mapped.accessToken?.slice(0, 15) + "...");
+          console.log("[LOGIN THUNK] User сохранён:", mapped.user.email);
 
-        localStorage.setItem('userName', mapped.user.firstName);
-        localStorage.setItem('userRole', mapped.user.role?.name.en || '');
-        localStorage.setItem("userId", mapped.user.id);
+          // ← здесь уже можно принудительно посмотреть состояние
+          // но лучше смотреть после .unwrap()
 
-        return mapped;
-      } else {
-        return rejectWithValue(mapped.error?.errorMessage?.ru || 'Ошибка авторизации');
+          return mapped;
+        } else {
+          return rejectWithValue(mapped.error?.errorMessage?.ru || 'Ошибка авторизации');
+        }
+      } catch (error: any) {
+        console.error("[LOGIN THUNK] Ошибка:", error);
+        return rejectWithValue(error.response?.data?.message || 'Ошибка сервера');
       }
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Ошибка сервера');
     }
-  }
 );
 
 function isSuccessResponse(res: GetUsersResponseDto): res is { success: boolean } & PaginatedResponseDto<UserResponseDto> {
@@ -296,10 +300,7 @@ export const usersSlice = createSlice({
         state.error = null;
       })
       .addCase(Login.fulfilled, (state, action) => {
-        state.isLoading = false;
-
-        const { user, accessToken, refreshToken } = action.payload;
-
+        const { user, accessToken } = action.payload;
         if (!user || !accessToken) {
           state.isAuthenticated = false;
           return;
@@ -308,15 +309,17 @@ export const usersSlice = createSlice({
         state.user = user;
         state.currentUser = user;
         state.accessToken = accessToken;
-        // state.refreshToken = refreshToken;
         state.sessionStart = Date.now();
         state.isAuthenticated = true;
 
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("accessToken", accessToken);
-        // localStorage.setItem("refreshToken", refreshToken);
+
+        const SESSION_DURATION = 60 * 60 * 1000; // 1 час
+        const sessionEnd = Date.now() + SESSION_DURATION;
+        localStorage.setItem("sessionEnd", String(sessionEnd));
       })
-        .addCase(Login.rejected, (state, action) => {
+      .addCase(Login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
@@ -457,8 +460,6 @@ export const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
-
-
   },
 });
 

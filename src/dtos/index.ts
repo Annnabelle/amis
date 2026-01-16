@@ -98,10 +98,15 @@ export type ContactsDto = {
   person: string;
 }
 
+export type XTraceTokenData = {
+  id?: string;
+  token: string;
+  expireDate: Date;
+}
+
 export type AccessCodesDto = {
   gcpCode: string;
-  omsId: string;
-  turonToken: string;
+  xTrace: XTraceTokenData;
 }
 
 

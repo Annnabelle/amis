@@ -36,6 +36,11 @@
         width: 100%
         @include mix.flex-content(space-between, row)
         gap: 20px
+    .small
+        max-width: 416px
+    .product-group
+        @include mix.flex-content(center, row)
+        height: 39.6px
     &-divider-title
         .title
             +mix.typography(21px, 600, map.get(vars.$basic, 'black'))

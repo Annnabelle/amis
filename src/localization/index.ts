@@ -96,7 +96,8 @@ export const resources = {
                 toProducts: "Go to products",
                 sendToTuron: "Send to Turon",
                 apply: "Apply",
-                applyAll: "Apply all"
+                applyAll: "Apply all",
+                send: "Send",
             },
             navigation: {
                 products: "Products",
@@ -185,6 +186,7 @@ export const resources = {
                 edit: "Edit Organization",
                 title: "Organizations",
                 subtitle: "Total",
+                testFlag: "Test",
                 btnAdd: "Add organization",
                 status: 'Status',
                 assignToCompany: 'Assign to company',
@@ -206,9 +208,10 @@ export const resources = {
                 },
                 addUserForm: {
                     label: {
+                        companyName: "Company Name",
                         companyType: "Company type",
                         displayName: "Display name",
-                        productGroup: "Product group",
+                        productGroup: "Product Groups",
                         tin: "TIN",
                         legalName: "Legal name of the organization",
                         director: "Director",
@@ -227,9 +230,12 @@ export const resources = {
                         omsId: "OMSID",
                         turonToken: "Turon token",
                         status: "Status",
-                        deleted: "Deleted"
+                        deleted: "Deleted",
+                        xTraceToken: "XTrace token",
+                        expireDate: "Token Expiration Date",
                     },
                     placeholder: {
+                        companyName: "Enter company name",
                         companyType: "Enter company type",
                         displayName: "Enter display name",
                         productGroup: "Enter product group",
@@ -250,8 +256,12 @@ export const resources = {
                         gcpCode: "Enter GCP code",
                         omsId: "Enter OMSID",
                         turonToken: "Enter Turon token",
+                        enterXTraceToken: "Enter X-Trace Token",
                     },
                     validation:{
+                        xTrace: {
+                            invalidToken: "X-Trace token is invalid"
+                        },
                         required:{
                             tin: "Please enter TIN",
                             productGroup: "Please enter the product group name",
@@ -802,7 +812,8 @@ export const resources = {
                 toProducts: "Перейти к продуктам",
                 sendToTuron: "Отправить в турон",
                 apply: "Нанести",
-                applyAll: "Нанести все"
+                applyAll: "Нанести все",
+                send: "Отправить",
             },
             navigation: {
                 products: "Продукция",
@@ -888,6 +899,7 @@ export const resources = {
                     type1: "type1",
                     inactive: "Inactive",
                 },
+                testFlag: "Тест",
                 edit: "Изменение организации",
                 title: "Организации",
                 subtitle: 'Всего',
@@ -913,9 +925,10 @@ export const resources = {
                 },
                 addUserForm: {
                     label: {
+                        companyName: "Название компании",
                         companyType: 'Тип компании',
                         displayName: 'Отображаемое имя',
-                        productGroup: 'Товарная группа',
+                        productGroup: 'Товарные группы',
                         tin: 'ИНН',
                         legalName: 'Юридическое название организации',
                         director: 'Директор',
@@ -934,9 +947,12 @@ export const resources = {
                         omsId: 'OMSID',
                         turonToken: 'Turon токен',
                         status: "Статус",
-                        deleted: 'Удалено'
+                        deleted: 'Удалено',
+                        xTraceToken: "Токен X-Trace",
+                        expireDate: "Дата истечения токена"
                     },
                     placeholder: {
+                        companyName: "Введите название компании",
                         companyType: 'Введите тип компании',
                         displayName: 'Введите отображаемое имя',
                         productGroup: 'Введите группу',
@@ -957,8 +973,12 @@ export const resources = {
                         gcpCode: 'Введите GCP код',
                         omsId: 'Введите OSMID',
                         turonToken: 'Введите turon token',
+                        enterXTraceToken: "Введите токен X-Trace"
                     },
                     validation:{
+                        xTrace: {
+                            invalidToken: "Невалидный токен"
+                        },
                         required:{
                             tin: "ИНН должен состоять из 9 цифр",
                             productGroup: "Пожалуйста, введите название группы товара",
@@ -1511,6 +1531,7 @@ export const resources = {
                 sendToTuron: "Turonga yuborish",
                 apply: "Qo‘llash",
                 applyAll: "Hammasini qo‘llash",
+                yuborish: "Yuborish",
             },
             navigation: {
                 products: "Mahsulotlar",
@@ -1596,6 +1617,7 @@ export const resources = {
                     type1: "type1",
                     inactive: "Faol emas",
                 },
+                testFlag: "Sinov",
                 title: "Tashkilotlar",
                 edit: "Tashkilotni o'zgartirish",
                 subtitle: "Jami",
@@ -1620,9 +1642,10 @@ export const resources = {
                 },
                 addUserForm: {
                     label: {
+                        companyName: "Kompaniya nomi",
                         companyType: "Kompaniya turi",
                         displayName: "Ko‘rsatiladigan nom",
-                        productGroup: "Mahsulot guruhi",
+                        productGroup: "Tovar guruhlari",
                         tin: "STIR",
                         legalName: "Tashkilotning yuridik nomi",
                         director: "Direktor",
@@ -1641,9 +1664,12 @@ export const resources = {
                         omsId: "OMSID",
                         turonToken: "Turon token",
                         status: "Holat",
-                        deleted: "O‘chirildi"
+                        deleted: "O‘chirildi",
+                        xTraceToken: "X-Trace tokeni",
+                        expireDate: "Token muddati tugash sanasi"
                     },
                     placeholder: {
+                        companyName: "Kompaniya nomi kirirting",
                         companyType: "Kompaniya turini kiriting",
                         displayName: "Ko‘rsatiladigan nomni kiriting",
                         productGroup: "Mahsulot guruhini kiriting",
@@ -1664,8 +1690,12 @@ export const resources = {
                         gcpCode: "GCP kodini kiriting",
                         omsId: "OMSID ni kiriting",
                         turonToken: "Turon tokenni kiriting",
+                        enterXTraceToken: "X-Trace tokeningizni kiriting"
                     },
                     validation:{
+                        xTrace: {
+                            invalidToken: "X-Trace token noto‘g‘ri"
+                        },
                         required:{
                             tin: "STIR 9 ta raqamdan iborat bo‘lishi kerak",
                             productGroup: "Iltimos, mahsulot guruhi nomini kiriting",

@@ -1,19 +1,28 @@
-import type { AccessCodesDto, AddressDto, BankDetailsDto, CompanyStatus, CompanyType, ContactsDto } from "../../dtos";
+import type {
+  AccessCodesDto,
+  AddressDto,
+  BankDetailsDto,
+  CompanyStatus,
+  CompanyType,
+  ContactsDto,
+  MultiLanguage
+} from "../../dtos";
 
 export type CompanyResponse = {
   id: string;
-  companyType: CompanyType;
-  displayName: string;
-  productGroup: string;
   tin: string;
-  legalName: string;
+  // companyType: CompanyType;
+  displayName: string;
+  name: MultiLanguage;
+  legalName: MultiLanguage;
+  productGroups: string[];
   director: string;
   address: {
     region?: string;
     district?: string;
     address?: string;
   };
-  bankDetails: {
+  bankDetails?: {
     bankName?: string;
     ccea?: string;
     account?: string;
@@ -27,12 +36,17 @@ export type CompanyResponse = {
   };
   accessCodes: {
     gcpCode?: string;
-    omsId?: string;
-    turonToken?: string;
+    xTrace: {
+      id?: string;
+      token: string;
+      expireDate: string; //ISO 8601
+      updateDate?: string; //ISO 8601
+    };
   };
   status: CompanyStatus;
   deleted: boolean;
   deletedAt: Date | null;
+  isTest: boolean;
 };
 
 export type CreateCompany = {
@@ -53,7 +67,6 @@ export class UpdateCompany {
   displayName?: string;
   productGroup?: string;
   tin?: string;
-  legalName?: string;
   director?: string;
   address?: AddressDto;
   bankDetails?: BankDetailsDto;
