@@ -11,6 +11,7 @@ import { createOrder } from "../../../store/markingCodes";
 import { searchProducts } from "../../../store/products";
 import {useEffect, useMemo, useState} from "react";
 import { fetchReferencesByType } from "../../../store/references";
+import {useParams} from "react-router-dom";
 
 type OrderFormValues = {
   items: {
@@ -29,6 +30,8 @@ const generateOptions = [
 const OrderForm = () => {
   const [form] = Form.useForm<OrderFormValues>();
   const { t, i18n } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const orgId = id
   const dispatch = useAppDispatch();
   const packTypeReferences =
       useAppSelector(state => state.references.references.cisType) ?? []
@@ -81,6 +84,7 @@ const OrderForm = () => {
     setIsSubmitting(true);
 
     const payload: CreateOrderDto = {
+      companyId: orgId!,
       products: values.items.map((item) => ({
         id: item.product,
         quantity: item.quantity,

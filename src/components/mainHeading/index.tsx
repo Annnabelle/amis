@@ -1,4 +1,5 @@
 import './styles.sass'
+import {Tag} from "antd";
 
 interface SubtitleBlock {
   title?: string;
@@ -10,6 +11,7 @@ interface HeadingProps {
   subtitle?: string;
   totalAmount?: string;
   children?: React.ReactNode;
+  isTest?: boolean;
   extraSubtitles?: {
     orderNumber?: SubtitleBlock;
     orderTime?: SubtitleBlock;
@@ -23,7 +25,8 @@ const Heading: React.FC<HeadingProps> = ({
   children,
   subtitle,
   totalAmount,
-  extraSubtitles
+  extraSubtitles,
+                                           isTest
 }) => {
   return (
     <div className='heading'>
@@ -31,8 +34,15 @@ const Heading: React.FC<HeadingProps> = ({
         <div className="heading-container-items">
           <div className="heading-container-items-item">
             <div className="heading-container-items-item-title">
+              {isTest && (
+                <Tag className="test-flag test-flag-heading" color="blue-inverse" style={{ margin: 0 }}>
+                  Тест
+                </Tag>
+              )}
               <h3 className="title">{title}</h3>
             </div>
+            {/*{record.isTest && (*/}
+            {/*// )}*/}
             <div className="heading-container-items-item-subtitle">
               {totalAmount && (
                 <p className="subtitle">

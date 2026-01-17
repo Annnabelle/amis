@@ -1,4 +1,4 @@
-import { Form, Input } from 'antd'
+import {Form, Input, Tag} from 'antd'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,18 +8,28 @@ import { getAllOrganizations, getOrganizationById } from '../../store/organizati
 import CustomButton from '../../components/button'
 import FormComponent from '../../components/formComponent'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useNavigationBack } from '../../utils/utils'
+import {type LanguageKey, useNavigationBack} from '../../utils/utils'
 import dayjs from "dayjs";
+import {fetchReferencesByType} from "../../store/references";
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate()
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const navigateBack = useNavigationBack();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
 
     const [form] = Form.useForm()
+
+    const lang = i18n.language as LanguageKey;
+    const productGroupReferences = useAppSelector(
+        (state) => state.references.references.productGroup
+    ) ?? [];
+
+    useEffect(() => {
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
 
     useEffect(() => {
         if (organizationById) {
@@ -95,7 +105,7 @@ const OrganizationsInner = () => {
 
   return (
     <MainLayout>
-        <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount='100'>
+        <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')} totalAmount='100'>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
                 <CustomButton onClick={() => handleProductNavigation(id)}>{t('btn.toProducts')}</CustomButton>
@@ -108,33 +118,34 @@ const OrganizationsInner = () => {
                         {organizationById  && (
                             <FormComponent>
                                 <div className="form-inputs form-inputs-organization">
-                                    {/*<Form.Item*/}
-                                    {/*className="input"*/}
-                                    {/*name="companyType"*/}
-                                    {/*label={t('organizations.addUserForm.label.companyType')}*/}
-                                    {/*>*/}
-                                    {/*<Select*/}
-                                    {/*    className="input"*/}
-                                    {/*    size="large"*/}
-                                    {/*    options={companyTypeOption}*/}
-                                    {/*    placeholder={organizationById?.companyType ?? ''}*/}
-                                    {/*    disabled*/}
-                                    {/*/>*/}
-                                    {/*</Form.Item>*/}
-                                    {organizationById?.displayName && (
-                                        <Form.Item
+                                    <Form.Item
+                                        name="tin"
+                                        className='input'
+                                        label={t("organizations.addUserForm.label.tin")}
+                                    >
+                                        <Input
+                                            size="large"
                                             className="input"
-                                            name="displayName"
-                                            label={t('organizations.addUserForm.label.displayName')}
-                                        >
-                                            <Input
-                                                className="input"
-                                                size="large"
-                                                placeholder={organizationById?.displayName ?? ''}
-                                                disabled
-                                            />
-                                        </Form.Item>
-                                    )}
+                                            disabled
+                                            readOnly
+                                            placeholder={organizationById?.tin}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        className='input'
+                                        name={["accessCodes", "xTrace", "token"]}
+                                        label={t("organizations.addUserForm.label.xTraceToken")}
+                                    >
+                                        <Input
+                                            size="large"
+                                            className="input"
+                                            disabled
+                                            readOnly
+                                            placeholder={organizationById?.accessCodes?.xTrace?.token}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div className="form-inputs form-inputs-organization">
                                     {organizationById?.accessCodes?.xTrace?.expireDate && (
                                         <Form.Item
                                             className="input"
@@ -150,45 +161,109 @@ const OrganizationsInner = () => {
                                         </Form.Item>
                                     )}
                                 </div>
-
                                 <div className="form-inputs form-inputs-organization">
-                                    {organizationById?.productGroups && (
+                                    {organizationById?.displayName && (
                                         <Form.Item
                                             className="input"
-                                            name="productGroups"
-                                            label={t('organizations.addUserForm.label.productGroup')}
+                                            name="displayName"
+                                            label={t('organizations.addUserForm.label.displayName')}
                                         >
                                             <Input
                                                 className="input"
                                                 size="large"
-                                                placeholder={organizationById?.productGroups?.join(", ") ?? ''}
+                                                placeholder={organizationById?.displayName ?? ''}
                                                 disabled
                                             />
                                         </Form.Item>
                                     )}
-                                    {organizationById?.name?.ru && (
-                                        <Form.Item className="input" name={["name", "ru"]} label={`${t('organizations.addUserForm.label.companyName')} RU`}>
+                                    {organizationById?.director && (
+                                        <Form.Item
+                                            className="input"
+                                            name="director"
+                                            label={t('organizations.addUserForm.label.director')}
+                                        >
                                             <Input
                                                 className="input"
                                                 size="large"
-                                                placeholder={organizationById?.name?.ru}
+                                                placeholder={organizationById?.director ?? ''}
                                                 disabled
                                             />
                                         </Form.Item>
                                     )}
                                 </div>
+                                {organizationById?.productGroups && (
+                                    <div className="form-inputs form-inputs-organization">
+                                        <Form.Item
+                                            className="input"
+                                            label={t("organizations.addUserForm.label.productGroup")}
+                                            shouldUpdate={(prev, cur) => prev.productGroups !== cur.productGroups}
+                                        >
+                                            {() => {
+                                                const productGroups = form.getFieldValue("productGroups") as string[];
 
-                                <div className="form-inputs form-inputs-organization">
-                                    {organizationById?.name?.en && (
-                                        <Form.Item className="input" name={["name", "en"]} label={`${t('organizations.addUserForm.label.companyName')} EN`}>
-                                            <Input
-                                                className="input"
-                                                size="large"
-                                                placeholder={organizationById?.name?.en}
-                                                disabled
-                                            />
+                                                if (!Array.isArray(productGroups) || productGroups.length === 0) {
+                                                    return <Input size="large" className="input" disabled placeholder="—" />;
+                                                }
+
+                                                return (
+                                                    <Input
+                                                        size="large"
+                                                        className="input"
+                                                        disabled
+                                                        value="" // 🔥 пустое значение, чтобы не дублировался текст
+                                                        prefix={
+                                                            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                                                {productGroups.map((alias: string) => {
+                                                                    const ref = productGroupReferences.find(r => r.alias === alias);
+                                                                    const title = ref?.title?.[lang] ?? ref?.title?.ru ?? alias;
+
+                                                                    return (
+                                                                        <Tag
+                                                                            key={alias}
+                                                                            color="blue"
+                                                                            style={{
+                                                                                margin: 0,
+                                                                                fontSize: 12,
+                                                                                padding: "4px 6px",
+                                                                            }}
+                                                                        >
+                                                                            {title}
+                                                                        </Tag>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        }
+                                                    />
+                                                );
+                                            }}
                                         </Form.Item>
-                                    )}
+                                    </div>
+                                )}
+                                {organizationById?.name && (
+                                    <div className="form-inputs form-inputs-organization">
+                                        {organizationById?.name?.ru && (
+                                            <Form.Item className="input" name={["name", "ru"]} label={`${t('organizations.addUserForm.label.companyName')} EN`}>
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.name?.ru}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                        )}
+                                        {organizationById?.name?.en && (
+                                            <Form.Item className="input" name={["name", "en"]} label={`${t('organizations.addUserForm.label.companyName')} EN`}>
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.name?.en}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="form-inputs">
                                     {organizationById?.name?.uz && (
                                         <Form.Item className="input" name={["name", "uz"]} label={`${t('organizations.addUserForm.label.companyName')} UZ`}>
                                             <Input
@@ -200,30 +275,32 @@ const OrganizationsInner = () => {
                                         </Form.Item>
                                     )}
                                 </div>
-
-                                <div className="form-inputs form-inputs-row">
-                                    {organizationById?.legalName?.ru && (
-                                        <Form.Item className="input" name={["legalName", "ru"]} label={`${t('organizations.addUserForm.label.legalName')} RU`}>
-                                            <Input
-                                                className="input"
-                                                size="large"
-                                                placeholder={organizationById?.legalName?.ru}
-                                                disabled
-                                            />
-                                        </Form.Item>
-                                    )}
-                                    {organizationById?.legalName?.en && (
-                                        <Form.Item className="input" name={["legalName", "en"]} label={`${t('organizations.addUserForm.label.legalName')} EN`}>
-                                            <Input
-                                                className="input"
-                                                size="large"
-                                                placeholder={organizationById?.legalName?.en}
-                                                disabled
-                                            />
-                                        </Form.Item>
-                                    )}
-                                </div>
-                                <div className="form-inputs form-inputs-row">
+                                {organizationById?.legalName && (
+                                    <div className="form-inputs form-inputs-row">
+                                        {organizationById?.legalName?.ru && (
+                                            <Form.Item className="input" name={["legalName", "ru"]} label={`${t('organizations.addUserForm.label.legalName')} RU`}>
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.legalName?.ru}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                        )}
+                                        {organizationById?.legalName?.en && (
+                                            <Form.Item className="input" name={["legalName", "en"]} label={`${t('organizations.addUserForm.label.legalName')} EN`}>
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.legalName?.en}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                        )}
+                                    </div>
+                                )}
+                                {(organizationById?.legalName?.uz || organizationById?.director) && (
+                                    <div className="form-inputs form-inputs-row">
                                     {organizationById?.legalName?.uz && (
                                         <Form.Item className="input" name={["legalName", "uz"]} label={`${t('organizations.addUserForm.label.legalName')} UZ`}>
                                             <Input
@@ -244,7 +321,7 @@ const OrganizationsInner = () => {
                                         </Form.Item>
                                     )}
                                 </div>
-
+                                )}
                                 <div className="form-divider-title">
                                     <h4 className="title">{t('organizations.subtitles.address')}</h4>
                                 </div>

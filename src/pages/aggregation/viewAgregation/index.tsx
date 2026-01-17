@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo} from "react";
 import {useParams} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../../store";
-import {fetchOneAggregationReport} from "../../../store/aggregation";
+import {fetchAggregationUnits, fetchOneAggregationReport} from "../../../store/aggregation";
 import MainLayout from "../../../components/layout";
 import CustomButton from "../../../components/button";
 import Heading from "../../../components/mainHeading";
@@ -10,7 +10,7 @@ import {useNavigationBack} from "../../../utils/utils.ts";
 import AgregationReport from "./reports.tsx";
 import ComponentTable from "../../../components/table";
 import {UnitsColumns} from "../../../tableData/agregationReport";
-import type {AggregationUnitDataType} from "../../../tableData/agregationReport/types.ts";
+import type { UnitCodeType} from "../../../tableData/agregationReport/types.ts";
 
 const AggregationReportPage: React.FC = () => {
     const { orderId, id } = useParams<{
@@ -21,13 +21,20 @@ const AggregationReportPage: React.FC = () => {
     const navigateBack = useNavigationBack();
     const dispatch = useAppDispatch();
 
-    const reportData = useAppSelector(
-        (state) => state.aggregations.oneAggregation
-    );
+    const units = useAppSelector((state) => state.aggregations.units)
+    // const dataLimit = useAppSelector((state) => state.aggregations.limit)
+    // const dataPage = useAppSelector((state) => state.aggregations.page)
+    // const dataTotal = useAppSelector((state) => state.aggregations.total)
 
     useEffect(() => {
         if (id) dispatch(fetchOneAggregationReport({ id }));
     }, [id, dispatch]);
+
+    useEffect(() => {
+        if (id) dispatch(fetchAggregationUnits({aggregationId: id }));
+    }, [id, dispatch]);
+
+    console.log("units", units)
 
     // const codesData = [];
     // reportData?.units.forEach((unit, index) => {
@@ -43,45 +50,16 @@ const AggregationReportPage: React.FC = () => {
     // })
 
     const codesData = useMemo(() => {
-        if (!reportData?.units) return [];
+        if (!id || !units[id]?.data) return [];
 
-        const result: {
-            number: number,
-                key: string
-                parentCode: string,
-                codeNumber: number,
-                code: string,
-        }[] = [];
-
-        reportData.units.forEach((unit, index) => {
-            unit.codes.forEach((code, codeIndex) => {
-                result.push({
-                    number: index + 1,
-                    key: unit.id,
-                    parentCode: unit.unitSerialNumber,
-                    codeNumber: codeIndex + 1,
-                    code: code,
-                });
-            });
-        });
-
-        return result;
-    }, [reportData]);
-
-    // console.log("codesData", codesData)
-    // const unitsData = useMemo(() => {
-    //     return reportData?.units.map((unit, index) => ({
-    //         key: unit.id,
-    //         number: index + 1,
-    //         unitSerialNumber: unit.unitSerialNumber,
-    //         aggregationItemsCount: unit.aggregationItemsCount,
-    //         aggregationUnitCapacity: unit.aggregationUnitCapacity,
-    //         codesCount: unit.codes.length,
-    //         shouldBeUnbundled: unit.shouldBeUnbundled === undefined ? "-" : unit.shouldBeUnbundled ? t('common.yes')
-    //             : t('common.no'),
-    //         state: unit.state.toLowerCase()
-    //     })) || [];
-    // }, [reportData]);
+        return units[id].data.map((unit, index) => ({
+            number: index + 1,                  // порядковый номер
+            key: `${unit.unitId}-${index}`,                  // уникальный ключ для строки
+            parentCode: String(unit.unitNumber),        // номер/серия юнита
+            codeNumber: unit.codeNumber,        // порядковый номер кода
+            code: unit.code,                    // сам код
+        }));
+    }, [units, id]);
 
     return (
         <MainLayout>
@@ -92,9 +70,8 @@ const AggregationReportPage: React.FC = () => {
             <div className="box">
                 <div className="box-container">
                     <div className="box-container-items">
-                        <ComponentTable<AggregationUnitDataType>
+                        <ComponentTable<UnitCodeType>
                             columns={UnitsColumns(t)}
-                            // @ts-expect-error
                             data={codesData}
                         />
                     </div>

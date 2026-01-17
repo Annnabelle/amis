@@ -83,6 +83,7 @@ const Organizations = () => {
             },
 
             status: organizationById.status,
+            isTest: organizationById.isTest,
         });
     }, [organizationById, form, i18n.language]);
 
@@ -103,6 +104,7 @@ const Organizations = () => {
             legalName: organization.legalName[lang], // ✅ string
             contacts: organization.contacts.phone ?? '',
             status: organization.status,
+            isTest: organization.isTest,
             action: 'Действие',
         }));
     }, [organizations, lang]);

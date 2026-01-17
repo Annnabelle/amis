@@ -14,6 +14,9 @@ import type {
     GetAggregationReportsResponseDto, GetOneAggregationReportDto, GetOneAggregationReportResponseDto
 } from "../../dtos/aggregation";
 import type {PaginatedResponseDto} from "../../dtos";
+import type {AggregationUnitCodeResponse} from "../../types/aggregation/units";
+import type {AggregationUnitCodeResponseDto} from "../../dtos/aggregation/units";
+import {mapUnitsDtoToEntity} from "../../mappers/aggregation/units.ts";
 
 export interface ApiErrorResponse {
     success: false;
@@ -36,6 +39,15 @@ export type AggregationState = {
     total: number;
     page: number;
     limit: number;
+    units: Record<
+        string, // aggregationId
+        {
+            data: AggregationUnitCodeResponse[];
+            total: number;
+            page: number;
+            limit: number;
+        }
+    >;
 };
 
 const initialState: AggregationState = {
@@ -48,8 +60,67 @@ const initialState: AggregationState = {
     isLoading: false,
     error: null,
     status: null,
+    units: {},
 };
 
+interface FetchAggregationUnitsParams {
+    aggregationId: string;
+    page?: number;
+    limit?: number;
+}
+
+export const fetchAggregationUnits = createAsyncThunk<
+    { data: AggregationUnitCodeResponseDto[]; total: number; page: number; limit: number; aggregationId: string }, // TS выведет тип
+    FetchAggregationUnitsParams,
+    { rejectValue: ApiErrorResponse }
+>(
+    'aggregation/fetchAggregationUnits',
+    async (params, { rejectWithValue }) => {
+        try {
+            const { aggregationId, page = 1, limit = 10 } = params;
+
+            const response = await axiosInstance.get<{
+                data: AggregationUnitCodeResponseDto[];
+                total: number;
+                page: number;
+                limit: number;
+            }>(
+                `${BASE_URL}/reports/aggregation/${aggregationId}/units`,
+                { params: { page, limit } }
+            );
+
+            if (Array.isArray(response.data.data)) {
+                return {
+                    data: response.data.data.map(mapUnitsDtoToEntity),
+                    total: response.data.total,
+                    page: response.data.page,
+                    limit: response.data.limit,
+                    aggregationId,
+                };
+            }
+
+            return rejectWithValue({
+                success: false,
+                errorCode: -1,
+                errorMessage: {
+                    ru: "Ошибка загрузки единиц агрегации",
+                    en: "Failed to load aggregation units",
+                    uz: "Agregatsiya birliklarini yuklashda xatolik",
+                },
+            });
+        } catch (err: any) {
+            return rejectWithValue({
+                success: false,
+                errorCode: err.response?.status ?? -500,
+                errorMessage: {
+                    ru: "Ошибка сервера",
+                    en: "Server error",
+                    uz: "Server xatosi",
+                },
+            });
+        }
+    }
+);
 
 export const createAggregationReport = createAsyncThunk<
     AggregationReportResponse,
@@ -92,7 +163,7 @@ export function isGetAggregationReportsSuccess(
 }
 
 export const fetchAggregations = createAsyncThunk<
-    { data: GetAggregationReportsResponseTypes[]; total: number; page: number; limit: number },
+    { data: GetAggregationReportsResponseTypes[]; total: number; page: number; limit: number, companyId: string },
     GetAggregationReportsParamsDto,
     { rejectValue: ApiErrorResponse }
 >(
@@ -113,6 +184,7 @@ export const fetchAggregations = createAsyncThunk<
                     total: response.data.total,
                     page: response.data.page,
                     limit: response.data.limit,
+                    companyId: params.companyId,
                 };
             }
 
@@ -194,6 +266,26 @@ export const  aggregationSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(fetchAggregationUnits.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchAggregationUnits.fulfilled, (state, action) => {
+                const { aggregationId, data, total, page, limit } = action.payload;
+
+                state.units[aggregationId] = {
+                    data,
+                    total,
+                    page,
+                    limit,
+                };
+
+                state.isLoading = false;
+            })
+            .addCase(fetchAggregationUnits.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload ?? null;
+            })
             .addCase(createAggregationReport.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;

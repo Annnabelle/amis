@@ -1,5 +1,6 @@
 export type UnitCodeType = {
     key: string;
+    number: number;
     codeNumber: number;
     parentCode: string;
     code: string;

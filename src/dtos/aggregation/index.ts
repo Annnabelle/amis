@@ -13,6 +13,7 @@ export type GetAggregationReportsParamsDto = {
     productId?: string;
     dateFrom?: Date;
     dateTo?: Date;
+    companyId: string;
 }
 
 export type CreateAggregationReportDto = {
