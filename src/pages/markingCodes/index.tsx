@@ -34,7 +34,7 @@ const MarkingCodes = () => {
     const { products } = useAppSelector((state) => state.products);
     const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
         page: dataPage || 1,
-        // companyId: id,
+        companyId: orgId,
         limit: dataLimit || 10,
     });
     useEffect(() => {

@@ -143,6 +143,7 @@ export type CreateOrderProducts = {
 }
 
 export type CreateOrderDto = {
+    companyId: string;
     products: CreateOrderProducts[];
 }
 

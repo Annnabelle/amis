@@ -4,15 +4,17 @@
 .amis-table
     .ant-table-thead
         .ant-table-cell
-            max-width: 150px
-            overflow: hidden
+            //max-width: 150px
             white-space: nowrap
+            overflow: hidden
             text-overflow: ellipsis
             background: map.get(vars.$main, 'main-light') !important
             +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
     .ant-table-tbody
         .ant-table-cell
-            padding: 5px 10px
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
             .table-text
                 +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
             .link
@@ -36,8 +38,4 @@
         width: 100%
         .btn
             width: 100%
-.ant-table-cell
-    max-width: 150px
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
+

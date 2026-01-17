@@ -96,59 +96,48 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     //     [organizations]
     // );
 
-  const getOrgSubMenuItems = (orgId: string): MenuProps['items'] => [
-    {
-      key: 'products',
-      icon: <AppstoreOutlined />,
-      label: (
-          <Link to={`/organization/${orgId}/products`}>
-              {t("navigation.products")}
-          </Link>
-      ),
-    },
-    {
-      key: 'orders',
-      icon: <CodeOutlined />,
-      label: (
-          <Link to={`/organization/${orgId}/orders`}>
-              {t("navigation.markingCodes")}
-          </Link>
-      ),
+    const getOrgSubMenuItems = (orgId: string): MenuProps['items'] => [
+        {
+            key: 'products',
+            icon: <AppstoreOutlined />,
+            className: 'org-submenu-item',
+            label: (
+                <Link to={`/organization/${orgId}/products`}>
+                    {t("navigation.products")}
+                </Link>
+            ),
         },
-      {
-          key: 'agregations',
-          icon: <ClusterOutlined />,
-          label: (
-              <Link to={`/organization/${orgId}/agregations`}>
-                  {t("navigation.agregations")}
-              </Link>
-          ),
-      },
-      // {
-      //     key: 'reports',
-      //     icon: <BarChartOutlined />,
-      //     label: (
-      //         <Link to={`/organization/${orgId}/reports`}>
-      //           Отчеты
-      //         </Link>
-      //     ),
-      // },
-  ];
+        {
+            key: 'orders',
+            icon: <CodeOutlined />,
+            className: 'org-submenu-item',
+            label: (
+                <Link to={`/organization/${orgId}/orders`}>
+                    {t("navigation.markingCodes")}
+                </Link>
+            ),
+        },
+        {
+            key: 'agregations',
+            icon: <ClusterOutlined />,
+            className: 'org-submenu-item',
+            label: (
+                <Link to={`/organization/${orgId}/agregations`}>
+                    {t("navigation.agregations")}
+                </Link>
+            ),
+        },
+    ];
 
     const myOrganizations = useMemo(
         () => {
             const mapped = organizations?.map((org) => {
-                console.log(`Организация ${org.id} (${org.displayName}): isTest =`, org.isTest);  // ← вот этот лог
                 return {
                     id: String(org.id),
                     name: org.displayName,
                     isTest: !!org.isTest,   // преобразуем в boolean
                 };
             }) || [];
-
-            console.log("Всего организаций:", mapped.length);
-            console.log("Есть ли хоть одна с isTest = true?", mapped.some(o => o.isTest));
-
             return mapped;
         },
         [organizations]
@@ -161,7 +150,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 <BuildOutlined />
                 {org.isTest && (
                     <span className="org-test-badge">
-                        Тест
+                        {t("organizations.testFlag")}
                       </span>
                 )}
             </>
@@ -173,7 +162,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </span>
         ),
         className: org.isTest ? 'test-org-menu-item' : undefined,
-        title: org.isTest ? `${org.name} (Тест)` : org.name,
+        title: org.isTest ? `${org.name} ${t("organizations.testFlag")}` : org.name,
         children: getOrgSubMenuItems(org.id)?.map((item: any) => ({
             ...item,
             key: `${org.id}-${item.key}`,

@@ -228,10 +228,10 @@ const AuditLogsPage: React.FC = () => {
       ));
 
       return (
-          <>
+          <div>
             {orderNumberItem}
             {batchesItems}
-          </>
+          </div>
       );
     }
 

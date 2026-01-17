@@ -56,6 +56,7 @@
                         text-overflow: ellipsis
                         white-space: nowrap
                         max-width: 136px
+                        margin: 0
                     .org-test-tag
                         font-size: 10px
                         line-height: 1
@@ -71,7 +72,7 @@
                             left: -26px
                             top: 50%
                             transform: translateY(-50%)
-                            background: cornflowerblue
+                            background: #1668dc
                             padding: 4px 8px
                             border-radius: 4px
                             +mix.typography(10px, 600, map.get(vars.$basic, "black"))
@@ -82,6 +83,9 @@
                     border: none
                     .menu-icon
                         font-size: 24px
+                    .org-submenu-item.ant-menu-item
+                        padding-left: 80px !important
+
                     .ant-menu-submenu
                         .ant-menu-sub
                             background: transparent
@@ -94,6 +98,7 @@
                         background: transparent
                         transition: all 0.3s ease
                         margin-top: 0
+                        //margin-left: 80px
                     .ant-menu-submenu-title
                         max-width: 250px
                         margin-left: 30px
@@ -261,3 +266,15 @@
         border-right: none
         .menu-icon
             font-size: 16px
+
+.test-flag
+    max-width: 50px
+    background: #1668dc
+    padding: 4px 8px
+    border-radius: 4px
+    +mix.typography(10px, 600, map.get(vars.$basic, "black"))
+    line-height: 1
+    white-space: nowrap
+    pointer-events: none
+.test-flag-heading
+    margin-bottom: 10px !important

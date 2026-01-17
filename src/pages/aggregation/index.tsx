@@ -38,8 +38,9 @@ const Aggregations = () => {
     });
 
     useEffect(() => {
-        dispatch(fetchAggregations({  page: dataPage || 1, limit: dataLimit || 10 }));
-    }, [dispatch]);
+        if (!orgId) return; // на всякий случай, чтобы не вызывать с undefined
+        dispatch(fetchAggregations({ page: dataPage || 1, limit: dataLimit || 10, companyId: orgId }));
+    }, [dispatch, orgId, dataPage, dataLimit]);
 
     useEffect(() => {
         if (modalState.addAggregation) {
@@ -126,6 +127,7 @@ const Aggregations = () => {
             parentBatchId,
             childOrderId,
             childBatchId,
+            companyId: orgId!,
         };
 
         dispatch(createAggregationReport(payload))
@@ -133,7 +135,7 @@ const Aggregations = () => {
             .then(() => {
                 toast.success(t("aggregations.messages.createSuccess"));
                 handleModal("addAggregation", false);
-                dispatch(fetchAggregations({ page: 1, limit: 10 }));
+                dispatch(fetchAggregations({ page: 1, limit: 10, companyId: orgId! }));
             })
             .catch((err: ApiErrorResponse) => {
                 console.error(err);

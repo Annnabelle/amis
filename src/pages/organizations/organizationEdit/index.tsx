@@ -8,7 +8,7 @@ import MainLayout from "../../../components/layout";
 import Heading from "../../../components/mainHeading";
 import CustomButton from "../../../components/button";
 import FormComponent from "../../../components/formComponent";
-import {Form, Input, Tag} from "antd";
+import {Form, Input} from "antd";
 import {type LanguageKey, useNavigationBack} from "../../../utils/utils";
 import {fetchReferencesByType} from "../../../store/references";
 
@@ -20,9 +20,9 @@ const OrganizationsEdit = () => {
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const [form] = Form.useForm()
     const lang = i18n.language as LanguageKey;
-    const productGroupReferences = useAppSelector(
-        (state) => state.references.references.productGroup
-    ) ?? [];
+    // const productGroupReferences = useAppSelector(
+    //     (state) => state.references.references.productGroup
+    // ) ?? [];
 
     useEffect(() => {
         dispatch(fetchReferencesByType("productGroup"));
@@ -31,37 +31,49 @@ const OrganizationsEdit = () => {
     useEffect(() => {
         if (organizationById) {
             form.setFieldsValue({
-                  // companyType: organizationById.companyType,
-                  displayName: organizationById.displayName,
-                  productGroup: organizationById.productGroups,
-                  tin: organizationById.tin,
-                  legalName: organizationById.legalName[lang],
-                  director: organizationById.director,
-                    address: {
-                        region: organizationById.address?.region,
-                        district: organizationById.address?.district,
-                        address: organizationById.address?.address,
-                    },
-                    bankDetails: {
-                        bankName: organizationById.bankDetails?.bankName,
-                        ccea: organizationById.bankDetails?.ccea,
-                        account: organizationById.bankDetails?.account,
-                        mfo: organizationById.bankDetails?.mfo,
-                    },
+                displayName: organizationById.displayName,
 
-                    contacts: {
-                        phone: organizationById.contacts?.phone,
-                        email: organizationById.contacts?.email,
-                        url: organizationById.contacts?.url,
-                        person: organizationById.contacts?.person,
-                    },
+                productGroups: organizationById.productGroups,
 
-                    accessCodes: {
-                        gcpCode: organizationById.accessCodes?.gcpCode,
+                tin: organizationById.tin,
+
+                legalName: organizationById.legalName[lang],
+
+                director: organizationById.director,
+
+                address: {
+                    region: organizationById.address?.region,
+                    district: organizationById.address?.district,
+                    address: organizationById.address?.address,
+                },
+
+                bankDetails: {
+                    bankName: organizationById.bankDetails?.bankName,
+                    ccea: organizationById.bankDetails?.ccea,
+                    account: organizationById.bankDetails?.account,
+                    mfo: organizationById.bankDetails?.mfo,
+                },
+
+                contacts: {
+                    phone: organizationById.contacts?.phone,
+                    email: organizationById.contacts?.email,
+                    url: organizationById.contacts?.url,
+                    person: organizationById.contacts?.person,
+                },
+
+                accessCodes: {
+                    gcpCode: organizationById.accessCodes?.gcpCode,
+                    xTrace: {
                         token: organizationById.accessCodes?.xTrace?.token,
+                        expireDate: organizationById.accessCodes?.xTrace?.expireDate
+                            ? new Date(organizationById.accessCodes.xTrace.expireDate)
+                            : undefined,
+                        id: organizationById.accessCodes?.xTrace?.id,
                     },
+                },
 
-                    status: organizationById.status,
+                status: organizationById.status,
+                isTest: organizationById.isTest,
             })
         }
     }, [organizationById, form])
@@ -107,7 +119,7 @@ const OrganizationsEdit = () => {
                 handleUpdateOrganization(values);
             }}
         >
-        <Heading title={t('organizations.edit')} subtitle={t('organizations.subtitle')}>
+        <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')}>
             <div className="btns-group">
                 <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 <CustomButton onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
@@ -118,77 +130,17 @@ const OrganizationsEdit = () => {
                 {organizationById  && (
                     <>
                         <div className="form-inputs form-inputs-row">
-                            {/*<Form.Item className="input" name="companyType" label={t('organizations.addUserForm.label.companyType')}   initialValue={organizationById.companyType}>*/}
-                            {/*    <Select className='input' size="large" options={companyTypeOption} placeholder={t('organizations.addUserForm.placeholder.companyType')} />*/}
-                            {/*</Form.Item>*/}
                             <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')} initialValue={organizationById.displayName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')}  />
                             </Form.Item>
-                            <div className="form-inputs form-inputs-row small">
-                                <Form.Item name="productGroups" hidden />
-                                <Form.Item
-                                    className="input"
-                                    label={t("organizations.addUserForm.label.productGroup")}
-                                    shouldUpdate={(prev, cur) =>
-                                        prev.productGroups !== cur.productGroups
-                                    }
-                                >
-                                    {() => {
-                                        const productGroups = form.getFieldValue("productGroups");
-
-                                        if (!Array.isArray(productGroups) || productGroups.length === 0) {
-                                            return (
-                                                <Input size="large" className="input" disabled />
-                                            );
-                                        }
-
-                                        return (
-                                            <Input
-                                                size="large"
-                                                className="input"
-                                                disabled
-                                                value={undefined} // 🔥 важно
-                                                prefix={
-                                                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                                                        {productGroups.map((alias: string) => {
-                                                            const ref = productGroupReferences.find(
-                                                                (r) => r.alias === alias
-                                                            );
-
-                                                            const title =
-                                                                ref?.title?.[lang] ??
-                                                                ref?.title?.ru ??
-                                                                "";
-
-                                                            return (
-                                                                <Tag
-                                                                    key={alias}
-                                                                    color="blue"
-                                                                    style={{
-                                                                        margin: 0,
-                                                                        fontSize: 12,
-                                                                        padding: "4px 6px",
-                                                                    }}
-                                                                >
-                                                                    {title}
-                                                                </Tag>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                }
-                                            />
-                                        );
-                                    }}
-                                </Form.Item>
-                            </div>
                         </div>
                         <div className="form-inputs form-inputs-row">
                             <Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')} initialValue={organizationById.tin}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.tin')}  />
                             </Form.Item>
-                            <Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')} initialValue={organizationById.legalName}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')}  />
-                            </Form.Item>
+                            {/*<Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')} initialValue={organizationById.legalName}>*/}
+                            {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')}  />*/}
+                            {/*</Form.Item>*/}
                         </div>
                         <div className="form-inputs form-inputs-row">
                             <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')} initialValue={organizationById.director}>
@@ -267,7 +219,7 @@ const OrganizationsEdit = () => {
                 )}
             </div>
         </div>
-</FormComponent>
+        </FormComponent>
     </MainLayout>
   )
 }

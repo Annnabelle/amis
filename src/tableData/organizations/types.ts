@@ -7,4 +7,5 @@ export interface OrganizationTableDataType {
     contacts: string, 
     status: string,
     action: string
+    isTest?: boolean;
 }
