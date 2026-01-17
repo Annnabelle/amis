@@ -11,6 +11,9 @@ import AgregationReport from "./reports.tsx";
 import ComponentTable from "../../../components/table";
 import {UnitsColumns} from "../../../tableData/agregationReport";
 import type { UnitCodeType} from "../../../tableData/agregationReport/types.ts";
+import type {ExportAggregationReportParams} from "../../../types/export";
+import {downloadReport} from "../../../store/export";
+import {Spin} from "antd";
 
 const AggregationReportPage: React.FC = () => {
     const { orderId, id } = useParams<{
@@ -19,7 +22,12 @@ const AggregationReportPage: React.FC = () => {
     }>();
     const { t } = useTranslation();
     const navigateBack = useNavigationBack();
+    const aggregation = useAppSelector(
+        (state) => state.aggregations.oneAggregation
+    );
     const dispatch = useAppDispatch();
+    const reportData = useAppSelector((state) => state.export)
+    const { loading } = useAppSelector((state) => state.export);
 
     const units = useAppSelector((state) => state.aggregations.units)
     // const dataLimit = useAppSelector((state) => state.aggregations.limit)
@@ -61,10 +69,48 @@ const AggregationReportPage: React.FC = () => {
         }));
     }, [units, id]);
 
+    useEffect(() => {
+        if (id) dispatch(fetchOneAggregationReport({ id }));
+    }, [id, dispatch]);
+
+    const handleExport = (type: "group" | "unit") => {
+        if (!id || !aggregation?.productionOrderNumber) return;
+
+        const params: ExportAggregationReportParams = {
+            format: "short",
+            ext: "csv",
+            type,
+        };
+
+        dispatch(
+            downloadReport({
+                aggregationId: id,
+                params,
+                fileName: aggregation.productionOrderNumber, // 🔥 ключевой момент
+            })
+        );
+    };
+
+    console.log(reportData)
+
     return (
         <MainLayout>
             <Heading title={t('aggregations.agregationReportPage.aggregation')} subtitle={t('organizations.subtitle')}>
-                    <CustomButton className='outline' onClick={() => navigateBack(`/organization/${orderId}/agregations`)}>{t('btn.back')}</CustomButton>
+                    <div className="btns-group">
+                        <CustomButton
+                            onClick={() => handleExport("group")}
+                            disabled={loading}
+                        >
+                            {loading ? <Spin size="small" /> : t("aggregations.exportGrouped")}
+                        </CustomButton>
+                        <CustomButton
+                            onClick={() => handleExport("unit")}
+                            disabled={loading}
+                        >
+                            {loading ? <Spin size="small" /> : t("aggregations.exportUnit")}
+                        </CustomButton>
+                        <CustomButton className='outline' onClick={() => navigateBack(`/organization/${orderId}/agregations`)}>{t('btn.back')}</CustomButton>
+                    </div>
             </Heading>
             <AgregationReport/>
             <div className="box">

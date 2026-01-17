@@ -659,6 +659,8 @@ export const resources = {
                 title: "Agregation Reports",
                 btnAdd: "Add agregation code",
                 addAggregation: "Create Report",
+                exportGrouped: "Export grouped",
+                exportUnit: "Export unit",
                 messages: {
                     createSuccess: "Aggregation report has been successfully created.",
                     createError: "Failed to create aggregation report.",
@@ -1377,6 +1379,8 @@ export const resources = {
                 title: "Отчеты об агрегации",
                 btnAdd: "Создать отчет",
                 addAggregation: "Агрегировать",
+                exportGrouped: "Экспорт групповых",
+                exportUnit: "Экспорт  потребительских",
                 messages: {
                     createSuccess: "Отчёт об агрегации успешно создан.",
                     createError: "Не удалось создать отчёт об агрегации.",
@@ -2094,6 +2098,8 @@ export const resources = {
                 title: "Agregatsiya hisobotlari",
                 btnAdd: "Agregatsiya kodini qo'shish",
                 addAggregation: "Hisobot yaratish",
+                exportGrouped: "Guruhlanganlarni eksport qilish",
+                exportUnit: "Yakka birliklarni eksport qilish",
                 messages: {
                     createSuccess: "Agregatsiya hisoboti muvaffaqiyatli yaratildi.",
                     createError: "Agregatsiya hisobotini yaratib bo‘lmadi.",
