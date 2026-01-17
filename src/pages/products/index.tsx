@@ -17,6 +17,7 @@ import type { CreateProduct, ProductResponse } from '../../types/products'
 import { useNavigate, useParams } from 'react-router-dom'
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "../../store/references";
+import {getOrganizationById} from "../../store/organization";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -38,10 +39,26 @@ const Products = () => {
     const supportedLangs = ['ru', 'en', 'uz'] as const;
     type Lang = typeof supportedLangs[number];
     const orgId = id
+    const company = useAppSelector(state => state.organizations.organizationById)
+
+    useEffect(() => {
+        if (id){
+            dispatch(getOrganizationById({id: id}))
+        }
+    }, [dispatch, id])
 
     const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
 
+    const companyProductGroups = useMemo(() => {
+        if (!company?.productGroups?.length) return []
 
+        return productGroupReferences.filter(ref =>
+            company.productGroups.includes(ref.alias)
+        )
+    }, [company?.productGroups, productGroupReferences])
+
+
+    console.log("productGroupReferences", productGroupReferences)
     useEffect(() => {
         dispatch(fetchReferencesByType("countryCode"));
         dispatch(fetchReferencesByType("productGroup"));
@@ -449,31 +466,55 @@ const Products = () => {
                         name="icps"
                         label={t('products.addProductForm.label.icps')}
                         rules={[
-                            { required: true, message:  t('products.addProductForm.validation.required.icps') },
-                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.icps')  },
+                            // { required: false, message:  t('products.addProductForm.validation.required.icps') },
+                            // { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.icps')  },
                         ]}
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
                     </Form.Item>
                     <Form.Item
                         className="input"
-                        name="productType"
+                        name="productGroup"
                         label={t('products.addProductForm.label.productType')}
                         rules={[
                             { required: true, message: t('products.addProductForm.validation.required.productType') }
                         ]}
                     >
                         <Select
-                            key={currentLang} // перерендер при смене языка
-                            className="input"
+                            key={currentLang}
                             size="large"
+                            className="input"
                             placeholder={t('products.addProductForm.placeholder.productType')}
-                            options={productGroupReferences.map(ref => ({
-                                label: ref.title?.[currentLang as Lang] ?? ref.title?.ru ?? ref.title?.en ?? ref.alias,
-                                value: ref.alias,
+                            options={companyProductGroups.map(ref => ({
+                                label:
+                                    ref.title?.[currentLang] ??
+                                    ref.title?.ru ??
+                                    ref.title?.en ??
+                                    ref.alias,
+                                value: ref.alias, // 👈 ВАЖНО
                             }))}
                         />
                     </Form.Item>
+
+                    {/*<Form.Item*/}
+                    {/*    className="input"*/}
+                    {/*    name="productType"*/}
+                    {/*    label={t('products.addProductForm.label.productType')}*/}
+                    {/*    rules={[*/}
+                    {/*        { required: true, message: t('products.addProductForm.validation.required.productType') }*/}
+                    {/*    ]}*/}
+                    {/*>*/}
+                    {/*    <Select*/}
+                    {/*        key={currentLang} // перерендер при смене языка*/}
+                    {/*        className="input"*/}
+                    {/*        size="large"*/}
+                    {/*        placeholder={t('products.addProductForm.placeholder.productType')}*/}
+                    {/*        options={productGroupReferences.map(ref => ({*/}
+                    {/*            label: ref.title?.[currentLang as Lang] ?? ref.title?.ru ?? ref.title?.en ?? ref.alias,*/}
+                    {/*            value: ref.alias,*/}
+                    {/*        }))}*/}
+                    {/*    />*/}
+                    {/*</Form.Item>*/}
 
                 </div>
 
@@ -559,7 +600,7 @@ const Products = () => {
                         name="price"
                         label={t('products.addProductForm.label.price')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.weightNet') },
+                        { required: false, message: t('products.addProductForm.validation.required.weightNet') },
                         { pattern: /^\d+(\.\d{1,2})?$/, message: t('products.addProductForm.validation.pattern.weightNet') },
                         ]}
                     >

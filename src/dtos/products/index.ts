@@ -42,14 +42,14 @@ export type CreateProductDto  = {
   shortName: string;
   description?: string;
   gtin: GtinDto;
-  icps: string;
+  icps?: string;
   productType: string;
   manufacturerCountry: string;
   aggregationQuantity: number;
   expiration: number;
-  measurement: MeasurementDto;
-  weight: WeightDto;
-  price: number;
+  measurement?: MeasurementDto;
+  weight?: WeightDto;
+  price?: number;
   companyId: HexString;
 }
 
