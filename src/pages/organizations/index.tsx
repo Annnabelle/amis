@@ -365,6 +365,10 @@ const Organizations = () => {
                                         placeholder={t('organizations.addUserForm.placeholder.expireDate')}
                                     />
                                 </Form.Item>
+                                <Form.Item name="isTest" hidden>
+                                    <Input />
+                                </Form.Item>
+
                             </div>
                             <div className="form-inputs form-inputs-row">
                                 <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}
