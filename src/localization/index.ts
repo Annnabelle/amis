@@ -261,7 +261,8 @@ export const resources = {
                     },
                     validation:{
                         xTrace: {
-                            invalidToken: "X-Trace token is invalid"
+                            invalidToken: "X-Trace token is invalid",
+                            noToken: "No token provided"
                         },
                         required:{
                             tin: "Please enter TIN",
@@ -983,7 +984,8 @@ export const resources = {
                     },
                     validation:{
                         xTrace: {
-                            invalidToken: "Невалидный токен"
+                            invalidToken: "Невалидный токен",
+                            noToken: "Токен не предоставлен"
                         },
                         required:{
                             tin: "ИНН должен состоять из 9 цифр",
@@ -1705,7 +1707,8 @@ export const resources = {
                     },
                     validation:{
                         xTrace: {
-                            invalidToken: "X-Trace token noto‘g‘ri"
+                            invalidToken: "X-Trace token noto‘g‘ri",
+                            noToken: "Token taqdim etilmadi",
                         },
                         required:{
                             tin: "STIR 9 ta raqamdan iborat bo‘lishi kerak",

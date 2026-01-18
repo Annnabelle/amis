@@ -15,12 +15,22 @@ interface XTraceFormSectionProps {
     isFieldDisabled?: (name: any) => boolean;
 }
 
+interface XTraceError {
+    message?: string;
+    error?: string;
+    statusCode?: number;
+}
+
 const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch();
     const lang = i18n.language as LanguageKey;
 
-    const { data, loading, error } = useAppSelector((state) => state.xTrace);
+    const { data, loading, error } = useAppSelector((state) => state.xTrace) as {
+        data: any;
+        loading: boolean;
+        error: string | XTraceError | null;
+    };
     const [xTraceValidated, setXTraceValidated] = useState(false);
 
     const xData = isXTraceSuccess(data) ? data.data : undefined;
@@ -78,13 +88,29 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
 
 
     // --- Ошибка запроса ---
+    // --- Ошибка запроса ---
     useEffect(() => {
-        if (error) {
-            toast.error(error);
-            setIsValidated(false);
-            setXTraceValidated(false);
+        if (!error) return;
+
+        let errorMessage = "";
+
+        if (typeof error === "string") {
+            errorMessage = error;
+        } else if (typeof error === "object" && error !== null) {
+            // проверяем конкретно на "No token provided"
+            if (error.message === "No token provided") {
+                errorMessage = t("organizations.addUserForm.validation.xTrace.noToken");
+            } else {
+                errorMessage = error.message || error.error || "Unknown error";
+            }
         }
-    }, [error, setIsValidated]);
+
+        toast.error(errorMessage);
+        setIsValidated(false);
+        setXTraceValidated(false);
+    }, [error, setIsValidated, t]);
+
+
 
     const handleValidateXTrace = () => {
         const tin = form.getFieldValue("tin");

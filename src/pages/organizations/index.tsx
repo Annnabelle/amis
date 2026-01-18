@@ -20,6 +20,7 @@ import type {MultiLanguage} from "../../dtos";
 import type {LanguageKey} from "../../utils/utils.ts";
 import XTraceFormSection from "./xTraceFormSection";
 import {fetchReferencesByType} from "../../store/references";
+import {clearXTrace} from "../../store/xTrace";
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -124,12 +125,14 @@ const Organizations = () => {
       });
 
     const handleModal = (modalName: string, value: boolean) => {
-        setModalState((prev) => ({...prev, [modalName] : value}));
-        if (modalName === 'addCompany' && value) {
+        setModalState((prev) => ({ ...prev, [modalName]: value }));
+
+        if (modalName === "addCompany" && !value) {
             form.resetFields();
             setIsXTraceValidated(false);
+            dispatch(clearXTrace());
         }
-    }
+    };
 
     const handleCreateCompany = async (values: any) => {
         if (!isXTraceValidated) {
@@ -338,7 +341,7 @@ const Organizations = () => {
                     </div>
                 </div>
             </div>
-            <ModalWindow className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
+            <ModalWindow maskClosable={false}  className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
                 <FormComponent
                     form={form}
                     onFinish={handleCreateCompany}
