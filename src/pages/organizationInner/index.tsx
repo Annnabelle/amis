@@ -192,7 +192,7 @@ const OrganizationsInner = () => {
                                     )}
                                 </div>
                                 {organizationById?.productGroups && (
-                                    <div className="form-inputs form-inputs-organization">
+                                    <div className="form-inputs form-inputs-row form-inputs-product-groups">
                                         <Form.Item
                                             className="input"
                                             label={t("organizations.addUserForm.label.productGroup")}
@@ -202,17 +202,17 @@ const OrganizationsInner = () => {
                                                 const productGroups = form.getFieldValue("productGroups") as string[];
 
                                                 if (!Array.isArray(productGroups) || productGroups.length === 0) {
-                                                    return <Input size="large" className="input" disabled placeholder="—" />;
+                                                    return <Input size="large" className="input input-hidden" disabled placeholder="—" />;
                                                 }
 
                                                 return (
                                                     <Input
                                                         size="large"
-                                                        className="input"
+                                                        className="input product-groups-preview"
                                                         disabled
                                                         value="" // 🔥 пустое значение, чтобы не дублировался текст
                                                         prefix={
-                                                            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                                            <div>
                                                                 {productGroups.map((alias: string) => {
                                                                     const ref = productGroupReferences.find(r => r.alias === alias);
                                                                     const title = ref?.title?.[lang] ?? ref?.title?.ru ?? alias;
