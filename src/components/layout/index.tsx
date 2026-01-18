@@ -146,16 +146,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const myOrganizationsItems: MenuProps['items'] = myOrganizations.map((org) => ({
         key: `my-org-${org.id}`,
         icon: (
-            <>
+            <span className="org-icon-wrapper">
                 <BuildOutlined />
-                {org.isTest && (
-                    <span className="org-test-badge">
-                        {t("organizations.testFlag")}
-                      </span>
-                )}
-            </>
+                            {org.isTest && (
+                                <span className="org-test-badge">
+                    {t("organizations.testFlag")}
+                  </span>
+                            )}
+              </span>
         ),
-
         label: (
             <span className="org-name">
                 {org.name}

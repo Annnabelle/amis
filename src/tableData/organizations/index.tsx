@@ -10,20 +10,28 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
   { 
     title: '№',
     dataIndex: "number",
-      flex: 1,
+      className: "number-column",
     key: "number",
-    render: (text) => <p className="table-text">{text}</p>,
+    render: (text) => <p className="table-text"
+                         style={{
+                             maxWidth: "50px",
+                             width: "50px"
+                         }}
+    >{text}</p>,
   },
     {
         title: t('organizations.name'),
         dataIndex: "displayName",
         key: "displayName",
-        flex: 2,
+        flex: 4,
         render: (text, record) => (
             <div
+                style={{
+                    display: 'flex',
+                }}
             >
                 {record.isTest && (
-                    <Tag className="test-flag" color="blue-inverse" style={{ margin: 0 }}>
+                    <Tag className="test-flag" color="blue-inverse" style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',  marginRight: '10px' }}>
                         Тест
                     </Tag>
                 )}
@@ -32,9 +40,6 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
                       overflow: "hidden",
                       whiteSpace: "nowrap",
                       textOverflow: "ellipsis",
-                      width: "100%",
-                      maxWidth: "100%",
-                      minWidth: "100%",
                   }}
                   className="table-text"
               >
@@ -48,7 +53,11 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
     dataIndex: "director",
       flex: 2,
     key: "director",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <p className="table-text" style={{
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+    }}>{text}</p>
   },
   {
     title: t('organizations.addUserForm.label.phone'),
@@ -60,11 +69,14 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
   {
     title: t('organizations.status'),
     dataIndex: "status",
-      flex: 2,
+      flex: 1,
+      className: "no-ellipsis",
     key: "status",
+      ellipsis: false,
     render: (status: string) => (
         status ? (
             <Tag color={statusColors[status]}
+                 className="company-status"
             >
                 {t(`statuses.${status}`)}
             </Tag>
@@ -75,6 +87,7 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
     title: '',
     key: "action",
        flex: 1,
+       ellipsis: false,
     render: (_, record) => (
       <Dropdown
         overlay={
