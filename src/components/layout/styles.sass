@@ -56,7 +56,8 @@
                         text-overflow: ellipsis
                         white-space: nowrap
                         max-width: 136px
-                        margin: 0
+                        margin-left: 37px
+                        //margin: 0
                     .org-test-tag
                         font-size: 10px
                         line-height: 1
@@ -66,17 +67,17 @@
                         position: relative
                         .ant-menu-item-icon
                             position: relative
-                            margin-left: 28px   // место под бейдж
                         .org-test-badge
                             position: absolute
-                            left: -26px
+                            left: -28px   // ← бейдж ВНЕ layout
                             top: 50%
                             transform: translateY(-50%)
                             background: #1668dc
                             padding: 4px 8px
                             border-radius: 4px
                             +mix.typography(10px, 600, map.get(vars.$basic, "black"))
-                            line-height: 1
+                            white-space: nowrap
+                            pointer-events: none
                             white-space: nowrap
                             pointer-events: none
                 .layout-sider-menu
@@ -101,7 +102,7 @@
                         //margin-left: 80px
                     .ant-menu-submenu-title
                         max-width: 250px
-                        margin-left: 30px
+                        margin-left: 25px
                         overflow: visible
                         white-space: nowrap
                         text-overflow: ellipsis
@@ -249,7 +250,7 @@
                 margin-block: 4px
     .ant-menu-submenu-title
         .anticon
-            margin-left: 20px
+            margin-left: 30px
             margin-right: 10px
     .ant-menu-item
         > span,
@@ -278,3 +279,17 @@
     pointer-events: none
 .test-flag-heading
     margin-bottom: 10px !important
+
+.no-ellipsis
+    text-overflow: clip !important
+.number-column
+    width: 50px !important
+    min-width: 50px !important
+    max-width: 50px !important
+
+.org-icon-wrapper
+    position: relative
+    display: inline-flex
+    align-items: center
+    width: 16px   // 🔥 фиксированная ширина иконки
+    height: 16px
