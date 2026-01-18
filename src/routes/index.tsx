@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import GlobalLoader from "../components/loader";
 
 const LoginPage = lazy(() => import("../pages/login"));
 const MainPage = lazy(() => import("../pages/main"));
@@ -21,7 +22,7 @@ const Aggregations = lazy(() => import("../pages/aggregation"));
 const AggregationReportPage = lazy(() => import("../pages/aggregation/viewAgregation"))
 const Router: React.FC = () => {
   return (
-    <Suspense fallback={<div>Загрузка...</div>}>
+    <Suspense fallback={<GlobalLoader loading={true}/>}>
       <Routes>
         <Route path='/' element={<LoginPage />} />
         <Route path='/home' element={<MainPage />} />

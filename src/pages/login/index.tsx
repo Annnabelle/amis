@@ -58,7 +58,7 @@ const LoginPage = () => {
                                     <Input placeholder={t('login.enterUserName')} className='input' size='large'/>
                                 </Form.Item>
                                 <Form.Item label={t('users.addUserForm.label.password')} className='input'  name="password" rules={[{ required: true, message: 'Это поле обязательно для заполнения' }]}>
-                                    <Input type="password" placeholder={t('users.addUserForm.placeholder.password')} className='input' size='large'/>
+                                    <Input.Password type="password" placeholder={t('users.addUserForm.placeholder.password')} className='input' size='large'/>
                                 </Form.Item>
                             </div>
                             <div className="form-inputs">
