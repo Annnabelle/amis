@@ -10,6 +10,7 @@ import {utilizationSlice} from "./utilization";
 import {aggregationSlice} from "./aggregation";
 import {xTraceSlice} from "./xTrace";
 import {exportSlice} from "./export";
+import {loaderSlice} from "./loader";
 
 export const store = configureStore({
     reducer: {
@@ -22,7 +23,8 @@ export const store = configureStore({
         utilization: utilizationSlice.reducer,
         aggregations: aggregationSlice.reducer,
         xTrace: xTraceSlice.reducer,
-        export: exportSlice.reducer
+        export: exportSlice.reducer,
+        loader: loaderSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

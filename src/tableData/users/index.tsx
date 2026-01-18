@@ -54,6 +54,7 @@ export const UsersTableColumns = (
   {
     title: t('organizations.status'),
     dataIndex: "status",
+      className: "no-ellipsis",
     key: "status",
   render: (status: string) => (
       status ? (

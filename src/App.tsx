@@ -2,9 +2,12 @@ import { BrowserRouter } from 'react-router-dom'
 import Router from './routes'
 import { ConfigProvider, theme } from 'antd';
 import './App.sass'
+import {useAppSelector} from "./store";
+import GlobalLoader from "./components/loader";
 
 function App() {
   const { darkAlgorithm } = theme;
+    const loading = useAppSelector((state) => state.loader.loading);
 
   return (
      <ConfigProvider
@@ -17,6 +20,7 @@ function App() {
         },
       }}
     >
+         <GlobalLoader loading={loading} />
       <BrowserRouter>
         <Router/>
       </BrowserRouter>

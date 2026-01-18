@@ -1,17 +1,19 @@
-import { type TableProps, Tag } from 'antd';
+import { Tag } from 'antd';
 import CustomButton from '../../components/button';
 import type { TFunction } from 'i18next';
 import type { MarkingCodesTableDataType } from './types';
 import { Link } from 'react-router-dom';
 import {statusColors} from "../../components/statuses.tsx";
+import type {AdaptiveColumn} from "../../components/table/types.ts";
 
 export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined,  handleAppoint: (
     e: React.MouseEvent,
     record: MarkingCodesTableDataType,
-) => void): TableProps<MarkingCodesTableDataType>["columns"] => [
+) => void): AdaptiveColumn<MarkingCodesTableDataType>[] => [
   { 
     title: '№',
     dataIndex: "number",
+      flex: 1,
     ellipsis: true,
     key: "number",
     render: (text) => <p className="table-text">{text}</p>,
@@ -20,6 +22,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.batchNumber"),
     dataIndex: "batchNumber",
     ellipsis: true,
+      flex: 1,
     key: "batchNumber",
     render: (_, record) => (
       <Link
@@ -34,6 +37,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.orderNumber"),
     dataIndex: "orderNumber",
     ellipsis: true,
+      flex: 1,
     key: "orderNumber",
     render: (_, record) => (
       <Link
@@ -47,7 +51,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
    {
     title: t("markingCodes.tableTitles.products"),
     dataIndex: "productName",
-     width: 250,
+       flex: 2,
     key: "productName",
     render: (_, record) => (
       <Link
@@ -68,6 +72,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.totalQuantity"),
     dataIndex: "totalQuantity",
     ellipsis: true,
+      flex: 1,
     key: "totalQuantity",
     render: (text) => <p className="table-text">{text}</p>,
   },
@@ -89,6 +94,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.orderDate"),
     dataIndex: "orderedAt",
     ellipsis: true,
+      flex: 1,
     key: "orderedAt",
     render: (text) => <p className="table-text">{text}</p>,
   },
@@ -96,6 +102,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.packageType"),
     dataIndex: "packageType",
     ellipsis: true,
+      flex: 1,
     key: "packageType",
     render: (text: string) => (
         <p
@@ -123,17 +130,12 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: t("markingCodes.tableTitles.status"),
     dataIndex: "status",
-    ellipsis: true,
+      className: "no-ellipsis",
+      flex: 2,
     key: "status",
     render: (status: string) => (
       status && (
         <Tag color={statusColors[status]}
-             style={{
-                 maxWidth: 150,
-                 overflow: "hidden",
-                 whiteSpace: "nowrap",
-                 textOverflow: "ellipsis",
-             }}
         >
           {t(`markingCodes.batches.batchesOrderStatus.${status?.toLowerCase()}`)}
         </Tag>
@@ -143,17 +145,12 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: t("markingCodes.tableTitles.externalStatus"),
     dataIndex: "externalStatus",
-    ellipsis: true,
+      className: "no-ellipsis",
+      flex: 1,
     key: "externalStatus",
     render: (status: string) => (
         status && (
             <Tag color={statusColors[status]}
-                 style={{
-                     maxWidth: 150,
-                     overflow: "hidden",
-                     whiteSpace: "nowrap",
-                     textOverflow: "ellipsis",
-                 }}
             >
               {t(`markingCodes.markingCodesOrderStatus.${status?.toLowerCase()}`)}
             </Tag>
@@ -163,6 +160,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: '', // или t('table.actions') если нужно заголовок
     key: 'action',
+      flex: 1,
     render: (_, record) => {
       // Показываем кнопку "Нанести" только если статус === 'codes_received'
       if (record.status !== 'codes_received') {
