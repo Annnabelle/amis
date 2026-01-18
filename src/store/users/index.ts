@@ -15,6 +15,7 @@ const initialState: UsersState = {
   userById: null,
   updateUser: null,
   users: [],
+  searchedUsers: [],
   total: 0,
   page: 1,
   limit: 10,
@@ -429,23 +430,17 @@ export const usersSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(searchUsers.fulfilled, (state, action) => {
-        const { data = [], total, page, limit } = action.payload;
+        const { data = [] } = action.payload;
 
-        state.users = data.map((user: any) => ({
+        state.searchedUsers = data.map((user: any) => ({
           id: user.id,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
           role: user.role,
           status: user.status,
-          lastLoggedInAt: user.lastLoggedInAt,
         }));
-
-        state.total = total;
-        state.page = page;
-        state.limit = limit;
       })
-
       .addCase(changeUserPassword.pending, (state) => {
         state.isLoading = true;
         state.error = null;

@@ -14,11 +14,12 @@ import OrderForm from './createOrder'
 import { formatDate } from '../../utils/utils'
 import { fetchReferencesByType } from '../../store/references'
 import type { OrderBatchPopulatedResponse } from '../../types/markingCodes'
-import type { OrderListQueryParams } from '../../dtos/markingCodes'
+import {type OrderListQueryParams} from '../../dtos/markingCodes'
 import { searchProducts } from '../../store/products'
 import {createUtilizationReport} from "../../store/utilization";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
+import {searchUsers} from "../../store/users";
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
@@ -32,9 +33,12 @@ const MarkingCodes = () => {
     const packTypeReferences =
         useAppSelector(state => state.references.references.cisType) ?? [];
     const { products } = useAppSelector((state) => state.products);
+    const searchedUsers = useAppSelector(
+        state => state.users.searchedUsers
+    );
     const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
         page: dataPage || 1,
-        companyId: orgId,
+        companyId: orgId!,
         limit: dataLimit || 10,
     });
     useEffect(() => {
@@ -93,21 +97,31 @@ const MarkingCodes = () => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
 
-    const packageTypeOptions = useMemo(() => {
-        return packTypeReferences.map((ref) => ({
-            value: ref.alias,
-            label: ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en, // fallback
-        }));
-    }, [packTypeReferences, i18n.language]);
+    // const packageTypeOptions = useMemo(() => {
+    //     return packTypeReferences.map((ref) => ({
+    //         value: ref.alias,
+    //         label: ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en, // fallback
+    //     }));
+    // }, [packTypeReferences, i18n.language]);
 
-    const statusOptions = [
-        { label: t('markingCodes.markingCodesOrderStatus.created'), value: "CREATED" },
-        { label:  t('markingCodes.markingCodesOrderStatus.pending') , value: "PENDING" },
-        { label: t('markingCodes.markingCodesOrderStatus.ready'), value: "READY" },
-        { label: t('markingCodes.markingCodesOrderStatus.rejected'), value: "REJECTED" },
-        { label: t('markingCodes.markingCodesOrderStatus.closed'), value: "CLOSED"},
-        { label:  t('markingCodes.markingCodesOrderStatus.outsourced'), value: "OUTSOURCED" },
-    ];
+    const statusOptions = useMemo(() => {
+        const statuses = t('markingCodes.batches.orderNotExternalStatus', { returnObjects: true }) as Record<string, string>;
+
+        return Object.entries(statuses).map(([key, label]) => ({
+            value: key,   // это будет точно совпадать с тем, что ожидает бек
+            label,       // перевод
+        }));
+    }, [i18n.language, t]);
+
+
+    // const statusOptions = [
+    //     { label: t('markingCodes.markingCodesOrderStatus.new'), value: OrderStatus.New },
+    //     { label: t('markingCodes.markingCodesOrderStatus.vendorPending'), value: OrderStatus.VendorPending },
+    //     { label: t('markingCodes.markingCodesOrderStatus.readyForCodes'), value: OrderStatus.ReadyForCodes },
+    //     { label: t('markingCodes.markingCodesOrderStatus.rejected'), value: OrderStatus.Rejected },
+    //     { label: t('markingCodes.markingCodesOrderStatus.closed'), value: OrderStatus.Closed },
+    // ];
+
 
     const handleProductSearch = (value: string) => {
         if (value.trim()) {
@@ -172,18 +186,29 @@ const MarkingCodes = () => {
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         <div className="box-container-items-item-filters filters-large">
-                            {/*<div className="form-inputs">*/}
-                            {/*    <Form.Item name="searchByName" className="input">*/}
-                            {/*        <Input*/}
-                            {/*            size="large"*/}
-                            {/*            className="input"*/}
-                            {/*            placeholder={t('search.byName')}*/}
-                            {/*            suffix={<IoSearch />}*/}
-                            {/*            allowClear*/}
-                            {/*            onChange={handleSearchChange}*/}
-                            {/*        />*/}
-                            {/*    </Form.Item>*/}
-                            {/*</div>*/}
+                            <div className="form-inputs">
+                                <Form.Item name="user" className="input">
+                                        <Select
+                                            size="large"
+                                            showSearch
+                                            allowClear
+                                            filterOption={false}
+                                            placeholder={t('search.byName')}
+                                            onSearch={(value) => {
+                                                if (value.trim()) {
+                                                    dispatch(searchUsers({ query: value }));
+                                                }
+                                            }}
+                                            onChange={(value) => updateQueryParam('userId', value)}
+                                            options={searchedUsers.map(user => ({
+                                                value: user.id,
+                                                label: `${user.firstName} ${user.lastName}`,
+                                            }))}
+                                        />
+
+                                </Form.Item>
+
+                            </div>
                             <div className="form-inputs">
                                 <Form.Item name="product" className="input">
                                     <Select
@@ -206,21 +231,21 @@ const MarkingCodes = () => {
                                     />
                                 </Form.Item>
                             </div>
-                            <div className="form-inputs">
-                                <Form.Item name="packageType" className="input">
-                                    <Select
-                                        size="large"
-                                        placeholder={
-                                            <span className="custom-placeholder">
-                                                {t('search.packageType')}
-                                            </span>
-                                        }
-                                        allowClear
-                                        options={packageTypeOptions}
-                                        onChange={(value) => updateQueryParam('packageType', value)}
-                                    />
-                                </Form.Item>
-                            </div>
+                            {/*<div className="form-inputs">*/}
+                            {/*    <Form.Item name="packageType" className="input">*/}
+                            {/*        <Select*/}
+                            {/*            size="large"*/}
+                            {/*            placeholder={*/}
+                            {/*                <span className="custom-placeholder">*/}
+                            {/*                    {t('search.packageType')}*/}
+                            {/*                </span>*/}
+                            {/*            }*/}
+                            {/*            allowClear*/}
+                            {/*            options={packageTypeOptions}*/}
+                            {/*            onChange={(value) => updateQueryParam('packageType', value)}*/}
+                            {/*        />*/}
+                            {/*    </Form.Item>*/}
+                            {/*</div>*/}
                             <div className="form-inputs">
                                 <Form.Item name="status" className="input">
                                     <Select

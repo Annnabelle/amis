@@ -56,10 +56,10 @@ export type OrderInternalStatus = typeof OrderInternalStatus[keyof typeof OrderI
 export type OrderListQueryParams = {
     page: number;
     limit: number;
+    companyId: HexString;
     userId?: string;
     productId?: string;
-    packageType?: string;
-    companyId?: string;
+    productGroup?: string;
     status?: OrderStatus;
 }
 

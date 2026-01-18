@@ -39,6 +39,7 @@ export type UsersState = {
     user: UserResponse | null;
     userById: UserResponse | null;
     updateUser: UserResponse | null;
+    searchedUsers: UserResponse[];
     users: UserResponse[];
     accessToken: string | null;
     refreshToken: string | null;
