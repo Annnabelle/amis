@@ -444,6 +444,9 @@ const Organizations = () => {
                                     }}
                                 </Form.Item>
                             </div>
+                            <div className="form-divider-title">
+                                <h4 className="title">{t('organizations.subtitles.name')}</h4>
+                            </div>
                             <div className="form-inputs form-inputs-row">
                                 <Form.Item className="input" name={["name", "ru"]} label={`${t('organizations.addUserForm.label.companyName')} RU`}
                                     // rules={[
@@ -492,6 +495,9 @@ const Organizations = () => {
                                         disabled={isFieldDisabled(["name", "uz"])}
                                     />
                                 </Form.Item>
+                            </div>
+                            <div className="form-divider-title">
+                                <h4 className="title">{t('organizations.subtitles.legalName')}</h4>
                             </div>
                             <div className="form-inputs form-inputs-row">
                                 <Form.Item className="input" name={["legalName", "ru"]} label={`${t('organizations.addUserForm.label.legalName')} RU`}
