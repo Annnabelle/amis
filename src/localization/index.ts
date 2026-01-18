@@ -85,6 +85,7 @@ export const resources = {
                 selectStatus: 'Select status',
                 selectOrderPaymentType: 'Select order payment type',
                 selectState: 'Select state',
+                chooseDate: "Select date"
             },
             btn: {
                 create: 'Create',
@@ -807,6 +808,7 @@ export const resources = {
                 selectStatus: 'Выберите статус',
                 selectOrderPaymentType: 'Выберите тип оплаты заказа',
                 selectState: 'Выберите состояние',
+                chooseDate: "Выберите дату",
             },
             btn: {
                 create: 'Создать',
@@ -1531,6 +1533,7 @@ export const resources = {
                 selectStatus: 'Holatni tanlang',
                 selectOrderPaymentType: 'Buyurtma toʻlov turini tanlang',
                 selectState: 'Holatni tanlang',
+                chooseDate: "Sanani tanlang"
             },
             btn: {
                 create: 'Yaratish',

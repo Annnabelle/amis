@@ -16,6 +16,8 @@ import type {CreateAggregationReport} from "../../types/aggregation";
 import {fetchMarkingCodes} from "../../store/markingCodes";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
+import type {AggregationReportStatus} from "../../dtos";
+import { searchProducts} from "../../store/products";
 
 const Aggregations = () => {
     const { t , i18n} = useTranslation();
@@ -31,16 +33,47 @@ const Aggregations = () => {
     const [parentOptions, setParentOptions] = useState<{ label: string; value: string }[]>([]);
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
+    const products = useAppSelector(state => state.products.products);
+    const productsLoading = useAppSelector(state => state.products.isLoading);
     const [modalState, setModalState] = useState<{
         addAggregation: boolean;
     }>({
         addAggregation: false,
     });
+    const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined);
+
+    const [filters, setFilters] = useState<{
+        search?: string;
+        status?: AggregationReportStatus;
+        dateFrom?: Date;
+        dateTo?: Date;
+    }>({});
+
 
     useEffect(() => {
-        if (!orgId) return; // на всякий случай, чтобы не вызывать с undefined
-        dispatch(fetchAggregations({ page: dataPage || 1, limit: dataLimit || 10, companyId: orgId }));
-    }, [dispatch, orgId, dataPage, dataLimit]);
+        if (!orgId) return;
+
+        dispatch(
+            fetchAggregations({
+                page: dataPage || 1,
+                limit: dataLimit || 10,
+                companyId: orgId,
+                status: filters.status,
+                dateFrom: filters.dateFrom,
+                dateTo: filters.dateTo,
+                productId: selectedProductId,
+            })
+        );
+    }, [
+        dispatch,
+        orgId,
+        dataPage,
+        dataLimit,
+        filters,
+        selectedProductId, // 🔥 ВАЖНО
+    ]);
+
+
 
     useEffect(() => {
         if (modalState.addAggregation) {
@@ -142,6 +175,15 @@ const Aggregations = () => {
             });
     };
 
+    const handleProductSearch = (value: string) => {
+        if (!value) return;
+
+        dispatch(searchProducts({
+            query: value,
+            page: 1,
+            limit: 10,
+        }));
+    };
 
     return (
         <MainLayout>
@@ -156,7 +198,76 @@ const Aggregations = () => {
                     <div className="box-container-items">
                         <div className="box-container-items-item">
                             <div className="box-container-items-item-filters filters-large filters-large-inputs">
-                                {/*filters*/}
+                                <div className="form-inputs">
+                                    <Form.Item name="status" className="input">
+                                        <Select
+                                            size="large"
+                                            className="input"
+                                            allowClear
+                                            placeholder={t('search.selectStatus')}
+                                            options={[
+                                                { label: t('aggregations.aggregationReportStatus.new'), value: 'new' },
+                                                { label: t('aggregations.aggregationReportStatus.requested'), value: 'requested' },
+                                                { label: t('aggregations.aggregationReportStatus.vendor_pending'), value: 'vendor_pending' },
+                                                { label: t('aggregations.aggregationReportStatus.partially_processed'), value: 'partially_processed' },
+                                                { label: t('aggregations.aggregationReportStatus.success'), value: 'success' },
+                                                { label: t('aggregations.aggregationReportStatus.error'), value: 'error' },
+                                            ]}
+                                            onChange={(value) =>
+                                                setFilters(prev => ({
+                                                    ...prev,
+                                                    status: value,
+                                                }))
+                                            }
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div className="form-inputs">
+                                    <Form.Item name="dateRange" className="input">
+                                        <DatePicker.RangePicker
+                                            size="large"
+                                            placeholder={[t('search.chooseDate'), t('search.chooseDate')]}
+                                            className="input"
+                                            onChange={(dates) => {
+                                                setFilters(prev => ({
+                                                    ...prev,
+                                                    dateFrom: dates?.[0]?.toDate(),
+                                                    dateTo: dates?.[1]?.toDate(),
+                                                }));
+                                            }}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div className="form-inputs">
+                                    <Form.Item
+                                        name="product"
+                                        className="input"
+                                    >
+                                        <Select
+                                            size="large"
+                                            showSearch
+                                            className="input"
+                                            placeholder={t('search.selectProduct')}
+                                            filterOption={false}
+                                            allowClear
+                                            loading={productsLoading}
+                                            optionLabelProp="label"
+                                            dropdownMatchSelectWidth={false}
+                                            onSearch={handleProductSearch}
+                                            onClear={() => {
+                                                setSelectedProductId(undefined);
+                                            }}
+                                            onChange={(productId) => {
+                                                setSelectedProductId(productId);
+                                            }}
+                                            options={products?.map(product => ({
+                                                value: product.id,
+                                                label: product.name,
+                                            }))}
+                                        />
+                                    </Form.Item>
+
+                                </div>
                             </div>
                         </div>
                     </div>
