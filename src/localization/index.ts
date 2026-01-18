@@ -305,7 +305,9 @@ export const resources = {
                 subtitles: {
                     address: "Address:",
                     bankDetails: "Bank details:",
-                    contactDetails: "Contact details:"
+                    contactDetails: "Contact details:",
+                    legalName: "Legal name: ",
+                    name: "Name: ",
                 },
                 modalWindow: {
                     deletion: "Deletion",
@@ -1025,7 +1027,9 @@ export const resources = {
                 subtitles: {
                     address: 'Адрес:',
                     bankDetails: 'Банковские реквизиты:',
-                    contactDetails: 'Контактные данные:'
+                    contactDetails: 'Контактные данные:',
+                    legalName: "Юр. название: ",
+                    name: "Название: ",
                 },
                 modalWindow: {
                     deletion: 'Удаление',
@@ -1745,7 +1749,9 @@ export const resources = {
                 subtitles: {
                     address: "Manzil:",
                     bankDetails: "Bank rekvizitlari:",
-                    contactDetails: "Aloqa ma’lumotlari:"
+                    contactDetails: "Aloqa ma’lumotlari:",
+                    legalName: "Yuridik nomi: ",
+                    name: "Nomi: ",
                 },
                 modalWindow: {
                     deletion: "O‘chirish",

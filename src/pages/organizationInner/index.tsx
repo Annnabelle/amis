@@ -161,36 +161,38 @@ const OrganizationsInner = () => {
                                         </Form.Item>
                                     )}
                                 </div>
-                                <div className="form-inputs form-inputs-organization">
-                                    {organizationById?.displayName && (
-                                        <Form.Item
-                                            className="input"
-                                            name="displayName"
-                                            label={t('organizations.addUserForm.label.displayName')}
-                                        >
-                                            <Input
+                                {(organizationById?.displayName || organizationById?.director) && (
+                                    <div className="form-inputs form-inputs-organization">
+                                        {organizationById?.displayName && (
+                                            <Form.Item
                                                 className="input"
-                                                size="large"
-                                                placeholder={organizationById?.displayName ?? ''}
-                                                disabled
-                                            />
-                                        </Form.Item>
-                                    )}
-                                    {organizationById?.director && (
-                                        <Form.Item
-                                            className="input"
-                                            name="director"
-                                            label={t('organizations.addUserForm.label.director')}
-                                        >
-                                            <Input
+                                                name="displayName"
+                                                label={t('organizations.addUserForm.label.displayName')}
+                                            >
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.displayName ?? ''}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                        )}
+                                        {organizationById?.director && (
+                                            <Form.Item
                                                 className="input"
-                                                size="large"
-                                                placeholder={organizationById?.director ?? ''}
-                                                disabled
-                                            />
-                                        </Form.Item>
-                                    )}
-                                </div>
+                                                name="director"
+                                                label={t('organizations.addUserForm.label.director')}
+                                            >
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.director ?? ''}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                        )}
+                                    </div>
+                                )}
                                 {organizationById?.productGroups && (
                                     <div className="form-inputs form-inputs-row form-inputs-product-groups">
                                         <Form.Item
@@ -239,7 +241,12 @@ const OrganizationsInner = () => {
                                         </Form.Item>
                                     </div>
                                 )}
-                                {organizationById?.name && (
+                                {(organizationById?.name?.ru || organizationById?.name?.en || organizationById?.name?.uz) && (
+                                    <div className="form-divider-title">
+                                        <h4 className="title">{t('organizations.subtitles.name')}</h4>
+                                    </div>
+                                )}
+                                {(organizationById?.name?.ru || organizationById?.name?.en) && (
                                     <div className="form-inputs form-inputs-organization">
                                         {organizationById?.name?.ru && (
                                             <Form.Item className="input" name={["name", "ru"]} label={`${t('organizations.addUserForm.label.companyName')} EN`}>
@@ -263,19 +270,27 @@ const OrganizationsInner = () => {
                                         )}
                                     </div>
                                 )}
-                                <div className="form-inputs">
-                                    {organizationById?.name?.uz && (
-                                        <Form.Item className="input" name={["name", "uz"]} label={`${t('organizations.addUserForm.label.companyName')} UZ`}>
-                                            <Input
-                                                className="input"
-                                                size="large"
-                                                placeholder={organizationById?.name?.uz}
-                                                disabled
-                                            />
-                                        </Form.Item>
-                                    )}
-                                </div>
-                                {organizationById?.legalName && (
+                                {organizationById?.name?.uz && (
+                                    <div className="form-inputs">
+                                            <Form.Item className="input" name={["name", "uz"]} label={`${t('organizations.addUserForm.label.companyName')} UZ`}>
+                                                <Input
+                                                    className="input"
+                                                    size="large"
+                                                    placeholder={organizationById?.name?.uz}
+                                                    disabled
+                                                />
+                                            </Form.Item>
+                                    </div>
+                                )}
+                                {(organizationById?.legalName?.ru ||
+                                    organizationById?.legalName?.en ||
+                                    organizationById?.legalName?.uz) && (
+                                    <div className="form-divider-title">
+                                        <h4 className="title">{t('organizations.subtitles.legalName')}</h4>
+                                    </div>
+                                )}
+
+                                {(organizationById?.legalName?.ru || organizationById?.legalName?.en) && (
                                     <div className="form-inputs form-inputs-row">
                                         {organizationById?.legalName?.ru && (
                                             <Form.Item className="input" name={["legalName", "ru"]} label={`${t('organizations.addUserForm.label.legalName')} RU`}>
