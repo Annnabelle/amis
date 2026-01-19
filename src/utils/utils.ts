@@ -36,3 +36,4 @@ export const formatDate = (date: string | Date | undefined, locale = "ru-RU") =>
 };
 
 export type LanguageKey = keyof MultiLanguage;
+

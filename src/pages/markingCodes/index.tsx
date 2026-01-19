@@ -190,10 +190,14 @@ const MarkingCodes = () => {
                                 <Form.Item name="user" className="input">
                                         <Select
                                             size="large"
+                                            placeholder={
+                                                <span className="custom-placeholder">
+                                                    {t("search.byName")}
+                                                </span>
+                                            }
                                             showSearch
                                             allowClear
                                             filterOption={false}
-                                            placeholder={t('search.byName')}
                                             onSearch={(value) => {
                                                 if (value.trim()) {
                                                     dispatch(searchUsers({ query: value }));
@@ -220,6 +224,7 @@ const MarkingCodes = () => {
                                         }
                                         optionLabelProp="label" 
                                         showSearch
+                                        className="input"
                                         filterOption={false}
                                         allowClear
                                         onSearch={handleProductSearch}
@@ -231,21 +236,6 @@ const MarkingCodes = () => {
                                     />
                                 </Form.Item>
                             </div>
-                            {/*<div className="form-inputs">*/}
-                            {/*    <Form.Item name="packageType" className="input">*/}
-                            {/*        <Select*/}
-                            {/*            size="large"*/}
-                            {/*            placeholder={*/}
-                            {/*                <span className="custom-placeholder">*/}
-                            {/*                    {t('search.packageType')}*/}
-                            {/*                </span>*/}
-                            {/*            }*/}
-                            {/*            allowClear*/}
-                            {/*            options={packageTypeOptions}*/}
-                            {/*            onChange={(value) => updateQueryParam('packageType', value)}*/}
-                            {/*        />*/}
-                            {/*    </Form.Item>*/}
-                            {/*</div>*/}
                             <div className="form-inputs">
                                 <Form.Item name="status" className="input">
                                     <Select
@@ -261,21 +251,6 @@ const MarkingCodes = () => {
                                     />
                                 </Form.Item>
                             </div>
-                            {/* <div className="form-inputs">
-                                <Form.Item name="paymentType" className="input">
-                                    <Select
-                                        size="large"
-                                        placeholder={
-                                            <span className="custom-placeholder">
-                                                {t('search.selectOrderPaymentType')}
-                                            </span>
-                                        }
-                                        allowClear
-                                        options={paymentTypeOptions}
-                                        onChange={(value) => updateQueryParam('paymentType', value)}
-                                    />
-                                </Form.Item>
-                            </div> */}
                         </div>
                     </div>
                 </div>

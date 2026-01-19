@@ -210,11 +210,11 @@ const OrganizationsInner = () => {
                                                 return (
                                                     <Input
                                                         size="large"
-                                                        className="input product-groups-preview"
+                                                        className="input"
                                                         disabled
                                                         value="" // 🔥 пустое значение, чтобы не дублировался текст
                                                         prefix={
-                                                            <div>
+                                                            <div className="product-groups-preview">
                                                                 {productGroups.map((alias: string) => {
                                                                     const ref = productGroupReferences.find(r => r.alias === alias);
                                                                     const title = ref?.title?.[lang] ?? ref?.title?.ru ?? alias;

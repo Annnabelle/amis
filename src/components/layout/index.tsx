@@ -255,7 +255,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 collapsible
                 collapsed={collapsed}
                 trigger={null}
-                width="fit-content"
+                width={260}            // обычная ширина
                 collapsedWidth={80}
                 className={`layout-sider ${
                     collapsed ? 'is-collapsed' : 'is-opened'

@@ -18,6 +18,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "../../store/references";
 import {getOrganizationById} from "../../store/organization";
+import type {LangKey} from "../../utils/consts.ts";
+import type {MultiLanguage} from "../../dtos";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -36,8 +38,7 @@ const Products = () => {
 
     const productGroupReferences =
         useAppSelector(state => state.references.references.productGroup) ?? [];
-    const supportedLangs = ['ru', 'en', 'uz'] as const;
-    type Lang = typeof supportedLangs[number];
+    type Lang = LangKey[number];
     const orgId = id
     const company = useAppSelector(state => state.organizations.organizationById)
 
@@ -47,7 +48,7 @@ const Products = () => {
         }
     }, [dispatch, id])
 
-    const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
+    const currentLang = (i18n.language as Lang) || 'en';
 
     const companyProductGroups = useMemo(() => {
         if (!company?.productGroups?.length) return []
@@ -57,8 +58,6 @@ const Products = () => {
         )
     }, [company?.productGroups, productGroupReferences])
 
-
-    console.log("productGroupReferences", productGroupReferences)
     useEffect(() => {
         dispatch(fetchReferencesByType("countryCode"));
         dispatch(fetchReferencesByType("productGroup"));
@@ -136,25 +135,27 @@ const Products = () => {
 
     const handleRegisterProduct = async (values: CreateProduct) => {
         try {
-            const newData = { ...values, companyId: id };
+            const newData = {
+                ...values,
+                companyId: id,
+                expiration: Number(values.expiration), // 👈 здесь преобразование
+            };
 
             await dispatch(createProduct(newData)).unwrap();
 
             toast.success(t("products.messages.success.createProduct"));
 
-            // очистка полей формы
             form.resetFields();
 
-            // закрытие модалки через 1 секунду
             setTimeout(() => {
                 handleModal("addProduct", false);
-                // если нужно, можно убрать window.location.reload()
             }, 1000);
 
         } catch (err: any) {
             toast.error(err || t("products.messages.error.createProduct"));
         }
     };
+
 
 
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -252,16 +253,24 @@ const Products = () => {
         }
     };
 
+    const getTitle = (title: MultiLanguage | undefined, fallback: string = "") => {
+        return (
+            (title as any)?.[currentLang] ??
+            title?.ru ??
+            title?.en ??
+            fallback
+        );
+    };
 
-  return (
-    <MainLayout>
-        <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
-            <div className="btns-group">
-                <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
-                <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
-            </div>
-        </Heading>
-        <div className="box">
+    return (
+        <MainLayout>
+            <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
+                <div className="btns-group">
+                    <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                    <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
+                </div>
+            </Heading>
+            <div className="box">
             <div className="box-container">
                 <div className="box-container-items">
                     <div className="box-container-items-item">
@@ -368,11 +377,7 @@ const Products = () => {
                                     .includes(input.toLowerCase())
                             }
                             options={countryReferences.map(ref => ({
-                                label:
-                                    ref.title?.[currentLang] ?? // текущий язык
-                                    ref.title?.ru ??
-                                    ref.title?.en ??
-                                    ref.alias,
+                                label: getTitle(ref.title, ref.alias),
                                 value: ref.alias, // будет отправляться в POST
                             }))}
                         />
@@ -383,19 +388,22 @@ const Products = () => {
                         name="expiration"
                         label={t('products.addProductForm.label.expiration')}
                         rules={[
-                            { required: true, message: t('products.addProductForm.validation.required.expiration') },
-                            {
-                                pattern: /^[0-9]{1,2}$/,
-                                message: t('products.messages.error.invalidExpiration') // добавь новую строку перевода
-                            },
+                            // {
+                            //     required: true,
+                            //     message: t('products.addProductForm.validation.required.expiration'),
+                            // },
+                            // {
+                            //     pattern: /^[0-9]{1,3}$/,
+                            //     message: t('products.messages.error.invalidExpiration'),
+                            // },
                         ]}
                     >
                         <Input
-                            min={0}
-                            max={99}
-                            step={1}
-                            type="number"
-                            className="input" size="large" placeholder={t('products.addProductForm.placeholder.expiration')} />
+                            className="input"
+                            size="large"
+                            placeholder={t('products.addProductForm.placeholder.expiration')}
+                            // inputMode="numeric"
+                        />
                     </Form.Item>
                 </div>
 
@@ -486,11 +494,7 @@ const Products = () => {
                             className="input"
                             placeholder={t('products.addProductForm.placeholder.productType')}
                             options={companyProductGroups.map(ref => ({
-                                label:
-                                    ref.title?.[currentLang] ??
-                                    ref.title?.ru ??
-                                    ref.title?.en ??
-                                    ref.alias,
+                                label: getTitle(ref.title, ref.alias),
                                 value: ref.alias, // 👈 ВАЖНО
                             }))}
                         />

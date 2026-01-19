@@ -83,16 +83,11 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
     {
         title: t("aggregations.aggregationsTableTitle.status"),
         dataIndex: "status",
+        className: "no-ellipsis",
         key: "status",
         render: (status: string) => (
             status ? (
                 <Tag color={statusColors[status]}
-                     style={{
-                         maxWidth: 150,
-                         overflow: "hidden",
-                         whiteSpace: "nowrap",
-                         textOverflow: "ellipsis",
-                     }}
                 >
                     {t(`aggregations.aggregationReportStatus.${status}`)}
                 </Tag>

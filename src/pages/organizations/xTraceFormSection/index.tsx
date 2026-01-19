@@ -21,6 +21,13 @@ interface XTraceError {
     statusCode?: number;
 }
 
+interface XTraceBackendError {
+    success: false;
+    errorCode?: number;
+    errorMessage?: Record<LanguageKey, string>;
+}
+
+
 const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch();
@@ -29,8 +36,9 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
     const { data, loading, error } = useAppSelector((state) => state.xTrace) as {
         data: any;
         loading: boolean;
-        error: string | XTraceError | null;
+        error: string | XTraceError | XTraceBackendError | null;
     };
+
     const [xTraceValidated, setXTraceValidated] = useState(false);
 
     const xData = isXTraceSuccess(data) ? data.data : undefined;
@@ -41,7 +49,6 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
         return value !== undefined && value !== null && value !== "";
     };
 
-    // --- Обработка X-Trace ответа ---
     useEffect(() => {
         if (!data) return;
 
@@ -85,10 +92,6 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
             setXTraceValidated(false);
         }
     }, [data, form, lang, setIsValidated, t]);
-
-
-    // --- Ошибка запроса ---
-    // --- Ошибка запроса ---
     useEffect(() => {
         if (!error) return;
 
@@ -96,21 +99,32 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
 
         if (typeof error === "string") {
             errorMessage = error;
-        } else if (typeof error === "object" && error !== null) {
-            // проверяем конкретно на "No token provided"
-            if (error.message === "No token provided") {
+        }
+        else if (typeof error === "object") {
+
+            if ("errorMessage" in error && error.errorMessage) {
+                const messages = error.errorMessage as Record<LanguageKey, string>;
+
+                errorMessage =
+                    messages[lang] ??
+                    messages.ru ??
+                    t("common.errors.unknown");
+            }
+            else if ("message" in error && error.message === "No token provided") {
                 errorMessage = t("organizations.addUserForm.validation.xTrace.noToken");
-            } else {
-                errorMessage = error.message || error.error || "Unknown error";
+            }
+            else {
+                errorMessage =
+                    ("message" in error && error.message) ||
+                    ("error" in error && error.error) ||
+                    t("common.errors.unknown");
             }
         }
 
         toast.error(errorMessage);
         setIsValidated(false);
         setXTraceValidated(false);
-    }, [error, setIsValidated, t]);
-
-
+    }, [error, lang, setIsValidated, t]);
 
     const handleValidateXTrace = () => {
         const tin = form.getFieldValue("tin");

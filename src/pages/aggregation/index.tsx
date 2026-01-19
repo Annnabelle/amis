@@ -202,8 +202,12 @@ const Aggregations = () => {
                                         <Select
                                             size="large"
                                             className="input"
+                                            placeholder={
+                                                <span className="custom-placeholder">
+                                                    {t('search.selectStatus')}
+                                                </span>
+                                            }
                                             allowClear
-                                            placeholder={t('search.selectStatus')}
                                             options={[
                                                 { label: t('aggregations.aggregationReportStatus.new'), value: 'new' },
                                                 { label: t('aggregations.aggregationReportStatus.requested'), value: 'requested' },
@@ -225,6 +229,11 @@ const Aggregations = () => {
                                     <Form.Item name="dateRange" className="input">
                                         <DatePicker.RangePicker
                                             size="large"
+                                            // placeholder={
+                                            //     <span className="custom-placeholder">
+                                            //         {t('search.selectStatus')}
+                                            //     </span>
+                                            // }
                                             placeholder={[t('search.chooseDate'), t('search.chooseDate')]}
                                             className="input"
                                             onChange={(dates) => {
@@ -246,7 +255,11 @@ const Aggregations = () => {
                                             size="large"
                                             showSearch
                                             className="input"
-                                            placeholder={t('search.selectProduct')}
+                                            placeholder={
+                                                <span className="custom-placeholder">
+                                                    {t('search.selectProduct')}
+                                                </span>
+                                            }
                                             filterOption={false}
                                             allowClear
                                             loading={productsLoading}
