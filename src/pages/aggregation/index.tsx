@@ -77,7 +77,7 @@ const Aggregations = () => {
 
     useEffect(() => {
         if (modalState.addAggregation) {
-            dispatch(fetchMarkingCodes({ page: 1, limit: 15 }));
+            dispatch(fetchMarkingCodes({ page: 1, limit: 15, companyId: orgId }));
         }
     }, [modalState.addAggregation, dispatch]);
 
@@ -160,7 +160,6 @@ const Aggregations = () => {
             parentBatchId,
             childOrderId,
             childBatchId,
-            companyId: orgId!,
         };
 
         dispatch(createAggregationReport(payload))

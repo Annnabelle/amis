@@ -6,7 +6,6 @@ export type CreateAggregationReport = {
     parentBatchId?: string;
     childOrderId: string;
     childBatchId?: string;
-    companyId: string;
 }
 
 export type AggregationReportResponse = {
