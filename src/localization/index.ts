@@ -9,6 +9,10 @@ export const resources = {
                 active: "Active",
                 inactive: "Inactive",
             },
+            export: {
+                short: "Short",
+                long: "Full"
+            },
             logsActions: {
                 user: {
                     userRegistration: "Registration of a new user",
@@ -731,6 +735,10 @@ export const resources = {
             statuses: {
                 active: "Активен",
                 inactive: "Неактивен",
+            },
+            export: {
+                short: "Короткий",
+                long: "Полный"
             },
             logsActions: {
                 user: {
@@ -1455,6 +1463,10 @@ export const resources = {
             statuses: {
                 active: "Faol",
                 inactive: "Faol emas",
+            },
+            export: {
+                short: "Qisqa",
+                long: "To‘liq"
             },
             logsActions: {
                 user: {

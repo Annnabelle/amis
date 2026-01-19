@@ -411,11 +411,11 @@ const Organizations = () => {
                                         return (
                                             <Input
                                                 size="large"
-                                                className="input product-groups-preview"
+                                                className="input"
                                                 disabled
                                                 value={undefined} // 🔥 важно
                                                 prefix={
-                                                    <div>
+                                                    <div className="product-groups-preview">
                                                         {productGroups.map((alias: string) => {
                                                             const ref = productGroupReferences.find(
                                                                 (r) => r.alias === alias
@@ -569,7 +569,7 @@ const Organizations = () => {
                                 <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')}
                                            rules={[
                                                {
-                                                   required: true,
+                                                   required: false,
                                                    message: t("organizations.addUserForm.validation.required.district"),
                                                },
                                            ]}>
@@ -608,7 +608,7 @@ const Organizations = () => {
                                     label={t("organizations.addUserForm.label.bankName")}
                                     rules={[
                                         {
-                                            required: true,
+                                            required: false,
                                             message: t("organizations.addUserForm.validation.required.bankName"),
                                         },
                                     ]}
@@ -627,7 +627,7 @@ const Organizations = () => {
                                     label={t("organizations.addUserForm.label.ccea")}
                                     rules={[
                                         {
-                                            required: true,
+                                            required: false,
                                             message: t("organizations.addUserForm.validation.required.ccea"),
                                         },
                                         {
@@ -652,7 +652,7 @@ const Organizations = () => {
                                     label={t("organizations.addUserForm.label.account")}
                                     rules={[
                                         {
-                                            required: true,
+                                            required: false,
                                             message: t("organizations.addUserForm.validation.required.account"),
                                         },
                                         {
@@ -675,7 +675,7 @@ const Organizations = () => {
                                     label={t("organizations.addUserForm.label.mfo")}
                                     rules={[
                                         {
-                                            required: true,
+                                            required: false,
                                             message: t("organizations.addUserForm.validation.required.mfo"),
                                         },
                                         {
@@ -735,7 +735,7 @@ const Organizations = () => {
                                     label={t("organizations.addUserForm.label.url")}
                                     rules={[
                                         {
-                                            required: true,
+                                            required: false,
                                             message: t("organizations.addUserForm.validation.required.url"),
                                         },
                                         {

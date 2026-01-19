@@ -79,23 +79,23 @@ export const CompanyTypes = Object.values(CompanyType);
 export type CompanyType = typeof CompanyType[keyof typeof CompanyType];
 
 export type AddressDto = {
-  region: string;
-  district: string;
-  address: string;
+  region?: string;
+  district?: string;
+  address?: string;
 }
 
 export type BankDetailsDto = {
-  bankName: string;
-  ccea: string;
-  account: string;
-  mfo: string;
+  bankName?: string;
+  ccea?: string;
+  account?: string;
+  mfo?: string;
 }
 
 export type ContactsDto = {
-  phone: string;
-  email: string;
-  url: string;
-  person: string;
+  phone?: string;
+  email?: string;
+  url?: string;
+  person?: string;
 }
 
 export type XTraceTokenData = {
@@ -121,13 +121,13 @@ export type CompanySortField = typeof CompanySortField[keyof typeof CompanySortF
 
 
 export type MeasurementDto = {
-  unit: string;
-  amount: number;
+  unit?: string;
+  amount?: number;
 }
 
 export type WeightDto = {
-  net: number;
-  gross: number;
+  net?: number;
+  gross?: number;
 }
 
 export const ProductStatus = {

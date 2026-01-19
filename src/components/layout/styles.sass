@@ -34,14 +34,24 @@
             align-items: start
             gap: 24px
             .layout-sider
-                min-width: 260px !important
-                max-width: 260px !important
+                width: 260px
                 background-color: map.get(vars.$basic, 'white')
                 position: relative
                 padding: 12px
                 border-radius: 20px
                 box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
                 // flex: 0 0 250 !important
+                &.is-collapsed
+                    width: 80px
+                    .ant-menu-item-selected,
+                    .ant-menu-item,
+                    .ant-menu-submenu
+                        padding: 0 8px
+                        display: flex
+                        justify-content: center
+                        align-items: center
+                        .ant-menu-title-content
+                            display: none !important
                 .ant-menu
                     background: map.get(vars.$basic, 'white')
                     overflow: visible !important
@@ -122,6 +132,7 @@
                         border-radius: 8px
                         .ant-menu-title-content
                             color: map.get(vars.$basic, 'black') !important
+                            display: block
                 &-trigger
                     width: 100%
                     z-index: 1
@@ -259,8 +270,8 @@
             overflow: hidden
             text-overflow: ellipsis
             white-space: nowrap
-    &:not(.ant-layout-sider-collapsed)
-        width: fit-content !important
+    //&:not(.ant-layout-sider-collapsed)
+    //    width: fit-content !important
 
     .layout-sider-menu
         background: transparent
