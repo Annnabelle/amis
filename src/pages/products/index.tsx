@@ -388,14 +388,10 @@ const Products = () => {
                         name="expiration"
                         label={t('products.addProductForm.label.expiration')}
                         rules={[
-                            // {
-                            //     required: true,
-                            //     message: t('products.addProductForm.validation.required.expiration'),
-                            // },
-                            // {
-                            //     pattern: /^[0-9]{1,3}$/,
-                            //     message: t('products.messages.error.invalidExpiration'),
-                            // },
+                            {
+                                required: true,
+                                message: t('products.addProductForm.validation.required.expiration'),
+                            },
                         ]}
                     >
                         <Input
@@ -406,8 +402,6 @@ const Products = () => {
                         />
                     </Form.Item>
                 </div>
-
-
                 <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
@@ -551,7 +545,7 @@ const Products = () => {
                         name={['measurement', 'unit']}
                         label={t('products.addProductForm.label.unit')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.measurementUnit') },
+                        { required: false, message: t('products.addProductForm.validation.required.measurementUnit') },
                         { max: 10, message: t('products.addProductForm.validation.pattern.measurementUnit') },
                         ]}
                     >
@@ -566,7 +560,7 @@ const Products = () => {
                         name={['measurement', 'amount']}
                         label={t('products.addProductForm.label.amount')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.requiredField') },
+                        { required: false, message: t('products.addProductForm.validation.required.requiredField') },
                         { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') },
                         ]}
                     >
@@ -578,7 +572,7 @@ const Products = () => {
                         name={['weight', 'net']}
                         label={t('products.addProductForm.label.net')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.requiredField') },
+                        { required: false, message: t('products.addProductForm.validation.required.requiredField') },
                         { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') },
                         ]}
                     >
@@ -592,7 +586,7 @@ const Products = () => {
                         name={['weight', 'gross']}
                         label={t('products.addProductForm.label.gross')}
                         rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.measurementAmount') },
+                        { required: false, message: t('products.addProductForm.validation.required.measurementAmount') },
                         { pattern: /^\d+(\.\d+)?$/, message: t('products.addProductForm.validation.pattern.measurementAmount') },
                         ]}
                     >

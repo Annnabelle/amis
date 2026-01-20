@@ -113,7 +113,7 @@ export const resources = {
                 users: "Users",
                 audit: "System logs",
                 markingCodes: "Marking codes",
-                agregations: "Agregations"
+                agregations: "Aggregations"
             },
             users: {
                 userRole: {
@@ -363,7 +363,7 @@ export const resources = {
                         barcode: "Barcode",
                         icps: "ICPS",
                         productType: "Product type",
-                        aggregationQuantity: "Agregation quantity",
+                        aggregationQuantity: "Aggregation quantity",
                         expiration: "Shelf life (days)",
                         unit: "Unit of measurement",
                         amount: "Amount",
@@ -381,7 +381,7 @@ export const resources = {
                         barcode: "Enter barcode",
                         icps: "Enter ICPS",
                         productType: "Enter product type",
-                        aggregationQuantity: "Enter agregation quantity",
+                        aggregationQuantity: "Enter aggregation quantity",
                         expiration: "Enter expiration date",
                         unit: "Enter unit of measurement",
                         amount: "Enter amount",
@@ -397,7 +397,7 @@ export const resources = {
                             barcode: "Barcode is required",
                             icps: "ICPS is required",
                             productType: "Product type is required",
-                            aggregationQuantity: "Agregation quantity is required",
+                            aggregationQuantity: "Aggregation quantity is required",
                             expiration: "Expiration is required",
                             measurementUnit: "Unit is required",
                             measurementAmount: "Amount is required",
@@ -681,7 +681,7 @@ export const resources = {
                     productName: "Product name",
                     childBatch: "Child batch",
                     parentBatch: "Parent batch",
-                    aggregationReportNumber: "Agregation report number",
+                    aggregationReportNumber: "Aggregation report number",
                 },
                 aggregationReportStatus: {
                     new: "New",
