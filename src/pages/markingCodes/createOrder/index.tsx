@@ -28,17 +28,17 @@ type Product = {
   packageTypes?: string[];
 };
 
-const generateOptions = [
-  { value: "self", label: "Самостоятельно" },
-  { value: "operator", label: "Оператором" },
-];
-
 const OrderForm = () => {
   const [form] = Form.useForm<OrderFormValues>();
   const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const orgId = id;
   const dispatch = useAppDispatch();
+
+  const generateOptions = [
+    { value: "self", label: t("markingCodes.independently") },
+    { value: "operator", label: t("markingCodes.byOperator") },
+  ];
 
   const packTypeReferences =
       useAppSelector((state) => state.references.references.cisType) ?? [];
@@ -67,7 +67,7 @@ const OrderForm = () => {
   // --- Поиск продуктов при вводе ---
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
-      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
+      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
     }
   };
 

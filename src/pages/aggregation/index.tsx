@@ -181,6 +181,7 @@ const Aggregations = () => {
             query: value,
             page: 1,
             limit: 10,
+            companyId: orgId
         }));
     };
 
