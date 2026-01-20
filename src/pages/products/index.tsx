@@ -238,6 +238,7 @@ const Products = () => {
                 page: 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
+                companyId: id
             })
             );
         } else {

@@ -147,9 +147,9 @@ export const deleteProduct = createAsyncThunk(
 
 export const searchProducts = createAsyncThunk(
   'products/searchProducts',
-  async ({ query, page = 1, limit = 10, sortOrder = 'asc' }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }) => {
+  async ({ query, page = 1, limit = 10, sortOrder = 'asc', companyId }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc';  companyId?: string; }) => {
     const response = await axiosInstance.get(`/products/search`, {
-      params: { query, page, limit, sortOrder }
+      params: { query, page, limit, sortOrder, companyId }
     });
     return response.data;
   }
