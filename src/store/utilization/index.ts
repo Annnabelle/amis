@@ -34,18 +34,32 @@ export const createUtilizationReport = createAsyncThunk(
                 payload
             );
 
-            if (data.success && Array.isArray(data.reports) && data.reports.length > 0) {
+            // ✅ бэк вернул ошибку, но HTTP 200
+            if (!data.success) {
+                return rejectWithValue(data);
+            }
+
+            if (Array.isArray(data.reports) && data.reports.length > 0) {
                 return mapUtilizationDtoToEntity(data.reports[0]);
             }
 
-            return rejectWithValue("Отчет не был создан: пустой ответ сервера");
+            // fallback, если формат неожиданный
+            return rejectWithValue({
+                errorMessage: {
+                    ru: "Отчет не был создан",
+                    uz: "Hisobot yaratilmagan",
+                    en: "Report was not created",
+                },
+            });
         } catch (err: any) {
-            const message =
-                err.response?.data?.message ||
-                err.message ||
-                "Ошибка сервера";
-
-            return rejectWithValue(message);
+            // ✅ если HTTP ошибка (400/500)
+            return rejectWithValue(err.response?.data ?? {
+                errorMessage: {
+                    ru: "Ошибка сервера",
+                    uz: "Server xatosi",
+                    en: "Server error",
+                },
+            });
         }
     }
 );
