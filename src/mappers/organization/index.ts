@@ -8,6 +8,7 @@ export const mapOrganizationDtoToEntity = (dto: CompanyResponseDto): CompanyResp
   id: dto.id,
   tin: dto.tin,
   displayName: dto.displayName,
+  businessPlaceId: dto.businessPlaceId,
   name: {
     ru: dto.name.ru,
     en: dto.name.en,
@@ -119,6 +120,7 @@ export const mapCreateOrganizationDtoToEntity = (dto: CompanyResponseDto): Compa
   id: dto.id,
   tin: dto.tin,
   displayName: dto.displayName ?? "",
+  businessPlaceId: dto.businessPlaceId ?? "12",
   name: {
     ru: dto.name?.ru ?? "",
     en: dto.name?.en ?? "",

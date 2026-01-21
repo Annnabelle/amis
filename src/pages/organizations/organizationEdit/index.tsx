@@ -135,9 +135,9 @@ const OrganizationsEdit = () => {
                             </Form.Item>
                         </div>
                         <div className="form-inputs form-inputs-row">
-                            <Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')} initialValue={organizationById.tin}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.tin')}  />
-                            </Form.Item>
+                            {/*<Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')} initialValue={organizationById.tin}>*/}
+                            {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.tin')}  />*/}
+                            {/*</Form.Item>*/}
                             {/*<Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')} initialValue={organizationById.legalName}>*/}
                             {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')}  />*/}
                             {/*</Form.Item>*/}

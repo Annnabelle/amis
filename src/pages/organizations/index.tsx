@@ -150,6 +150,7 @@ const Organizations = () => {
             tin: values.tin,
             productGroups: values.productGroups ?? [],
             isTest: Boolean(values.isTest),
+            businessPlaceId: Number(values.businessPlaceId),
         };
 
         if (values.director) {
@@ -217,9 +218,17 @@ const Organizations = () => {
 
                 toast.error(errorMessage);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error(t("organizations.messages.error.createUser"));
+            const lang = i18n.language as 'ru' | 'uz' | 'en';
+
+            const backendMessage =
+                error?.errorMessage?.[lang] ||
+                error?.errorMessage?.ru || // fallback
+                t('common.error');       // общий перевод
+
+            toast.error(backendMessage);
+            // toast.error(t("organizations.messages.error.createUser"));
         }
     };
 
@@ -326,7 +335,7 @@ const Organizations = () => {
                     </div>
                     <div className="box-container-items">
                         <ComponentTable<OrganizationTableDataType>
-                            columns={OrganizationsTableColumns(t, handleRowClick, handleDeleteOrganization)}
+                            columns={OrganizationsTableColumns(t, handleDeleteOrganization)}
                             data={OrganizationsData}
                             onRowClick={(record) => handleRowClick('Company', 'retrieve', record)}
                             pagination={{
@@ -354,7 +363,10 @@ const Organizations = () => {
                     />
                     {isXTraceValidated && (
                         <>
-                            <div className="form-inputs form-inputs-row small">
+                            <Form.Item name="isTest" hidden>
+                                <Input />
+                            </Form.Item>
+                            <div className="form-inputs form-inputs-row">
                                 <Form.Item
                                     name={["accessCodes", "xTrace", "expireDate"]} // для сабмита
                                     label={t('organizations.addUserForm.label.expireDate')}
@@ -368,10 +380,27 @@ const Organizations = () => {
                                         placeholder={t('organizations.addUserForm.placeholder.expireDate')}
                                     />
                                 </Form.Item>
-                                <Form.Item name="isTest" hidden>
-                                    <Input />
+                                <Form.Item
+                                    name="businessPlaceId"
+                                    label={t('organizations.addUserForm.label.businessPlaceId')}
+                                    className="input"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: t("organizations.addUserForm.placeholder.businessPlaceId"),
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        size="large"
+                                        inputMode="numeric"
+                                        placeholder={t('organizations.addUserForm.placeholder.businessPlaceId')}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/\D/g, '');
+                                            form.setFieldsValue({ businessPlaceId: value });
+                                        }}
+                                    />
                                 </Form.Item>
-
                             </div>
                             <div className="form-inputs form-inputs-row">
                                 <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}

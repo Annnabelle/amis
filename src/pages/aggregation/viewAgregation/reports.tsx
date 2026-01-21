@@ -5,6 +5,14 @@ import {useTranslation} from "react-i18next";
 import {useAppDispatch, useAppSelector} from "../../../store";
 import {fetchOneAggregationReport} from "../../../store/aggregation";
 import "../../markingCodeProduct/styles.sass"
+import {Tag} from "antd";
+import {statusColors} from "../../../components/statuses.tsx";
+
+const getStatusColor = (status?: string | null) => {
+    if (!status) return 'default';
+
+    return statusColors[status.toLowerCase()] ?? 'default';
+};
 
 const AgregationReport: React.FC = () => {
     const { orderId, id } = useParams<{
@@ -46,7 +54,7 @@ const AgregationReport: React.FC = () => {
 
                         {reportData?.child.orderNumber && (
                             <BatchItem label={t("aggregations.agregationReportPage.childOrderNumber")}>
-                                ${reportData?.child.orderNumber}
+                                {reportData?.child.orderNumber}
                             </BatchItem>
                         )}
                     </div>
@@ -62,7 +70,7 @@ const AgregationReport: React.FC = () => {
 
                         {reportData?.child.batchNumber && (
                             <BatchItem label={t("aggregations.agregationReportPage.childBatchNumber")}>
-                                ${reportData?.child.batchNumber}
+                                {reportData?.child.batchNumber}
                             </BatchItem>
                         )}
                     </div>
@@ -78,7 +86,7 @@ const AgregationReport: React.FC = () => {
 
                         {reportData?.quantityPerPackage && (
                             <BatchItem label={t("aggregations.agregationReportPage.quantityPerPackage")}>
-                                ${reportData?.quantityPerPackage}
+                                {reportData?.quantityPerPackage}
                             </BatchItem>
                         )}
                     </div>
@@ -87,7 +95,20 @@ const AgregationReport: React.FC = () => {
                     <div className="grid">
                         {reportData?.productionOrderNumber && (
                             <BatchItem label={t("aggregations.agregationReportPage.productionOrderNumber")}>
-                                ${reportData?.productionOrderNumber}
+                                {reportData?.productionOrderNumber}
+                            </BatchItem>
+                        )}
+                    </div>
+                </section>
+                <section className="batch-section">
+                    <div className="grid">
+                        {reportData?.status && (
+                            <BatchItem label={t("markingCodes.tableTitles.status")}>
+                                {/*{reportData?.status}*/}
+
+                                <Tag color={getStatusColor(reportData?.status)}>
+                                    {t(`aggregations.aggregationReportStatus.${reportData?.status}`)}
+                                </Tag>
                             </BatchItem>
                         )}
                     </div>

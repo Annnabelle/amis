@@ -81,7 +81,10 @@ export const createOrganization = createAsyncThunk(
 
       return rejectWithValue("Ошибка регистрации компании");
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+        return rejectWithValue({
+            errorMessage: { ru: err.message, uz: err.message, en: err.message },
+            errorCode: 0,
+        });
     }
   }
 );

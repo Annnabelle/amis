@@ -47,6 +47,7 @@ export type CompanyResponse = {
   deleted: boolean;
   deletedAt: Date | null;
   isTest: boolean;
+  businessPlaceId: number;
 };
 
 export type CreateCompany = {
@@ -60,6 +61,7 @@ export type CreateCompany = {
   bankDetails: BankDetailsDto;
   contacts: ContactsDto;
   accessCodes: AccessCodesDto;
+  businessPlaceId: number
 }
 
 export class UpdateCompany {
