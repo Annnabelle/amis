@@ -160,6 +160,19 @@ const OrganizationsInner = () => {
                                             />
                                         </Form.Item>
                                     )}
+                                    {organizationById?.businessPlaceId && (
+                                        <Form.Item
+                                            name="businessPlaceId"
+                                            label={t('organizations.addUserForm.label.businessPlaceId')}
+                                            className="input"
+                                        >
+                                            <Input
+                                                size="large"
+                                                className="input"
+                                                placeholder={organizationById?.businessPlaceId?.toString()}
+                                            />
+                                        </Form.Item>
+                                    )}
                                 </div>
                                 {(organizationById?.displayName || organizationById?.director) && (
                                     <div className="form-inputs form-inputs-organization">

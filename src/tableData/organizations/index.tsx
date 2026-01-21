@@ -6,7 +6,7 @@ import type { TFunction } from 'i18next';
 import {statusColors} from "../../components/statuses.tsx";
 import type {AdaptiveColumn} from "../../components/table/types.ts";
 
-export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "Company", action: "retrieve" | "edit" | "delete", record: OrganizationTableDataType) => void, onDelete: (record: OrganizationTableDataType) => void) : AdaptiveColumn<OrganizationTableDataType>[] => [
+export const OrganizationsTableColumns = (t: TFunction, onDelete: (record: OrganizationTableDataType) => void) : AdaptiveColumn<OrganizationTableDataType>[] => [
   { 
     title: '№',
     dataIndex: "number",
@@ -93,18 +93,18 @@ export const OrganizationsTableColumns = (t: TFunction, handleRowClick: (type: "
         overlay={
           <Menu
             items={[
-              {
-                key: "edit",
-                label: (
-                  <CustomButton
-                    type="button"
-                    className="outline"
-                    onClick={(e) =>  {e.stopPropagation(); handleRowClick("Company", "edit", record);}}
-                  >
-                   {t('btn.edit')}
-                  </CustomButton>
-                ),
-              },
+              // {
+              //   key: "edit",
+              //   label: (
+              //     <CustomButton
+              //       type="button"
+              //       className="outline"
+              //       onClick={(e) =>  {e.stopPropagation(); handleRowClick("Company", "edit", record);}}
+              //     >
+              //      {t('btn.edit')}
+              //     </CustomButton>
+              //   ),
+              // },
               {
                 key: "delete",
                 label: (

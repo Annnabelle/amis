@@ -18,6 +18,7 @@ export type CompanyResponseDto = {
   id: string;
   tin: string;
   // companyType: CompanyType;
+  businessPlaceId: number;
   displayName: string;
   name: MultiLanguage;
   legalName: MultiLanguage;
@@ -68,6 +69,7 @@ export type CreateCompanyDto = {
   contacts?: ContactsDto;
   accessCodes?: AccessCodesDto;
   isTest: boolean;
+  businessPlaceId: number;
 }
 
 export type GetUserResponseDto = {

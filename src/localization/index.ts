@@ -239,8 +239,10 @@ export const resources = {
                         deleted: "Deleted",
                         xTraceToken: "XTrace token",
                         expireDate: "Token Expiration Date",
+                        businessPlaceId: "Business Place ID"
                     },
                     placeholder: {
+                        businessPlaceId: "Enter business place ID",
                         companyName: "Enter company name",
                         companyType: "Enter company type",
                         displayName: "Enter display name",
@@ -968,9 +970,11 @@ export const resources = {
                         status: "Статус",
                         deleted: 'Удалено',
                         xTraceToken: "Токен X-Trace",
-                        expireDate: "Дата истечения токена"
+                        expireDate: "Дата истечения токена",
+                        businessPlaceId: "Идентификатор МОД",
                     },
                     placeholder: {
+                        businessPlaceId: "Введите Индентификатор МОД",
                         companyName: "Введите название компании",
                         companyType: 'Введите тип компании',
                         displayName: 'Введите отображаемое имя',
@@ -1698,9 +1702,11 @@ export const resources = {
                         status: "Holat",
                         deleted: "O‘chirildi",
                         xTraceToken: "X-Trace tokeni",
-                        expireDate: "Token muddati tugash sanasi"
+                        expireDate: "Token muddati tugash sanasi",
+                        businessPlaceId: "FAOJ identifikatori"
                     },
                     placeholder: {
+                        businessPlaceId: "FAOJ identifikatori kirirting",
                         companyName: "Kompaniya nomi kirirting",
                         companyType: "Kompaniya turini kiriting",
                         displayName: "Ko‘rsatiladigan nomni kiriting",
