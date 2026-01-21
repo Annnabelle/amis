@@ -16,7 +16,7 @@ import {createUtilizationReport} from "../../store/utilization";
 
 const Batches = () => {
     const navigate = useNavigate()
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const { orgId, orderId } = useParams<{
         orgId: string;
@@ -72,9 +72,14 @@ const Batches = () => {
                     `Батч ${batch.batchNumber}: отчет №${result.reportNumber} создан`
                 );
             } catch (err: any) {
-                toast.info(
-                    `Батч ${batch.batchNumber}: отчет уже был создан ранее`
-                );
+                const lang = i18n.language as 'ru' | 'uz' | 'en';
+
+                const backendMessage =
+                    err?.errorMessage?.[lang] ||
+                    err?.errorMessage?.ru || // fallback
+                    t('common.error');       // общий перевод
+
+                toast.error(backendMessage);
             }
         }
 
@@ -85,7 +90,6 @@ const Batches = () => {
         dispatch(getMarkingCodeById({ id: markingCodeById.id }));
     };
 
-    console.log("markingCodeById?.status?", markingCodeById?.status)
     return (
     <MainLayout>
         <Heading

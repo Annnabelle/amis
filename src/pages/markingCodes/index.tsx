@@ -96,14 +96,6 @@ const MarkingCodes = () => {
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
-
-    // const packageTypeOptions = useMemo(() => {
-    //     return packTypeReferences.map((ref) => ({
-    //         value: ref.alias,
-    //         label: ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en, // fallback
-    //     }));
-    // }, [packTypeReferences, i18n.language]);
-
     const statusOptions = useMemo(() => {
         const statuses = t('markingCodes.batches.orderNotExternalStatus', { returnObjects: true }) as Record<string, string>;
 
@@ -112,16 +104,6 @@ const MarkingCodes = () => {
             label,       // перевод
         }));
     }, [i18n.language, t]);
-
-
-    // const statusOptions = [
-    //     { label: t('markingCodes.markingCodesOrderStatus.new'), value: OrderStatus.New },
-    //     { label: t('markingCodes.markingCodesOrderStatus.vendorPending'), value: OrderStatus.VendorPending },
-    //     { label: t('markingCodes.markingCodesOrderStatus.readyForCodes'), value: OrderStatus.ReadyForCodes },
-    //     { label: t('markingCodes.markingCodesOrderStatus.rejected'), value: OrderStatus.Rejected },
-    //     { label: t('markingCodes.markingCodesOrderStatus.closed'), value: OrderStatus.Closed },
-    // ];
-
 
     const handleProductSearch = (value: string) => {
         if (value.trim()) {
@@ -167,9 +149,15 @@ const MarkingCodes = () => {
                 `Созданы отчеты о нанесении: номер ${result.reportNumber}`
             );
         } catch (error: any) {
-            toast.error(
-                error || 'Ошибка при создании отчета о нанесении'
-            );
+            console.log('ERROR FROM UNWRAP 👉', error);
+            const lang = i18n.language as 'ru' | 'uz' | 'en';
+
+            const backendMessage =
+                error?.errorMessage?.[lang] ||
+                error?.errorMessage?.ru || // fallback
+                t('common.error');       // общий перевод
+
+            toast.error(backendMessage);
         }
     };
 
