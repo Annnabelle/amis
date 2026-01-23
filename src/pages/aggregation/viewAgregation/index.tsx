@@ -78,9 +78,9 @@ const AggregationReportPage: React.FC = () => {
                 downloadReport({
                     aggregationId: id,
                     params,
-                    fileName: aggregation.productionOrderNumber,
                 })
             ).unwrap();
+
         } finally {
             setExportLoading(null);
         }
