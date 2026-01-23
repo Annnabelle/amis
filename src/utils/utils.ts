@@ -37,3 +37,22 @@ export const formatDate = (date: string | Date | undefined, locale = "ru-RU") =>
 
 export type LanguageKey = keyof MultiLanguage;
 
+export const getFileNameFromDisposition = (disposition?: string) => {
+  if (!disposition) return null;
+
+  // filename*=UTF-8''...
+  const utf8Match = disposition.match(/filename\*\=UTF-8''(.+)/i);
+  if (utf8Match && utf8Match[1]) {
+    return decodeURIComponent(utf8Match[1]);
+  }
+
+  // filename="..."
+  const asciiMatch = disposition.match(/filename="(.+)"/i);
+  if (asciiMatch && asciiMatch[1]) {
+    return asciiMatch[1];
+  }
+
+  return null;
+};
+
+
