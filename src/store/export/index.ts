@@ -3,10 +3,11 @@ import axiosInstance from "../../utils/axiosInstance.ts";
 import {BASE_URL} from "../../utils/consts.ts";
 import type {ExportAggregationReportParams} from "../../types/export";
 import {getFileNameFromDisposition} from "../../utils/utils.ts";
+import type {ApiErrorResponse} from "../aggregation";
 
 interface ExportState {
     loading: boolean;
-    error: string | null;
+    error: ApiErrorResponse | null;
 }
 
 const initialState: ExportState = {
@@ -20,7 +21,7 @@ export const downloadReport = createAsyncThunk<
         aggregationId: string;
         params: ExportAggregationReportParams;
     },
-    { rejectValue: string }
+    { rejectValue: ApiErrorResponse }
 >(
     'export/downloadReport',
     async ({ aggregationId, params }, { rejectWithValue }) => {
@@ -33,9 +34,6 @@ export const downloadReport = createAsyncThunk<
                 }
             );
 
-            console.log("HEADERS:", response.headers);
-            console.log("DISPOSITION:", response.headers["content-disposition"]);
-
             const disposition = response.headers['content-disposition'];
             const filename =
                 getFileNameFromDisposition(disposition) ?? 'report.csv';
@@ -45,8 +43,8 @@ export const downloadReport = createAsyncThunk<
             });
 
             const url = window.URL.createObjectURL(blob);
-
             const link = document.createElement('a');
+
             link.href = url;
             link.download = filename;
 
@@ -55,14 +53,25 @@ export const downloadReport = createAsyncThunk<
             link.remove();
 
             window.URL.revokeObjectURL(url);
-        } catch (err) {
-            console.error(err);
-            return rejectWithValue('Ошибка при скачивании файла');
+        } catch (err: any) {
+            const backendError = err?.response?.data;
+
+            if (backendError?.errorMessage) {
+                return rejectWithValue(backendError);
+            }
+
+            return rejectWithValue({
+                success: false,
+                errorCode: err?.response?.status ?? -500,
+                errorMessage: {
+                    ru: 'Ошибка при скачивании файла',
+                    en: 'Error while downloading file',
+                    uz: 'Faylni yuklab olishda xatolik',
+                },
+            });
         }
     }
 );
-
-
 
 export const exportSlice = createSlice({
     name: 'export',
@@ -79,7 +88,15 @@ export const exportSlice = createSlice({
             })
             .addCase(downloadReport.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload || 'Ошибка при скачивании файла';
+                state.error = action.payload ?? {
+                    success: false,
+                    errorCode: -1,
+                    errorMessage: {
+                        ru: 'Неизвестная ошибка',
+                        en: 'Unknown error',
+                        uz: 'Noma’lum xatolik',
+                    },
+                };
             });
     },
 });

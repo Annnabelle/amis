@@ -33,15 +33,6 @@ const MarkingCodeProduct = () => {
         dispatch(getBatch({orderId: orderId, batchId: batchId}))
     }, [dispatch]);
 
-
-    // const markingCodeStatusOptions = [
-    //     { value: MarkingCodeStatus.Received, label: t("markingCodes.markingCodesStatusProduct.received")},
-    //     { value: MarkingCodeStatus.Applied, label: t("markingCodes.markingCodesStatusProduct.applied") },
-    //     { value: MarkingCodeStatus.Introduced, label: t("markingCodes.markingCodesStatusProduct.introduced") },
-    //     { value: MarkingCodeStatus.Withdrawn, label: t("markingCodes.markingCodesStatusProduct.withdrawn") },
-    //     { value: MarkingCodeStatus.WrittenOff, label: t("markingCodes.markingCodesStatusProduct.writtenOff") },
-    // ];
-
     const OrderProductData = useMemo(() => {
         if (!orderProduct || !orderProduct.success || !('data' in orderProduct)) {
             return [];

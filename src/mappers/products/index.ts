@@ -1,5 +1,11 @@
-import type { CreateProductDto, ProductResponseDto, UpdateProductDto } from "../../dtos/products";
+import type {
+    CreateProductDto,
+    CreateProductResponseDto,
+    ProductResponseDto,
+    UpdateProductDto
+} from "../../dtos/products";
 import type { CreateProduct, ProductResponse, UpdateProduct } from "../../types/products";
+import type {ErrorDto} from "../../dtos";
 
 
 export function mapCreateProductToCreateProductDto(form: CreateProduct ) : CreateProductDto {
@@ -61,6 +67,21 @@ export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse 
     price: dto.price,
     companyId: dto.companyId,
 });
+
+export function mapCreateProductResponseResponse(
+    dto: CreateProductResponseDto
+): { success: boolean; product?: ProductResponseDto; error?: ErrorDto } {
+    // если dto содержит поле errorCode или errorMessage, считаем это ошибкой
+    if ('errorCode' in dto || 'errorMessage' in dto) {
+        return { success: false, error: dto as ErrorDto };
+    }
+
+    // иначе это успешный ответ с репортами
+    return {
+        success: dto.success,
+        product: dto.product,
+    };
+}
 
 export const mapUpdateProductDtoToEntity = (dto: UpdateProductDto) : UpdateProduct => ({
   name: dto.name ?? undefined,

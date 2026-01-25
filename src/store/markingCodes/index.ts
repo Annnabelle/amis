@@ -29,6 +29,8 @@ import type {
   GetOrderProductCodesResponseDto
 } from "../../dtos/markingCodes/order-product.ts";
 import type { GetOrderProductCodesResponse} from "../../types/markingCodes/order-product.ts";
+import type {BackendError} from "../../types/types.ts";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 
 type MarkingCodesState = {
@@ -137,27 +139,31 @@ function isCreateOrderSuccess(
 }
 
 export const createOrder = createAsyncThunk<
-  OrderResponse,
-  CreateOrderDto,
-  { rejectValue: string }
+    OrderResponse,
+    CreateOrderDto,
+    { rejectValue: Partial<BackendError> | string }
 >(
-  "markingCodes/createOrder",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post<CreateOrderResponseDto>(
-        `${BASE_URL}/orders`,
-        payload
-      );
+    "markingCodes/createOrder",
+    async (payload, { rejectWithValue }) => {
+      try {
+        const response = await axiosInstance.post<CreateOrderResponseDto>(
+            `${BASE_URL}/orders`,
+            payload
+        );
 
-      if (isCreateOrderSuccess(response.data)) {
-        return mapMarkingCodeDtoToEntity(response.data.order);
+        if (isCreateOrderSuccess(response.data)) {
+          return mapMarkingCodeDtoToEntity(response.data.order);
+        }
+
+        // Ошибка от бэкенда со статусом success: false
+        return rejectWithValue(response.data as Partial<BackendError>);
+      } catch (err: any) {
+        if (err.response?.data) {
+          return rejectWithValue(err.response.data as Partial<BackendError>);
+        }
+        return rejectWithValue({ errorMessage: { ru: err.message || "Ошибка сервера" } });
       }
-
-      return rejectWithValue("Ошибка создания заказа");
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
     }
-  }
 );
 
 function isGetOrderProductCodesSuccess(
@@ -274,10 +280,13 @@ export const markingCodesSlice = createSlice({
           state.createdOrder = action.payload;
         }
       )
-      .addCase(createOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Ошибка создания заказа";
-      })
+        .addCase(createOrder.rejected, (state, action) => {
+          state.loading = false;
+          state.error = getBackendErrorMessage(
+              action.payload,
+              "Ошибка создания заказа"
+          );
+        })
       .addCase(fetchMarkingCodes.pending, (state) => {
         state.loading = true;
         state.error = null;

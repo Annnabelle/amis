@@ -136,6 +136,12 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     render: (status: string) => (
       status && (
         <Tag color={statusColors[status]}
+             style={{
+                 maxWidth: "100%",
+                 overflow: "hidden",
+                 whiteSpace: "nowrap",
+                 textOverflow: "ellipsis",
+             }}
         >
           {t(`markingCodes.batches.batchesOrderStatus.${status?.toLowerCase()}`)}
         </Tag>
@@ -151,6 +157,12 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     render: (status: string) => (
         status && (
             <Tag color={statusColors[status]}
+                 style={{
+                     maxWidth: "100%",
+                     overflow: "hidden",
+                     whiteSpace: "nowrap",
+                     textOverflow: "ellipsis",
+                 }}
             >
               {t(`markingCodes.markingCodesOrderStatus.${status?.toLowerCase()}`)}
             </Tag>

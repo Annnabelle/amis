@@ -130,7 +130,10 @@ export const createAggregationReport = createAsyncThunk<
     "aggregation/createAggregationReport",
     async (payload, { rejectWithValue }) => {
         try {
-            const { data } = await axiosInstance.post(`${BASE_URL}/reports/aggregation`, payload);
+            const { data } = await axiosInstance.post(
+                `${BASE_URL}/reports/aggregation`,
+                payload
+            );
 
             if (data.success && data.report) {
                 return mapAggregationListDtoToEntity(data.report);
@@ -138,9 +141,15 @@ export const createAggregationReport = createAsyncThunk<
 
             return rejectWithValue(data as ApiErrorResponse);
         } catch (err: any) {
+            const backendError = err?.response?.data;
+
+            if (backendError?.errorMessage) {
+                return rejectWithValue(backendError as ApiErrorResponse);
+            }
+
             return rejectWithValue({
                 success: false,
-                errorCode: err.response?.status ?? -500,
+                errorCode: err?.response?.status ?? -500,
                 errorMessage: {
                     ru: "Ошибка сервера",
                     en: "Server error",
@@ -296,11 +305,7 @@ export const  aggregationSlice = createSlice({
             })
             .addCase(createAggregationReport.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload ?? {
-                    success: false,
-                    errorCode: -1,
-                    errorMessage: { ru: "Неизвестная ошибка", en: "Unknown error", uz: "Noma’lum xatolik" },
-                };
+                state.error = action.payload ?? null;
             })
             .addCase(fetchAggregations.pending, (state) => {
                 state.isLoading = true;

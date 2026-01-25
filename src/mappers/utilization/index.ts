@@ -1,14 +1,19 @@
-import type { UtilizationReportResponse} from "../../types/utilization";
-import type {UtilizationReportResponseDto} from "../../dtos/utilization";
+import type { UtilizationReportResponse } from "../../types/utilization";
+import type {
+    CreateUtilizationReportResponseDto,
+    UtilizationReportResponseDto,
+} from "../../dtos/utilization";
+import type {ErrorDto} from "../../dtos";
 
-export function mapUtilizationDtoToEntity (dto: UtilizationReportResponseDto): UtilizationReportResponse{
+// твой существующий маппер для одного отчёта
+export function mapUtilizationDtoToEntity(dto: UtilizationReportResponseDto): UtilizationReportResponse {
     return {
-        id: dto.id,
+        id: dto.id as string,
         reportNumber: dto.reportNumber,
-        userId: dto.userId,
-        companyId: dto.companyId,
-        productId: dto.productId,
-        mcOrderId: dto.mcOrderId,
+        userId: dto.userId as string,
+        companyId: dto.companyId as string,
+        productId: dto.productId as string,
+        mcOrderId: dto.mcOrderId as string,
 
         productGroup: dto.productGroup,
         businessPlaceId: dto.businessPlaceId,
@@ -23,5 +28,21 @@ export function mapUtilizationDtoToEntity (dto: UtilizationReportResponseDto): U
         externalStatus: dto.externalStatus,
         status: dto.status,
         orderedAt: dto.orderedAt,
+    };
+}
+
+// маппер для всего ответа
+export function mapCreateUtilizationReportResponse(
+    dto: CreateUtilizationReportResponseDto
+): { success: boolean; reports?: UtilizationReportResponse[]; error?: ErrorDto } {
+    // если dto содержит поле errorCode или errorMessage, считаем это ошибкой
+    if ('errorCode' in dto || 'errorMessage' in dto) {
+        return { success: false, error: dto as ErrorDto };
     }
+
+    // иначе это успешный ответ с репортами
+    return {
+        success: dto.success,
+        reports: dto.reports.map(mapUtilizationDtoToEntity),
+    };
 }

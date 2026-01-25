@@ -20,6 +20,7 @@ import {fetchReferencesByType} from "../../store/references";
 import {getOrganizationById} from "../../store/organization";
 import type {LangKey} from "../../utils/consts.ts";
 import type {MultiLanguage} from "../../dtos";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -151,8 +152,10 @@ const Products = () => {
                 handleModal("addProduct", false);
             }, 1000);
 
-        } catch (err: any) {
-            toast.error(err || t("products.messages.error.createProduct"));
+        } catch (error: any) {
+            toast.error(
+                getBackendErrorMessage(error, t('products.messages.error.createProduct'))
+            );
         }
     };
 
