@@ -20,6 +20,7 @@ import {createUtilizationReport} from "../../store/utilization";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import {searchUsers} from "../../store/users";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
@@ -145,19 +146,11 @@ const MarkingCodes = () => {
 
             console.log("result", result)
 
-            toast.success(
-                `Созданы отчеты о нанесении: номер ${result.reportNumber}`
-            );
+            toast.success(`Созданы отчеты о нанесении: номер ${result[0].reportNumber}`);
         } catch (error: any) {
-            console.log('ERROR FROM UNWRAP 👉', error);
-            const lang = i18n.language as 'ru' | 'uz' | 'en';
-
-            const backendMessage =
-                error?.errorMessage?.[lang] ||
-                error?.errorMessage?.ru || // fallback
-                t('common.error');       // общий перевод
-
-            toast.error(backendMessage);
+            toast.error(
+                getBackendErrorMessage(error, t('common.error'))
+            );
         }
     };
 

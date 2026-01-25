@@ -3,7 +3,8 @@ export const resources = {
         translation:{
             common:{
                 yes: "Yes",
-                no: "No"
+                no: "No",
+                error: "Something went wrong. Please try again later."
             },
             statuses: {
                 active: "Active",
@@ -734,7 +735,8 @@ export const resources = {
         translation:{
             common:{
                 yes: "Да",
-                no: "Нет"
+                no: "Нет",
+                error: "Произошла ошибка. Попробуйте позже.",
             },
             statuses: {
                 active: "Активен",
@@ -1466,7 +1468,8 @@ export const resources = {
         translation:{
             common:{
                 yes: "Ha",
-                no: "Yoʻq"
+                no: "Yoʻq",
+                error: "Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring."
             },
             statuses: {
                 active: "Faol",

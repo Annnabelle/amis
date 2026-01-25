@@ -302,5 +302,24 @@
     position: relative
     display: inline-flex
     align-items: center
-    width: 16px   // 🔥 фиксированная ширина иконки
+    width: 16px
     height: 16px
+
+.select-option
+    display: flex
+    align-items: center
+    gap: 8px
+
+
+.select-option__name
+    flex: 1
+    min-width: 0
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+
+.select-option__type
+    flex-shrink: 0
+    white-space: nowrap
+    opacity: 0.7
+

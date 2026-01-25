@@ -18,9 +18,10 @@ import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import type {AggregationReportStatus} from "../../dtos";
 import { searchProducts} from "../../store/products";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 const Aggregations = () => {
-    const { t , i18n} = useTranslation();
+    const { t } = useTranslation();
     const params = useParams();
     const orgId = params.id;
     const dispatch = useAppDispatch()
@@ -30,7 +31,6 @@ const Aggregations = () => {
     const dataTotal = useAppSelector((state) => state.aggregations.total)
     const orders = useAppSelector(state => state.markingCodes.data);
     const error = useAppSelector(state => state.aggregations.error);
-    const [parentOptions, setParentOptions] = useState<{ label: string; value: string }[]>([]);
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
     const products = useAppSelector(state => state.products.products);
@@ -48,7 +48,6 @@ const Aggregations = () => {
         dateFrom?: Date;
         dateTo?: Date;
     }>({});
-
 
     useEffect(() => {
         if (!orgId) return;
@@ -73,8 +72,6 @@ const Aggregations = () => {
         selectedProductId, // 🔥 ВАЖНО
     ]);
 
-
-
     useEffect(() => {
         if (modalState.addAggregation) {
             dispatch(fetchMarkingCodes({ page: 1, limit: 15, companyId: orgId }));
@@ -82,12 +79,12 @@ const Aggregations = () => {
     }, [modalState.addAggregation, dispatch]);
 
     useEffect(() => {
-        if (error) {
-            const lang = i18n.language as "ru" | "en" | "uz";
-            toast.error(error.errorMessage?.[lang] ?? t("aggregations.messages.createError"));
-        }
-    }, [error, i18n.language, t]);
+        if (!error) return;
 
+        toast.error(
+            getBackendErrorMessage(error, t("aggregations.messages.createError"))
+        );
+    }, [error, t]);
 
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
@@ -112,19 +109,6 @@ const Aggregations = () => {
             status: aggregation.status.toLowerCase(),
         }))
     }, [aggregations, dataPage, dataLimit])
-
-    useEffect(() => {
-        const filteredParent = orders.filter(
-            item => item.orderStatus === 'codes_utilized'
-        );
-
-        setParentOptions(
-            filteredParent.map(item => ({
-                label: `${item.batchNumber} - ${truncateString(item.productName, 30)} (${t(`markingCodes.packageType.${item.packageType.toLowerCase()}`)})`,
-                value: `${item.orderId}|${item.batchId}`,
-            }))
-        );
-    }, [orders, t]);
 
     const childOptions = useMemo(() => {
         if (!chosenParentOrderId || !chosenParentBatchId) return [];
@@ -170,7 +154,9 @@ const Aggregations = () => {
                 dispatch(fetchAggregations({ page: 1, limit: 10, companyId: orgId! }));
             })
             .catch((err: ApiErrorResponse) => {
-                console.error(err);
+                toast.error(
+                    getBackendErrorMessage(err, t("aggregations.messages.createError"))
+                );
             });
     };
 
@@ -184,6 +170,26 @@ const Aggregations = () => {
             companyId: orgId
         }));
     };
+
+
+    const parentOptions = useMemo(() => {
+        return orders
+            .filter(item => item.orderStatus === 'codes_utilized')
+            .map(item => ({
+                value: `${item.orderId}|${item.batchId}`,
+                label: (
+                    <div className="select-option">
+                    <span className="select-option__name">
+                        {item.batchNumber} – {item.productName}
+                    </span>
+                        <span className="select-option__type">
+                        {t(`markingCodes.packageType.${item.packageType.toLowerCase()}`)}
+                    </span>
+                    </div>
+                ),
+            }));
+    }, [orders, t]);
+
 
     return (
         <MainLayout>

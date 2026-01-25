@@ -12,6 +12,7 @@ import { searchProducts, getProductById } from "../../../store/products";
 import { useEffect, useState } from "react";
 import { fetchReferencesByType } from "../../../store/references";
 import { useParams } from "react-router-dom";
+import {getBackendErrorMessage} from "../../../utils/getBackendErrorMessage.ts";
 
 type OrderFormValues = {
   items: {
@@ -71,7 +72,6 @@ const OrderForm = () => {
     }
   };
 
-  // --- Отправка формы ---
   const handleCreateMarkingCode = async (values: OrderFormValues) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -86,14 +86,15 @@ const OrderForm = () => {
       })),
     };
 
-    try {
-      const resultAction = await dispatch(createOrder(payload));
-      if (createOrder.fulfilled.match(resultAction)) {
-        toast.success(t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated"));
-        setTimeout(() => window.location.reload(), 1000);
-      } else throw new Error();
-    } catch (error) {
-      toast.error(t("markingCodes.orderCreation.failedToCreateOrder"));
+    const resultAction = await dispatch(createOrder(payload));
+
+    if (createOrder.fulfilled.match(resultAction)) {
+      toast.success(t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated"));
+      setTimeout(() => window.location.reload(), 1000);
+    } else if (createOrder.rejected.match(resultAction)) {
+      toast.error(
+          getBackendErrorMessage(resultAction.payload, t('common.error'))
+      );
       setIsSubmitting(false);
     }
   };

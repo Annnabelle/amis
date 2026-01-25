@@ -13,10 +13,11 @@ import { formatDate } from '../../utils/utils'
 import {OrderStatus} from "../../dtos/markingCodes";
 import {toast} from "react-toastify";
 import {createUtilizationReport} from "../../store/utilization";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 const Batches = () => {
     const navigate = useNavigate()
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const dispatch = useAppDispatch()
     const { orgId, orderId } = useParams<{
         orgId: string;
@@ -55,36 +56,26 @@ const Batches = () => {
             return;
         }
 
-        let successCount = 0;
-
         for (const batch of batchData) {
             try {
-                const result = await dispatch(
+                const results = await dispatch(
                     createUtilizationReport({
                         orderId: markingCodeById.id,
                         batchId: batch.id,
                     })
                 ).unwrap();
 
-                successCount++;
+                results.forEach((report) => {
+                    toast.success(
+                        `Батч ${batch.batchNumber}: отчет №${report.reportNumber} создан`
+                    );
+                });
 
-                toast.success(
-                    `Батч ${batch.batchNumber}: отчет №${result.reportNumber} создан`
+            } catch (error: any) {
+                toast.error(
+                    getBackendErrorMessage(error, t('common.error'))
                 );
-            } catch (err: any) {
-                const lang = i18n.language as 'ru' | 'uz' | 'en';
-
-                const backendMessage =
-                    err?.errorMessage?.[lang] ||
-                    err?.errorMessage?.ru || // fallback
-                    t('common.error');       // общий перевод
-
-                toast.error(backendMessage);
             }
-        }
-
-        if (successCount > 0) {
-            toast.success(`Создано новых отчетов: ${successCount}`);
         }
 
         dispatch(getMarkingCodeById({ id: markingCodeById.id }));

@@ -2,8 +2,9 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
 import type { UtilizationReportResponse} from "../../types/utilization";
-import type {CreateUtilizationReportDto} from "../../dtos/utilization";
-import {mapUtilizationDtoToEntity} from "../../mappers/utilization";
+import type {CreateUtilizationReportDto, CreateUtilizationReportResponseDto} from "../../dtos/utilization";
+import {mapCreateUtilizationReportResponse} from "../../mappers/utilization";
+import type {ErrorDto} from "../../dtos";
 
 
 export type UtilizationState = {
@@ -25,34 +26,27 @@ const initialState: UtilizationState = {
     status: null,
 };
 
-export const createUtilizationReport = createAsyncThunk(
+export const createUtilizationReport = createAsyncThunk<
+    UtilizationReportResponse[], // успешный результат — массив entity
+    CreateUtilizationReportDto,
+    { rejectValue: ErrorDto } // ошибка
+>(
     "utilization/createUtilizationReport",
-    async (payload: CreateUtilizationReportDto, { rejectWithValue }) => {
+    async (payload, { rejectWithValue }) => {
         try {
-            const { data } = await axiosInstance.post(
+            const { data } = await axiosInstance.post<CreateUtilizationReportResponseDto>(
                 `${BASE_URL}/reports/utilization`,
                 payload
             );
 
-            // ✅ бэк вернул ошибку, но HTTP 200
-            if (!data.success) {
-                return rejectWithValue(data);
+            const mapped = mapCreateUtilizationReportResponse(data);
+
+            if (!mapped.success) {
+                return rejectWithValue(mapped.error!);
             }
 
-            if (Array.isArray(data.reports) && data.reports.length > 0) {
-                return mapUtilizationDtoToEntity(data.reports[0]);
-            }
-
-            // fallback, если формат неожиданный
-            return rejectWithValue({
-                errorMessage: {
-                    ru: "Отчет не был создан",
-                    uz: "Hisobot yaratilmagan",
-                    en: "Report was not created",
-                },
-            });
+            return mapped.reports!; // точно есть, потому что success = true
         } catch (err: any) {
-            // ✅ если HTTP ошибка (400/500)
             return rejectWithValue(err.response?.data ?? {
                 errorMessage: {
                     ru: "Ошибка сервера",
@@ -63,6 +57,7 @@ export const createUtilizationReport = createAsyncThunk(
         }
     }
 );
+
 
 
 export const utilizationSlice = createSlice({
@@ -76,14 +71,15 @@ export const utilizationSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(createUtilizationReport.fulfilled, (state, action: PayloadAction<UtilizationReportResponse>) => {
+            .addCase(createUtilizationReport.fulfilled, (state, action: PayloadAction<UtilizationReportResponse[]>) => {
                 state.isLoading = false;
-                state.utilization.push(action.payload);
+                state.utilization.push(...action.payload); // добавляем все отчёты
             })
             .addCase(createUtilizationReport.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload as string;
-            })
+                // action.payload теперь ErrorDto, можно взять сообщение на нужном языке
+                state.error = action.payload?.errorMessage?.ru ?? "Unknown error";
+            });
     },
 });
 

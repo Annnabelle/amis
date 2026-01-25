@@ -1,10 +1,25 @@
-import type { PaginatedResponseDto } from "../../dtos";
+import type {ErrorDto, PaginatedResponseDto} from "../../dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "../../utils/consts";
 import axiosInstance from "../../utils/axiosInstance";
 import type { ProductResponse, ProductState } from "../../types/products";
-import type { CreateProductDto, DeleteProductDto, DeleteProductResponseDto, GetProductDto, GetProductResponseDto, GetProductsDto, GetProductsResponseDto, ProductResponseDto, UpdateProductDto, UpdateProductResponseDto } from "../../dtos/products";
-import { mapProductDtoToEntity } from "../../mappers/products";
+import type {
+    CreateProductDto,
+    CreateProductResponseDto,
+    DeleteProductDto,
+    DeleteProductResponseDto,
+    GetProductDto,
+    GetProductResponseDto,
+    GetProductsDto,
+    GetProductsResponseDto,
+    ProductResponseDto,
+    UpdateProductDto,
+    UpdateProductResponseDto
+} from "../../dtos/products";
+import {
+    mapProductDtoToEntity
+} from "../../mappers/products";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 const initialState: ProductState = {
   product: null,
@@ -45,26 +60,73 @@ export const getAllProducts = createAsyncThunk(
     }
   }
 );
-export const createProduct = createAsyncThunk(
-  "products/createProduct",
-  async (payload: CreateProductDto, { rejectWithValue }) => {
-    try {
-      const { data } = await axiosInstance.post(
-        `${BASE_URL}/products`,
-        payload
-      );
 
-      // если API гарантированно возвращает success и product:
-      if (data.success && data.product) {
-        return mapProductDtoToEntity(data.product); // возвращаем именно продукт
-      }
+function isCreateProductSuccess(
+    data: CreateProductResponseDto
+): data is { success: true; product: ProductResponseDto } {
+    return (
+        'success' in data &&
+        data.success === true &&
+        'product' in data
+    );
+}
 
-      return rejectWithValue("Ошибка регистрации продукта");
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+function isErrorDto(data: unknown): data is ErrorDto {
+    return (
+        typeof data === 'object' &&
+        data !== null &&
+        'errorMessage' in data
+    );
+}
+
+export const createProduct = createAsyncThunk<
+    ProductResponse,
+    CreateProductDto,
+    { rejectValue: ErrorDto }
+>(
+    'products/createProduct',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const { data } = await axiosInstance.post<CreateProductResponseDto>(
+                `${BASE_URL}/products`,
+                payload
+            );
+
+            if (isCreateProductSuccess(data)) {
+                return mapProductDtoToEntity(data.product);
+            }
+
+            if (isErrorDto(data)) {
+                return rejectWithValue(data);
+            }
+
+            return rejectWithValue({
+                success: false,
+                errorCode: 100,
+                errorMessage: {
+                    ru: 'Неизвестный формат ответа сервера',
+                    en: 'Unknown server response format',
+                    uz: 'Server javobining nomaʼlum formati',
+                },
+            });
+        } catch (err: any) {
+            if (err.response?.data && isErrorDto(err.response.data)) {
+                return rejectWithValue(err.response.data);
+            }
+
+            return rejectWithValue({
+                success: false,
+                errorCode: 403,
+                errorMessage: {
+                    ru: 'Ошибка сети',
+                    en: 'Network error',
+                    uz: 'Tarmoq xatosi',
+                },
+            });
+        }
     }
-  }
 );
+
 
 function isGetProductSuccessResponse(
   res: GetProductResponseDto
@@ -213,7 +275,10 @@ export const productsSlice = createSlice({
         })
         .addCase(createProduct.rejected, (state, action) => {
             state.isLoading = false;
-            state.error = action.payload as string;
+            state.error = getBackendErrorMessage(
+                action.payload,
+                "Ошибка создания заказа"
+            );
         })
         .addCase(getProductById.pending, (state) => {
             state.isLoading = true;

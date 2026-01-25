@@ -14,6 +14,8 @@ import type { UnitCodeType} from "../../../tableData/agregationReport/types.ts";
 import type {ExportAggregationReportParams} from "../../../types/export";
 import {downloadReport} from "../../../store/export";
 import ExportDropdownButton from "../../../components/exportDropdown";
+import {getBackendErrorMessage} from "../../../utils/getBackendErrorMessage.ts";
+import {toast} from "react-toastify";
 
 type ExportLoadingState = {
     type: "group" | "unit";
@@ -30,10 +32,20 @@ const AggregationReportPage: React.FC = () => {
     const aggregation = useAppSelector(
         (state) => state.aggregations.oneAggregation
     );
+
+    const exportError = useAppSelector(state => state.export.error);
     const dispatch = useAppDispatch();
 
     const units = useAppSelector((state) => state.aggregations.units)
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
+
+    useEffect(() => {
+        if (!exportError) return;
+
+        toast.error(
+            getBackendErrorMessage(exportError, t('common.error'))
+        );
+    }, [exportError, t]);
 
     useEffect(() => {
         if (id) dispatch(fetchOneAggregationReport({ id }));

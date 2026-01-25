@@ -21,6 +21,7 @@ import type {LanguageKey} from "../../utils/utils.ts";
 import XTraceFormSection from "./xTraceFormSection";
 import {fetchReferencesByType} from "../../store/references";
 import {clearXTrace} from "../../store/xTrace";
+import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -219,16 +220,9 @@ const Organizations = () => {
                 toast.error(errorMessage);
             }
         } catch (error: any) {
-            console.error(error);
-            const lang = i18n.language as 'ru' | 'uz' | 'en';
-
-            const backendMessage =
-                error?.errorMessage?.[lang] ||
-                error?.errorMessage?.ru || // fallback
-                t('common.error');       // общий перевод
-
-            toast.error(backendMessage);
-            // toast.error(t("organizations.messages.error.createUser"));
+            toast.error(
+                getBackendErrorMessage(error, t('organizations.messages.error.createUser'))
+            );
         }
     };
 
