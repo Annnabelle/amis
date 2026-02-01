@@ -16,6 +16,7 @@ import {downloadReport} from "../../../store/export";
 import ExportDropdownButton from "../../../components/exportDropdown";
 import {getBackendErrorMessage} from "../../../utils/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
+import {Select} from "antd";
 
 type ExportLoadingState = {
     type: "group" | "unit";
@@ -38,6 +39,9 @@ const AggregationReportPage: React.FC = () => {
 
     const units = useAppSelector((state) => state.aggregations.units)
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
+    const [groupsLimit, setGroupsLimit] = useState<2 | 3 | 4 | 5>(2);
+    const [page, setPage] = useState(1);
+
 
     useEffect(() => {
         if (!exportError) return;
@@ -52,8 +56,16 @@ const AggregationReportPage: React.FC = () => {
     }, [id, dispatch]);
 
     useEffect(() => {
-        if (id) dispatch(fetchAggregationUnits({aggregationId: id }));
-    }, [id, dispatch]);
+        if (!id) return;
+
+        dispatch(
+            fetchAggregationUnits({
+                aggregationId: id,
+                page,
+                limit: groupsLimit, // 👈 ВАЖНО
+            })
+        );
+    }, [id, dispatch, page, groupsLimit]);
 
     const codesData = useMemo(() => {
         if (!id || !units[id]?.data) return [];
@@ -129,6 +141,21 @@ const AggregationReportPage: React.FC = () => {
             <AgregationReport/>
             <div className="box">
                 <div className="box-container">
+                    <Select
+                        value={groupsLimit}
+                        style={{ width: 220 }}
+                        onChange={(value) => {
+                            setPage(1);
+                            setGroupsLimit(value);
+                        }}
+                        options={[
+                            { value: 2, label: '2 группы' },
+                            { value: 3, label: '3 группы' },
+                            { value: 4, label: '4 группы' },
+                            { value: 5, label: '5 групп' },
+                        ]}
+                    />
+
                     <div className="box-container-items">
                         <ComponentTable<UnitCodeType>
                             columns={UnitsColumns(t)}
