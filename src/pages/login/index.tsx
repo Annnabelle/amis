@@ -44,7 +44,7 @@ const LoginPage = () => {
         </div>
         <div className="login-page-container">
             <div className="login-page-header">
-                <h1 className="login-page-header-logo">LOGO</h1>
+                <h1 className="login-page-header-logo">AMIS</h1>
             </div>
             <div className="login-page-form-container">
                 <div className="form-container">
