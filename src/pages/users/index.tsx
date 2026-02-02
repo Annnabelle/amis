@@ -20,6 +20,8 @@ import PhoneInput from '../../components/phoneInput'
 import type { LangKey } from '../../utils/consts'
 import { getAllOrganizations } from '../../store/organization'
 import { useNavigate } from 'react-router-dom'
+import FilterBar from "../../components/filterBar/filterBar.tsx";
+import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
 
 const Users = () => {
     const { t, i18n } = useTranslation();
@@ -195,8 +197,8 @@ const Users = () => {
             <div className="box-container">
                 <div className="box-container-items">
                     <div className="box-container-items-item">
-                        <div className="box-container-items-item-filters">
-                            <div className="form-inputs">
+                        <FilterBar>
+                            <FilterBarItem>
                                 <Form.Item name="searchExpert" className="input">
                                     <Input
                                         size="large"
@@ -207,8 +209,8 @@ const Users = () => {
                                         onChange={handleSearchChange}
                                     />
                                 </Form.Item>
-                            </div>
-                        </div>
+                            </FilterBarItem>
+                        </FilterBar>
                     </div>
                 </div>
                 <div className="box-container-items">

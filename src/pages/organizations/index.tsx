@@ -22,6 +22,8 @@ import XTraceFormSection from "./xTraceFormSection";
 import {fetchReferencesByType} from "../../store/references";
 import {clearXTrace} from "../../store/xTrace";
 import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
+import FilterBar from "../../components/filterBar/filterBar.tsx";
+import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -311,20 +313,19 @@ const Organizations = () => {
                 <div className="box-container">
                     <div className="box-container-items">
                         <div className="box-container-items-item">
-                            <div className="box-container-items-item-filters">
-                                   <div className="form-inputs">
-                                        <Form.Item name="searchExpert" className="input">
-                                            <Input
-                                                size="large"
-                                                className="input"
-                                                placeholder={t('search.byOrganization')}
-                                                suffix={<IoSearch />}
-                                                allowClear
-                                                onChange={handleSearchChange}
-                                            />
-                                        </Form.Item>
-                                    </div>
-                            </div>
+                            <FilterBar>
+                                <FilterBarItem>
+                                    <Form.Item name="searchExpert" className="input">
+                                        <Input
+                                            size="large"
+                                            placeholder={t('search.byOrganization')}
+                                            suffix={<IoSearch />}
+                                            allowClear
+                                            onChange={handleSearchChange}
+                                        />
+                                    </Form.Item>
+                                </FilterBarItem>
+                            </FilterBar>
                         </div>
                     </div>
                     <div className="box-container-items">

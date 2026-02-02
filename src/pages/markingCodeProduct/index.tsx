@@ -53,28 +53,13 @@ const MarkingCodeProduct = () => {
         <MarkingCodeProductBatches/>
         <div className="box">
             <div className="box-container">
-                <div className="box-container-items">
-                    <div className="box-container-items-item">
-                        <div className="box-container-items-item-filters filters-large filters-large-inputs">
-                            {/*<div className="form-inputs">*/}
-                            {/*    <Form.Item name="status" className="input">*/}
-                            {/*        <Select*/}
-                            {/*            size="large"*/}
-                            {/*            placeholder={<span className="custom-placeholder">{t('search.selectStatus')}</span>}*/}
-                            {/*            allowClear*/}
-                            {/*            // onChange={(value) => updateQueryParam('status', value)}*/}
-                            {/*        >*/}
-                            {/*            {markingCodeStatusOptions.map(option => (*/}
-                            {/*                <Option key={option.value} value={option.value}>*/}
-                            {/*                    {option.label}*/}
-                            {/*                </Option>*/}
-                            {/*            ))}*/}
-                            {/*        </Select>*/}
-                            {/*    </Form.Item>*/}
-                            {/*</div>*/}
-                        </div>
-                    </div>
-                </div>
+                {/*<div className="box-container-items">*/}
+                {/*    <div className="box-container-items-item">*/}
+                {/*        /!*<div className="box-container-items-item-filters filters-large filters-large-inputs">*!/*/}
+                {/*        /!*   *!/*/}
+                {/*        /!*</div>*!/*/}
+                {/*    </div>*/}
+                {/*</div>*/}
                 <div className="box-container-items">
                     <ComponentTable<OrderProductDataType>
                         columns={OrderProductTableColumns(t)}
