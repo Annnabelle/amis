@@ -21,6 +21,8 @@ import {getOrganizationById} from "../../store/organization";
 import type {LangKey} from "../../utils/consts.ts";
 import type {MultiLanguage} from "../../dtos";
 import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
+import FilterBar from "../../components/filterBar/filterBar.tsx";
+import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -278,8 +280,8 @@ const Products = () => {
             <div className="box-container">
                 <div className="box-container-items">
                     <div className="box-container-items-item">
-                        <div className="box-container-items-item-filters">
-                            <div className="form-inputs">
+                        <FilterBar>
+                            <FilterBarItem>
                                 <Form.Item name="searchExpert" className="input">
                                     <Input
                                         size="large"
@@ -290,8 +292,8 @@ const Products = () => {
                                         onChange={handleSearchChange}
                                     />
                                 </Form.Item>
-                            </div>
-                        </div>
+                            </FilterBarItem>
+                        </FilterBar>
                     </div>
                 </div>
                 <div className="box-container-items">

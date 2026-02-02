@@ -21,6 +21,8 @@ import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import {searchUsers} from "../../store/users";
 import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
+import FilterBar from "../../components/filterBar/filterBar.tsx";
+import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
@@ -166,8 +168,8 @@ const MarkingCodes = () => {
             <div className="box-container">
                 <div className="box-container-items">
                     <div className="box-container-items-item">
-                        <div className="box-container-items-item-filters filters-large">
-                            <div className="form-inputs">
+                        <FilterBar className="filters-large">
+                            <FilterBarItem>
                                 <Form.Item name="user" className="input">
                                         <Select
                                             size="large"
@@ -192,9 +194,8 @@ const MarkingCodes = () => {
                                         />
 
                                 </Form.Item>
-
-                            </div>
-                            <div className="form-inputs">
+                            </FilterBarItem>
+                            <FilterBarItem>
                                 <Form.Item name="product" className="input">
                                     <Select
                                         size="large"
@@ -203,7 +204,7 @@ const MarkingCodes = () => {
                                                 {t("search.selectProduct")}
                                             </span>
                                         }
-                                        optionLabelProp="label" 
+                                        optionLabelProp="label"
                                         showSearch
                                         className="input"
                                         filterOption={false}
@@ -216,8 +217,8 @@ const MarkingCodes = () => {
                                         onChange={(value) => updateQueryParam('productId', value)}
                                     />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs">
+                            </FilterBarItem>
+                            <FilterBarItem>
                                 <Form.Item name="status" className="input">
                                     <Select
                                         size="large"
@@ -231,8 +232,8 @@ const MarkingCodes = () => {
                                         onChange={(value) => updateQueryParam('status', value)}
                                     />
                                 </Form.Item>
-                            </div>
-                        </div>
+                            </FilterBarItem>
+                        </FilterBar>
                     </div>
                 </div>
                 <div className="box-container-items">

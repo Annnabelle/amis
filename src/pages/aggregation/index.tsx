@@ -19,6 +19,8 @@ import {useParams} from "react-router-dom";
 import type {AggregationReportStatus} from "../../dtos";
 import { searchProducts} from "../../store/products";
 import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
+import FilterBar from "../../components/filterBar/filterBar.tsx";
+import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
 
 const Aggregations = () => {
     const { t } = useTranslation();
@@ -203,8 +205,8 @@ const Aggregations = () => {
                 <div className="box-container">
                     <div className="box-container-items">
                         <div className="box-container-items-item">
-                            <div className="box-container-items-item-filters filters-large filters-large-inputs">
-                                <div className="form-inputs">
+                            <FilterBar className="filters-large filters-large-inputs">
+                                <FilterBarItem>
                                     <Form.Item name="status" className="input">
                                         <Select
                                             size="large"
@@ -231,8 +233,8 @@ const Aggregations = () => {
                                             }
                                         />
                                     </Form.Item>
-                                </div>
-                                <div className="form-inputs">
+                                </FilterBarItem>
+                                <FilterBarItem>
                                     <Form.Item name="dateRange" className="input">
                                         <DatePicker.RangePicker
                                             size="large"
@@ -252,8 +254,8 @@ const Aggregations = () => {
                                             }}
                                         />
                                     </Form.Item>
-                                </div>
-                                <div className="form-inputs">
+                                </FilterBarItem>
+                                <FilterBarItem>
                                     <Form.Item
                                         name="product"
                                         className="input"
@@ -285,9 +287,8 @@ const Aggregations = () => {
                                             }))}
                                         />
                                     </Form.Item>
-
-                                </div>
-                            </div>
+                                </FilterBarItem>
+                            </FilterBar>
                         </div>
                     </div>
                     <div className="box-container-items">

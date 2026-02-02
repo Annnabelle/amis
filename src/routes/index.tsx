@@ -3,7 +3,6 @@ import { lazy, Suspense } from "react";
 import GlobalLoader from "../components/loader";
 
 const LoginPage = lazy(() => import("../pages/login"));
-const MainPage = lazy(() => import("../pages/main"));
 const Users = lazy(() => import("../pages/users"));
 const Products = lazy(() => import( "../pages/products"));
 const Organizations = lazy(() => import ("../pages/organizations"))
@@ -25,7 +24,6 @@ const Router: React.FC = () => {
     <Suspense fallback={<GlobalLoader loading={true}/>}>
       <Routes>
         <Route path='/' element={<LoginPage />} />
-        <Route path='/home' element={<MainPage />} />
         <Route path='/users' element={<Users />} />
         <Route path="/users/:id" element={<UsersRetrieve />} />
         <Route path="/users/:id/edit" element={<UsersEdit />} />
