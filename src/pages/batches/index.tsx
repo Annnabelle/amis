@@ -9,11 +9,11 @@ import Heading from '../../components/mainHeading'
 import ComponentTable from '../../components/table'
 import { getMarkingCodeById } from '../../store/markingCodes'
 import CustomButton from '../../components/button'
-import { formatDate } from '../../utils/utils'
 import {OrderStatus} from "../../dtos/markingCodes";
 import {toast} from "react-toastify";
 import {createUtilizationReport} from "../../store/utilization";
 import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
+import dayjs from "dayjs";
 
 const Batches = () => {
     const navigate = useNavigate()
@@ -92,7 +92,7 @@ const Batches = () => {
                 },
                 orderTime: {
                     title: `${t('markingCodes.batches.orderTime')}:`,
-                    value: `${formatDate(markingCodeById?.orderedAt) || ''}`
+                    value: `${dayjs(markingCodeById?.orderedAt).format('YYYY-MM-DD HH:mm:ss')  || ''}`
                 },
                 orderStatus: {
                     title: `${t('markingCodes.batches.orderStatus')}:`,

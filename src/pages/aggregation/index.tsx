@@ -107,7 +107,7 @@ const Aggregations = () => {
             productName: aggregation.productName,
             aggregationQuantity: String(aggregation.aggregationQuantity),
             quantityPerPackage: String(aggregation.quantityPerPackage),
-            submittedAt: new Date(aggregation.submittedAt).toLocaleDateString(),
+            submittedAt: dayjs(aggregation.submittedAt).format('YYYY-MM-DD'),
             status: aggregation.status.toLowerCase(),
         }))
     }, [aggregations, dataPage, dataLimit])

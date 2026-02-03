@@ -11,7 +11,6 @@ import { MarkingCodesTableColumns } from '../../tableData/markingCodes'
 import type { MarkingCodesTableDataType } from '../../tableData/markingCodes/types'
 import { fetchMarkingCodes  } from '../../store/markingCodes'
 import OrderForm from './createOrder'
-import { formatDate } from '../../utils/utils'
 import { fetchReferencesByType } from '../../store/references'
 import type { OrderBatchPopulatedResponse } from '../../types/markingCodes'
 import {type OrderListQueryParams} from '../../dtos/markingCodes'
@@ -23,6 +22,7 @@ import {searchUsers} from "../../store/users";
 import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
 import FilterBar from "../../components/filterBar/filterBar.tsx";
 import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
+import dayjs from "dayjs";
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
@@ -75,7 +75,7 @@ const MarkingCodes = () => {
             totalQuantity: markingCode.totalQuantity,
             orderedQuantity: markingCode.orderedQuantity,
             remainderQuantity: markingCode.remainderQuantity,
-            orderedAt: formatDate(markingCode.orderedAt),
+            orderedAt: dayjs(markingCode.orderedAt).format('YYYY-MM-DD HH:mm:ss'),
             codesHaveBeenExported:
                 markingCode.totalQuantity === markingCode.orderedQuantity
                     ? t('common.yes')

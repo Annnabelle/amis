@@ -7,6 +7,7 @@ import BatchItem from "./batchItem.tsx";
 import {Tag} from "antd";
 import {statusColors} from "../../components/statuses.tsx";
 import "./styles.sass"
+import dayjs from "dayjs";
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -81,7 +82,9 @@ const MarkingCodeProductBatches = () => {
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.orderTime')}>
-                            {orderProductBatch?.order.orderedAt}
+                            {orderProductBatch?.order?.orderedAt
+                                ? dayjs(orderProductBatch.order.orderedAt).format('YYYY.MM.DD HH:mm:ss')
+                                : '—'}
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.turonOrderID')}>
