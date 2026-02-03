@@ -1,16 +1,16 @@
 import {Form, Input, Tag} from 'antd'
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import { getAllOrganizations, getOrganizationById } from '../../store/organization'
-import CustomButton from '../../components/button'
-import FormComponent from '../../components/formComponent'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import { getAllOrganizations, getOrganizationById } from 'entities/organization/model'
+import CustomButton from 'shared/ui/button'
+import FormComponent from 'shared/ui/formComponent'
 import { useNavigate, useParams } from 'react-router-dom'
-import {type LanguageKey, useNavigationBack} from '../../utils/utils'
+import {type LanguageKey, useNavigationBack} from 'shared/lib'
 import dayjs from "dayjs";
-import {fetchReferencesByType} from "../../store/references";
+import {fetchReferencesByType} from "entities/references/model";
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
@@ -564,3 +564,5 @@ const OrganizationsInner = () => {
 }
 
 export default OrganizationsInner
+
+

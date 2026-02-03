@@ -1,13 +1,13 @@
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import {useEffect, useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import {getBatch, getOrderProduct} from '../../store/markingCodes'
-import ComponentTable from "../../components/table";
-import type {OrderProductDataType} from "../../tableData/orderProduct/types.ts";
-import {OrderProductTableColumns} from "../../tableData/orderProduct";
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import {getBatch, getOrderProduct} from 'entities/markingCodes/model'
+import ComponentTable from "shared/ui/table";
+import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orderProduct/types.ts";
+import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/orderProduct";
 import MarkingCodeProductBatches from "./batches.tsx";
 
 const MarkingCodeProduct = () => {
@@ -73,3 +73,5 @@ const MarkingCodeProduct = () => {
 }
 
 export default MarkingCodeProduct
+
+

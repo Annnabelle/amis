@@ -1,28 +1,28 @@
 import {Form, Input, Select} from 'antd'
 import { IoSearch } from 'react-icons/io5'
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import ComponentTable from '../../components/table'
-import CustomButton from '../../components/button'
-import ModalWindow from '../../components/modalWindow'
-import FormComponent from '../../components/formComponent'
-import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from '../../store/products'
-import { ProductsTableColumns } from '../../tableData/products'
-import type { ProductTableDataType } from '../../tableData/products/types'
-import type { CreateProduct, ProductResponse } from '../../types/products'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import ComponentTable from 'shared/ui/table'
+import CustomButton from 'shared/ui/button'
+import ModalWindow from 'shared/ui/modalWindow'
+import FormComponent from 'shared/ui/formComponent'
+import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from 'entities/products/model'
+import { ProductsTableColumns } from 'entities/products/ui/tableData/products'
+import type { ProductTableDataType } from 'entities/products/ui/tableData/products/types'
+import type { CreateProduct, ProductResponse } from 'entities/products/types'
 import { useNavigate, useParams } from 'react-router-dom'
 import TextArea from "antd/es/input/TextArea";
-import {fetchReferencesByType} from "../../store/references";
-import {getOrganizationById} from "../../store/organization";
-import type {LangKey} from "../../utils/consts.ts";
-import type {MultiLanguage} from "../../dtos";
-import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
-import FilterBar from "../../components/filterBar/filterBar.tsx";
-import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
+import {fetchReferencesByType} from "entities/references/model";
+import {getOrganizationById} from "entities/organization/model";
+import type {LangKey} from "shared/lib/consts.ts";
+import type {MultiLanguage} from "shared/types/dtos";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -645,3 +645,5 @@ const Products = () => {
 }
 
 export default Products
+
+

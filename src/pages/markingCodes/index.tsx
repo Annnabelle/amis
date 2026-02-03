@@ -1,27 +1,27 @@
 import { Form, Select} from 'antd'
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import ComponentTable from '../../components/table'
-import CustomButton from '../../components/button'
-import ModalWindow from '../../components/modalWindow'
-import { MarkingCodesTableColumns } from '../../tableData/markingCodes'
-import type { MarkingCodesTableDataType } from '../../tableData/markingCodes/types'
-import { fetchMarkingCodes  } from '../../store/markingCodes'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import ComponentTable from 'shared/ui/table'
+import CustomButton from 'shared/ui/button'
+import ModalWindow from 'shared/ui/modalWindow'
+import { MarkingCodesTableColumns } from 'entities/markingCodes/ui/tableData/markingCodes'
+import type { MarkingCodesTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
+import { fetchMarkingCodes  } from 'entities/markingCodes/model'
 import OrderForm from './createOrder'
-import { fetchReferencesByType } from '../../store/references'
-import type { OrderBatchPopulatedResponse } from '../../types/markingCodes'
-import {type OrderListQueryParams} from '../../dtos/markingCodes'
-import { searchProducts } from '../../store/products'
-import {createUtilizationReport} from "../../store/utilization";
+import { fetchReferencesByType } from 'entities/references/model'
+import type { OrderBatchPopulatedResponse } from 'entities/markingCodes/types'
+import {type OrderListQueryParams} from 'entities/markingCodes/dtos'
+import { searchProducts } from 'entities/products/model'
+import {createUtilizationReport} from "entities/utilization/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import {searchUsers} from "../../store/users";
-import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
-import FilterBar from "../../components/filterBar/filterBar.tsx";
-import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
+import {searchUsers} from "entities/users/model";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
 
 const MarkingCodes = () => {
@@ -271,3 +271,5 @@ const MarkingCodes = () => {
 }
 
 export default MarkingCodes
+
+

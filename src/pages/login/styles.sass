@@ -1,6 +1,6 @@
 @use 'sass:map'
-@use '../../styles/mixins' as mix
-@use '../../styles/variables' as vars
+@use '../../shared/styles/mixins' as mix
+@use '../../shared/styles/variables' as vars
 
 .login-page
     position: relative
@@ -53,3 +53,4 @@
                 .form-title
                     +mix.typography(28px, 700, map.get(vars.$main, 'main'))
                     text-align: center
+

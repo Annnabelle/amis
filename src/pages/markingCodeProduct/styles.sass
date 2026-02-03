@@ -1,6 +1,6 @@
 @use "sass:map"
-@use "../../styles/mixins.sass" as mix
-@use "../../styles/variables.sass" as vars
+@use "../../shared/styles/mixins.sass" as mix
+@use "../../shared/styles/variables.sass" as vars
 
 .batch-inner-box
   .batch-section
@@ -17,5 +17,6 @@
     margin-bottom: 12px
   .box-batch-container-items-item-subtitle
     +mix.typography(14px, 500, map.get(vars.$basic, "black"))
+
 
 

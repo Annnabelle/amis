@@ -1,26 +1,26 @@
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import {useEffect, useMemo, useState} from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import ComponentTable from "../../components/table";
-import {type ApiErrorResponse, createAggregationReport, fetchAggregations} from "../../store/aggregation";
-import {AggregationColumns} from "../../tableData/aggregation";
-import type {AggregationDataType} from "../../tableData/aggregation/types.ts";
-import CustomButton from "../../components/button";
-import FormComponent from "../../components/formComponent";
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import ComponentTable from "shared/ui/table";
+import {type ApiErrorResponse, createAggregationReport, fetchAggregations} from "entities/aggregation/model";
+import {AggregationColumns} from "entities/aggregation/ui/tableData/aggregation";
+import type {AggregationDataType} from "entities/aggregation/ui/tableData/aggregation/types.ts";
+import CustomButton from "shared/ui/button";
+import FormComponent from "shared/ui/formComponent";
 import {DatePicker, Form, Select} from "antd";
-import ModalWindow from "../../components/modalWindow";
+import ModalWindow from "shared/ui/modalWindow";
 import dayjs from "dayjs";
-import type {CreateAggregationReport} from "../../types/aggregation";
-import {fetchMarkingCodes} from "../../store/markingCodes";
+import type {CreateAggregationReport} from "entities/aggregation/types";
+import {fetchMarkingCodes} from "entities/markingCodes/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import type {AggregationReportStatus} from "../../dtos";
-import { searchProducts} from "../../store/products";
-import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
-import FilterBar from "../../components/filterBar/filterBar.tsx";
-import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
+import type {AggregationReportStatus} from "shared/types/dtos";
+import { searchProducts} from "entities/products/model";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 
 const Aggregations = () => {
     const { t } = useTranslation();
@@ -71,7 +71,7 @@ const Aggregations = () => {
         dataPage,
         dataLimit,
         filters,
-        selectedProductId, // 🔥 ВАЖНО
+        selectedProductId,
     ]);
 
     useEffect(() => {
@@ -123,10 +123,20 @@ const Aggregations = () => {
                     item.batchId !== chosenParentBatchId
             )
             .map(item => ({
-                label: `${item.batchNumber} - ${truncateString(item.productName, 30)} (${t(`markingCodes.packageType.${item.packageType.toLowerCase()}`)})`,
                 value: `${item.orderId}|${item.batchId}`,
+                label: (
+                    <div className="select-option">
+          <span className="select-option__name">
+            {item.batchNumber} – {truncateString(item.productName, 30)}
+          </span>
+                        <span className="select-option__type">
+            {t(`markingCodes.packageType.${item.packageType.toLowerCase()}`)}
+          </span>
+                    </div>
+                ),
             }));
     }, [orders, chosenParentOrderId, chosenParentBatchId, t]);
+
 
 
     function truncateString(str: string, num: number) {
@@ -238,11 +248,6 @@ const Aggregations = () => {
                                     <Form.Item name="dateRange" className="input">
                                         <DatePicker.RangePicker
                                             size="large"
-                                            // placeholder={
-                                            //     <span className="custom-placeholder">
-                                            //         {t('search.selectStatus')}
-                                            //     </span>
-                                            // }
                                             placeholder={[t('search.chooseDate'), t('search.chooseDate')]}
                                             className="input"
                                             onChange={(dates) => {
@@ -299,7 +304,6 @@ const Aggregations = () => {
                     </div>
                 </div>
                 <ModalWindow
-                    // titleAction={t('products.modalWindow.adding')}
                     title={t('aggregations.addAggregation')}
                     openModal={modalState.addAggregation}
                     closeModal={() => handleModal('addAggregation', false)}
@@ -367,3 +371,5 @@ const Aggregations = () => {
 }
 
 export default Aggregations
+
+

@@ -1,29 +1,29 @@
 import {Form, Input, Tag} from 'antd'
 import { IoSearch } from 'react-icons/io5'
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import ComponentTable from '../../components/table'
-import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations } from '../../store/organization'
-import { OrganizationsTableColumns } from '../../tableData/organizations'
-import type { OrganizationTableDataType } from '../../tableData/organizations/types'
-import type {CompanyResponse} from '../../types/organization'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import ComponentTable from 'shared/ui/table'
+import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations } from 'entities/organization/model'
+import { OrganizationsTableColumns } from 'entities/organization/ui/tableData/organizations'
+import type { OrganizationTableDataType } from 'entities/organization/ui/tableData/organizations/types'
+import type {CompanyResponse} from 'entities/organization/types'
 import { toast } from 'react-toastify'
-import CustomButton from '../../components/button'
-import ModalWindow from '../../components/modalWindow'
-import FormComponent from '../../components/formComponent'
+import CustomButton from 'shared/ui/button'
+import ModalWindow from 'shared/ui/modalWindow'
+import FormComponent from 'shared/ui/formComponent'
 import { useNavigate } from 'react-router-dom'
-import type {CreateCompanyDto} from "../../dtos/organization";
-import type {MultiLanguage} from "../../dtos";
-import type {LanguageKey} from "../../utils/utils.ts";
+import type {CreateCompanyDto} from "entities/organization/dtos";
+import type {MultiLanguage} from "shared/types/dtos";
+import type {LanguageKey} from "shared/lib";
 import XTraceFormSection from "./xTraceFormSection";
-import {fetchReferencesByType} from "../../store/references";
-import {clearXTrace} from "../../store/xTrace";
-import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
-import FilterBar from "../../components/filterBar/filterBar.tsx";
-import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
+import {fetchReferencesByType} from "entities/references/model";
+import {clearXTrace} from "entities/xTrace/model";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -851,3 +851,5 @@ const Organizations = () => {
 }
 
 export default Organizations
+
+

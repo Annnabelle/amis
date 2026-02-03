@@ -1,12 +1,12 @@
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import {useEffect} from 'react'
 import { useTranslation } from 'react-i18next'
-import {getBatch} from '../../store/markingCodes'
+import {getBatch} from 'entities/markingCodes/model'
 import {Link, useParams} from "react-router-dom";
 import BatchItem from "./batchItem.tsx";
 import {Tag} from "antd";
-import {statusColors} from "../../components/statuses.tsx";
-import "./styles.sass"
+import {statusColors} from "shared/ui/statuses.tsx";
+import "shared/styles.sass"
 import dayjs from "dayjs";
 
 const getStatusColor = (status?: string | null) => {
@@ -140,3 +140,5 @@ const MarkingCodeProductBatches = () => {
 }
 
 export default MarkingCodeProductBatches
+
+

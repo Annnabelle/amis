@@ -1,11 +1,11 @@
 import { Form, Input, Tag} from "antd";
-import { useAppDispatch, useAppSelector } from "../../../store";
+import { useAppDispatch, useAppSelector } from "app/store";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { validateCompanyXTraceToken } from "../../../store/xTrace";
-import { isXTraceSuccess } from "../../../utils/validateCompanyXTraceFunction.ts";
-import type { LanguageKey } from "../../../utils/utils.ts";
+import { validateCompanyXTraceToken } from "entities/xTrace/model";
+import { isXTraceSuccess } from "shared/lib/validateCompanyXTraceFunction.ts";
+import type { LanguageKey } from "shared/lib";
 import dayjs from "dayjs";
 
 interface XTraceFormSectionProps {
@@ -179,3 +179,6 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
 };
 
 export default XTraceFormSection;
+
+
+

@@ -1,18 +1,18 @@
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { BatchTableDataType } from '../../tableData/markingCodes/types'
-import { MarkingCodeTableColumns } from '../../tableData/markingCode'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import ComponentTable from '../../components/table'
-import { getMarkingCodeById } from '../../store/markingCodes'
-import CustomButton from '../../components/button'
-import {OrderStatus} from "../../dtos/markingCodes";
+import type { BatchTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
+import { MarkingCodeTableColumns } from 'entities/markingCodes/ui/tableData/markingCode'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import ComponentTable from 'shared/ui/table'
+import { getMarkingCodeById } from 'entities/markingCodes/model'
+import CustomButton from 'shared/ui/button'
+import {OrderStatus} from "entities/markingCodes/dtos";
 import {toast} from "react-toastify";
-import {createUtilizationReport} from "../../store/utilization";
-import {getBackendErrorMessage} from "../../utils/getBackendErrorMessage.ts";
+import {createUtilizationReport} from "entities/utilization/model";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import dayjs from "dayjs";
 
 const Batches = () => {
@@ -132,3 +132,5 @@ const Batches = () => {
 }
 
 export default Batches
+
+

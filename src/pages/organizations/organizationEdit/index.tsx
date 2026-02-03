@@ -1,16 +1,16 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../../store";
+import { useAppDispatch, useAppSelector } from "app/store";
 import {useEffect} from "react";
-import { getOrganizationById, updateOrganization } from "../../../store/organization";
+import { getOrganizationById, updateOrganization } from "entities/organization/model";
 import { toast } from "react-toastify";
-import MainLayout from "../../../components/layout";
-import Heading from "../../../components/mainHeading";
-import CustomButton from "../../../components/button";
-import FormComponent from "../../../components/formComponent";
+import MainLayout from "shared/ui/layout";
+import Heading from "shared/ui/mainHeading";
+import CustomButton from "shared/ui/button";
+import FormComponent from "shared/ui/formComponent";
 import {Form, Input} from "antd";
-import {type LanguageKey, useNavigationBack} from "../../../utils/utils";
-import {fetchReferencesByType} from "../../../store/references";
+import {type LanguageKey, useNavigationBack} from "shared/lib";
+import {fetchReferencesByType} from "entities/references/model";
 
 const OrganizationsEdit = () => {
     const { t, i18n } = useTranslation();
@@ -225,3 +225,5 @@ const OrganizationsEdit = () => {
 }
 
 export default OrganizationsEdit
+
+

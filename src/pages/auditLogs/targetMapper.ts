@@ -1,4 +1,4 @@
-// src/utils/targetMapper.ts
+// src/shared/lib/targetMapper.ts
 export type TargetEntity = "user" | "company" | "product" | "auth";
 
 interface TargetRule {
@@ -37,3 +37,6 @@ export const getTargetLink = (
   if (!name) return null;
   return { name, path: rule.getPath(target) };
 };
+
+
+

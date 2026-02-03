@@ -1,27 +1,27 @@
 import { Form, Input, Select } from 'antd'
-import { UsersTableColumns } from '../../tableData/users'
+import { UsersTableColumns } from 'entities/users/ui/tableData/users'
 import { IoSearch } from 'react-icons/io5'
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers } from '../../store/users'
-import type { UserTableDataType } from '../../tableData/users/types'
-import type { AddUserForm, UserResponse } from '../../types/users'
-import type { Language } from '../../dtos'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import ComponentTable from '../../components/table'
+import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers } from 'entities/users/model'
+import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
+import type { AddUserForm, UserResponse } from 'entities/users/types'
+import type { Language } from 'shared/types/dtos'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import ComponentTable from 'shared/ui/table'
 import dayjs from 'dayjs'
-import CustomButton from '../../components/button'
-import ModalWindow from '../../components/modalWindow'
-import FormComponent from '../../components/formComponent'
-import PhoneInput from '../../components/phoneInput'
-import type { LangKey } from '../../utils/consts'
-import { getAllOrganizations } from '../../store/organization'
+import CustomButton from 'shared/ui/button'
+import ModalWindow from 'shared/ui/modalWindow'
+import FormComponent from 'shared/ui/formComponent'
+import PhoneInput from 'shared/ui/phoneInput'
+import type { LangKey } from 'shared/lib/consts'
+import { getAllOrganizations } from 'entities/organization/model'
 import { useNavigate } from 'react-router-dom'
-import FilterBar from "../../components/filterBar/filterBar.tsx";
-import FilterBarItem from "../../components/filterBar/filterBarItems.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 
 const Users = () => {
     const { t, i18n } = useTranslation();
@@ -362,3 +362,5 @@ const Users = () => {
 }
 
 export default Users
+
+

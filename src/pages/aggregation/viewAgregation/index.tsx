@@ -1,20 +1,20 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useParams} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../store";
-import {fetchAggregationUnits, fetchOneAggregationReport} from "../../../store/aggregation";
-import MainLayout from "../../../components/layout";
-import CustomButton from "../../../components/button";
-import Heading from "../../../components/mainHeading";
+import {useAppDispatch, useAppSelector} from "app/store";
+import {fetchAggregationUnits, fetchOneAggregationReport} from "entities/aggregation/model";
+import MainLayout from "shared/ui/layout";
+import CustomButton from "shared/ui/button";
+import Heading from "shared/ui/mainHeading";
 import {useTranslation} from "react-i18next";
-import {useNavigationBack} from "../../../utils/utils.ts";
+import {useNavigationBack} from "shared/lib";
 import AgregationReport from "./reports.tsx";
-import ComponentTable from "../../../components/table";
-import {UnitsColumns} from "../../../tableData/agregationReport";
-import type { UnitCodeType} from "../../../tableData/agregationReport/types.ts";
-import type {ExportAggregationReportParams} from "../../../types/export";
-import {downloadReport} from "../../../store/export";
-import ExportDropdownButton from "../../../components/exportDropdown";
-import {getBackendErrorMessage} from "../../../utils/getBackendErrorMessage.ts";
+import ComponentTable from "shared/ui/table";
+import {UnitsColumns} from "entities/aggregation/ui/tableData/agregationReport";
+import type { UnitCodeType} from "entities/aggregation/ui/tableData/agregationReport/types.ts";
+import type {ExportAggregationReportParams} from "entities/export/types";
+import {downloadReport} from "entities/export/model";
+import ExportDropdownButton from "shared/ui/exportDropdown";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
 import {Select} from "antd";
 
@@ -169,3 +169,6 @@ const AggregationReportPage: React.FC = () => {
 };
 
 export default AggregationReportPage;
+
+
+
