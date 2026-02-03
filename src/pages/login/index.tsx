@@ -9,7 +9,7 @@ import mainBG from 'shared/assets/bg-black.png';
 import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
-import 'shared/styles.sass';
+import './styles.sass';
 import './styles.sass';
 import {useEffect} from "react";
 

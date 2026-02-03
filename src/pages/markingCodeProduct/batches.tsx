@@ -6,7 +6,7 @@ import {Link, useParams} from "react-router-dom";
 import BatchItem from "./batchItem.tsx";
 import {Tag} from "antd";
 import {statusColors} from "shared/ui/statuses.tsx";
-import "shared/styles.sass"
+import "./styles.sass"
 import dayjs from "dayjs";
 
 const getStatusColor = (status?: string | null) => {
