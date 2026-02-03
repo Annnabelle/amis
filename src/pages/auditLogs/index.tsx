@@ -29,7 +29,7 @@ import { Link } from "react-router-dom";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
-import "shared/styles.sass";
+import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
 
