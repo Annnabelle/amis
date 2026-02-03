@@ -31,6 +31,7 @@ import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
 import "./styles.sass";
 import type { AuditCategory } from "../../dtos";
+import dayjs from "dayjs";
 
 const { Panel } = Collapse;
 
@@ -81,15 +82,11 @@ const AuditLogsPage: React.FC = () => {
       status: actor.status || "",
       actorId: actor.id || "",
       lastLoggedInAt: actor.lastLoggedInAt
-        ? new Date(actor.lastLoggedInAt).toLocaleString("ru-RU")
+        ? dayjs(actor.lastLoggedInAt).format('YYYY-MM-DD')
         : "",
       location: log.ip || "—",
-      date: new Date(log.occurredAt).toLocaleDateString("ru-RU"),
-      time: new Date(log.occurredAt).toLocaleTimeString("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
+      date: dayjs(log.occurredAt).format('YYYY-MM-DD'),
+      time: dayjs(log.occurredAt).format('HH:mm:ss'),
       message: messageObj[i18n.language] || messageObj["en"] || "",
       targetEntity: log.targetEntity || "",
       target,
