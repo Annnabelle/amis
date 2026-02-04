@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppSelector } from '../../store'
-import { getUserById, changeUserPassword, logout } from '../../store/users'
+import { useAppDispatch, useAppSelector } from 'app/store'
+import { getUserById, changeUserPassword, logout } from 'entities/users/model'
 import { Form, Input } from 'antd'
-import MainLayout from '../../components/layout'
-import Heading from '../../components/mainHeading'
-import FormComponent from '../../components/formComponent'
-import CustomButton from '../../components/button'
-import ModalWindow from '../../components/modalWindow'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import FormComponent from 'shared/ui/formComponent'
+import CustomButton from 'shared/ui/button'
+import ModalWindow from 'shared/ui/modalWindow'
 import { useNavigate } from 'react-router-dom'
 
 const UserSettings = () => {
@@ -158,4 +158,7 @@ const UserSettings = () => {
 }
 
 export default UserSettings
+
+
+
 

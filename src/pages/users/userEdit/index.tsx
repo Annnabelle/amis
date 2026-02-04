@@ -2,17 +2,17 @@ import { Form, Input, Select, Spin, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {assignUserToCompany, getUserById, unassignUserToCompany, updateUser } from '../../../store/users'
-import { useAppDispatch, useAppSelector } from '../../../store'
+import {assignUserToCompany, getUserById, unassignUserToCompany, updateUser } from 'entities/users/model'
+import { useAppDispatch, useAppSelector } from 'app/store'
 import { IoSearch } from 'react-icons/io5'
-import { getAllOrganizations, searchOrganizations } from '../../../store/organization'
-import { useNavigationBack } from '../../../utils/utils'
+import { getAllOrganizations, searchOrganizations } from 'entities/organization/model'
+import { useNavigationBack } from 'shared/lib'
 import { toast } from 'react-toastify'
-import MainLayout from '../../../components/layout'
-import Heading from '../../../components/mainHeading'
-import FormComponent from '../../../components/formComponent'
-import CustomButton from '../../../components/button'
-import PhoneInput from '../../../components/phoneInput'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import FormComponent from 'shared/ui/formComponent'
+import CustomButton from 'shared/ui/button'
+import PhoneInput from 'shared/ui/phoneInput'
 
 const UsersEdit = () => {
     const { id } = useParams();
@@ -255,3 +255,5 @@ const UsersEdit = () => {
 }
 
 export default UsersEdit
+
+

@@ -1,16 +1,16 @@
 import {Form, Input} from 'antd'
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '../../../store';
-import MainLayout from '../../../components/layout';
-import Heading from '../../../components/mainHeading';
-import CustomButton from '../../../components/button';
-import FormComponent from '../../../components/formComponent';
+import { useAppSelector, useAppDispatch } from 'app/store';
+import MainLayout from 'shared/ui/layout';
+import Heading from 'shared/ui/mainHeading';
+import CustomButton from 'shared/ui/button';
+import FormComponent from 'shared/ui/formComponent';
 import {useEffect, useState} from 'react';
-import { getProductById } from '../../../store/products';
-import { useNavigationBack } from '../../../utils/utils';
+import { getProductById } from 'entities/products/model';
+import { useNavigationBack } from 'shared/lib';
 import TextArea from "antd/es/input/TextArea";
-import {fetchReferencesByType} from "../../../store/references";
+import {fetchReferencesByType} from "entities/references/model";
 
 const ProductsView = () => {
     const params = useParams();
@@ -201,3 +201,5 @@ const ProductsView = () => {
 }
 
 export default ProductsView
+
+

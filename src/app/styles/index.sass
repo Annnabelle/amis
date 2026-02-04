@@ -1,0 +1,46 @@
+@use "sass:map"
+@use "../../shared/styles/mixins" as mix
+@use "../../shared/styles/variables" as vars
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap')
+body
+  font-family: "Montserrat", sans-serif
+  margin: 0
+  padding: 0
+  font-weight: 300
+  overflow-x: hidden
+  overflow-y: auto
+
+*,
+*::before,
+*::after
+  box-sizing: border-box
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p
+  margin: 0
+
+a
+  text-decoration: none
+
+.container
+  max-width: 1920px
+  width: 100%
+  padding: 0 50px
+  margin: 0 auto
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active
+  -webkit-box-shadow: 0 0 0 1000px #151419 inset !important
+  box-shadow: 0 0 0 1000px #151419  inset !important
+  -webkit-text-fill-color: map.get(vars.$basic, "black") !important
+  caret-color: map.get(vars.$basic, "black")
+  background: transparent !important
+

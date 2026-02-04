@@ -1,14 +1,15 @@
-import type { LoginForm } from '../../types/users';
+import type { LoginForm } from 'entities/users/types';
 import { Form, Input } from 'antd';
-import {useAppDispatch, useAppSelector} from '../../store';
-import { Login } from '../../store/users';
+import {useAppDispatch, useAppSelector} from 'app/store';
+import { Login } from 'entities/users/model';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import mainBG from '../../assets/bg-black.png';
-import FormComponent from '../../components/formComponent';
-import CustomButton from '../../components/button';
+import mainBG from 'shared/assets/bg-black.png';
+import FormComponent from 'shared/ui/formComponent';
+import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
+import './styles.sass';
 import './styles.sass';
 import {useEffect} from "react";
 
@@ -76,3 +77,5 @@ const LoginPage = () => {
 }
 
 export default LoginPage
+
+

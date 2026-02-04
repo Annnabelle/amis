@@ -2,13 +2,13 @@ import { Form, Input, Select, Tag } from 'antd'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {getUserById } from '../../../store/users'
-import { useAppDispatch, useAppSelector } from '../../../store'
-import MainLayout from '../../../components/layout'
-import Heading from '../../../components/mainHeading'
-import FormComponent from '../../../components/formComponent'
-import CustomButton from '../../../components/button'
-import { useNavigationBack } from '../../../utils/utils'
+import {getUserById } from 'entities/users/model'
+import { useAppDispatch, useAppSelector } from 'app/store'
+import MainLayout from 'shared/ui/layout'
+import Heading from 'shared/ui/mainHeading'
+import FormComponent from 'shared/ui/formComponent'
+import CustomButton from 'shared/ui/button'
+import { useNavigationBack } from 'shared/lib'
 
 const UsersRetrieve = () => {
     const { id } = useParams();
@@ -102,3 +102,5 @@ const UsersRetrieve = () => {
 }
 
 export default UsersRetrieve
+
+

@@ -1,6 +1,6 @@
 @use 'sass:map'
-@use '../../styles/mixins' as mix
-@use '../../styles/variables' as vars
+@use '../../shared/styles/mixins' as mix
+@use '../../shared/styles/variables' as vars
 .interactive-tag
     transition: all 0.3s ease
     border-radius: 16px
@@ -121,3 +121,4 @@
                         fill: map.get(vars.$main, 'main')
                 .item-strong
                     +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+

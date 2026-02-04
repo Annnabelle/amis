@@ -19,18 +19,18 @@ import {
   ApartmentOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import MainLayout from "../../components/layout";
-import Heading from "../../components/mainHeading";
+import MainLayout from "shared/ui/layout";
+import Heading from "shared/ui/mainHeading";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "../../store";
-import { fetchAuditLogs } from "../../store/auditLog";
+import { useAppDispatch, useAppSelector } from "app/store";
+import { fetchAuditLogs } from "entities/auditLog/model";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
 import { Link } from "react-router-dom";
-import { FormatUzbekPhoneNumber } from "../../utils/utils";
+import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
 import "./styles.sass";
-import type { AuditCategory } from "../../dtos";
+import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
 
 const { Panel } = Collapse;
@@ -584,6 +584,9 @@ const AuditLogsPage: React.FC = () => {
 };
 
 export default AuditLogsPage
+
+
+
 
 
 

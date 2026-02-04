@@ -1,0 +1,20 @@
+    export type AggregationDataType = {
+        key: string,
+        number: number,
+        aggregationNumber: string,
+        id: string,
+        batchNumberParent: string,
+        batchNumberChild: string,
+        productName: string,
+        aggregationQuantity: string,
+        quantityPerPackage: string,
+        submittedAt: string,
+        status: string,
+        orderIdParent: string,
+        batchIdParent: string,
+        childOrderId: string,
+        batchOrderId: string,
+    }
+
+
+

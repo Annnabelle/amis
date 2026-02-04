@@ -2,11 +2,11 @@ import {Link, useParams} from "react-router-dom";
 import BatchItem from "../../markingCodeProduct/batchItem.tsx";
 import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
-import {useAppDispatch, useAppSelector} from "../../../store";
-import {fetchOneAggregationReport} from "../../../store/aggregation";
+import {useAppDispatch, useAppSelector} from "app/store";
+import {fetchOneAggregationReport} from "entities/aggregation/model";
 import "../../markingCodeProduct/styles.sass"
 import {Tag} from "antd";
-import {statusColors} from "../../../components/statuses.tsx";
+import {statusColors} from "shared/ui/statuses.tsx";
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -120,3 +120,5 @@ const AgregationReport: React.FC = () => {
 }
 
 export default AgregationReport
+
+

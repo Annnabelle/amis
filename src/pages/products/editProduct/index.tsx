@@ -1,17 +1,17 @@
 import {Form, Input, Select} from 'antd'
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from 'app/store';
 import { useEffect } from 'react';
-import { getProductById, updateProduct } from '../../../store/products';
+import { getProductById, updateProduct } from 'entities/products/model';
 import { toast } from 'react-toastify';
-import MainLayout from '../../../components/layout';
-import Heading from '../../../components/mainHeading';
-import CustomButton from '../../../components/button';
-import { useNavigationBack } from '../../../utils/utils';
-import FormComponent from '../../../components/formComponent';
+import MainLayout from 'shared/ui/layout';
+import Heading from 'shared/ui/mainHeading';
+import CustomButton from 'shared/ui/button';
+import { useNavigationBack } from 'shared/lib';
+import FormComponent from 'shared/ui/formComponent';
 import TextArea from "antd/es/input/TextArea";
-import {fetchReferencesByType} from "../../../store/references";
+import {fetchReferencesByType} from "entities/references/model";
 
 const ProductsEdit = () => {
     const { id } = useParams<{ id: string }>();
@@ -331,3 +331,5 @@ const ProductsEdit = () => {
 }
 
 export default ProductsEdit
+
+

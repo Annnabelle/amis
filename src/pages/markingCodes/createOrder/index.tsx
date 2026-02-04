@@ -3,16 +3,16 @@ import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import FormComponent from "../../../components/formComponent";
-import CustomButton from "../../../components/button";
-import { useAppDispatch, useAppSelector } from "../../../store";
-import type { CreateOrderDto } from "../../../dtos/markingCodes";
-import { createOrder } from "../../../store/markingCodes";
-import { searchProducts, getProductById } from "../../../store/products";
+import FormComponent from "shared/ui/formComponent";
+import CustomButton from "shared/ui/button";
+import { useAppDispatch, useAppSelector } from "app/store";
+import type { CreateOrderDto } from "entities/markingCodes/dtos";
+import { createOrder } from "entities/markingCodes/model";
+import { searchProducts, getProductById } from "entities/products/model";
 import { useEffect, useState } from "react";
-import { fetchReferencesByType } from "../../../store/references";
+import { fetchReferencesByType } from "entities/references/model";
 import { useParams } from "react-router-dom";
-import {getBackendErrorMessage} from "../../../utils/getBackendErrorMessage.ts";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 
 type OrderFormValues = {
   items: {
@@ -239,3 +239,6 @@ const OrderForm = () => {
 };
 
 export default OrderForm;
+
+
+
