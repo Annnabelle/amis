@@ -83,7 +83,7 @@ const MarkingCodeProductBatches = () => {
 
                         <BatchItem label={t('markingCodes.batches.batchData.orderTime')}>
                             {orderProductBatch?.order?.orderedAt
-                                ? dayjs(orderProductBatch.order.orderedAt).format('YYYY.MM.DD HH:mm:ss')
+                                ? dayjs(orderProductBatch.order.orderedAt).format('DD-MM-YYYY HH:mm:ss')
                                 : '—'}
                         </BatchItem>
 

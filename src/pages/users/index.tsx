@@ -50,7 +50,7 @@ const Users = () => {
             lastName: user.lastName,
             email: user.email,
             role: user.role?.name?.[i18n.language as LangKey] || user.role?.name?.ru || 'Без роли',
-            lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('YYYY-MM-DD') : '-',
+            lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD-MM-YYYY') : '-',
             status: user.status,
             action: 'Действие', 
         }))
