@@ -80,7 +80,7 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
                         xTrace: {
                             token: form.getFieldValue(["accessCodes", "xTrace", "token"]),
                             expireDate: xData.expireDate
-                                ? dayjs(xData.expireDate).format("YYYY-MM-DD HH:mm:ss")
+                                ? dayjs(xData.expireDate).format("DD-MM-YYYY HH:mm:ss")
                                 : undefined,
                         },
                     },

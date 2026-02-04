@@ -75,7 +75,7 @@ const MarkingCodes = () => {
             totalQuantity: markingCode.totalQuantity,
             orderedQuantity: markingCode.orderedQuantity,
             remainderQuantity: markingCode.remainderQuantity,
-            orderedAt: dayjs(markingCode.orderedAt).format('YYYY-MM-DD HH:mm:ss'),
+            orderedAt: dayjs(markingCode.orderedAt).format('DD-MM-YYYY HH:mm:ss'),
             codesHaveBeenExported:
                 markingCode.totalQuantity === markingCode.orderedQuantity
                     ? t('common.yes')
