@@ -16,7 +16,7 @@ export const resources = {
             },
             groups: {
                 groups: "groups",
-                group: "groups"
+                group: "group"
             },
             logsActions: {
                 user: {
@@ -754,7 +754,7 @@ export const resources = {
             },
             groups: {
                 groups: "группы",
-                group: "групп"
+                group: "группа"
             },
             logsActions: {
                 user: {
