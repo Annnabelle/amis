@@ -77,7 +77,16 @@ export const fetchAggregationUnits = createAsyncThunk<
     'aggregation/fetchAggregationUnits',
     async (params, { rejectWithValue }) => {
         try {
-            const { aggregationId, page = 1, limit = 10 } = params;
+            const { aggregationId, page, limit } = params;
+            const queryParams: Record<string, number> = {};
+
+            if (typeof page === "number") {
+                queryParams.page = page;
+            }
+
+            if (typeof limit === "number") {
+                queryParams.limit = limit;
+            }
 
             const response = await axiosInstance.get<{
                 data: AggregationUnitCodeResponseDto[];
@@ -86,7 +95,7 @@ export const fetchAggregationUnits = createAsyncThunk<
                 limit: number;
             }>(
                 `${BASE_URL}/reports/aggregation/${aggregationId}/units`,
-                { params: { page, limit } }
+                { params: queryParams }
             );
 
             if (Array.isArray(response.data.data)) {
