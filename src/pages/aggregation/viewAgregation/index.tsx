@@ -16,7 +16,7 @@ import {downloadReport} from "entities/export/model";
 import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
-import {Select} from "antd";
+import {Pagination, Select} from "antd";
 
 type ExportLoadingState = {
     type: "group" | "unit";
@@ -39,12 +39,11 @@ const AggregationReportPage: React.FC = () => {
 
     const units = useAppSelector((state) => state.aggregations.units)
     const unitsData = id ? (units[id]?.data ?? []) : [];
-    const unitsTotal = unitsData.length;
+    const unitsTotal = id ? (units[id]?.total ?? 0) : 0;
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
     const [groupsLimit, setGroupsLimit] = useState<2 | 3 | 4 | 5>(2);
-    const codesPerGroup = 12;
-    const pageSize = groupsLimit * codesPerGroup;
     const [page, setPage] = useState(1);
+    const totalPages = groupsLimit > 0 ? Math.ceil(unitsTotal / groupsLimit) : 0;
 
 
     useEffect(() => {
@@ -65,24 +64,25 @@ const AggregationReportPage: React.FC = () => {
         dispatch(
             fetchAggregationUnits({
                 aggregationId: id,
+                limit: groupsLimit,
+                page,
             })
         );
-    }, [id, dispatch]);
+    }, [id, dispatch, page, groupsLimit]);
 
     const codesData = useMemo(() => {
         if (!id || unitsData.length === 0) return [];
 
-        const startIndex = (page - 1) * pageSize;
-        const pageSlice = unitsData.slice(startIndex, startIndex + pageSize);
+        const startIndex = (page - 1) * unitsData.length;
 
-        return pageSlice.map((unit, index) => ({
+        return unitsData.map((unit, index) => ({
             number: startIndex + index + 1,
             key: `${unit.unitId}-${index}`,
             parentCode: String(unit.unitNumber),
             codeNumber: unit.codeNumber,
             code: unit.code,
         }));
-    }, [unitsData, id, page, pageSize]);
+    }, [unitsData, id, page]);
 
     useEffect(() => {
         if (id) dispatch(fetchOneAggregationReport({ id }));
@@ -165,17 +165,19 @@ const AggregationReportPage: React.FC = () => {
                         <ComponentTable<UnitCodeType>
                             columns={UnitsColumns(t)}
                             data={codesData}
-                            pagination={{
-                                current: page,
-                                pageSize,
-                                total: unitsTotal,
-                                showSizeChanger: false,
-                                onChange: (nextPage) => {
-                                    setPage(nextPage);
-                                },
-                            }}
+                            pagination={false}
                         />
                     </div>
+                    <Pagination
+                        current={page}
+                        pageSize={1}
+                        total={totalPages}
+                        showSizeChanger={false}
+                        onChange={(nextPage) => {
+                            setPage(nextPage);
+                        }}
+                        style={{ marginLeft: "auto" }}
+                    />
                 </div>
             </div>
         </MainLayout>
