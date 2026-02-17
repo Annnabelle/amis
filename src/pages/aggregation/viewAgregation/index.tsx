@@ -149,10 +149,10 @@ const AggregationReportPage: React.FC = () => {
                             setGroupsLimit(value);
                         }}
                         options={[
-                            { value: 2, label: '2 группы' },
-                            { value: 3, label: '3 группы' },
-                            { value: 4, label: '4 группы' },
-                            { value: 5, label: '5 групп' },
+                            { value: 2, label: `2 ${t("groups.groups")}` },
+                            { value: 3, label: `3 ${t("groups.groups")}` },
+                            { value: 4, label: `4 ${t("groups.groups")}` },
+                            { value: 5, label: `5 ${t("groups.groups")}` },
                         ]}
                     />
 
@@ -160,6 +160,7 @@ const AggregationReportPage: React.FC = () => {
                         <ComponentTable<UnitCodeType>
                             columns={UnitsColumns(t)}
                             data={codesData}
+                            pagination={false}
                         />
                     </div>
                 </div>

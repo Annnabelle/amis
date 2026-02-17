@@ -10,7 +10,7 @@ interface ComponentTableProps<T> {
     columns?: AdaptiveColumn<T>[];
     data?: T[];
     loading?: boolean;
-    pagination?: TablePaginationConfig;
+    pagination?: TablePaginationConfig | false;
 }
 
 const ComponentTable = <T extends object>({
