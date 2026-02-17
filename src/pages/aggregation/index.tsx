@@ -307,6 +307,26 @@ const Aggregations = () => {
                         <ComponentTable<AggregationDataType>
                             columns={AggregationColumns(t, orgId)}
                             data={AggregationsData}
+                            pagination={{
+                                current: dataPage,
+                                pageSize: 10,
+                                total: dataTotal,
+                                showSizeChanger: false,
+                                onChange: (page) => {
+                                    if (!orgId) return;
+                                    dispatch(
+                                        fetchAggregations({
+                                            page,
+                                            limit: 10,
+                                            companyId: orgId,
+                                            status: filters.status,
+                                            dateFrom: filters.dateFrom,
+                                            dateTo: filters.dateTo,
+                                            productId: selectedProductId,
+                                        })
+                                    );
+                                },
+                            }}
                         />
                     </div>
                 </div>
