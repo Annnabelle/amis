@@ -38,8 +38,12 @@ const AggregationReportPage: React.FC = () => {
     const dispatch = useAppDispatch();
 
     const units = useAppSelector((state) => state.aggregations.units)
+    const unitsData = id ? (units[id]?.data ?? []) : [];
+    const unitsTotal = unitsData.length;
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
     const [groupsLimit, setGroupsLimit] = useState<2 | 3 | 4 | 5>(2);
+    const codesPerGroup = 12;
+    const pageSize = groupsLimit * codesPerGroup;
     const [page, setPage] = useState(1);
 
 
@@ -61,23 +65,24 @@ const AggregationReportPage: React.FC = () => {
         dispatch(
             fetchAggregationUnits({
                 aggregationId: id,
-                page,
-                limit: groupsLimit, // 👈 ВАЖНО
             })
         );
-    }, [id, dispatch, page, groupsLimit]);
+    }, [id, dispatch]);
 
     const codesData = useMemo(() => {
-        if (!id || !units[id]?.data) return [];
+        if (!id || unitsData.length === 0) return [];
 
-        return units[id].data.map((unit, index) => ({
-            number: index + 1,
+        const startIndex = (page - 1) * pageSize;
+        const pageSlice = unitsData.slice(startIndex, startIndex + pageSize);
+
+        return pageSlice.map((unit, index) => ({
+            number: startIndex + index + 1,
             key: `${unit.unitId}-${index}`,
             parentCode: String(unit.unitNumber),
             codeNumber: unit.codeNumber,
             code: unit.code,
         }));
-    }, [units, id]);
+    }, [unitsData, id, page, pageSize]);
 
     useEffect(() => {
         if (id) dispatch(fetchOneAggregationReport({ id }));
@@ -160,7 +165,15 @@ const AggregationReportPage: React.FC = () => {
                         <ComponentTable<UnitCodeType>
                             columns={UnitsColumns(t)}
                             data={codesData}
-                            pagination={false}
+                            pagination={{
+                                current: page,
+                                pageSize,
+                                total: unitsTotal,
+                                showSizeChanger: false,
+                                onChange: (nextPage) => {
+                                    setPage(nextPage);
+                                },
+                            }}
                         />
                     </div>
                 </div>
