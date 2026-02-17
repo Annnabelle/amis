@@ -13,14 +13,14 @@ export const UnitsColumns = (
         render: (text) => <p className="table-text">{text}</p>,
     },
     {
-        title: "Номер кода",
+        title:  t("aggregations.agregationReportPage.unitsTable.codeNumber"),
         dataIndex: "codeNumber",
         key: "codeNumber",
         flex: 1,
         render: (text) => <p className="table-text">{text}</p>,
     },
     {
-        title: "Код",
+        title: t("aggregations.agregationReportPage.unitsTable.code"),
         dataIndex: "code",
         key: "code",
         flex: 3,

@@ -76,7 +76,14 @@ const Aggregations = () => {
 
     useEffect(() => {
         if (modalState.addAggregation) {
-            dispatch(fetchMarkingCodes({ page: 1, limit: 15, companyId: orgId }));
+            dispatch(
+                fetchMarkingCodes({
+                    page: 1,
+                    limit: 20,
+                    companyId: orgId,
+                    status: "codes_utilized",
+                })
+            );
         }
     }, [modalState.addAggregation, dispatch]);
 

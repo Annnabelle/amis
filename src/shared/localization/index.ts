@@ -14,6 +14,10 @@ export const resources = {
                 short: "Short",
                 long: "Full"
             },
+            groups: {
+                groups: "groups",
+                group: "groups"
+            },
             logsActions: {
                 user: {
                     userRegistration: "Registration of a new user",
@@ -703,6 +707,8 @@ export const resources = {
                 },
                 agregationReportPage: {
                     productName: "Product Name",
+                    codeNumber: "Code number",
+                    code: "Code",
                     orders: "Orders",
                     batches: "Batches",
                     aggregation: "Aggregation",
@@ -745,6 +751,10 @@ export const resources = {
             export: {
                 short: "Короткий",
                 long: "Полный"
+            },
+            groups: {
+                groups: "группы",
+                group: "групп"
             },
             logsActions: {
                 user: {
@@ -1437,6 +1447,8 @@ export const resources = {
                 agregationReportPage: {
                     productName: "Название продукта",
                     orders: "Заказы",
+                    codeNumber: "Номер кода",
+                    code: "Код",
                     batches: "Партии",
                     aggregations: "Агрегации",
                     aggregation: "Агрегация",
@@ -1478,6 +1490,10 @@ export const resources = {
             export: {
                 short: "Qisqa",
                 long: "To‘liq"
+            },
+             groups: {
+                groups: "guruh",
+                group: "guruh"
             },
             logsActions: {
                 user: {
@@ -2169,6 +2185,8 @@ export const resources = {
                 agregationReportPage: {
                     productName: "Mahsulot nomi",
                     orders: "Buyurtmalar",
+                    codeNumber: "Kod raqami",
+                    code: "Kod",
                     batches: "Partiyalar",
                     aggregation: "Agregatsiya",
                     aggregations: "Agregatsiya",
