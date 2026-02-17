@@ -43,7 +43,6 @@ const AggregationReportPage: React.FC = () => {
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
     const [groupsLimit, setGroupsLimit] = useState<2 | 3 | 4 | 5>(2);
     const [page, setPage] = useState(1);
-    const totalPages = groupsLimit > 0 ? Math.ceil(unitsTotal / groupsLimit) : 0;
 
 
     useEffect(() => {
