@@ -41,7 +41,7 @@ const AggregationReportPage: React.FC = () => {
     const unitsData = id ? (units[id]?.data ?? []) : [];
     const unitsTotal = id ? (units[id]?.total ?? 0) : 0;
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
-    const [groupsLimit, setGroupsLimit] = useState<2 | 3 | 4 | 5>(2);
+    const [groupsLimit, setGroupsLimit] = useState<1 | 2 | 3 | 4>(1);
     const [page, setPage] = useState(1);
 
 
@@ -153,10 +153,10 @@ const AggregationReportPage: React.FC = () => {
                             setGroupsLimit(value);
                         }}
                         options={[
+                            { value: 1, label: `1 ${t("groups.group")}` },
                             { value: 2, label: `2 ${t("groups.groups")}` },
                             { value: 3, label: `3 ${t("groups.groups")}` },
                             { value: 4, label: `4 ${t("groups.groups")}` },
-                            { value: 5, label: `5 ${t("groups.groups")}` },
                         ]}
                     />
 
@@ -167,10 +167,10 @@ const AggregationReportPage: React.FC = () => {
                             pagination={false}
                         />
                     </div>
-                    <Pagination
+                      <Pagination
                         current={page}
                         pageSize={1}
-                        total={totalPages}
+                        total={groupsLimit > 0 ? Math.ceil(unitsTotal / groupsLimit) : 0}
                         showSizeChanger={false}
                         onChange={(nextPage) => {
                             setPage(nextPage);
