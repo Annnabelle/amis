@@ -244,11 +244,14 @@ const MarkingCodes = () => {
                             current: queryParams.page,
                             pageSize: queryParams.limit,
                             total: dataTotal,
+                            showSizeChanger: { showSearch: false },
+                            pageSizeOptions: ['10', '15', '20', '25'],
+                            locale: { items_per_page: '' },
                             onChange: (page, limit) => {
                                 setQueryParams(prev => ({
                                 ...prev,
                                 page,
-                                limit,
+                                limit: limit || prev.limit || 10,
                                 }));
                             },
                         }}

@@ -563,12 +563,14 @@ const AuditLogsPage: React.FC = () => {
                   current={dataPage || 1}
                   total={dataTotal || 0}
                   pageSize={dataLimit || 10}
-                  showSizeChanger={false}
-                  onChange={(p) =>
+                  showSizeChanger={{ showSearch: false }}
+                  pageSizeOptions={['10', '15', '20', '25']}
+                  locale={{ items_per_page: '' }}
+                  onChange={(p, pageSize) =>
                     dispatch(
                       fetchAuditLogs({
                         page: p,
-                        limit: dataLimit || 10,
+                        limit: pageSize || dataLimit || 10,
                         sortOrder: "desc",
                       })
                     )
