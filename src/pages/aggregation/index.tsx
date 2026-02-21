@@ -170,7 +170,7 @@ const Aggregations = () => {
             .then(() => {
                 toast.success(t("aggregations.messages.createSuccess"));
                 handleModal("addAggregation", false);
-                dispatch(fetchAggregations({ page: 1, limit: 10, companyId: orgId! }));
+                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10, companyId: orgId! }));
             })
             .catch((err: ApiErrorResponse) => {
                 toast.error(
@@ -309,15 +309,17 @@ const Aggregations = () => {
                             data={AggregationsData}
                             pagination={{
                                 current: dataPage,
-                                pageSize: 10,
+                                pageSize: dataLimit || 10,
                                 total: dataTotal,
-                                showSizeChanger: false,
-                                onChange: (page) => {
+                                showSizeChanger: { showSearch: false },
+                                pageSizeOptions: ['10', '15', '20', '25'],
+                                locale: { items_per_page: '' },
+                                onChange: (page, pageSize) => {
                                     if (!orgId) return;
                                     dispatch(
                                         fetchAggregations({
                                             page,
-                                            limit: 10,
+                                            limit: pageSize || dataLimit || 10,
                                             companyId: orgId,
                                             status: filters.status,
                                             dateFrom: filters.dateFrom,
@@ -390,7 +392,6 @@ const Aggregations = () => {
                             {t('btn.create')}
                         </CustomButton>
                     </FormComponent>
-
                 </ModalWindow>
             </div>
         </MainLayout>

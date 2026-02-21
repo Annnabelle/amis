@@ -26,7 +26,7 @@ const MarkingCodeProduct = () => {
         if (!orderId || !batchId) return;
 
         dispatch(getOrderProduct({ orderId, batchId, page: dataPage || 1, limit: dataLimit || 10 }));
-    }, [dispatch, orderId, batchId]);
+    }, [dispatch, orderId, batchId, dataPage, dataLimit]);
 
     useEffect(() => {
         if (!orderId || !batchId) return;
@@ -44,6 +44,13 @@ const MarkingCodeProduct = () => {
             status: product.status,
         }));
     }, [orderProduct]);
+
+    const paginationCurrent =
+        orderProduct && 'page' in orderProduct ? orderProduct.page : dataPage || 1;
+    const paginationPageSize =
+        orderProduct && 'limit' in orderProduct ? orderProduct.limit : dataLimit || 10;
+    const paginationTotal =
+        orderProduct && 'total' in orderProduct ? orderProduct.total : 0;
 
     return (
     <MainLayout>
@@ -64,6 +71,25 @@ const MarkingCodeProduct = () => {
                     <ComponentTable<OrderProductDataType>
                         columns={OrderProductTableColumns(t)}
                         data={OrderProductData}
+                        pagination={{
+                            current: paginationCurrent,
+                            pageSize: paginationPageSize,
+                            total: paginationTotal,
+                            showSizeChanger: { showSearch: false },
+                            pageSizeOptions: ['10', '15', '20', '25'],
+                            locale: { items_per_page: '' },
+                            onChange: (page, pageSize) => {
+                                if (!orderId || !batchId) return;
+                                dispatch(
+                                    getOrderProduct({
+                                        orderId,
+                                        batchId,
+                                        page,
+                                        limit: pageSize || dataLimit || 10,
+                                    })
+                                );
+                            },
+                        }}
                     />
                 </div>
             </div>

@@ -185,7 +185,7 @@ export const getOrderProduct = createAsyncThunk<
     { rejectValue: string }
 >(
     "markingCodes/getOrderProduct",
-    async ({ orderId, batchId }, { rejectWithValue }) => {
+    async ({ orderId, batchId, page, limit }, { rejectWithValue }) => {
       try {
         const response = await axiosInstance.get<GetOrderProductCodesResponseDto>(
             `${BASE_URL}/codes/batches`,
@@ -193,8 +193,8 @@ export const getOrderProduct = createAsyncThunk<
               params: {
                 orderId,
                 batchId,
-                page: 1,
-                limit: 10,
+                page,
+                limit,
               },
             }
         );

@@ -222,8 +222,11 @@ const Users = () => {
                             current: dataPage || 1,
                             pageSize: dataLimit || 10,
                             total: dataTotal || 0,
+                            showSizeChanger: { showSearch: false },
+                            pageSizeOptions: ['10', '15', '20', '25'],
+                            locale: { items_per_page: '' },
                             onChange: (newPage, newLimit) => {
-                            dispatch(getAllUsers({ page: newPage, limit: newLimit, sortOrder: "asc" }));
+                            dispatch(getAllUsers({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
                             },
                         }}
                     />

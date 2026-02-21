@@ -90,6 +90,7 @@ export const auditLogsSlice = createSlice({
           state.data = action.payload.data;
           state.page = action.payload.page;
           state.total = action.payload.total;
+          state.limit = action.payload.limit;
           state.loading = false;
         }
       )

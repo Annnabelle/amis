@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from 'app/store'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { BatchTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
@@ -24,6 +24,8 @@ const Batches = () => {
         orderId: string;
     }>();
     const markingCodeById = useAppSelector((state) => state.markingCodes.markingCodeById)
+    const [tablePage, setTablePage] = useState(1);
+    const [tablePageSize, setTablePageSize] = useState(10);
 
     useEffect(() => {
         if (orderId){
@@ -123,6 +125,18 @@ const Batches = () => {
                     <ComponentTable<BatchTableDataType>
                         columns={MarkingCodeTableColumns(t, orgId)}
                         data={MarkingCodeData}
+                        pagination={{
+                            current: tablePage,
+                            pageSize: tablePageSize,
+                            total: MarkingCodeData?.length || 0,
+                            showSizeChanger: { showSearch: false },
+                            pageSizeOptions: ['10', '15', '20', '25'],
+                            locale: { items_per_page: '' },
+                            onChange: (page, pageSize) => {
+                                setTablePage(page);
+                                setTablePageSize(pageSize || tablePageSize);
+                            },
+                        }}
                     />
                 </div>
             </div>

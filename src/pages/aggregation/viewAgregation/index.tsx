@@ -16,7 +16,7 @@ import {downloadReport} from "entities/export/model";
 import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
-import {Pagination, Select} from "antd";
+import {Pagination} from "antd";
 
 type ExportLoadingState = {
     type: "group" | "unit";
@@ -41,7 +41,7 @@ const AggregationReportPage: React.FC = () => {
     const unitsData = id ? (units[id]?.data ?? []) : [];
     const unitsTotal = id ? (units[id]?.total ?? 0) : 0;
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
-    const [groupsLimit, setGroupsLimit] = useState<1 | 2 | 3 | 4>(1);
+    const [groupsLimit, setGroupsLimit] = useState<number>(10);
     const [page, setPage] = useState(1);
 
 
@@ -72,7 +72,7 @@ const AggregationReportPage: React.FC = () => {
     const codesData = useMemo(() => {
         if (!id || unitsData.length === 0) return [];
 
-        const startIndex = (page - 1) * unitsData.length;
+        const startIndex = (page - 1) * groupsLimit;
 
         return unitsData.map((unit, index) => ({
             number: startIndex + index + 1,
@@ -81,7 +81,7 @@ const AggregationReportPage: React.FC = () => {
             codeNumber: unit.codeNumber,
             code: unit.code,
         }));
-    }, [unitsData, id, page]);
+    }, [unitsData, id, page, groupsLimit]);
 
     useEffect(() => {
         if (id) dispatch(fetchOneAggregationReport({ id }));
@@ -145,21 +145,6 @@ const AggregationReportPage: React.FC = () => {
             <AgregationReport/>
             <div className="box">
                 <div className="box-container">
-                    <Select
-                        value={groupsLimit}
-                        style={{ width: 220 }}
-                        onChange={(value) => {
-                            setPage(1);
-                            setGroupsLimit(value);
-                        }}
-                        options={[
-                            { value: 1, label: `1 ${t("groups.group")}` },
-                            { value: 2, label: `2 ${t("groups.groups")}` },
-                            { value: 3, label: `3 ${t("groups.groups")}` },
-                            { value: 4, label: `4 ${t("groups.groups")}` },
-                        ]}
-                    />
-
                     <div className="box-container-items">
                         <ComponentTable<UnitCodeType>
                             columns={UnitsColumns(t)}
@@ -169,11 +154,14 @@ const AggregationReportPage: React.FC = () => {
                     </div>
                       <Pagination
                         current={page}
-                        pageSize={1}
-                        total={groupsLimit > 0 ? Math.ceil(unitsTotal / groupsLimit) : 0}
-                        showSizeChanger={false}
-                        onChange={(nextPage) => {
+                        pageSize={groupsLimit}
+                        total={unitsTotal}
+                        showSizeChanger={{ showSearch: false }}
+                        pageSizeOptions={['10', '15', '20', '25']}
+                        locale={{ items_per_page: '' }}
+                        onChange={(nextPage, pageSize) => {
                             setPage(nextPage);
+                            setGroupsLimit(pageSize || groupsLimit);
                         }}
                         style={{ marginLeft: "auto" }}
                     />
