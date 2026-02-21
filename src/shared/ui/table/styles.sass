@@ -9,20 +9,21 @@
             overflow: hidden
             text-overflow: ellipsis
             background: map.get(vars.$main, 'main-light') !important
-            +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
+            +mix.typography(14px, 600, map.get(vars.$basic, 'black'))
     .ant-table-tbody
         .ant-table-cell
             white-space: nowrap
             overflow: hidden
             text-overflow: ellipsis
+            +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
             .table-text
-                +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
             .link
                 text-decoration: none
-                +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
                 transition: color 0.3s ease
                 &:hover
-                    +mix.typography(16px, 400, map.get(vars.$main, 'main'))
+                    +mix.typography(14px, 400, map.get(vars.$main, 'main'))
     .clickable-row
         cursor: pointer
 :where(.css-dev-only-do-not-override-1kl99jq).ant-dropdown .ant-dropdown-menu
