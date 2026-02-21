@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from 'app/store'
-import {useEffect, useMemo} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import MainLayout from 'shared/ui/layout'
@@ -15,8 +15,8 @@ const MarkingCodeProduct = () => {
     const dispatch = useAppDispatch()
     const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
     const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
-    const dataLimit = useAppSelector((state) => state.markingCodes.limit)
-    const dataPage = useAppSelector((state) => state.markingCodes.page)
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const { orderId, batchId } = useParams<{
         orderId: string;
         batchId: string;
@@ -25,8 +25,8 @@ const MarkingCodeProduct = () => {
     useEffect(() => {
         if (!orderId || !batchId) return;
 
-        dispatch(getOrderProduct({ orderId, batchId, page: dataPage || 1, limit: dataLimit || 10 }));
-    }, [dispatch, orderId, batchId, dataPage, dataLimit]);
+        dispatch(getOrderProduct({ orderId, batchId, page, limit }));
+    }, [dispatch, orderId, batchId, page, limit]);
 
     useEffect(() => {
         if (!orderId || !batchId) return;
@@ -46,9 +46,9 @@ const MarkingCodeProduct = () => {
     }, [orderProduct]);
 
     const paginationCurrent =
-        orderProduct && 'page' in orderProduct ? orderProduct.page : dataPage || 1;
+        orderProduct && 'page' in orderProduct ? orderProduct.page : page;
     const paginationPageSize =
-        orderProduct && 'limit' in orderProduct ? orderProduct.limit : dataLimit || 10;
+        orderProduct && 'limit' in orderProduct ? orderProduct.limit : limit;
     const paginationTotal =
         orderProduct && 'total' in orderProduct ? orderProduct.total : 0;
 
@@ -78,16 +78,12 @@ const MarkingCodeProduct = () => {
                             showSizeChanger: { showSearch: false },
                             pageSizeOptions: ['10', '15', '20', '25'],
                             locale: { items_per_page: '' },
-                            onChange: (page, pageSize) => {
+                            onChange: (nextPage, nextPageSize) => {
                                 if (!orderId || !batchId) return;
-                                dispatch(
-                                    getOrderProduct({
-                                        orderId,
-                                        batchId,
-                                        page,
-                                        limit: pageSize || dataLimit || 10,
-                                    })
-                                );
+                                const newLimit = nextPageSize || paginationPageSize;
+                                const isPageSizeChanged = newLimit !== paginationPageSize;
+                                setLimit(newLimit);
+                                setPage(isPageSizeChanged ? 1 : nextPage);
                             },
                         }}
                     />

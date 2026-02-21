@@ -133,8 +133,10 @@ const Batches = () => {
                             pageSizeOptions: ['10', '15', '20', '25'],
                             locale: { items_per_page: '' },
                             onChange: (page, pageSize) => {
-                                setTablePage(page);
-                                setTablePageSize(pageSize || tablePageSize);
+                                const newLimit = pageSize || tablePageSize;
+                                const isPageSizeChanged = newLimit !== tablePageSize;
+                                setTablePageSize(newLimit);
+                                setTablePage(isPageSizeChanged ? 1 : page);
                             },
                         }}
                     />
