@@ -9,12 +9,6 @@ export const UsersTableColumns = (
   handleRowClick: (type: "User", action: "retrieve" | "edit" | "delete", record: UserTableDataType) => void
 ): TableProps<UserTableDataType>["columns"] => [
   {
-    title: '№',
-    dataIndex: "number",
-    key: "number",
-    render: (text) => <p className="table-text">{text}</p>,
-  },
-  {
     title: t('users.addUserForm.label.email'),
     dataIndex: "email",
     key: "email",

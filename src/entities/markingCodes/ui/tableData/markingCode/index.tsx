@@ -5,12 +5,6 @@ import type { BatchTableDataType } from '../markingCodes/types';
 import {statusColors} from "shared/ui/statuses.tsx";
 
 export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined) : TableProps<BatchTableDataType>["columns"] => [
-  { 
-    title: '№',
-    dataIndex: "key",
-    key: "key",
-    render: (text) => <Link to="/marking-codes/1" className="table-text">{text}</Link>,
-  },
   {
     title: t("markingCodes.tableTitles.batchNumber"),
     dataIndex: "batchNumber",
@@ -56,7 +50,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
     title: t("markingCodes.tableTitles.numberOfMarkingCodes"),
     dataIndex: "quantity",
     key: "quantity",
-    render: (text) => <p className="table-text">{text}</p>,
+    render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>,
   },
   {
     title: t("markingCodes.tableTitles.status"),

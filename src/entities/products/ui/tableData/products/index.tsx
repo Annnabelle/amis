@@ -5,12 +5,6 @@ import type { ProductTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
 export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Product", action: "retrieve" | "edit" | "delete",record: ProductTableDataType) => void, onDelete: (record: ProductTableDataType) => void) : TableProps<ProductTableDataType>["columns"] => [
-  { 
-    title: '№',
-    dataIndex: "number",
-    key: "number",
-    render: (text) => <p className="table-text">{text}</p>,
-  },
   {
     title: t('products.addProductForm.label.name'),
     dataIndex: "name",

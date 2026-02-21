@@ -7,18 +7,6 @@ import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 
 export const OrganizationsTableColumns = (t: TFunction, onDelete: (record: OrganizationTableDataType) => void) : AdaptiveColumn<OrganizationTableDataType>[] => [
-  { 
-    title: '№',
-    dataIndex: "number",
-      className: "number-column",
-    key: "number",
-    render: (text) => <p className="table-text"
-                         style={{
-                             maxWidth: "50px",
-                             width: "50px"
-                         }}
-    >{text}</p>,
-  },
     {
         title: t('organizations.name'),
         dataIndex: "displayName",
