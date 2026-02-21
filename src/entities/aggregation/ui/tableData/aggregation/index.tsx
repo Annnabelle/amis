@@ -6,12 +6,6 @@ import {statusColors} from "shared/ui/statuses.tsx";
 
 export const AggregationColumns = (t: TFunction, orgId: string | undefined) : TableProps<AggregationDataType>["columns"] => [
     {
-        title: '№',
-        dataIndex: "number",
-        key: "number",
-        render: (text) => <p className="table-text" >{text}</p>
-    },
-    {
         title: t("aggregations.aggregationsTableTitle.aggregationReportNumber"),
         dataIndex: "aggregationNumber",
         key: "aggregationNumber",
@@ -66,13 +60,13 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         title: t("aggregations.aggregationsTableTitle.numberOfPackages"),
         dataIndex: "aggregationQuantity",
         key: "aggregationQuantity",
-        render: (text) => <p className="table-text">{text}</p>
+        render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>
     },
     {
         title: t("aggregations.aggregationsTableTitle.quantityPerPackage"),
         dataIndex: "quantityPerPackage",
         key: "quantityPerPackage",
-        render: (text) => <p className="table-text">{text}</p>
+        render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>
     },
     {
         title: t("aggregations.aggregationsTableTitle.orderDate"),

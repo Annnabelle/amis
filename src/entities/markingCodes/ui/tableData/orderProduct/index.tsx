@@ -4,12 +4,6 @@ import type {OrderProductDataType} from "./types.ts";
 import {statusColors} from "shared/ui/statuses.tsx";
 
 export const OrderProductTableColumns = (t: TFunction): TableProps<OrderProductDataType>["columns"] => [
-  { 
-    title: '№',
-    dataIndex: "key",
-    key: "key",
-    render: (text) => <p className="table-text">{text}</p>,
-  },
   {
     title: t("markingCodes.tableTitles.code"),
     dataIndex: "code",

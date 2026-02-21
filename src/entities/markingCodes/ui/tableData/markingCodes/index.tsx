@@ -10,14 +10,6 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     e: React.MouseEvent,
     record: MarkingCodesTableDataType,
 ) => void): AdaptiveColumn<MarkingCodesTableDataType>[] => [
-  { 
-    title: '№',
-    dataIndex: "number",
-      flex: 1,
-    ellipsis: true,
-    key: "number",
-    render: (text) => <p className="table-text">{text}</p>,
-  },
   {
     title: t("markingCodes.tableTitles.batchNumber"),
     dataIndex: "batchNumber",
@@ -74,7 +66,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     ellipsis: true,
       flex: 1,
     key: "totalQuantity",
-    render: (text) => <p className="table-text">{text}</p>,
+    render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>,
   },
   // {
   //   title: t("markingCodes.tableTitles.orderedMCQuantity"),
