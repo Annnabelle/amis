@@ -114,7 +114,7 @@ const Aggregations = () => {
             productName: aggregation.productName,
             aggregationQuantity: String(aggregation.aggregationQuantity),
             quantityPerPackage: String(aggregation.quantityPerPackage),
-            submittedAt: dayjs(aggregation.submittedAt).format('DD-MM-YYYY'),
+            submittedAt: dayjs(aggregation.submittedAt).format('DD.MM.YYYY'),
             status: aggregation.status.toLowerCase(),
         }))
     }, [aggregations, dataPage, dataLimit])
@@ -381,7 +381,7 @@ const Aggregations = () => {
                                     size="large"
                                     className="input"
                                     showTime
-                                    format="DD-MM-YYYY HH:mm"
+                                    format="DD.MM.YYYY HH:mm"
                                 />
                             </Form.Item>
                         </div>

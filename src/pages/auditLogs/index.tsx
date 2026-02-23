@@ -82,10 +82,10 @@ const AuditLogsPage: React.FC = () => {
       status: actor.status || "",
       actorId: actor.id || "",
       lastLoggedInAt: actor.lastLoggedInAt
-        ? dayjs(actor.lastLoggedInAt).format('DD-MM-YYYY')
+        ? dayjs(actor.lastLoggedInAt).format('DD.MM.YYYY')
         : "",
       location: log.ip || "—",
-      date: dayjs(log.occurredAt).format('DD-MM-YYYY'),
+      date: dayjs(log.occurredAt).format('DD.MM.YYYY'),
       time: dayjs(log.occurredAt).format('HH:mm:ss'),
       message: messageObj[i18n.language] || messageObj["en"] || "",
       targetEntity: log.targetEntity || "",

@@ -155,7 +155,7 @@ const OrganizationsInner = () => {
                                             <Input
                                                 className="input"
                                                 size="large"
-                                                placeholder={dayjs(organizationById?.accessCodes?.xTrace?.expireDate).format("DD-MM-YYYY hh:mm")}
+                                                placeholder={dayjs(organizationById?.accessCodes?.xTrace?.expireDate).format("DD.MM.YYYY hh:mm")}
                                                 disabled
                                             />
                                         </Form.Item>

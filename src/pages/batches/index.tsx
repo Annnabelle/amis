@@ -94,7 +94,7 @@ const Batches = () => {
                 },
                 orderTime: {
                     title: `${t('markingCodes.batches.orderTime')}:`,
-                    value: `${dayjs(markingCodeById?.orderedAt).format('DD-MM-YYYY HH:mm:ss')  || ''}`
+                    value: `${dayjs(markingCodeById?.orderedAt).format('DD.MM.YYYY HH:mm:ss')  || ''}`
                 },
                 orderStatus: {
                     title: `${t('markingCodes.batches.orderStatus')}:`,
