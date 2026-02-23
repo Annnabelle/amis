@@ -22,6 +22,7 @@ const initialState: OrganizationState = {
   organizationById: null,
   updateOrganization: null,
   organizations: [],
+  searchedOrganizations: [],
   total: 0,
   page: 1,
   limit: 10,
@@ -206,6 +207,7 @@ export const organizationsSlice = createSlice({
         ) => {
           state.isLoading = false;
           state.organizations = action.payload.data;
+          state.searchedOrganizations = [];
           state.total = action.payload.total;
           state.page = action.payload.page;
           state.limit = action.payload.limit;
@@ -215,23 +217,40 @@ export const organizationsSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      .addCase(searchOrganizations.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(searchOrganizations.fulfilled, (state, action) => {
         const { data = [], total, page, limit } = action.payload;
 
-        state.organizations = data.map((organization: any) => ({
+        state.isLoading = false;
+        state.searchedOrganizations = data.map((organization: any) => ({
             id: organization.id,
-            displayName: organization.displayName,
-            director: organization.director,
-            legalName: organization.legalName,
-            contacts: organization.contacts ? {
-                phone: organization.contacts.phone
-            } : {},
+            tin: organization.tin ?? "",
+            displayName: organization.displayName ?? "",
+            name: organization.name ?? { ru: "", uz: "", en: "" },
+            legalName: organization.legalName ?? { ru: "", uz: "", en: "" },
+            productGroups: organization.productGroups ?? [],
+            director: organization.director ?? "",
+            address: organization.address ?? {},
+            bankDetails: organization.bankDetails ?? {},
+            contacts: organization.contacts ?? {},
+            accessCodes: organization.accessCodes ?? { xTrace: { token: "", expireDate: "" } },
             status: organization.status,
+            deleted: Boolean(organization.deleted),
+            deletedAt: organization.deletedAt ?? null,
+            isTest: Boolean(organization.isTest),
+            businessPlaceId: Number(organization.businessPlaceId) || 0,
         }));
 
         state.total = total;
         state.page = page;
         state.limit = limit;
+    })
+    .addCase(searchOrganizations.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as string) ?? action.error.message ?? null;
     })
     .addCase(createOrganization.pending, (state) => {
         state.isLoading = true;
