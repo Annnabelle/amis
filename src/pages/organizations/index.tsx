@@ -30,6 +30,7 @@ const Organizations = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const organizations = useAppSelector((state) => state.organizations.organizations)
+    const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)
     const dataPage = useAppSelector((state) => state.organizations.page)
     const dataTotal = useAppSelector((state) => state.organizations.total)
@@ -37,6 +38,7 @@ const Organizations = () => {
     const [form] = Form.useForm();
     const [isXTraceValidated, setIsXTraceValidated] = useState(false);
     const lang = i18n.language as LanguageKey;
+    const [searchQuery, setSearchQuery] = useState('');
     const productGroupReferences = useAppSelector(
         (state) => state.references.references.productGroup
     ) ?? [];
@@ -93,14 +95,18 @@ const Organizations = () => {
 
     useEffect(() => {
         dispatch(getAllOrganizations({
-            page: dataPage || 1,
-            limit: dataLimit || 10,
+            page: 1,
+            limit: 10,
             sortOrder: 'asc',
         })) 
-    }, [dispatch, dataPage, dataLimit])
+    }, [dispatch])
+
+    const tableOrganizations = useMemo(() => {
+        return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
+    }, [organizations, searchQuery, searchedOrganizations]);
 
     const OrganizationsData = useMemo<OrganizationTableDataType[]>(() => {
-        return organizations.map((organization, index) => ({
+        return tableOrganizations.map((organization, index) => ({
             key: organization.id,
             number: index + 1,
             displayName: organization.displayName,
@@ -111,7 +117,7 @@ const Organizations = () => {
             isTest: organization.isTest,
             action: 'Действие',
         }));
-    }, [organizations, lang]);
+    }, [lang, tableOrganizations]);
 
     const [modalState, setModalState] = useState<{
         addCompany: boolean;
@@ -246,7 +252,7 @@ const Organizations = () => {
     }, [dispatch, selectedOrganizationId])
 
     const handleDeleteOrganization = (record: OrganizationTableDataType) => {
-        const organization = organizations.find((o) => o.id === record.key) ?? null;
+        const organization = tableOrganizations.find((o) => o.id === record.key) ?? null;
             if (organization) {
                 setSelectedOrganizationId(organization.id);
                 setModalState((prev) => ({
@@ -280,6 +286,7 @@ const Organizations = () => {
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
+        setSearchQuery(value);
         if (value.trim().length > 0) {
             dispatch(searchOrganizations({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
         } else {
@@ -341,7 +348,16 @@ const Organizations = () => {
                                 pageSizeOptions: ['10', '15', '20', '25'],
                                 locale: { items_per_page: '' },
                                 onChange: (newPage, newLimit) => {
-                                dispatch(getAllOrganizations({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
+                                    if (searchQuery.trim().length > 0) {
+                                        dispatch(searchOrganizations({
+                                            query: searchQuery,
+                                            page: newPage,
+                                            limit: newLimit || dataLimit || 10,
+                                            sortOrder: "asc"
+                                        }));
+                                        return;
+                                    }
+                                    dispatch(getAllOrganizations({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
                                 },
                             }}
                         />

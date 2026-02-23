@@ -20,6 +20,7 @@ const UsersEdit = () => {
     const dispatch = useAppDispatch();
     const userById = useAppSelector((state) => state.users.userById);
     const organizations = useAppSelector((state) => state.organizations.organizations);
+    const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations);
     const [form] = Form.useForm()
     const isLoadingOrganizations = useAppSelector((state) => state.organizations.isLoading);
     const [searchValue, setSearchValue] = useState("");
@@ -27,6 +28,9 @@ const UsersEdit = () => {
     const isUserLoading = useAppSelector((state) => state.users.isLoading);
     const navigateBack = useNavigationBack();
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const assignableOrganizations = searchValue.trim()
+        ? searchedOrganizations
+        : organizations;
 
     useEffect(() => {
         if (id) {
@@ -215,7 +219,7 @@ const UsersEdit = () => {
                                                 setSearchValue("");
                                             }}
                                             notFoundContent={isLoadingOrganizations ? <Spin size="small" /> : t("search.noResults")}
-                                            options={organizations
+                                            options={assignableOrganizations
                                                 .filter((org) => !assignedOrganizations.some((a) => a.id === org.id))
                                                 .map((org) => ({
                                                     value: org.id,

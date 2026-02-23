@@ -45,12 +45,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         return [];
     });
   const organizations = useAppSelector((state) => state.organizations.organizations);
-  const dataLimit = useAppSelector(
-      (state) => state.organizations.limit
-  );
-  const dataPage = useAppSelector(
-      (state) => state.organizations.page
-  );
 
     const isSuperAdmin = true;
 
@@ -79,12 +73,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     useEffect(() => {
         dispatch(
             getAllOrganizations({
-              page: dataPage || 1,
-              limit: dataLimit || 10,
+              page: 1,
+              limit: 10,
               sortOrder: 'asc',
             })
         );
-    }, [dispatch, dataPage, dataLimit]);
+    }, [dispatch]);
 
     // const myOrganizations = useMemo(
     //     () =>

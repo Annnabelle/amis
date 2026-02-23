@@ -82,6 +82,7 @@ export type OrganizationState = {
   organizationById: CompanyResponse | null,
   updateOrganization: CompanyResponse | null,
   organizations: CompanyResponse[],
+  searchedOrganizations: CompanyResponse[],
   total: number,
   page: number,
   limit: number,
