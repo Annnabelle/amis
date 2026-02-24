@@ -1,5 +1,6 @@
 import type { LoginForm } from 'entities/users/types';
-import { Form, Input } from 'antd';
+import {useEffect, useState} from "react";
+import { Form, Input, Spin } from 'antd';
 import {useAppDispatch, useAppSelector} from 'app/store';
 import { Login } from 'entities/users/model';
 import { toast } from 'react-toastify';
@@ -10,8 +11,6 @@ import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import './styles.sass';
-import './styles.sass';
-import {useEffect} from "react";
 
 const LoginPage = () => {
     const form = useFormInstance();
@@ -19,15 +18,20 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const isAuthenticated = useAppSelector(state => state.users.isAuthenticated);
     const { t } = useTranslation();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const onFinish = (values: LoginForm) => {
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
         dispatch(Login(values)).unwrap()
             .then(() => {
                 toast.success(t('login.messages.successLogin'));
-
             })
             .catch((error) => {
                 toast.error(t('login.messages.errorLogin'));
                 console.error(error);
+                setIsSubmitting(false);
             }); 
     };
 
@@ -63,8 +67,8 @@ const LoginPage = () => {
                                 </Form.Item>
                             </div>
                             <div className="form-inputs">
-                                <CustomButton type="submit" className='btn-submit'>
-                                    {t('login.btn.signIn')}    
+                                <CustomButton type="submit" className='btn-submit' disabled={isSubmitting}>
+                                    {isSubmitting ? <><Spin size="small" /> {t('login.btn.signIn')}</> : t('login.btn.signIn')}
                                 </CustomButton>
                             </div>
                         </FormComponent>
