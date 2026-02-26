@@ -65,7 +65,7 @@ const ProductsView = () => {
             description: productById.description,
             gtin: productById.gtin,
             icps: productById.icps,
-            productType: productById.productType,
+            productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
                 manufacturerCountry: productById.manufacturerCountry,
                 expiration: productById.expiration,
@@ -149,9 +149,9 @@ const ProductsView = () => {
                                     <Input className="input" size='large' placeholder={productById.icps} disabled />
                                 </Form.Item>
                             )}
-                            {productById.productType && (
+                            {productById.productGroup && (
                                 <Form.Item className="input" name="productType" label={t('products.addProductForm.label.productType')}>
-                                    <Input className="input" size='large' placeholder={productById.productType} disabled/>
+                                    <Input className="input" size='large' placeholder={productById.productGroup} disabled/>
                                 </Form.Item>
                             )}
                         </div>

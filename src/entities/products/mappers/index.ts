@@ -49,7 +49,7 @@ export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse 
       box_lv_2: dto.gtin.box_lv_2,
   },
     icps: dto.icps,
-    productType: dto.productType,
+    productGroup: dto.productGroup ?? dto.productType ?? '',
     packageTypes: dto.packageTypes,
 
     aggregationQuantity: dto.aggregationQuantity,
@@ -108,6 +108,7 @@ export const mapUpdateProductDtoToEntity = (dto: UpdateProductDto) : UpdateProdu
   price: dto.price ?? undefined,
   companyId: dto.companyId ?? undefined
 })
+
 
 
 
