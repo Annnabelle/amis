@@ -16,7 +16,8 @@ export type ProductResponseDto = {
     box_lv_2?: string,
   };
   icps: string;
-  productType: string;
+  productGroup?: string;
+  productType?: string;
   packageTypes: AvailablePackageType[];
 
   aggregationQuantity: number;

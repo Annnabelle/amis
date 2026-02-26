@@ -51,7 +51,7 @@ const ProductsEdit = () => {
             description: productById.description,
             gtin: productById.gtin,
             icps: productById.icps,
-            productType: productById.productType,
+            productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
             unit: productById.measurement.unit,
             amount: productById.measurement.amount,
@@ -233,7 +233,7 @@ const ProductsEdit = () => {
                                     className="input"
                                     name="productType"
                                     label={t('products.addProductForm.label.productType')}
-                                    initialValue={productById.productType}
+                                    initialValue={productById.productGroup}
                                     rules={[
                                         { required: true, message: t('products.addProductForm.validation.required.productType') }
                                     ]}

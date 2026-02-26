@@ -52,6 +52,18 @@ const Products = () => {
     }, [dispatch, id])
 
     const currentLang = (i18n.language as Lang) || 'en';
+    const productGroupTitleByAlias = useMemo(() => {
+        const map = new Map<string, string>();
+        productGroupReferences.forEach((ref) => {
+            const localizedTitle =
+                (ref.title as any)?.[currentLang] ??
+                ref.title?.ru ??
+                ref.title?.en ??
+                ref.alias;
+            map.set(ref.alias, localizedTitle);
+        });
+        return map;
+    }, [productGroupReferences, currentLang]);
 
     const companyProductGroups = useMemo(() => {
         if (!company?.productGroups?.length) return []
@@ -80,7 +92,7 @@ const Products = () => {
             description: productById.description,
             gtin: productById.gtin,
             icps: productById.icps,
-            productType: productById.productType,
+            productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
             unit: productById.measurement.unit,
             amount: productById.measurement.amount,
@@ -109,14 +121,12 @@ const Products = () => {
             key: product.id,
             number: index + 1,
             name: product.name,
-            productType: product.productType,
-            icps: product.icps,
+            productGroup: productGroupTitleByAlias.get(product.productGroup) ?? product.productGroup,
             gtin: product.gtin.unit,
-            measurement: product?.measurement?.unit ,
             // status: product,
             action: 'Действие',
         }))
-    }, [products]);
+    }, [products, productGroupTitleByAlias]);
 
     const [modalState, setModalState] = useState<{
         addProduct: boolean;
@@ -648,5 +658,7 @@ const Products = () => {
 }
 
 export default Products
+
+
 
 

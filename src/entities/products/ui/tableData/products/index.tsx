@@ -9,31 +9,22 @@ export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Produ
     title: t('products.addProductForm.label.name'),
     dataIndex: "name",
     key: "name",
+    width: 460,
     render: (text) => <p className="table-text">{text}</p>
   },
   {
     title: t('products.addProductForm.label.productType'),
-    dataIndex: "productType",
-    key: "productType",
+    dataIndex: "productGroup",
+    key: "productGroup",
+    width: 220,
     render: (text) => <p className="table-text">{text}</p>
-  },
-  {
-    title: t('products.addProductForm.label.icps'),
-    dataIndex: "icps",
-    key: "icps",
-    render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: t('products.addProductForm.label.gtin'),
     dataIndex: "gtin",
     key: "gtin",
+    width: 110,
     render: (text) => <p className="table-text">{text}</p>
-  },
-  {
-    title: t('products.addProductForm.label.unit'),
-    dataIndex: "measurement",
-    key: "measurement",
-    render: (text) => <p className="table-text">{text}</p>,
   },
   // {
   //   title: t('products.status'),
@@ -44,43 +35,46 @@ export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Produ
   {
     title: '',
     key: "action",
+    width: 72,
     render: (_, record) => (
-      <Dropdown
-        overlay={
-          <Menu
-            items={[
-              {
-                key: "edit",
-                label: (
-                  <CustomButton
-                    type="button"
-                    className="outline"
-                    onClick={(e) =>  {e.stopPropagation(); handleRowClick("Product", "edit", record);}}
-                  >
-                    {t('btn.edit')} 
-                  </CustomButton>
-                ),
-              },
-              {
-                key: "delete",
-                label: (
-                  <CustomButton
-                    type="button"
-                    className="danger"
-                    onClick={(e) => { e.stopPropagation(); onDelete(record)}}
-                  >
-                    {t('btn.delete')} 
-                  </CustomButton>
-                ),
-              },
-            ]}
-          />
-        }
-        trigger={["click"]}
-        placement="bottomRight"
-      >
-        <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} />
-      </Dropdown>
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <Dropdown
+          overlay={
+            <Menu
+              items={[
+                {
+                  key: "edit",
+                  label: (
+                    <CustomButton
+                      type="button"
+                      className="outline"
+                      onClick={(e) =>  {e.stopPropagation(); handleRowClick("Product", "edit", record);}}
+                    >
+                      {t('btn.edit')} 
+                    </CustomButton>
+                  ),
+                },
+                {
+                  key: "delete",
+                  label: (
+                    <CustomButton
+                      type="button"
+                      className="danger"
+                      onClick={(e) => { e.stopPropagation(); onDelete(record)}}
+                    >
+                      {t('btn.delete')} 
+                    </CustomButton>
+                  ),
+                },
+              ]}
+            />
+          }
+          trigger={["click"]}
+          placement="bottomRight"
+        >
+          <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} />
+        </Dropdown>
+      </div>
     ),
   },
 ];
