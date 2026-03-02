@@ -49,6 +49,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
   {
     title: t("markingCodes.tableTitles.numberOfMarkingCodes"),
     dataIndex: "quantity",
+    align: "center",
     key: "quantity",
     render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>,
   },
