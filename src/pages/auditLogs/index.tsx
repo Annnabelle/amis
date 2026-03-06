@@ -29,6 +29,7 @@ import { Link } from "react-router-dom";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { useTheme } from "app/themeContext";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
@@ -37,6 +38,7 @@ const { Panel } = Collapse;
 
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { isDarkTheme } = useTheme();
   const dispatch = useAppDispatch();
   const { data, loading } = useAppSelector(
     (state) => state.auditLogs
@@ -94,23 +96,25 @@ const AuditLogsPage: React.FC = () => {
   });
 }, [data, i18n.language]);
 
-  const categoryColors: Record<string, string> = {
-    user: "#3B2A1A",        // тёплый тёмно-коричневый, аналог светло-оранжевого (#FFF3E0)
-    auth: "#103C43",        // глубокий бирюзово-синий, аналог #E0F7FA
-    "-": "#2A2A2A",         // нейтрально-серый фон
-    company: "#2E1A35",     // тёмно-фиолетовый, аналог #F3E5F5
-    product: "#3A3620",     // тёмно-золотисто-коричневый, аналог #FFFDE7
-    order: "#3B1A1A"
-  };
-
-  const categoryBorders: Record<string, string> = {
-    user: "#FFB74D",        // мягкий оранжевый (яркий контраст на тёмном фоне)
-    auth: "#2fc5b6ff",        // свежий бирюзовый
-    "-": "#757575",         // серый границы
-    company: "#BA68C8",     // насыщенный фиолетовый
-    product: "#FDD835",     // ярко-жёлтый акцент
-    order: "#E57373"
-  };
+  const categoryPalette: Record<string, { bg: string; color: string; border: string }> = isDarkTheme
+    ? {
+        all: { bg: "#1B2A1E", color: "#73D13D", border: "#389E0D" },
+        auth: { bg: "#103C43", color: "#2FC5B6", border: "#2FC5B6" },
+        user: { bg: "#3B2A1A", color: "#FFB74D", border: "#FFB74D" },
+        "-": { bg: "#2A2A2A", color: "#BFBFBF", border: "#757575" },
+        company: { bg: "#2E1A35", color: "#BA68C8", border: "#BA68C8" },
+        product: { bg: "#3A3620", color: "#FDD835", border: "#FDD835" },
+        order: { bg: "#3B1A1A", color: "#E57373", border: "#E57373" },
+      }
+    : {
+        all: { bg: "#F6FFED", color: "#389E0D", border: "#B7EB8F" },
+        auth: { bg: "#E6FFFB", color: "#08979C", border: "#87E8DE" },
+        user: { bg: "#FFF7E6", color: "#D48806", border: "#FFD591" },
+        "-": { bg: "#FAFAFA", color: "#595959", border: "#D9D9D9" },
+        company: { bg: "#F9F0FF", color: "#722ED1", border: "#D3ADF7" },
+        product: { bg: "#FEFFE6", color: "#D4B106", border: "#FFFB8F" },
+        order: { bg: "#FFF1F0", color: "#CF1322", border: "#FFA39E" },
+      };
 
   const targetFieldMap: Record<string, { label: string; icon: JSX.Element }> = {
     // User
@@ -351,12 +355,12 @@ const AuditLogsPage: React.FC = () => {
             <div className="box-container-items-item">
               <Space wrap style={{ marginBottom: 16 }}>
                 {[
-                  { key: "all", label: t("categories.all"), color: "#73D13D", bg: "#1B2A1E", border: "#389E0D" },
-                  { key: "auth", label: t("categories.auth"), color: categoryBorders.auth, bg: categoryColors.auth },
-                  { key: "user", label: t("categories.user"), color: categoryBorders.user, bg: categoryColors.user },
-                  { key: "company", label: t("categories.organization"), color: categoryBorders.company, bg: categoryColors.company },
-                  { key: "product", label: t("categories.product"), color: categoryBorders.product, bg: categoryColors.product },
-                  { key: "order", label: t("categories.order"), color: categoryBorders.order, bg: categoryColors.order },
+                  { key: "all", label: t("categories.all"), ...categoryPalette.all },
+                  { key: "auth", label: t("categories.auth"), ...categoryPalette.auth },
+                  { key: "user", label: t("categories.user"), ...categoryPalette.user },
+                  { key: "company", label: t("categories.organization"), ...categoryPalette.company },
+                  { key: "product", label: t("categories.product"), ...categoryPalette.product },
+                  { key: "order", label: t("categories.order"), ...categoryPalette.order },
                 ].map((cat) => (
                   <Tag
                     key={cat.key}
@@ -467,9 +471,9 @@ const AuditLogsPage: React.FC = () => {
                                   <Tag
                                     className="interactive-tag"
                                     style={{
-                                      backgroundColor: categoryColors[item.category],
-                                      color: categoryBorders[item.category],
-                                      border: `1px solid ${categoryBorders[item.category]}`,
+                                      backgroundColor: (categoryPalette[item.category] || categoryPalette["-"]).bg,
+                                      color: (categoryPalette[item.category] || categoryPalette["-"]).color,
+                                      border: `1px solid ${(categoryPalette[item.category] || categoryPalette["-"]).border}`,
                                     }}
                                   >
                                     {t(CategoryMap[item.category] || item.category)}
@@ -586,6 +590,7 @@ const AuditLogsPage: React.FC = () => {
 };
 
 export default AuditLogsPage
+
 
 
 

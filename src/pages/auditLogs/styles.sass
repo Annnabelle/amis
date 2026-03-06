@@ -91,7 +91,8 @@
                 &-title
                     +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
                 &-subtitle
-                    +mix.typography(14px, 400, map.get(vars.$main, 'grey'))
+                    +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+                    opacity: 0.68
 
         .ant-space-item
             .ant-tag
@@ -111,7 +112,8 @@
                 align-items: start
                 .log-meta-item
                     column-gap: 10px
-                    +mix.typography(14px, 400, map.get(vars.$basic, 'gray-600'))
+                    +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+                    opacity: 0.72
                     display: flex
                     align-items: center
                     column-gap: 4px
@@ -121,4 +123,5 @@
                         fill: map.get(vars.$main, 'main')
                 .item-strong
                     +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+                    opacity: 1
 
