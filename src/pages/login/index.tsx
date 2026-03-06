@@ -6,10 +6,12 @@ import { Login } from 'entities/users/model';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import mainBG from 'shared/assets/bg-black.png';
+import lightMainBG from 'shared/assets/main-bg.png';
+import darkMainBG from 'shared/assets/bg-black.png';
 import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
+import { useTheme } from 'app/themeContext';
 import './styles.sass';
 
 const LoginPage = () => {
@@ -19,6 +21,7 @@ const LoginPage = () => {
     const isAuthenticated = useAppSelector(state => state.users.isAuthenticated);
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { isDarkTheme } = useTheme();
 
     const onFinish = (values: LoginForm) => {
         if (isSubmitting) return;
@@ -41,11 +44,12 @@ const LoginPage = () => {
         }
     }, [isAuthenticated, navigate]);
 
+    const loginBackground = isDarkTheme ? darkMainBG : lightMainBG;
 
   return (
     <div className="login-page">
         <div className="login-page-background">
-            <img className='img' src={mainBG} alt="mainBG" />
+            <img className='img' src={loginBackground} alt="login background" />
         </div>
         <div className="login-page-container">
             <div className="login-page-header">

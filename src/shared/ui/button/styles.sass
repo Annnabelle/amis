@@ -2,7 +2,7 @@
 @use "../../styles/mixins.sass" as mix
 @use "../../styles/variables.sass" as vars
 .btn
-    +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
+    +mix.typography(14px, 500, #ffffff)
     @include mix.flex-content(center)
     text-align: center
     background: map.get(vars.$main, 'main' )
@@ -20,27 +20,27 @@
         color: map.get(vars.$basic, 'black')
     &:disabled
         background: map.get(vars.$main, "box-shadow")
-        color: map.get(vars.$basic, 'black')
+        color: #ffffff
         cursor: not-allowed
 .outline
-    +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+    +mix.typography(14px, 400, map.get(vars.$main, 'main'))
     background: transparent
     border: 1px solid map.get(vars.$main, 'main')
     &:hover
         background: map.get(vars.$main, 'main' )
         border: 1px solid map.get(vars.$main, 'main')
-        color: map.get(vars.$basic, 'black')
+        color: #ffffff
     &-black
         @extend .outline
         color: map.get(vars.$basic, 'black')
 .danger
-    +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+    +mix.typography(16px, 400, map.get(vars.$events, 'red'))
     background: transparent
     border: 1px solid map.get(vars.$events, 'red')
     &:hover
         background: map.get(vars.$events, 'red')
         border: 1px solid map.get(vars.$events, 'red')
-        color: map.get(vars.$basic, 'black')
+        color: #ffffff
 
 .create-order-btn
     padding: 8px 16px

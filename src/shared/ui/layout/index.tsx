@@ -5,7 +5,7 @@ import React, {
   useMemo,
 } from 'react';
 import { type MenuProps} from 'antd';
-import { Button, Layout, Menu } from 'antd';
+import { Button, Layout, Menu, Switch } from 'antd';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -14,6 +14,8 @@ import {
   CodeOutlined,
   ClusterOutlined,
   BuildOutlined,
+  SunOutlined,
+  MoonOutlined,
 } from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
@@ -25,6 +27,7 @@ import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getAllOrganizations } from 'entities/organization/model';
+import { useTheme } from 'app/themeContext';
 
 const { Header, Content, Sider } = Layout;
 
@@ -34,6 +37,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const { isDarkTheme, toggleTheme } = useTheme();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
@@ -236,6 +240,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </div>
 
             <div className="layout-header-container-items">
+              <div className="theme-toggle">
+                <Switch
+                  checked={isDarkTheme}
+                  onChange={toggleTheme}
+                  checkedChildren={<MoonOutlined />}
+                  unCheckedChildren={<SunOutlined />}
+                />
+              </div>
               <Languages />
               <Session />
               <UserInfo />

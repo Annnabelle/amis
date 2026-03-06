@@ -2,6 +2,38 @@
 @use "../../shared/styles/mixins" as mix
 @use "../../shared/styles/variables" as vars
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap')
+:root
+  --basic-white: #FFFFFF
+  --basic-black: #1E1E1E
+  --main-primary: #1E90FF
+  --main-box-shadow: #DCDCDC
+  --main-secondary-white: #EAEAEA
+  --main-grey: #B4B5B6
+  --main-light: #D9ECFF
+  --main-more-lighter: #D9ECFF
+  --main-bg: #FAFAFA
+  --main-light-grey: #CCCCCC
+  --event-green: #0BB614
+  --event-red: #FF1919
+  --event-yellow: #E9CE00
+  --autofill-bg: #FFFFFF
+
+:root[data-theme='dark']
+  --basic-white: #151419
+  --basic-black: #EAEAEA
+  --main-primary: #1E90FF
+  --main-box-shadow: #494949
+  --main-secondary-white: #EAEAEA
+  --main-grey: #B4B5B6
+  --main-light: #1E8FFF90
+  --main-more-lighter: #D9ECFF
+  --main-bg: #090A0C
+  --main-light-grey: #CCCCCC
+  --event-green: #0BB614
+  --event-red: #FF1919
+  --event-yellow: #E9CE00
+  --autofill-bg: #151419
+
 body
   font-family: "Montserrat", sans-serif
   margin: 0
@@ -9,6 +41,13 @@ body
   font-weight: 300
   overflow-x: hidden
   overflow-y: auto
+  background: map.get(vars.$main, 'main-bg')
+  color: map.get(vars.$basic, 'black')
+
+:root.theme-transition *,
+:root.theme-transition *::before,
+:root.theme-transition *::after
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, fill 0.35s ease, stroke 0.35s ease !important
 
 *,
 *::before,
@@ -38,8 +77,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active
-  -webkit-box-shadow: 0 0 0 1000px #151419 inset !important
-  box-shadow: 0 0 0 1000px #151419  inset !important
+  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg) inset !important
+  box-shadow: 0 0 0 1000px var(--autofill-bg) inset !important
   -webkit-text-fill-color: map.get(vars.$basic, "black") !important
   caret-color: map.get(vars.$basic, "black")
   background: transparent !important

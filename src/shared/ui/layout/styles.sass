@@ -14,6 +14,14 @@
             &-items
                 @include mix.flex-content(space-between, row)
                 column-gap: 20px
+                .theme-toggle
+                    @include mix.flex-content(center, row)
+                    .ant-switch
+                        background: map.get(vars.$main, 'main-light')
+                        .anticon-sun
+                            color: map.get(vars.$main, 'main')
+                    .ant-switch.ant-switch-checked
+                        background: map.get(vars.$main, 'main')
                 &-item
                     display: flex
                     .logo
@@ -79,15 +87,13 @@
                             position: relative
                         .org-test-badge
                             position: absolute
-                            left: -28px   // ← бейдж ВНЕ layout
+                            left: -28px // ← бейдж ВНЕ layout
                             top: 50%
                             transform: translateY(-50%)
                             background: #1668dc
                             padding: 4px 8px
                             border-radius: 4px
-                            +mix.typography(10px, 600, map.get(vars.$basic, "black"))
-                            white-space: nowrap
-                            pointer-events: none
+                            +mix.typography(10px, 600, map.get(vars.$main, "secondary-white"))
                             white-space: nowrap
                             pointer-events: none
                 .layout-sider-menu
@@ -246,7 +252,7 @@
 
 .layout-sider
     //overflow: hidden
-      overflow: visible
+    overflow: visible
     .ant-menu-title-content
         max-width: 100%
         overflow: hidden
@@ -310,7 +316,6 @@
     align-items: center
     gap: 8px
 
-
 .select-option__name
     flex: 1
     min-width: 0
@@ -322,4 +327,3 @@
     flex-shrink: 0
     white-space: nowrap
     opacity: 0.7
-
