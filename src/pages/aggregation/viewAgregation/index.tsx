@@ -24,8 +24,8 @@ type ExportLoadingState = {
 } | null;
 
 const AggregationReportPage: React.FC = () => {
-    const { orderId, id } = useParams<{
-        orderId: string;
+    const { orgId, id } = useParams<{
+        orgId: string;
         id: string;
     }>();
     const { t } = useTranslation();
@@ -83,10 +83,6 @@ const AggregationReportPage: React.FC = () => {
         }));
     }, [unitsData, id, page, groupsLimit]);
 
-    useEffect(() => {
-        if (id) dispatch(fetchOneAggregationReport({ id }));
-    }, [id, dispatch]);
-
     const handleExport = async (
         type: "group" | "unit",
         format: "short" | "long"
@@ -136,7 +132,7 @@ const AggregationReportPage: React.FC = () => {
 
                             <CustomButton
                                 className="outline"
-                                onClick={() => navigateBack(`/organization/${orderId}/agregations`)}
+                                onClick={() => navigateBack(`/organization/${orgId}/agregations`)}
                             >
                                 {t("btn.back")}
                             </CustomButton>
