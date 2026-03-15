@@ -1,12 +1,11 @@
-import {Link, useParams} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import BatchItem from "../../markingCodeProduct/batchItem.tsx";
-import React, {useEffect} from "react";
-import {useTranslation} from "react-i18next";
-import {useAppDispatch, useAppSelector} from "app/store";
-import {fetchOneAggregationReport} from "entities/aggregation/model";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { useAppSelector } from "app/store";
 import "../../markingCodeProduct/styles.sass"
-import {Tag} from "antd";
-import {statusColors} from "shared/ui/statuses.tsx";
+import { Tag } from "antd";
+import { statusColors } from "shared/ui/statuses.tsx";
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -15,20 +14,15 @@ const getStatusColor = (status?: string | null) => {
 };
 
 const AgregationReport: React.FC = () => {
-    const { orderId, id } = useParams<{
-        orderId: string;
+    const { orgId } = useParams<{
+        orgId: string;
         id: string;
     }>();
     const { t } = useTranslation();
-    const dispatch = useAppDispatch();
 
     const reportData = useAppSelector(
         (state) => state.aggregations.oneAggregation
     );
-
-    useEffect(() => {
-        if (id) dispatch(fetchOneAggregationReport({ id }));
-    }, [id, dispatch]);
 
     return (
         <div className="box batch-inner-box">
@@ -37,7 +31,7 @@ const AgregationReport: React.FC = () => {
                     <h4 className="section-title">{t("aggregations.agregationReportPage.productName")}:</h4>
                     {reportData?.product.name && (
                         <div className="product-title">
-                            <Link to={`/organization/${orderId}/products/${reportData?.product.id}`}>
+                            <Link to={`/organization/${orgId}/products/${reportData?.product.id}`}>
                                 {reportData?.product.name}
                             </Link>
                         </div>

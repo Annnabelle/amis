@@ -38,7 +38,7 @@ export function mapAggregationListDtoToEntity (dto: AggregationReportResponseDto
         externalStatus: dto.externalStatus,
         status: dto.status,
         submittedAt: dto.submittedAt,
-        units: dto.units.map(unit => ({
+        units: (dto.units ?? []).map(unit => ({
             ...unit,
         })),
     }

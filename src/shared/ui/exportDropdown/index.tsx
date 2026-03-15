@@ -27,19 +27,23 @@ const ExportDropdownButton: React.FC<ExportDropdownButtonProps> = ({
             key: "short",
             className: "btn outline",
             label: t("export.short"),
-            onClick: () => onExport(type, "short"),
         },
         {
             key: "long",
             className: "btn outline",
             label: t("export.long"),
-            onClick: () => onExport(type, "long"),
         },
     ];
 
+    const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
+        if (key === "short" || key === "long") {
+            onExport(type, key as ExportFormat);
+        }
+    };
+
     return (
         <Dropdown
-            menu={{ items: menuItems }}
+            menu={{ items: menuItems, onClick: handleMenuClick }}
             trigger={["click"]}
             disabled={loading}
             className="export-dropdown"
