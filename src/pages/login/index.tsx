@@ -1,5 +1,5 @@
 import type { LoginForm } from 'entities/users/types';
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { Form, Input, Spin } from 'antd';
 import {useAppDispatch, useAppSelector} from 'app/store';
 import { Login } from 'entities/users/model';
@@ -12,6 +12,7 @@ import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { useTheme } from 'app/themeContext';
+import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
 import './styles.sass';
 
 const LoginPage = () => {
@@ -22,6 +23,8 @@ const LoginPage = () => {
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { isDarkTheme } = useTheme();
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [scanResult, setScanResult] = useState<string | null>(null);
 
     const onFinish = (values: LoginForm) => {
         if (isSubmitting) return;
@@ -75,11 +78,26 @@ const LoginPage = () => {
                                     {isSubmitting ? <><Spin size="small" /> {t('login.btn.signIn')}</> : t('login.btn.signIn')}
                                 </CustomButton>
                             </div>
+                            <div className="form-inputs scan-section">
+                                <CustomButton type="button" className='btn-scan' onClick={() => setIsScannerOpen(true)}>
+                                    Сканировать DataMatrix
+                                </CustomButton>
+                                {scanResult && (
+                                    <div className="scan-result">
+                                        Последний код: {scanResult}
+                                    </div>
+                                )}
+                            </div>
                         </FormComponent>
                     </div>
                 </div>
             </div>
         </div>
+        <DataMatrixScanner
+            open={isScannerOpen}
+            onClose={() => setIsScannerOpen(false)}
+            onResult={(text) => setScanResult(text)}
+        />
     </div>
   )
 }
