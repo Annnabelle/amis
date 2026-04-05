@@ -76,9 +76,9 @@ export const getSalesOrderById = createAsyncThunk(
         return mapSalesOrderDtoToEntity(response.data.salesOrder);
       }
 
-      return rejectWithValue("ÐžÑˆÐ¸Ð±ÐºÐ° Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸ Ð·Ð°ÐºÐ°Ð·Ð°");
+      return rejectWithValue("Ошибка загрузки заказа");
     } catch (err: any) {
-      return rejectWithValue(err.message || "ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐµÑ€Ð²ÐµÑ€Ð°");
+      return rejectWithValue(err.message || "Ошибка сервера");
     }
   }
 );
@@ -147,9 +147,9 @@ export const deleteSalesOrder = createAsyncThunk(
         return { id };
       }
 
-      return rejectWithValue("ÐžÑˆÐ¸Ð±ÐºÐ° ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ Ð·Ð°ÐºÐ°Ð·Ð°");
+      return rejectWithValue("Ошибка удаления заказа");
     } catch (err: any) {
-      return rejectWithValue(err.message || "ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐµÑ€Ð²ÐµÑ€Ð°");
+      return rejectWithValue(err.message || "Ошибка сервера");
     }
   }
 );
