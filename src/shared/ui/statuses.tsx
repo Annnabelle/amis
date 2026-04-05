@@ -29,7 +29,6 @@ export const statusColors: Record<string, string> = {
     codes_utilized: "green",
     codes_aggregated: "pink",
     rejected: "red",
-    closed: "gray",
 
     ACTIVE: "green",
     PENDING: "gold",
@@ -44,6 +43,15 @@ export const statusColors: Record<string, string> = {
     pending: "yellow",
     ready: "blue",
     outsourcered: "yellow",
+
+    draft: "default",
+    confirmed: "blue",
+    partially_assigned: "gold",
+    assigned: "green",
+    partially_delivered: "orange",
+    delivered: "green",
+    cancelled: "red",
+    closed: "gray",
 };
 
 
