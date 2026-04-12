@@ -14,6 +14,9 @@ import {
   CodeOutlined,
   ClusterOutlined,
   BuildOutlined,
+  ShoppingCartOutlined,
+  CarOutlined,
+  FileDoneOutlined,
   SunOutlined,
   MoonOutlined,
 } from '@ant-design/icons';
@@ -41,13 +44,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-    const [openKeys, setOpenKeys] = useState<string[]>(() => {
-        const parts = window.location.pathname.split('/');
-        if (parts[1] === 'organization' && parts[2]) {
-            return ['my-organizations-group', `my-org-${parts[2]}`];
+    const getOrgOpenKeys = (pathname: string) => {
+        const parts = pathname.split('/');
+        if (parts[1] !== 'organization' || !parts[2]) {
+            return [];
         }
-        return [];
-    });
+        const orgId = parts[2];
+        const baseKeys = ['my-organizations-group', `my-org-${orgId}`];
+        return baseKeys;
+    };
+
+    const [openKeys, setOpenKeys] = useState<string[]>(() => getOrgOpenKeys(window.location.pathname));
   const organizations = useAppSelector((state) => state.organizations.organizations);
 
     const isSuperAdmin = true;
@@ -60,12 +67,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             return;
         }
 
-        const orgId = parts[2];
-        const requiredKeys = ['my-organizations-group', `my-org-${orgId}`];
+         const orgId = parts[2];
+         const requiredKeys = ['my-organizations-group', `my-org-${orgId}`];
 
-        setOpenKeys((prev) => {
-            const hasAll = requiredKeys.every(key => prev.includes(key));
-            if (hasAll) {
+         setOpenKeys((prev) => {
+             const hasAll = requiredKeys.every(key => prev.includes(key));
+             if (hasAll) {
                 return prev;
             }
             const newSet = new Set(prev);
@@ -83,16 +90,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             })
         );
     }, [dispatch]);
-
-    // const myOrganizations = useMemo(
-    //     () =>
-    //         organizations?.map((org) => ({
-    //             id: String(org.id),
-    //             name: org.displayName,
-    //             isTest: org.isTest,   // ← берём поле, если нет — false
-    //         })) || [],
-    //     [organizations]
-    // );
 
     const getOrgSubMenuItems = (orgId: string): MenuProps['items'] => [
         {
@@ -115,17 +112,57 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 </Link>
             ),
         },
-        {
-            key: 'agregations',
-            icon: <ClusterOutlined />,
-            className: 'org-submenu-item',
-            label: (
-                <Link to={`/organization/${orgId}/agregations`}>
-                    {t("navigation.agregations")}
-                </Link>
-            ),
-        },
-    ];
+         {
+             key: 'agregations',
+             icon: <ClusterOutlined />,
+             className: 'org-submenu-item',
+             label: (
+                 <Link to={`/organization/${orgId}/agregations`}>
+                     {t("navigation.agregations")}
+                 </Link>
+             ),
+         },
+         {
+             key: 'sales-orders',
+             icon: <ShoppingCartOutlined />,
+             className: 'org-submenu-item',
+             label: (
+                 <Link to={`/organization/${orgId}/sales-orders`}>
+                     {t('navigation.deals')}
+                 </Link>
+             ),
+         },
+         {
+             key: 'delivery-routes',
+             icon: <CarOutlined />,
+             className: 'org-submenu-item',
+             label: (
+                 <Link to={`/organization/${orgId}/delivery-routes`}>
+                     {t('navigation.routes')}
+                 </Link>
+             ),
+         },
+        //  {
+        //      key: 'delivery-tasks',
+        //      icon: <DeploymentUnitOutlined />,
+        //      className: 'org-submenu-item',
+        //      label: (
+        //          <Link to={`/organization/${orgId}/delivery-tasks`}>
+        //              {t('navigation.deliveryTasks')}
+        //          </Link>
+        //      ),
+        //  },
+         {
+             key: 'invoices',
+             icon: <FileDoneOutlined />,
+             className: 'org-submenu-item',
+             label: (
+                 <Link to={`/organization/${orgId}/invoices`}>
+                     {t('navigation.invoices')}
+                 </Link>
+             ),
+         },
+     ];
 
     const myOrganizations = useMemo(
         () => {
@@ -140,6 +177,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         },
         [organizations]
     );
+
+    const prefixMenuKeys = (items: MenuProps['items'], prefix: string): MenuProps['items'] =>
+        items?.map((item) => {
+            if (!item) {
+                return item;
+            }
+            const baseKey = String(item.key);
+            const nextKey = `${prefix}-${baseKey}`;
+            const hasChildren = 'children' in item && Boolean((item as any).children);
+            const children = hasChildren
+                ? prefixMenuKeys((item as any).children as MenuProps['items'], nextKey)
+                : undefined;
+            return {
+                ...item,
+                key: nextKey,
+                ...(hasChildren ? { children } : {}),
+            };
+        });
 
     const myOrganizationsItems: MenuProps['items'] = myOrganizations.map((org) => ({
         key: `my-org-${org.id}`,
@@ -160,10 +215,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         ),
         className: org.isTest ? 'test-org-menu-item' : undefined,
         title: org.isTest ? `${org.name} ${t("organizations.testFlag")}` : org.name,
-        children: getOrgSubMenuItems(org.id)?.map((item: any) => ({
-            ...item,
-            key: `${org.id}-${item.key}`,
-        })),
+        children: prefixMenuKeys(getOrgSubMenuItems(org.id), org.id),
     }));
 
 
@@ -219,11 +271,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         const parts = location.pathname.split('/');
 
         // Страницы организаций
-        const orgId = parts[2];
-        const section = parts[3];
-        if (orgId && ['products', 'orders', 'agregations'].includes(section)) {
-            return [`${orgId}-${section}`];
-        }
+         const orgId = parts[2];
+         const section = parts[3];
+         if (
+             orgId &&
+             ['products', 'orders', 'agregations', 'sales-orders', 'delivery-routes', 'delivery-tasks', 'invoices'].includes(section)
+         ) {
+             return [`${orgId}-${section}`];
+         }
 
         // Верхний уровень меню
         const topLevel = `/${parts[1]}`;

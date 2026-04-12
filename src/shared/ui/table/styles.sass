@@ -2,6 +2,33 @@
 @use "../../styles/mixins" as mix
 @use "../../styles/variables" as vars
 .amis-table
+    .ant-table-selection-column,
+    .rc-table-selection-column
+        &, *
+            list-style: none !important
+            list-style-type: none !important
+            list-style-position: outside !important
+            list-style-image: none !important
+            margin: 0 !important
+            padding: 0 !important
+        ::marker,
+        *::marker
+            content: none !important
+        .ant-checkbox-wrapper,
+        .ant-checkbox,
+        .ant-checkbox-inner,
+        .ant-checkbox-input,
+        .rc-checkbox,
+        .rc-checkbox-inner,
+        label,
+        span
+            list-style: none !important
+            margin: 0 !important
+            padding: 0 !important
+        .ant-checkbox-wrapper,
+        .rc-checkbox
+            display: inline-flex !important
+            align-items: center
     .ant-table-thead
         .ant-table-cell
             //max-width: 150px
@@ -32,8 +59,14 @@
                 transition: color 0.3s ease
                 &:hover
                     +mix.typography(14px, 400, map.get(vars.$main, 'main'))
+        .ant-table-selection-column
+            overflow: visible !important
     .clickable-row
         cursor: pointer
+    .disabled-row
+        background: #e8e8e8 !important
+        .ant-table-cell
+            color: map.get(vars.$basic, 'black') !important
 :where(.css-dev-only-do-not-override-1kl99jq).ant-dropdown .ant-dropdown-menu
     background: map.get(vars.$basic, "white")
     box-shadow: 0 0 6px 0 map.get(vars.$main, 'box-shadow')
@@ -47,4 +80,3 @@
         width: 100%
         .btn
             width: 100%
-

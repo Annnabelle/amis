@@ -1,5 +1,6 @@
 import { Table } from 'antd';
 import type { TablePaginationConfig } from 'antd';
+import type { TableRowSelection } from 'antd/es/table/interface';
 import { useTableWidth } from './useTableWidth';
 import './styles.sass';
 import {useAdaptiveColumns} from "./useAdaptiveColumns.tsx";
@@ -11,6 +12,8 @@ interface ComponentTableProps<T> {
     data?: T[];
     loading?: boolean;
     pagination?: TablePaginationConfig | false;
+    rowSelection?: TableRowSelection<T>;
+    rowClassName?: string | ((record: T, index: number) => string);
 }
 
 const ComponentTable = <T extends object>({
@@ -19,12 +22,15 @@ const ComponentTable = <T extends object>({
       data,
       loading,
       pagination,
+      rowSelection,
+      rowClassName,
   }: ComponentTableProps<T>) => {
     const { ref, width } = useTableWidth();
 
+    const selectionOffset = rowSelection ? 60 : 0;
     const adaptiveColumns = useAdaptiveColumns<T>(
         columns,
-        width || 1000
+        Math.max(0, (width || 1000) - selectionOffset)
     );
 
     return (
@@ -37,10 +43,17 @@ const ComponentTable = <T extends object>({
                 dataSource={data}
                 loading={loading}
                 pagination={pagination}
+                rowSelection={rowSelection}
                 onRow={(record) => ({
                     onClick: () => onRowClick?.(record),
                 })}
-                rowClassName="clickable-row"
+                rowClassName={(record, index) => {
+                    const customClass = typeof rowClassName === 'function'
+                        ? rowClassName(record, index)
+                        : rowClassName || '';
+                    const clickableClass = onRowClick ? 'clickable-row' : '';
+                    return [customClass, clickableClass].filter(Boolean).join(' ');
+                }}
             />
         </div>
     );

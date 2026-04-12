@@ -30,6 +30,11 @@
         background: map.get(vars.$main, 'main' )
         border: 1px solid map.get(vars.$main, 'main')
         color: #ffffff
+    &:disabled
+        background: transparent
+        color: map.get(vars.$main, 'main')
+        border: 1px solid map.get(vars.$main, 'main')
+        opacity: 0.45
     &-black
         @extend .outline
         color: map.get(vars.$basic, 'black')

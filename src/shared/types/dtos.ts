@@ -140,6 +140,51 @@ export const ProductStatuses = Object.values(ProductStatus);
 
 export type ProductStatus = typeof ProductStatus[keyof typeof ProductStatus];
 
+export const SalesOrderPriority = {
+  Low: "low",
+  Normal: "normal",
+  High: "high",
+  Urgent: "urgent",
+} as const;
+
+export const SalesOrderPriorities = Object.values(SalesOrderPriority);
+
+export type SalesOrderPriority =
+  (typeof SalesOrderPriority)[keyof typeof SalesOrderPriority];
+
+export const SalesOrderStatus = {
+  Draft: "draft",
+  Confirmed: "confirmed",
+  PartiallyAssigned: "partially_assigned",
+  Assigned: "assigned",
+  PartiallyDelivered: "partially_delivered",
+  Delivered: "delivered",
+  Cancelled: "cancelled",
+  Closed: "closed",
+} as const;
+
+export type SalesOrderStatus = (typeof SalesOrderStatus)[keyof typeof SalesOrderStatus];
+
+export const DeliveryRouteStatus = {
+  Draft: "draft",
+  AssignedToWarehouse: "assigned_to_warehouse",
+  Loading: "loading",
+  Loaded: "loaded",
+  InTransit: "in_transit",
+  PartiallyDelivered: "partially_delivered",
+  Delivered: "delivered",
+  Returning: "returning",
+  Returned: "returned",
+  Closed: "closed",
+  Cancelled: "cancelled",
+  Failed: "failed",
+} as const;
+
+export const DeliveryRouteStatuses = Object.values(DeliveryRouteStatus);
+
+export type DeliveryRouteStatus =
+  (typeof DeliveryRouteStatus)[keyof typeof DeliveryRouteStatus];
+
 export const ProductSortField = {
   Id: '_id',
   Name: 'name',

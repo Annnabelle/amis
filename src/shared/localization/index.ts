@@ -1,14 +1,35 @@
-export const resources = {
+﻿export const resources = {
     en:{
         translation:{
             common:{
                 yes: "Yes",
                 no: "No",
-                error: "Something went wrong. Please try again later."
+                error: "Something went wrong. Please try again later.",
+                total: "Total",
+                create: "Create",
+                details: "Details",
+                backToList: "Back to list",
+                backToRoute: "Back to route",
+                backToTask: "Back to task",
+                crew: "Crew",
+                expandAll: "Expand all",
+                collapseAll: "Collapse all"
             },
             statuses: {
                 active: "Active",
                 inactive: "Inactive",
+                draft: "Draft",
+                assigned_to_warehouse: "Assigned to warehouse",
+                loading: "Loading",
+                loaded: "Loaded",
+                in_transit: "In transit",
+                partially_delivered: "Partially delivered",
+                delivered: "Delivered",
+                returning: "Returning",
+                returned: "Returned",
+                cancelled: "Cancelled",
+                closed: "Closed",
+                failed: "Failed"
             },
             export: {
                 short: "Short",
@@ -118,7 +139,324 @@ export const resources = {
                 users: "Users",
                 audit: "System logs",
                 markingCodes: "Marking codes",
-                agregations: "Aggregations"
+                agregations: "Aggregations",
+                implementation: "Execution",
+                deals: "Deals",
+                routes: "Routes",
+                salesOrders: "Sales Orders",
+                deliveryRoutes: "Delivery Routes",
+                deliveryTasks: "Delivery Tasks",
+                invoices: "Invoices"
+            },
+            scanner: {
+                accepted: "Accepted",
+                rejected: "Rejected",
+                scan: "Scan",
+                latestScans: "Latest scans",
+                empty: "No scans yet",
+                placeholder: "Scan code"
+            },
+            salesOrders: {
+                title: "Sales Orders",
+                detailsTitle: "Sales Order",
+                create: "Create Order",
+                listEmpty: "Sales orders list will appear here",
+                sections: {
+                    company: "Company",
+                    customer: "Customer",
+                    contract: "Contract",
+                    fulfillment: "Fulfillment",
+                    items: "Items",
+                    comment: "Comment",
+                    header: "Header",
+                    totals: "Totals",
+                    related: "Related entities"
+                },
+                fields: {
+                    company: "Company",
+                    orderNumber: "Order number",
+                    customerTin: "Customer TIN",
+                    customerName: "Customer name",
+                    customerAddress: "Customer address",
+                    contractNumber: "Contract number",
+                    contractDate: "Contract date",
+                    dueDate: "Due date",
+                    priority: "Priority",
+                    product: "Product",
+                    quantity: "Quantity",
+                    unitPrice: "Unit price",
+                    comment: "Comment",
+                    status: "Status",
+                    createdAt: "Created at",
+                    updatedAt: "Updated at",
+                    createdBy: "Created by",
+                    updatedBy: "Updated by",
+                    orderedQuantity: "Ordered quantity",
+                    assignedQuantity: "Assigned quantity",
+                    deliveredQuantity: "Delivered quantity",
+                    amount: "Amount",
+                    totalAmount: "Total amount"
+                },
+                table: {
+                    orderNumber: "Order number",
+                    customerName: "Customer name",
+                    customerTin: "Customer TIN",
+                    dueDate: "Due date",
+                    priority: "Priority",
+                    orderedQuantity: "Ordered quantity",
+                    assignedQuantity: "Assigned quantity",
+                    deliveredQuantity: "Delivered quantity",
+                    status: "Status",
+                    createdAt: "Created at"
+                },
+                placeholders: {
+                    selectCompany: "Select company",
+                    customerTin: "TIN",
+                    customerName: "Customer name",
+                    contractNumber: "Contract number",
+                    contractDate: "Contract date",
+                    customerAddress: "Customer address",
+                    dueDate: "Due date",
+                    quantity: "Quantity",
+                    unitPrice: "Unit price",
+                    itemComment: "Item comment",
+                    comment: "Optional comment"
+                },
+                validation: {
+                    companyRequired: "Company is required",
+                    customerTinRequired: "TIN is required",
+                    customerNameRequired: "Name is required",
+                    dueDateRequired: "Due date is required",
+                    priorityRequired: "Priority is required",
+                    contractNumberRequired: "Contract number is required",
+                    contractDateRequired: "Contract date is required",
+                    itemProductRequired: "Product is required",
+                    itemQuantityRequired: "Quantity is required",
+                    itemUnitPriceRequired: "Unit price is required"
+                },
+                messages: {
+                    success: {
+                        create: "Sales order created successfully",
+                        delete: "Sales order deleted successfully"
+                    },
+                    error: {
+                        create: "Error creating sales order",
+                        delete: "Error deleting sales order"
+                    }
+                },
+                deleteQuestion: "Are you sure you want to delete the order",
+                priority: {
+                    low: "Low",
+                    normal: "Normal",
+                    high: "High",
+                    urgent: "Urgent"
+                },
+                statuses: {
+                    draft: "Draft",
+                    confirmed: "Confirmed",
+                    partially_assigned: "Partially assigned",
+                    assigned: "Assigned",
+                    partially_delivered: "Partially delivered",
+                    delivered: "Delivered",
+                    cancelled: "Cancelled",
+                    closed: "Closed"
+                },
+                hints: {
+                    items: "Items table with product, ordered quantity, unit price, amount preview."
+                },
+                actions: {
+                    addItem: "Add item",
+                    create: "Create Sales Order"
+                },
+                modalWindow: {
+                    deletion: "Deletion",
+                    order: "order"
+                },
+                details: {
+                    headerEmpty: "Order header fields",
+                    totalsEmpty: "Ordered / assigned / delivered / amount",
+                    itemsEmpty: "Items table",
+                    relatedEmpty: "Linked route, task, invoice"
+                }
+            },
+            deliveryRoutes: {
+                title: "Delivery Routes",
+                detailsTitle: "Delivery Route",
+                loadingTitle: "Loading",
+                loadingSubtitle: "Route",
+                returnTitle: "Return",
+                returnSubtitle: "Route",
+                listEmpty: "Delivery routes list will appear here",
+                status: {
+                    draft: "Draft",
+                    assigned_to_warehouse: "Assigned to warehouse",
+                    loading: "Loading",
+                    loaded: "Loaded",
+                    in_transit: "In transit",
+                    partially_delivered: "Partially delivered",
+                    delivered: "Delivered",
+                    returning: "Returning",
+                    returned: "Returned",
+                    closed: "Closed",
+                    cancelled: "Cancelled",
+                    failed: "Failed"
+                },
+                sections: {
+                    info: "Route info",
+                    availableOrders: "Available deals",
+                    preview: "Selected orders preview",
+                    summary: "Summary",
+                    vehicle: "Vehicle",
+                    crew: "Crew",
+                    totals: "Totals",
+                    timestamps: "Timestamps",
+                    actions: "Actions",
+                    tasks: "Tasks",
+                    loading: "Loading",
+                    return: "Return"
+                },
+                  fields: {
+                      company: "Company",
+                      routeNumber: "Route number",
+                      status: "Status",
+                      routeDate: "Route date",
+                      vehicleName: "Vehicle name",
+                      vehicle: "Vehicle",
+                      plateNumber: "Plate Number",
+                      driverName: "Driver name",
+                      driver: "Driver",
+                      agentName: "Agent name",
+                      agent: "Agent",
+                      comment: "Comment",
+                      taskCount: "Tasks",
+                      plannedQuantity: "Product qty",
+                      loadedQuantity: "Loaded qty",
+                      deliveredQuantity: "Delivered qty",
+                      returnedQuantity: "Returned qty",
+                      registeredAt: "Registered at",
+                      loadingStartedAt: "Loading started at",
+                      loadingCompletedAt: "Loading completed at",
+                      departedAt: "Departed at",
+                      returnStartedAt: "Return started at",
+                      returnCompletedAt: "Return completed at",
+                      closedAt: "Closed at",
+                      remainingToAssign: "Remaining to assign"
+                  },
+                placeholders: {
+                    selectCompany: "Select company",
+                    routeDate: "Route date",
+                    vehicle: "Vehicle",
+                    plateNumber: "Plate Number",
+                    driver: "Driver",
+                    agent: "Agent"
+                },
+                  validation: {
+                      companyRequired: "Company is required",
+                      routeDateRequired: "Route date is required",
+                      salesOrdersRequired: "Please select at least one sales order",
+                      plateNumberInvalid: "Plate number must be in format: 00 AAA000 or 00 0AAA00"
+                  },
+                  messages: {
+                      success: {
+                          create: "Delivery route created successfully"
+                      },
+                      error: {
+                          create: "Error creating delivery route"
+                      }
+                  },
+                  hints: {
+                    availableOrders: "Table of orders with remaining quantity to assign. Add selection and preview here.",
+                    preview: "Show count of orders, customers, aggregated products, volume estimate."
+                },
+                preview: {
+                    ordersSelected: "Orders selected",
+                    customersCount: "Customers",
+                    totalVolume: "Items selected",
+                    aggregatedProducts: "Aggregated products",
+                    routeDate: "Route Date",
+                    vehicleName: "Vehicle",
+                    plateNumber: "Plate Number",
+                    driver: "Driver",
+                    agent: "Agent",
+                    company: "Company",
+                    selectedOrders: "Selected Orders",
+                    customer: "Customer",
+                    dueDate: "Due Date",
+                    priority: "Priority",
+                    orderedQuantity: "Ordered",
+                    customersList: "Customers",
+                    dueDates: "Due Dates",
+                    priorities: "Priorities",
+                    totalAmount: "Total Amount",
+                    tin: "TIN",
+                    address: "Address",
+                    contractNumber: "Contract Number",
+                    contractDate: "Contract Date",
+                    unitPrice: "Unit Price",
+                    amount: "Amount",
+                    comment: "Comment"
+                },
+                actions: {
+                    create: "Create Route",
+                    openLoading: "Open loading screen",
+                    openReturn: "Open return screen",
+                    completeLoading: "Complete loading",
+                    completeReturn: "Complete return"
+                },
+                details: {
+                    summaryEmpty: "Total tasks, customers, ordered/loaded/delivered/returned",
+                    crewEmpty: "No crew assigned",
+                    tasksEmpty: "Delivery tasks table",
+                    loadingEmpty: "Aggregated planned products and scan session",
+                    returnEmpty: "Remaining items and return scan"
+                },
+                loadingScannerTitle: "Loading scan",
+                loadingScannerSubtitle: "Route {{id}} / Vehicle TBD",
+                loadingHelper: "Scan codes to load items into the vehicle",
+                returnScannerTitle: "Return scan",
+                returnScannerSubtitle: "Route {{id}} / Remaining items",
+                returnHelper: "Scan items being returned"
+            },
+            deliveryTasks: {
+                title: "Delivery Tasks",
+                subtitle: "My tasks",
+                detailsTitle: "Delivery Task",
+                scanTitle: "Delivery scan",
+                scanSubtitle: "Task",
+                listEmpty: "My delivery tasks will appear here",
+                sections: {
+                    header: "Header",
+                    items: "Planned items",
+                    session: "Delivery session",
+                    invoice: "Invoice"
+                },
+                actions: {
+                    openScan: "Open delivery scan",
+                    completeDelivery: "Complete delivery"
+                },
+                details: {
+                    headerEmpty: "Customer, route, order, status",
+                    itemsEmpty: "Planned / loaded / delivered",
+                    sessionEmpty: "Scan progress and counters",
+                    invoiceEmpty: "Invoice status and link"
+                },
+                scanScannerSubtitle: "Customer / Task {{id}}",
+                scanHelper: "Scan codes to deliver items"
+            },
+            invoices: {
+                title: "Invoices",
+                detailsTitle: "Invoice",
+                listEmpty: "Invoices list will appear here",
+                sections: {
+                    header: "Header",
+                    links: "Links",
+                    items: "Items"
+                },
+                details: {
+                    headerEmpty: "Customer, status, externalId",
+                    linksEmpty: "Order, route, task links",
+                    itemsEmpty: "Items and amounts"
+                }
             },
             users: {
                 userRole: {
@@ -743,10 +1081,31 @@ export const resources = {
                 yes: "Да",
                 no: "Нет",
                 error: "Произошла ошибка. Попробуйте позже.",
+                total: "Всего",
+                create: "Создать",
+                details: "Детали",
+                backToList: "Назад к списку",
+                backToRoute: "Назад к рейсу",
+                backToTask: "Назад к задаче",
+                crew: "Экипаж",
+                expandAll: "Развернуть все",
+                collapseAll: "Свернуть все"
             },
             statuses: {
                 active: "Активен",
                 inactive: "Неактивен",
+                draft: "Черновик",
+                assigned_to_warehouse: "Назначен на склад",
+                loading: "Загрузка",
+                loaded: "Загружено",
+                in_transit: "В пути",
+                partially_delivered: "Частично доставлено",
+                delivered: "Доставлено",
+                returning: "Возврат",
+                returned: "Возвращено",
+                cancelled: "Отменено",
+                closed: "Закрыто",
+                failed: "Ошибка"
             },
             export: {
                 short: "Короткий",
@@ -857,6 +1216,323 @@ export const resources = {
                 audit: "Логи системы",
                 markingCodes: "Коды маркировки",
                 agregations: "Агрегации",
+                implementation: "Реализация",
+                deals: "Сделки",
+                routes: "Рейсы",
+                salesOrders: "Заказы продаж",
+                deliveryRoutes: "Рейсы",
+                deliveryTasks: "Задачи доставки",
+                invoices: "Инвойсы",
+            },
+            scanner: {
+                accepted: "Принято",
+                rejected: "Отклонено",
+                scan: "Сканировать",
+                latestScans: "Последние сканы",
+                empty: "Сканов пока нет",
+                placeholder: "Скан-код"
+            },
+            salesOrders: {
+                title: "Заказы продаж",
+                detailsTitle: "Заказ продажи",
+                create: "Создать заказ",
+                listEmpty: "Список заказов появится здесь",
+                sections: {
+                    company: "Компания",
+                    customer: "Клиент",
+                    contract: "Договор",
+                    fulfillment: "Исполнение",
+                    items: "Товары",
+                    comment: "Комментарий",
+                    header: "Шапка",
+                    totals: "Итоги",
+                    related: "Связанные сущности"
+                },
+                fields: {
+                    company: "Компания",
+                    orderNumber: "Номер заказа",
+                    customerTin: "ИНН клиента",
+                    customerName: "Имя клиента",
+                    customerAddress: "Адрес клиента",
+                    contractNumber: "Номер договора",
+                    contractDate: "Дата договора",
+                    dueDate: "Срок",
+                    priority: "Приоритет",
+                    product: "Товар",
+                    quantity: "Количество",
+                    unitPrice: "Цена за единицу",
+                    comment: "Комментарий",
+                    status: "Статус",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено",
+                    createdBy: "Создал",
+                    updatedBy: "Обновил",
+                    orderedQuantity: "Заказано",
+                    assignedQuantity: "Назначено",
+                    deliveredQuantity: "Доставлено",
+                    amount: "Сумма",
+                    totalAmount: "Итого"
+                },
+                table: {
+                    orderNumber: "Номер заказа",
+                    customerName: "Клиент",
+                    customerTin: "ИНН клиента",
+                    dueDate: "Срок",
+                    priority: "Приоритет",
+                    orderedQuantity: "Заказано",
+                    assignedQuantity: "Назначено",
+                    deliveredQuantity: "Досавлено",
+                    status: "Статус",
+                    createdAt: "Создано"
+                },
+                placeholders: {
+                    selectCompany: "Выберите компанию",
+                    customerTin: "ИНН",
+                    customerName: "Имя клиента",
+                    contractNumber: "Номер договора",
+                    contractDate: "Дата договора",
+                    customerAddress: "Адрес клиента",
+                    dueDate: "Срок",
+                    quantity: "Количество",
+                    unitPrice: "Цена за единицу",
+                    itemComment: "Комментарий к позиции",
+                    comment: "Комментарий (опционально)"
+                },
+                validation: {
+                    companyRequired: "Компания обязательна",
+                    customerTinRequired: "ИНН обязателен",
+                    customerNameRequired: "Имя обязательно",
+                    dueDateRequired: "Срок обязателен",
+                    priorityRequired: "Приоритет обязателен",
+                    contractNumberRequired: "Номер договора обязателен",
+                    contractDateRequired: "Дата договора обязательна",
+                    itemProductRequired: "Товар обязателен",
+                    itemQuantityRequired: "Количество обязательно",
+                    itemUnitPriceRequired: "Цена за единицу обязательна"
+                },
+                messages: {
+                    success: {
+                        create: "Заказ продаж успешно создан",
+                        delete: "Заказ успешно удален"
+                    },
+                    error: {
+                        create: "Ошибка при создании заказа продаж",
+                        delete: "Ошибка при удалении заказа"
+                    }
+                },
+                deleteQuestion: "Вы уверены, что хотите удалить заказ",
+                priority: {
+                    low: "Низкий",
+                    normal: "Обычный",
+                    high: "Высокий",
+                    urgent: "Срочный"
+                },
+                statuses: {
+                    draft: "Черновик",
+                    confirmed: "Подтвержден",
+                    partially_assigned: "Частично назначен",
+                    assigned: "Назначен",
+                    partially_delivered: "Частично доставлен",
+                    delivered: "Доставлен",
+                    cancelled: "Отменен",
+                    closed: "Закрыт"
+                },
+                hints: {
+                    items: "Таблица товаров: продукт, количество, цена, сумма для предварительного просмотра."
+                },
+                actions: {
+                    addItem: "Добавить позицию",
+                    create: "Создать заказ"
+                },
+                modalWindow: {
+                    deletion: "Удаление",
+                    order: "заказ"
+                },
+                details: {
+                    headerEmpty: "Поля заголовка заказа",
+                    totalsEmpty: "Заказано / назначено / доставлено / сумма",
+                    itemsEmpty: "Таблица товаров",
+                    relatedEmpty: "Связанный рейс, задача, инвойс"
+                }
+            },
+            deliveryRoutes: {
+                title: "Рейсы",
+                detailsTitle: "Рейс",
+                loadingTitle: "Погрузка",
+                loadingSubtitle: "Рейс",
+                returnTitle: "Возврат",
+                returnSubtitle: "Рейс",
+                listEmpty: "Список рейсов появится здесь",
+                status: {
+                    draft: "Черновик",
+                    assigned_to_warehouse: "Назначен на склад",
+                    loading: "Погрузка",
+                    loaded: "Загружено",
+                    in_transit: "В пути",
+                    partially_delivered: "Частично доставлено",
+                    delivered: "Доставлено",
+                    returning: "Возвращение",
+                    returned: "Возвращено",
+                    closed: "Закрыто",
+                    cancelled: "Отменено",
+                    failed: "Ошибка"
+                },
+                sections: {
+                    info: "Информация о рейсе",
+                    availableOrders: "Доступные сделки",
+                    preview: "Предпросмотр выбранных заказов",
+                    summary: "Сводка",
+                    vehicle: "Транспортное средство",
+                    crew: "Экипаж",
+                    totals: "Итоги",
+                    timestamps: "Временные метки",
+                    actions: "Действия",
+                    tasks: "Задачи",
+                    loading: "Погрузка",
+                    return: "Возврат"
+                },
+                  fields: {
+                      company: "Компания",
+                      routeNumber: "Номер рейса",
+                      status: "Статус",
+                      routeDate: "Дата рейса",
+                      vehicleName: "Название транспорта",
+                      vehicle: "Транспорт",
+                      plateNumber: "Номер машины",
+                      driverName: "Имя водителя",
+                      driver: "Водитель",
+                      agentName: "Имя агента",
+                      agent: "Агент",
+                      comment: "Комментарий",
+                      taskCount: "Задач",
+                      plannedQuantity: "Кол-во товара",
+                      loadedQuantity: "Погружено",
+                      deliveredQuantity: "Доставлено",
+                      returnedQuantity: "Возвращено",
+                      registeredAt: "Зарегистрирован",
+                      loadingStartedAt: "Погрузка начата",
+                      loadingCompletedAt: "Погрузка завершена",
+                      departedAt: "Отправлено",
+                      returnStartedAt: "Возврат начат",
+                      returnCompletedAt: "Возврат завершён",
+                      closedAt: "Закрыто",
+                      remainingToAssign: "Остаток к распределению"
+                  },
+                placeholders: {
+                    selectCompany: "Выберите компанию",
+                    routeDate: "Дата рейса",
+                    vehicle: "Транспорт",
+                    plateNumber: "Номер машины",
+                    driver: "Водитель",
+                    agent: "Агент"
+                },
+                  validation: {
+                      companyRequired: "Компания обязательна",
+                      routeDateRequired: "Дата рейса обязательна",
+                      salesOrdersRequired: "Выберите хотя бы одну продажу",
+                      plateNumberInvalid: "Номер машины должен быть в формате: 00 AAA000 или 00 0AAA00"
+                  },
+                  messages: {
+                      success: {
+                          create: "Рейс успешно создан"
+                      },
+                      error: {
+                          create: "Ошибка при создании рейса"
+                      }
+                  },
+                  hints: {
+                    availableOrders: "Таблица заказов с остатком для распределения. Добавьте выбор и предпросмотр.",
+                    preview: "Показать количество заказов, клиентов, агрегированные товары и оценку объема."
+                },
+                preview: {
+                    ordersSelected: "Заказов выбрано",
+                    customersCount: "Клиентов",
+                    totalVolume: "Товаров выбрано",
+                    aggregatedProducts: "Агрегированные товары",
+                    routeDate: "Дата рейса",
+                    vehicleName: "Транспорт",
+                    plateNumber: "Номер машины",
+                    driver: "Водитель",
+                    agent: "Агент",
+                    company: "Компания",
+                    selectedOrders: "Выбранные заказы",
+                    customer: "Клиент",
+                    dueDate: "Срок",
+                    priority: "Приоритет",
+                    orderedQuantity: "Заказано",
+                    customersList: "Клиенты",
+                    dueDates: "Сроки",
+                    priorities: "Приоритеты",
+                    totalAmount: "Общая сумма",
+                    tin: "ИНН",
+                    address: "Адрес",
+                    contractNumber: "Номер контракта",
+                    contractDate: "Дата контракта",
+                    unitPrice: "Цена за ед.",
+                    amount: "Сумма",
+                    comment: "Комментарий"
+                },
+                actions: {
+                    create: "Создать рейс",
+                    openLoading: "Открыть экран погрузки",
+                    openReturn: "Открыть экран возврата",
+                    completeLoading: "Завершить погрузку",
+                    completeReturn: "Завершить возврат"
+                },
+                details: {
+                    summaryEmpty: "Всего задач, клиентов, заказано/погружено/доставлено/возвращено",
+                    crewEmpty: "Экипаж не назначен",
+                    tasksEmpty: "Таблица задач доставки",
+                    loadingEmpty: "Агрегированные товары и сессия сканирования",
+                    returnEmpty: "Остатки и скан возврата"
+                },
+                loadingScannerTitle: "Сканирование погрузки",
+                loadingScannerSubtitle: "Рейс {{id}} / Транспорт TBD",
+                loadingHelper: "Сканируйте коды для погрузки товаров в транспорт",
+                returnScannerTitle: "Сканирование возврата",
+                returnScannerSubtitle: "Рейс {{id}} / Остатки",
+                returnHelper: "Сканируйте товары для возврата"
+            },
+            deliveryTasks: {
+                title: "Задачи доставки",
+                subtitle: "Мои задачи",
+                detailsTitle: "Задача доставки",
+                scanTitle: "Сканирование доставки",
+                scanSubtitle: "Задача",
+                listEmpty: "Список задач появится здесь",
+                sections: {
+                    header: "Шапка",
+                    items: "Плановые товары",
+                    session: "Сессия доставки",
+                    invoice: "Инвойс"
+                },
+                actions: {
+                    openScan: "Открыть экран сканирования",
+                    completeDelivery: "Завершить доставку"
+                },
+                details: {
+                    headerEmpty: "Клиент, рейс, заказ, статус",
+                    itemsEmpty: "Запланировано / погружено / доставлено",
+                    sessionEmpty: "Прогресс сканирования и счетчики",
+                    invoiceEmpty: "Статус инвойса и ссылка"
+                },
+                scanScannerSubtitle: "Клиент / Задача {{id}}",
+                scanHelper: "Сканируйте коды для передачи товаров"
+            },
+            invoices: {
+                title: "Инвойсы",
+                detailsTitle: "Инвойс",
+                listEmpty: "Список инвойсов появится здесь",
+                sections: {
+                    header: "Шапка",
+                    links: "Связи",
+                    items: "Товары"
+                },
+                details: {
+                    headerEmpty: "Клиент, статус, externalId",
+                    linksEmpty: "Заказ, рейс, задача",
+                    itemsEmpty: "Товары и суммы"
+                }
             },
             users: {
                 userRole: {
@@ -1481,11 +2157,31 @@ export const resources = {
             common:{
                 yes: "Ha",
                 no: "Yoʻq",
-                error: "Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring."
+                error: "Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.",
+                total: "Jami",
+                create: "Yaratish",
+                details: "Batafsil",
+                backToList: "Roʻyxatga qaytish",
+                backToRoute: "Reysga qaytish",
+                backToTask: "Vazifaga qaytish",
+                expandAll: "Barchasini yoyish",
+                collapseAll: "Barchasini buklash"
             },
             statuses: {
                 active: "Faol",
                 inactive: "Faol emas",
+                draft: "Taslagi",
+                assigned_to_warehouse: "Omborga tayinlash",
+                loading: "Yuklash",
+                loaded: "Yuklangan",
+                in_transit: "Yo'lda",
+                partially_delivered: "Qisman yetkazilgan",
+                delivered: "Yetkazilgan",
+                returning: "Qaytarish",
+                returned: "Qaytarilgan",
+                cancelled: "Bekor qilindi",
+                closed: "Yopilgan",
+                failed: "Xato"
             },
             export: {
                 short: "Qisqa",
@@ -1597,6 +2293,294 @@ export const resources = {
                 audit: "Tizim jurnallari",
                 markingCodes: "Markirovka kodlari",
                 agregations: "Agregatsiyalar",
+                implementation: "Ijro",
+                deals: "Bitimlar",
+                routes: "Reyslar",
+                salesOrders: "Sotuv buyurtmalari",
+                deliveryRoutes: "Reyslar",
+                deliveryTasks: "Yetkazib berish vazifalari",
+                invoices: "Hisob-fakturalar",
+            },
+            scanner: {
+                accepted: "Qabul qilindi",
+                rejected: "Rad etildi",
+                scan: "Skan qilish",
+                latestScans: "So'nggi skanlar",
+                empty: "Hali skanlar yo'q",
+                placeholder: "Kod skan qilish"
+            },
+            salesOrders: {
+                title: "Sotuv buyurtmalari",
+                detailsTitle: "Sotuv buyurtmasi",
+                create: "Buyurtma yaratish",
+                listEmpty: "Buyurtmalar ro'yxati shu yerda bo'ladi",
+                sections: {
+                    company: "Kompaniya",
+                    customer: "Mijoz",
+                    contract: "Shartnoma",
+                    fulfillment: "Bajarish",
+                    items: "Tovarlar",
+                    comment: "Izoh",
+                    header: "Sarlavha",
+                    totals: "Jami",
+                    related: "Bog'langan obyektlar"
+                },
+                fields: {
+                    company: "Kompaniya",
+                    orderNumber: "Buyurtma raqami",
+                    customerTin: "Mijoz STIR",
+                    customerName: "Mijoz nomi",
+                    customerAddress: "Mijoz manzili",
+                    contractNumber: "Shartnoma raqami",
+                    contractDate: "Shartnoma sanasi",
+                    dueDate: "Muddat",
+                    priority: "Ustuvorlik",
+                    product: "Mahsulot",
+                    quantity: "Miqdor",
+                    unitPrice: "Birlik narxi",
+                    comment: "Izoh",
+                    status: "Holat",
+                    createdAt: "Yaratilgan sana",
+                    updatedAt: "Yangilangan sana",
+                    createdBy: "Yaratgan",
+                    updatedBy: "Yangilagan",
+                    orderedQuantity: "Buyurtma miqdori",
+                    assignedQuantity: "Biriktirilgan miqdor",
+                    deliveredQuantity: "Yetkazilgan miqdor",
+                    amount: "Summa",
+                    totalAmount: "Jami summa"
+                },
+                table: {
+                    orderNumber: "Buyurtma raqami",
+                    customerName: "Mijoz",
+                    customerTin: "Mijoz STIR",
+                    dueDate: "Muddat",
+                    priority: "Ustuvorlik",
+                    orderedQuantity: "Buyurtma miqdori",
+                    assignedQuantity: "Biriktirilgan miqdor",
+                    deliveredQuantity: "Yetkazilgan miqdor",
+                    status: "Holat",
+                    createdAt: "Yaratilgan sana"
+                },
+                placeholders: {
+                    selectCompany: "Kompaniyani tanlang",
+                    customerTin: "STIR",
+                    customerName: "Mijoz nomi",
+                    contractNumber: "Shartnoma raqami",
+                    contractDate: "Shartnoma sanasi",
+                    customerAddress: "Mijoz manzili",
+                    dueDate: "Muddat",
+                    quantity: "Miqdor",
+                    unitPrice: "Birlik narxi",
+                    itemComment: "Pozitsiya izohi",
+                    comment: "Izoh (ixtiyoriy)"
+                },
+                validation: {
+                    companyRequired: "Kompaniya majburiy",
+                    customerTinRequired: "STIR majburiy",
+                    customerNameRequired: "Ism majburiy",
+                    dueDateRequired: "Muddat majburiy",
+                    priorityRequired: "Ustuvorlik majburiy",
+                    contractNumberRequired: "Shartnoma raqami majburiy",
+                    contractDateRequired: "Shartnoma sanasi majburiy",
+                    itemProductRequired: "Mahsulot majburiy",
+                    itemQuantityRequired: "Miqdor majburiy",
+                    itemUnitPriceRequired: "Birlik narxi majburiy"
+                },
+                messages: {
+                    success: {
+                        create: "Sotuv buyurtmasi muvaffaqiyatli yaratildi",
+                        delete: "Sotuv buyurtmasi muvaffaqiyatli o'chirildi"
+                    },
+                    error: {
+                        create: "Sotuv buyurtmasini yaratishda xatolik",
+                        delete: "Sotuv buyurtmasini o'chirishda xatolik"
+                    }
+                },
+                deleteQuestion: "Buyurtmani o'chirmoqchimisiz",
+                priority: {
+                    low: "Past",
+                    normal: "Oddiy",
+                    high: "Yuqori",
+                    urgent: "Shoshilinch"
+                },
+                statuses: {
+                    draft: "Qoralama",
+                    confirmed: "Tasdiqlangan",
+                    partially_assigned: "Qisman biriktirilgan",
+                    assigned: "Biriktirilgan",
+                    partially_delivered: "Qisman yetkazilgan",
+                    delivered: "Yetkazilgan",
+                    cancelled: "Bekor qilingan",
+                    closed: "Yopilgan"
+                },
+                hints: {
+                    items: "Mahsulot, miqdor, narx va summaning preview jadvali."
+                },
+                actions: {
+                    addItem: "Pozitsiya qo'shish",
+                    create: "Buyurtma yaratish"
+                },
+                modalWindow: {
+                    deletion: "O'chirish",
+                    order: "buyurtma"
+                },
+                details: {
+                    headerEmpty: "Buyurtma sarlavhasi maydonlari",
+                    totalsEmpty: "Buyurtma / biriktirilgan / yetkazilgan / summa",
+                    itemsEmpty: "Tovarlar jadvali",
+                    relatedEmpty: "Bog'langan reys, vazifa, hisob-faktura"
+                }
+            },
+            deliveryRoutes: {
+                title: "Reyslar",
+                detailsTitle: "Reys",
+                loadingTitle: "Yuklash",
+                loadingSubtitle: "Reys",
+                returnTitle: "Qaytarish",
+                returnSubtitle: "Reys",
+                listEmpty: "Reyslar ro'yxati shu yerda bo'ladi",
+                status: {
+                    draft: "Qoralama",
+                    assigned_to_warehouse: "Omborga yuborilgan",
+                    loading: "Yuklash",
+                    loaded: "Yuklangan",
+                    in_transit: "Yo'lda",
+                    partially_delivered: "Qisman yetkazilgan",
+                    delivered: "Yetkazilgan",
+                    returning: "Qaytarish",
+                    returned: "Qaytarilgan",
+                    closed: "Yopilgan",
+                    cancelled: "Bekor qilingan",
+                    failed: "Xato"
+                },
+                sections: {
+                    info: "Reys ma'lumoti",
+                    availableOrders: "Mavjud bitimlar",
+                    preview: "Tanlangan buyurtmalar ko'rinishi",
+                    summary: "Xulosa",
+                    vehicle: "Transport vositasi",
+                    crew: "Ekipaj",
+                    totals: "Jami",
+                    timestamps: "Vaqt belgilari",
+                    actions: "Harakatlar",
+                    tasks: "Vazifalar",
+                    loading: "Yuklash",
+                    return: "Qaytarish"
+                },
+                  fields: {
+                      company: "Kompaniya",
+                      routeNumber: "Reys raqami",
+                      status: "Holat",
+                      routeDate: "Reys sanasi",
+                      vehicleName: "Transport nomini",
+                      vehicle: "Transport",
+                      plateNumber: "Mashina raqami",
+                      driverName: "Haydovchi nomi",
+                      driver: "Haydovchi",
+                      agentName: "Agent nomi",
+                      agent: "Agent",
+                      comment: "Sharhlar",
+                      taskCount: "Vazifalar",
+                      plannedQuantity: "Tovar soni",
+                      loadedQuantity: "Yuklangan",
+                      deliveredQuantity: "Yetkazilgan",
+                      returnedQuantity: "Qaytarilgan",
+                      registeredAt: "Ro‘yxatga olingan",
+                      remainingToAssign: "Taqsimlash uchun qoldiq"
+                  },
+                placeholders: {
+                    selectCompany: "Kompaniyani tanlang",
+                    routeDate: "Reys sanasi",
+                    vehicle: "Transport",
+                    driver: "Haydovchi",
+                    agent: "Agent"
+                },
+                  validation: {
+                      companyRequired: "Kompaniya majburiy",
+                      routeDateRequired: "Reys sanasi majburiy",
+                      salesOrdersRequired: "Iltimos, kamida bitta sotuv buyurtmasini tanlang",
+                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 AAA000 yoki 00 0AAA00"
+                  },
+                  messages: {
+                      success: {
+                          create: "Reys muvaffaqiyatli yaratildi"
+                      },
+                      error: {
+                          create: "Reys yaratishda xatolik"
+                      }
+                  },
+                  hints: {
+                    availableOrders: "Qolgan miqdor ko'rsatilgan buyurtmalar jadvali. Tanlash va preview shu yerda.",
+                    preview: "Buyurtmalar, mijozlar, agregatsiya va hajm bahosi ko'rsatiladi."
+                },
+                preview: {
+                    ordersSelected: "Tanlangan buyurtmalar",
+                    customersCount: "Mijozlar",
+                    totalVolume: "Tanlangan tovarlar",
+                    aggregatedProducts: "Agregatsiya qilingan mahsulotlar"
+                },
+                actions: {
+                    create: "Reys yaratish",
+                    openLoading: "Yuklash ekranini ochish",
+                    openReturn: "Qaytarish ekranini ochish",
+                    completeLoading: "Yuklashni yakunlash",
+                    completeReturn: "Qaytarishni yakunlash"
+                },
+                details: {
+                    summaryEmpty: "Jami vazifalar, mijozlar, yuklangan/etkazilgan/qaytarilgan",
+                    crewEmpty: "Ekipaj belgilanmagan",
+                    tasksEmpty: "Yetkazib berish vazifalari jadvali",
+                    loadingEmpty: "Rejalashtirilgan mahsulotlar va skan sessiyasi",
+                    returnEmpty: "Qolganlar va qaytarish skani"
+                },
+                loadingScannerTitle: "Yuklash skani",
+                loadingScannerSubtitle: "Reys {{id}} / Transport TBD",
+                loadingHelper: "Transportga yuklash uchun kodlarni skan qiling",
+                returnScannerTitle: "Qaytarish skani",
+                returnScannerSubtitle: "Reys {{id}} / Qolganlar",
+                returnHelper: "Qaytarilayotgan mahsulotlarni skan qiling"
+            },
+            deliveryTasks: {
+                title: "Yetkazib berish vazifalari",
+                subtitle: "Mening vazifalarim",
+                detailsTitle: "Yetkazib berish vazifasi",
+                scanTitle: "Yetkazib berish skani",
+                scanSubtitle: "Vazifa",
+                listEmpty: "Vazifalar ro'yxati shu yerda bo'ladi",
+                sections: {
+                    header: "Sarlavha",
+                    items: "Rejalashtirilgan tovarlar",
+                    session: "Yetkazib berish sessiyasi",
+                    invoice: "Hisob-faktura"
+                },
+                actions: {
+                    openScan: "Skan ekranini ochish",
+                    completeDelivery: "Yetkazib berishni yakunlash"
+                },
+                details: {
+                    headerEmpty: "Mijoz, reys, buyurtma, status",
+                    itemsEmpty: "Rejalashtirilgan / yuklangan / yetkazilgan",
+                    sessionEmpty: "Skan progress va hisoblagichlar",
+                    invoiceEmpty: "Hisob-faktura holati va havola"
+                },
+                scanScannerSubtitle: "Mijoz / Vazifa {{id}}",
+                scanHelper: "Tovarlarni yetkazish uchun kodlarni skan qiling"
+            },
+            invoices: {
+                title: "Hisob-fakturalar",
+                detailsTitle: "Hisob-faktura",
+                listEmpty: "Hisob-fakturalar ro'yxati shu yerda bo'ladi",
+                sections: {
+                    header: "Sarlavha",
+                    links: "Bog'lanishlar",
+                    items: "Tovarlar"
+                },
+                details: {
+                    headerEmpty: "Mijoz, holat, externalId",
+                    linksEmpty: "Buyurtma, reys, vazifa",
+                    itemsEmpty: "Tovarlar va summalar"
+                }
             },
             users: {
                 userRole: {
@@ -2215,5 +3199,19 @@ export const resources = {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
