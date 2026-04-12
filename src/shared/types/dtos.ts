@@ -165,6 +165,26 @@ export const SalesOrderStatus = {
 
 export type SalesOrderStatus = (typeof SalesOrderStatus)[keyof typeof SalesOrderStatus];
 
+export const DeliveryRouteStatus = {
+  Draft: "draft",
+  AssignedToWarehouse: "assigned_to_warehouse",
+  Loading: "loading",
+  Loaded: "loaded",
+  InTransit: "in_transit",
+  PartiallyDelivered: "partially_delivered",
+  Delivered: "delivered",
+  Returning: "returning",
+  Returned: "returned",
+  Closed: "closed",
+  Cancelled: "cancelled",
+  Failed: "failed",
+} as const;
+
+export const DeliveryRouteStatuses = Object.values(DeliveryRouteStatus);
+
+export type DeliveryRouteStatus =
+  (typeof DeliveryRouteStatus)[keyof typeof DeliveryRouteStatus];
+
 export const ProductSortField = {
   Id: '_id',
   Name: 'name',

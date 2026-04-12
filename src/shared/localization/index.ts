@@ -1,4 +1,4 @@
-export const resources = {
+﻿export const resources = {
     en:{
         translation:{
             common:{
@@ -10,11 +10,26 @@ export const resources = {
                 details: "Details",
                 backToList: "Back to list",
                 backToRoute: "Back to route",
-                backToTask: "Back to task"
+                backToTask: "Back to task",
+                crew: "Crew",
+                expandAll: "Expand all",
+                collapseAll: "Collapse all"
             },
             statuses: {
                 active: "Active",
                 inactive: "Inactive",
+                draft: "Draft",
+                assigned_to_warehouse: "Assigned to warehouse",
+                loading: "Loading",
+                loaded: "Loaded",
+                in_transit: "In transit",
+                partially_delivered: "Partially delivered",
+                delivered: "Delivered",
+                returning: "Returning",
+                returned: "Returned",
+                cancelled: "Cancelled",
+                closed: "Closed",
+                failed: "Failed"
             },
             export: {
                 short: "Short",
@@ -179,7 +194,8 @@ export const resources = {
                     orderedQuantity: "Ordered quantity",
                     assignedQuantity: "Assigned quantity",
                     deliveredQuantity: "Delivered quantity",
-                    amount: "Amount"
+                    amount: "Amount",
+                    totalAmount: "Total amount"
                 },
                 table: {
                     orderNumber: "Order number",
@@ -198,7 +214,11 @@ export const resources = {
                     customerTin: "TIN",
                     customerName: "Customer name",
                     contractNumber: "Contract number",
+                    contractDate: "Contract date",
                     customerAddress: "Customer address",
+                    dueDate: "Due date",
+                    quantity: "Quantity",
+                    unitPrice: "Unit price",
                     itemComment: "Item comment",
                     comment: "Optional comment"
                 },
@@ -267,33 +287,114 @@ export const resources = {
                 returnTitle: "Return",
                 returnSubtitle: "Route",
                 listEmpty: "Delivery routes list will appear here",
+                status: {
+                    draft: "Draft",
+                    assigned_to_warehouse: "Assigned to warehouse",
+                    loading: "Loading",
+                    loaded: "Loaded",
+                    in_transit: "In transit",
+                    partially_delivered: "Partially delivered",
+                    delivered: "Delivered",
+                    returning: "Returning",
+                    returned: "Returned",
+                    closed: "Closed",
+                    cancelled: "Cancelled",
+                    failed: "Failed"
+                },
                 sections: {
                     info: "Route info",
-                    availableOrders: "Available Sales Orders",
+                    availableOrders: "Available deals",
                     preview: "Selected orders preview",
                     summary: "Summary",
+                    vehicle: "Vehicle",
+                    crew: "Crew",
+                    totals: "Totals",
+                    timestamps: "Timestamps",
+                    actions: "Actions",
                     tasks: "Tasks",
                     loading: "Loading",
                     return: "Return"
                 },
-                fields: {
-                    company: "Company",
-                    routeDate: "Route date",
-                    vehicle: "Vehicle",
-                    agent: "Driver / Agent"
-                },
+                  fields: {
+                      company: "Company",
+                      routeNumber: "Route number",
+                      status: "Status",
+                      routeDate: "Route date",
+                      vehicleName: "Vehicle name",
+                      vehicle: "Vehicle",
+                      plateNumber: "Plate Number",
+                      driverName: "Driver name",
+                      driver: "Driver",
+                      agentName: "Agent name",
+                      agent: "Agent",
+                      comment: "Comment",
+                      taskCount: "Tasks",
+                      plannedQuantity: "Product qty",
+                      loadedQuantity: "Loaded qty",
+                      deliveredQuantity: "Delivered qty",
+                      returnedQuantity: "Returned qty",
+                      registeredAt: "Registered at",
+                      loadingStartedAt: "Loading started at",
+                      loadingCompletedAt: "Loading completed at",
+                      departedAt: "Departed at",
+                      returnStartedAt: "Return started at",
+                      returnCompletedAt: "Return completed at",
+                      closedAt: "Closed at",
+                      remainingToAssign: "Remaining to assign"
+                  },
                 placeholders: {
                     selectCompany: "Select company",
+                    routeDate: "Route date",
                     vehicle: "Vehicle",
-                    agent: "Driver / Agent"
+                    plateNumber: "Plate Number",
+                    driver: "Driver",
+                    agent: "Agent"
                 },
-                validation: {
-                    companyRequired: "Company is required",
-                    routeDateRequired: "Route date is required"
-                },
-                hints: {
+                  validation: {
+                      companyRequired: "Company is required",
+                      routeDateRequired: "Route date is required",
+                      salesOrdersRequired: "Please select at least one sales order",
+                      plateNumberInvalid: "Plate number must be in format: 00 AAA000 or 00 0AAA00"
+                  },
+                  messages: {
+                      success: {
+                          create: "Delivery route created successfully"
+                      },
+                      error: {
+                          create: "Error creating delivery route"
+                      }
+                  },
+                  hints: {
                     availableOrders: "Table of orders with remaining quantity to assign. Add selection and preview here.",
                     preview: "Show count of orders, customers, aggregated products, volume estimate."
+                },
+                preview: {
+                    ordersSelected: "Orders selected",
+                    customersCount: "Customers",
+                    totalVolume: "Items selected",
+                    aggregatedProducts: "Aggregated products",
+                    routeDate: "Route Date",
+                    vehicleName: "Vehicle",
+                    plateNumber: "Plate Number",
+                    driver: "Driver",
+                    agent: "Agent",
+                    company: "Company",
+                    selectedOrders: "Selected Orders",
+                    customer: "Customer",
+                    dueDate: "Due Date",
+                    priority: "Priority",
+                    orderedQuantity: "Ordered",
+                    customersList: "Customers",
+                    dueDates: "Due Dates",
+                    priorities: "Priorities",
+                    totalAmount: "Total Amount",
+                    tin: "TIN",
+                    address: "Address",
+                    contractNumber: "Contract Number",
+                    contractDate: "Contract Date",
+                    unitPrice: "Unit Price",
+                    amount: "Amount",
+                    comment: "Comment"
                 },
                 actions: {
                     create: "Create Route",
@@ -304,6 +405,7 @@ export const resources = {
                 },
                 details: {
                     summaryEmpty: "Total tasks, customers, ordered/loaded/delivered/returned",
+                    crewEmpty: "No crew assigned",
                     tasksEmpty: "Delivery tasks table",
                     loadingEmpty: "Aggregated planned products and scan session",
                     returnEmpty: "Remaining items and return scan"
@@ -984,11 +1086,26 @@ export const resources = {
                 details: "Детали",
                 backToList: "Назад к списку",
                 backToRoute: "Назад к рейсу",
-                backToTask: "Назад к задаче"
+                backToTask: "Назад к задаче",
+                crew: "Экипаж",
+                expandAll: "Развернуть все",
+                collapseAll: "Свернуть все"
             },
             statuses: {
                 active: "Активен",
                 inactive: "Неактивен",
+                draft: "Черновик",
+                assigned_to_warehouse: "Назначен на склад",
+                loading: "Загрузка",
+                loaded: "Загружено",
+                in_transit: "В пути",
+                partially_delivered: "Частично доставлено",
+                delivered: "Доставлено",
+                returning: "Возврат",
+                returned: "Возвращено",
+                cancelled: "Отменено",
+                closed: "Закрыто",
+                failed: "Ошибка"
             },
             export: {
                 short: "Короткий",
@@ -1153,7 +1270,8 @@ export const resources = {
                     orderedQuantity: "Заказано",
                     assignedQuantity: "Назначено",
                     deliveredQuantity: "Доставлено",
-                    amount: "Сумма"
+                    amount: "Сумма",
+                    totalAmount: "Итого"
                 },
                 table: {
                     orderNumber: "Номер заказа",
@@ -1172,7 +1290,11 @@ export const resources = {
                     customerTin: "ИНН",
                     customerName: "Имя клиента",
                     contractNumber: "Номер договора",
+                    contractDate: "Дата договора",
                     customerAddress: "Адрес клиента",
+                    dueDate: "Срок",
+                    quantity: "Количество",
+                    unitPrice: "Цена за единицу",
                     itemComment: "Комментарий к позиции",
                     comment: "Комментарий (опционально)"
                 },
@@ -1241,33 +1363,114 @@ export const resources = {
                 returnTitle: "Возврат",
                 returnSubtitle: "Рейс",
                 listEmpty: "Список рейсов появится здесь",
+                status: {
+                    draft: "Черновик",
+                    assigned_to_warehouse: "Назначен на склад",
+                    loading: "Погрузка",
+                    loaded: "Загружено",
+                    in_transit: "В пути",
+                    partially_delivered: "Частично доставлено",
+                    delivered: "Доставлено",
+                    returning: "Возвращение",
+                    returned: "Возвращено",
+                    closed: "Закрыто",
+                    cancelled: "Отменено",
+                    failed: "Ошибка"
+                },
                 sections: {
                     info: "Информация о рейсе",
-                    availableOrders: "Доступные заказы продаж",
+                    availableOrders: "Доступные сделки",
                     preview: "Предпросмотр выбранных заказов",
                     summary: "Сводка",
+                    vehicle: "Транспортное средство",
+                    crew: "Экипаж",
+                    totals: "Итоги",
+                    timestamps: "Временные метки",
+                    actions: "Действия",
                     tasks: "Задачи",
                     loading: "Погрузка",
                     return: "Возврат"
                 },
-                fields: {
-                    company: "Компания",
-                    routeDate: "Дата рейса",
-                    vehicle: "Транспорт",
-                    agent: "Водитель / агент"
-                },
+                  fields: {
+                      company: "Компания",
+                      routeNumber: "Номер рейса",
+                      status: "Статус",
+                      routeDate: "Дата рейса",
+                      vehicleName: "Название транспорта",
+                      vehicle: "Транспорт",
+                      plateNumber: "Номер машины",
+                      driverName: "Имя водителя",
+                      driver: "Водитель",
+                      agentName: "Имя агента",
+                      agent: "Агент",
+                      comment: "Комментарий",
+                      taskCount: "Задач",
+                      plannedQuantity: "Кол-во товара",
+                      loadedQuantity: "Погружено",
+                      deliveredQuantity: "Доставлено",
+                      returnedQuantity: "Возвращено",
+                      registeredAt: "Зарегистрирован",
+                      loadingStartedAt: "Погрузка начата",
+                      loadingCompletedAt: "Погрузка завершена",
+                      departedAt: "Отправлено",
+                      returnStartedAt: "Возврат начат",
+                      returnCompletedAt: "Возврат завершён",
+                      closedAt: "Закрыто",
+                      remainingToAssign: "Остаток к распределению"
+                  },
                 placeholders: {
                     selectCompany: "Выберите компанию",
+                    routeDate: "Дата рейса",
                     vehicle: "Транспорт",
-                    agent: "Водитель / агент"
+                    plateNumber: "Номер машины",
+                    driver: "Водитель",
+                    agent: "Агент"
                 },
-                validation: {
-                    companyRequired: "Компания обязательна",
-                    routeDateRequired: "Дата рейса обязательна"
-                },
-                hints: {
+                  validation: {
+                      companyRequired: "Компания обязательна",
+                      routeDateRequired: "Дата рейса обязательна",
+                      salesOrdersRequired: "Выберите хотя бы одну продажу",
+                      plateNumberInvalid: "Номер машины должен быть в формате: 00 AAA000 или 00 0AAA00"
+                  },
+                  messages: {
+                      success: {
+                          create: "Рейс успешно создан"
+                      },
+                      error: {
+                          create: "Ошибка при создании рейса"
+                      }
+                  },
+                  hints: {
                     availableOrders: "Таблица заказов с остатком для распределения. Добавьте выбор и предпросмотр.",
                     preview: "Показать количество заказов, клиентов, агрегированные товары и оценку объема."
+                },
+                preview: {
+                    ordersSelected: "Заказов выбрано",
+                    customersCount: "Клиентов",
+                    totalVolume: "Товаров выбрано",
+                    aggregatedProducts: "Агрегированные товары",
+                    routeDate: "Дата рейса",
+                    vehicleName: "Транспорт",
+                    plateNumber: "Номер машины",
+                    driver: "Водитель",
+                    agent: "Агент",
+                    company: "Компания",
+                    selectedOrders: "Выбранные заказы",
+                    customer: "Клиент",
+                    dueDate: "Срок",
+                    priority: "Приоритет",
+                    orderedQuantity: "Заказано",
+                    customersList: "Клиенты",
+                    dueDates: "Сроки",
+                    priorities: "Приоритеты",
+                    totalAmount: "Общая сумма",
+                    tin: "ИНН",
+                    address: "Адрес",
+                    contractNumber: "Номер контракта",
+                    contractDate: "Дата контракта",
+                    unitPrice: "Цена за ед.",
+                    amount: "Сумма",
+                    comment: "Комментарий"
                 },
                 actions: {
                     create: "Создать рейс",
@@ -1278,6 +1481,7 @@ export const resources = {
                 },
                 details: {
                     summaryEmpty: "Всего задач, клиентов, заказано/погружено/доставлено/возвращено",
+                    crewEmpty: "Экипаж не назначен",
                     tasksEmpty: "Таблица задач доставки",
                     loadingEmpty: "Агрегированные товары и сессия сканирования",
                     returnEmpty: "Остатки и скан возврата"
@@ -1959,11 +2163,25 @@ export const resources = {
                 details: "Batafsil",
                 backToList: "Roʻyxatga qaytish",
                 backToRoute: "Reysga qaytish",
-                backToTask: "Vazifaga qaytish"
+                backToTask: "Vazifaga qaytish",
+                expandAll: "Barchasini yoyish",
+                collapseAll: "Barchasini buklash"
             },
             statuses: {
                 active: "Faol",
                 inactive: "Faol emas",
+                draft: "Taslagi",
+                assigned_to_warehouse: "Omborga tayinlash",
+                loading: "Yuklash",
+                loaded: "Yuklangan",
+                in_transit: "Yo'lda",
+                partially_delivered: "Qisman yetkazilgan",
+                delivered: "Yetkazilgan",
+                returning: "Qaytarish",
+                returned: "Qaytarilgan",
+                cancelled: "Bekor qilindi",
+                closed: "Yopilgan",
+                failed: "Xato"
             },
             export: {
                 short: "Qisqa",
@@ -2129,7 +2347,8 @@ export const resources = {
                     orderedQuantity: "Buyurtma miqdori",
                     assignedQuantity: "Biriktirilgan miqdor",
                     deliveredQuantity: "Yetkazilgan miqdor",
-                    amount: "Summa"
+                    amount: "Summa",
+                    totalAmount: "Jami summa"
                 },
                 table: {
                     orderNumber: "Buyurtma raqami",
@@ -2148,7 +2367,11 @@ export const resources = {
                     customerTin: "STIR",
                     customerName: "Mijoz nomi",
                     contractNumber: "Shartnoma raqami",
+                    contractDate: "Shartnoma sanasi",
                     customerAddress: "Mijoz manzili",
+                    dueDate: "Muddat",
+                    quantity: "Miqdor",
+                    unitPrice: "Birlik narxi",
                     itemComment: "Pozitsiya izohi",
                     comment: "Izoh (ixtiyoriy)"
                 },
@@ -2217,33 +2440,85 @@ export const resources = {
                 returnTitle: "Qaytarish",
                 returnSubtitle: "Reys",
                 listEmpty: "Reyslar ro'yxati shu yerda bo'ladi",
+                status: {
+                    draft: "Qoralama",
+                    assigned_to_warehouse: "Omborga yuborilgan",
+                    loading: "Yuklash",
+                    loaded: "Yuklangan",
+                    in_transit: "Yo'lda",
+                    partially_delivered: "Qisman yetkazilgan",
+                    delivered: "Yetkazilgan",
+                    returning: "Qaytarish",
+                    returned: "Qaytarilgan",
+                    closed: "Yopilgan",
+                    cancelled: "Bekor qilingan",
+                    failed: "Xato"
+                },
                 sections: {
                     info: "Reys ma'lumoti",
-                    availableOrders: "Mavjud sotuv buyurtmalari",
+                    availableOrders: "Mavjud bitimlar",
                     preview: "Tanlangan buyurtmalar ko'rinishi",
                     summary: "Xulosa",
+                    vehicle: "Transport vositasi",
+                    crew: "Ekipaj",
+                    totals: "Jami",
+                    timestamps: "Vaqt belgilari",
+                    actions: "Harakatlar",
                     tasks: "Vazifalar",
                     loading: "Yuklash",
                     return: "Qaytarish"
                 },
-                fields: {
-                    company: "Kompaniya",
-                    routeDate: "Reys sanasi",
-                    vehicle: "Transport",
-                    agent: "Haydovchi / agent"
-                },
+                  fields: {
+                      company: "Kompaniya",
+                      routeNumber: "Reys raqami",
+                      status: "Holat",
+                      routeDate: "Reys sanasi",
+                      vehicleName: "Transport nomini",
+                      vehicle: "Transport",
+                      plateNumber: "Mashina raqami",
+                      driverName: "Haydovchi nomi",
+                      driver: "Haydovchi",
+                      agentName: "Agent nomi",
+                      agent: "Agent",
+                      comment: "Sharhlar",
+                      taskCount: "Vazifalar",
+                      plannedQuantity: "Tovar soni",
+                      loadedQuantity: "Yuklangan",
+                      deliveredQuantity: "Yetkazilgan",
+                      returnedQuantity: "Qaytarilgan",
+                      registeredAt: "Ro‘yxatga olingan",
+                      remainingToAssign: "Taqsimlash uchun qoldiq"
+                  },
                 placeholders: {
                     selectCompany: "Kompaniyani tanlang",
+                    routeDate: "Reys sanasi",
                     vehicle: "Transport",
-                    agent: "Haydovchi / agent"
+                    driver: "Haydovchi",
+                    agent: "Agent"
                 },
-                validation: {
-                    companyRequired: "Kompaniya majburiy",
-                    routeDateRequired: "Reys sanasi majburiy"
-                },
-                hints: {
+                  validation: {
+                      companyRequired: "Kompaniya majburiy",
+                      routeDateRequired: "Reys sanasi majburiy",
+                      salesOrdersRequired: "Iltimos, kamida bitta sotuv buyurtmasini tanlang",
+                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 AAA000 yoki 00 0AAA00"
+                  },
+                  messages: {
+                      success: {
+                          create: "Reys muvaffaqiyatli yaratildi"
+                      },
+                      error: {
+                          create: "Reys yaratishda xatolik"
+                      }
+                  },
+                  hints: {
                     availableOrders: "Qolgan miqdor ko'rsatilgan buyurtmalar jadvali. Tanlash va preview shu yerda.",
                     preview: "Buyurtmalar, mijozlar, agregatsiya va hajm bahosi ko'rsatiladi."
+                },
+                preview: {
+                    ordersSelected: "Tanlangan buyurtmalar",
+                    customersCount: "Mijozlar",
+                    totalVolume: "Tanlangan tovarlar",
+                    aggregatedProducts: "Agregatsiya qilingan mahsulotlar"
                 },
                 actions: {
                     create: "Reys yaratish",
@@ -2254,6 +2529,7 @@ export const resources = {
                 },
                 details: {
                     summaryEmpty: "Jami vazifalar, mijozlar, yuklangan/etkazilgan/qaytarilgan",
+                    crewEmpty: "Ekipaj belgilanmagan",
                     tasksEmpty: "Yetkazib berish vazifalari jadvali",
                     loadingEmpty: "Rejalashtirilgan mahsulotlar va skan sessiyasi",
                     returnEmpty: "Qolganlar va qaytarish skani"

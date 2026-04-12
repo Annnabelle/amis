@@ -12,7 +12,7 @@ import { createSalesOrder } from 'entities/salesOrders/model';
 import { mapSalesOrderFormToCreateDto, type SalesOrderFormValues } from 'entities/salesOrders/mappers';
 import { searchProducts } from 'entities/products/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { SalesOrderPriorities } from 'shared/types/dtos';
 
 const SalesOrdersCreate = () => {
@@ -25,6 +25,87 @@ const SalesOrdersCreate = () => {
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
     : '/sales-orders';
+
+  const items = Form.useWatch('items', form);
+
+  const digitsOnlyParser = (maxDigits?: number) => (value?: string) => {
+    const digits = value?.replace(/\D/g, '') ?? '';
+    return maxDigits ? digits.slice(0, maxDigits) : digits;
+  };
+
+  const totalAmount = useMemo(() => {
+    const safeItems = Array.isArray(items) ? items : [];
+
+    const toBigInt = (value: unknown) => {
+      const digits = String(value ?? '').replace(/\D/g, '');
+      if (!digits) return 0n;
+      try {
+        return BigInt(digits);
+      } catch {
+        return 0n;
+      }
+    };
+
+    return safeItems.reduce((sum, item) => {
+      const quantity = toBigInt(item?.quantity);
+      const unitPrice = toBigInt(item?.unitPrice);
+      return sum + quantity * unitPrice;
+    }, 0n);
+  }, [items]);
+
+  const formattedTotalAmount = useMemo(() => new Intl.NumberFormat().format(totalAmount), [totalAmount]);
+
+  const allowOnlyDigitsKeyDown = (maxDigits?: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Home',
+      'End',
+      'Enter',
+    ];
+    if (allowedKeys.includes(e.key)) return;
+
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+      return;
+    }
+
+    if (!maxDigits) return;
+
+    const currentValue = e.currentTarget.value ?? '';
+    const selectionStart = e.currentTarget.selectionStart ?? currentValue.length;
+    const selectionEnd = e.currentTarget.selectionEnd ?? currentValue.length;
+    const hasSelection = selectionEnd > selectionStart;
+
+    if (!hasSelection && currentValue.length >= maxDigits) {
+      e.preventDefault();
+    }
+  };
+
+  const allowOnlyDigitsPaste = (maxDigits?: number) => (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (!/^\d*$/.test(text)) {
+      e.preventDefault();
+      return;
+    }
+
+    if (!maxDigits) return;
+
+    const currentValue = e.currentTarget.value ?? '';
+    const selectionStart = e.currentTarget.selectionStart ?? currentValue.length;
+    const selectionEnd = e.currentTarget.selectionEnd ?? currentValue.length;
+    const selectionLength = Math.max(0, selectionEnd - selectionStart);
+    const nextLength = currentValue.length - selectionLength + text.length;
+
+    if (nextLength > maxDigits) {
+      e.preventDefault();
+    }
+  };
 
   useEffect(() => {
     if (!orgId) return;
@@ -151,7 +232,7 @@ const SalesOrdersCreate = () => {
                     }),
                   ]}
                 >
-                  <DatePicker className="input" size="large" />
+                  <DatePicker className="input" size="large" placeholder={t('salesOrders.placeholders.contractDate')} />
                 </Form.Item>
               </div>
 
@@ -165,7 +246,7 @@ const SalesOrdersCreate = () => {
                   label={t('salesOrders.fields.dueDate')}
                   rules={[{ required: true, message: t('salesOrders.validation.dueDateRequired') }]}
                 >
-                  <DatePicker className="input" size="large" />
+                  <DatePicker className="input" size="large" placeholder={t('salesOrders.placeholders.dueDate')} />
                 </Form.Item>
                 <Form.Item
                   className="input"
@@ -192,9 +273,9 @@ const SalesOrdersCreate = () => {
                 {(fields, { add, remove }) => (
                   <div className="create-order-items">
                     {fields.map((field, index) => (
-                      <div key={field.key} className="form-inputs create-order-items-item">
+                      <div key={field.key} className="form-inputs create-order-items-item sales-order-items-item">
                         <Form.Item
-                          className="input"
+                          className="input sales-order-item sales-order-item--product"
                           name={[field.name, "productId"]}
                           rules={[{ required: true, message: t('salesOrders.validation.itemProductRequired') }]}
                         >
@@ -215,34 +296,46 @@ const SalesOrdersCreate = () => {
                         </Form.Item>
 
                         <Form.Item
-                          className="input"
+                          className="input sales-order-item sales-order-item--quantity"
                           name={[field.name, "quantity"]}
                           rules={[{ required: true, message: t('salesOrders.validation.itemQuantityRequired') }]}
                         >
-                          <InputNumber
+                          <InputNumber<string | number>
                             min={1}
+                            max={9999999999}
+                            precision={0}
                             size="large"
                             className="input"
                             style={{ width: "100%", minWidth: 120 }}
-                            placeholder="0"
+                            placeholder={t('salesOrders.placeholders.quantity')}
+                            parser={digitsOnlyParser(10)}
+                            inputMode="numeric"
+                            onKeyDown={allowOnlyDigitsKeyDown(10)}
+                            onPaste={allowOnlyDigitsPaste(10)}
                           />
                         </Form.Item>
 
                         <Form.Item
-                          className="input"
+                          className="input sales-order-item sales-order-item--unit-price"
                           name={[field.name, "unitPrice"]}
                           rules={[{ required: true, message: t('salesOrders.validation.itemUnitPriceRequired') }]}
                         >
-                          <InputNumber
-                            min={0}
+                          <InputNumber<string | number>
+                            min={100}
+                            max={9999999}
+                            precision={0}
                             size="large"
                             className="input"
                             style={{ width: "100%", minWidth: 140 }}
-                            placeholder="0"
+                            placeholder={t('salesOrders.placeholders.unitPrice')}
+                            parser={digitsOnlyParser(7)}
+                            inputMode="numeric"
+                            onKeyDown={allowOnlyDigitsKeyDown(7)}
+                            onPaste={allowOnlyDigitsPaste(7)}
                           />
                         </Form.Item>
 
-                        <Form.Item className="input" name={[field.name, "comment"]}>
+                        <Form.Item className="input sales-order-item sales-order-item--comment" name={[field.name, "comment"]}>
                           <Input className="input" size="large" placeholder={t('salesOrders.placeholders.itemComment')} />
                         </Form.Item>
 
@@ -267,11 +360,14 @@ const SalesOrdersCreate = () => {
                 )}
               </Form.List>
 
-              <div className="form-divider-title">
+              <div className="sales-order-items-total">
+                <div className="sales-order-items-total__label">{t('salesOrders.fields.totalAmount')}</div>
+                <div className="sales-order-items-total__value">{formattedTotalAmount}</div>
               </div>
+
               <div className="form-inputs">
                 <Form.Item className="input" name="comment" label={t('salesOrders.fields.comment')}>
-                  <Input.TextArea className="input" rows={3} placeholder={t('salesOrders.placeholders.comment')} />
+                  <Input.TextArea className="input" rows={3} placeholder={t('salesOrders.placeholders.comment')} style={{ resize: 'none' }} />
                 </Form.Item>
               </div>
 

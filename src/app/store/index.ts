@@ -10,6 +10,8 @@ import {utilizationSlice} from "entities/utilization/model";
 import {aggregationSlice} from "entities/aggregation/model";
 import {xTraceSlice} from "entities/xTrace/model";
 import {exportSlice} from "entities/export/model";
+import { salesOrdersSlice } from "entities/salesOrders/model";
+import { deliveryRoutesSlice } from "entities/deliveryRoutes/model";
 import {loaderSlice} from "./loader";
 
 export const store = configureStore({
@@ -24,6 +26,8 @@ export const store = configureStore({
         aggregations: aggregationSlice.reducer,
         xTrace: xTraceSlice.reducer,
         export: exportSlice.reducer,
+        salesOrders: salesOrdersSlice.reducer,
+        deliveryRoutes: deliveryRoutesSlice.reducer,
         loader: loaderSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>

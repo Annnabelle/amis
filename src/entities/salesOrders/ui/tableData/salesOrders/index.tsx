@@ -1,16 +1,13 @@
-import { Dropdown, Menu, Button, Tag } from "antd";
+import { Tag } from "antd";
 import { Link } from "react-router-dom";
 import type { TFunction } from "i18next";
 import { statusColors } from "shared/ui/statuses.tsx";
 import type { AdaptiveColumn } from "shared/ui/table/types.ts";
 import type { SalesOrdersTableDataType } from "./types";
-import { HiDotsHorizontal } from "react-icons/hi";
-import CustomButton from "shared/ui/button";
 
 export const SalesOrdersTableColumns = (
   t: TFunction,
-  orgId?: string,
-  onDelete?: (record: SalesOrdersTableDataType) => void
+  orgId?: string
 ): AdaptiveColumn<SalesOrdersTableDataType>[] => [
   {
     title: t("salesOrders.table.orderNumber"),
@@ -121,43 +118,43 @@ export const SalesOrdersTableColumns = (
     flex: 1,
     render: (text: string) => <p className="table-text">{text}</p>,
   },
-  {
-    title: "",
-    key: "action",
-    flex: 1,
-    render: (_, record) => (
-      <Dropdown
-        overlay={
-          <Menu
-            items={[
-              {
-                key: "delete",
-                label: (
-                  <CustomButton
-                    type="button"
-                    className="danger"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete?.(record);
-                    }}
-                  >
-                    {t("btn.delete")}
-                  </CustomButton>
-                ),
-              },
-            ]}
-          />
-        }
-        trigger={["click"]}
-        placement="bottomRight"
-      >
-        <Button
-          onClick={(e) => e.stopPropagation()}
-          type="text"
-          icon={<HiDotsHorizontal />}
-          style={{ width: "100%", display: "flex", justifyContent: "center" }}
-        />
-      </Dropdown>
-    ),
-  },
+  // {
+  //   title: "",
+  //   key: "action",
+  //   flex: 1,
+  //   render: (_, record) => (
+  //     <Dropdown
+  //       overlay={
+  //         <Menu
+  //           items={[
+  //             {
+  //               key: "delete",
+  //               label: (
+  //                 <CustomButton
+  //                   type="button"
+  //                   className="danger"
+  //                   onClick={(e) => {
+  //                     e.stopPropagation();
+  //                     onDelete?.(record);
+  //                   }}
+  //                 >
+  //                   {t("btn.delete")}
+  //                 </CustomButton>
+  //               ),
+  //             },
+  //           ]}
+  //         />
+  //       }
+  //       trigger={["click"]}
+  //       placement="bottomRight"
+  //     >
+  //       <Button
+  //         onClick={(e) => e.stopPropagation()}
+  //         type="text"
+  //         icon={<HiDotsHorizontal />}
+  //         style={{ width: "100%", display: "flex", justifyContent: "center" }}
+  //       />
+  //     </Dropdown>
+  //   ),
+  // },
 ];

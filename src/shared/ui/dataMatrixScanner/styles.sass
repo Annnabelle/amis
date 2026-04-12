@@ -1,0 +1,93 @@
+.dm-scanner
+  display: flex
+  flex-direction: column
+  gap: 16px
+  background: #fff
+  border: 1px solid #e6e6e6
+  border-radius: 12px
+  padding: 20px
+
+.dm-scanner-header
+  display: flex
+  align-items: flex-start
+  justify-content: space-between
+  gap: 16px
+
+.dm-scanner-title
+  margin: 0
+  font-size: 20px
+
+.dm-scanner-subtitle
+  margin: 4px 0 0
+  color: #6b7280
+
+.dm-scanner-counters
+  display: flex
+  gap: 12px
+
+.dm-scanner-counter
+  display: flex
+  flex-direction: column
+  align-items: flex-end
+  font-size: 12px
+
+.dm-scanner-counter-value
+  font-size: 20px
+  font-weight: 600
+
+.dm-scanner-counter-value.accepted
+  color: #16a34a
+
+.dm-scanner-counter-value.rejected
+  color: #dc2626
+
+.dm-scanner-helper
+  margin: 0
+  color: #6b7280
+
+.dm-scanner-input
+  display: grid
+  grid-template-columns: 1fr auto auto
+  gap: 12px
+  align-items: center
+
+.dm-scanner-list-title
+  margin: 0 0 8px
+  font-weight: 600
+
+.dm-scanner-empty
+  padding: 12px
+  color: #9ca3af
+  border: 1px dashed #d1d5db
+  border-radius: 8px
+
+.dm-scanner-item
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 8px 12px
+  border: 1px solid #e5e7eb
+  border-radius: 8px
+  margin-bottom: 8px
+
+.dm-scanner-item.accepted
+  background: #f0fdf4
+
+.dm-scanner-item.rejected
+  background: #fef2f2
+
+.dm-scanner-item-code
+  font-weight: 600
+
+.dm-scanner-item-meta
+  display: flex
+  align-items: center
+  gap: 8px
+
+.dm-scanner-item-reason
+  color: #6b7280
+  font-size: 12px
+
+@media (max-width: 720px)
+  .dm-scanner-input
+    grid-template-columns: 1fr

@@ -6,6 +6,13 @@
     @include mix.flex-content(start, column)
     align-items: start
     row-gap: 20px
+    &-btns-group
+        width: 100%
+        @include mix.flex-content(center, row)
+        gap: 15px
+        .btn
+            width: 100%
+            white-space: nowrap
     &-inputs
         width: 100%
         @include mix.flex-content(start, column)
@@ -30,6 +37,11 @@
             .ant-select-selection-search
                 .ant-select-selection-search-input
                     cursor: default !important
+        .ant-picker-input input,
+        .ant-input-number input,
+        .ant-input-number-input
+            &::placeholder
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
         .ant-select-selection-placeholder
             +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
     .form-inputs-row
@@ -53,6 +65,72 @@
             @include mix.flex-content(center, row)
             align-items: center
             gap: 10px
+        .sales-order-items-item
+            display: flex
+            flex-wrap: wrap
+            align-items: center
+            gap: 10px
+            .ant-form-item
+                margin-bottom: 0
+            .sales-order-item
+                min-width: 0
+                .ant-select,
+                .ant-input,
+                .ant-input-number
+                    width: 100%
+            .create-order-btn
+                width: 44px
+                min-width: 44px
+                padding-inline: 0
+                display: inline-flex
+                align-items: center
+                justify-content: center
+                flex: 0 0 44px
+            .sales-order-item--product
+                flex: 1 1 260px
+                min-width: 220px
+                .ant-select-selector
+                    overflow: hidden
+                .ant-select-selection-overflow
+                    overflow: hidden
+                .ant-select-selection-item,
+                .ant-select-selection-placeholder
+                    display: block
+                    overflow: hidden
+                    text-overflow: ellipsis
+                    white-space: nowrap
+            .sales-order-item--quantity
+                flex: 0 0 120px
+                min-width: 100px
+            .sales-order-item--unit-price
+                flex: 0 0 140px
+                min-width: 120px
+            .sales-order-item--comment
+                flex: 1 1 220px
+                min-width: 200px
+
+            @media (max-width: 720px)
+                .sales-order-item--product
+                    flex-basis: 100%
+                    min-width: 0
+                .sales-order-item--comment
+                    flex-basis: 100%
+                    min-width: 0
+                .sales-order-item--quantity,
+                .sales-order-item--unit-price
+                    flex: 1 1 140px
+
+    .sales-order-items-total
+        width: 100%
+        display: flex
+        justify-content: flex-end
+        align-items: baseline
+        gap: 10px
+        padding-top: 8px
+        .sales-order-items-total__label
+            +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
+        .sales-order-items-total__value
+            +mix.typography(16px, 600, map.get(vars.$main, 'main'))
 .form-inputs-organization
     width: 100%
     @include mix.flex-content(center, row)
@@ -79,3 +157,235 @@
 .custom-placeholder
     +mix.typography(14px, 400, map.get(vars.$basic, "black"))
     background: transparent
+.route-preview
+    width: 100%
+    .section-title
+        +mix.typography(18px, 600, map.get(vars.$main, 'main'))
+        margin-bottom: 16px
+        display: flex
+        align-items: center
+        gap: 8px
+    &-info
+        display: grid
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+        gap: 12px
+    .info-item
+        display: flex
+        justify-content: space-between
+        align-items: center
+        padding: 10px 14px
+        background: map.get(vars.$basic, 'gray-light')
+        border-radius: 6px
+        .info-label
+            +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
+        .info-value
+            +mix.typography(14px, 600, map.get(vars.$main, 'main'))
+    &-stats
+        display: grid
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
+        gap: 16px
+        margin-bottom: 24px
+    .stat-item
+        display: flex
+        justify-content: space-between
+        align-items: center
+        padding: 12px 16px
+        background: map.get(vars.$main, 'light')
+        border-radius: 6px
+        .stat-label
+            +mix.typography(14px, 500, map.get(vars.$basic, 'black'))
+        .stat-value
+            +mix.typography(16px, 600, map.get(vars.$main, 'main'))
+    &-products
+        .products-title
+            +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
+            margin-bottom: 12px
+        .products-list
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
+            gap: 8px
+        .product-item
+            display: flex
+            justify-content: space-between
+            align-items: center
+            padding: 8px 12px
+            background: map.get(vars.$basic, 'gray-light')
+            border-radius: 4px
+            .product-name
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+            .product-quantity
+                +mix.typography(14px, 600, map.get(vars.$main, 'main'))
+    &-section
+        width: 100%
+    &-orders-details
+        width: 100%
+        display: flex
+        flex-direction: column
+        gap: 16px
+        .order-detail-card
+            background: map.get(vars.$basic, 'white')
+            border: 1px solid #e5e7eb
+            border-radius: 12px
+            padding: 16px
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+            transition: all 0.3s ease
+            &:hover
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12)
+                border-color: map.get(vars.$main, 'main')
+            .order-header
+                display: flex
+                justify-content: space-between
+                align-items: flex-start
+                margin-bottom: 12px
+                padding-bottom: 12px
+                border-bottom: 2px solid #f3f4f6
+                .customer-info
+                    flex: 1
+                    .customer-name
+                        text-transform: capitalize
+                        +mix.typography(18px, 700, map.get(vars.$basic, 'black'))
+                        margin-bottom: 8px
+                        letter-spacing: -0.3px
+                    .customer-details
+                        display: grid
+                        grid-template-columns: 1fr 1fr
+                        gap: 6px 12px
+                        .detail-item
+                            +mix.typography(12px, 400, #666)
+                            display: flex
+                            align-items: center
+                            .label
+                                font-weight: 600
+                                color: map.get(vars.$main, 'main')
+                                min-width: fit-content
+                                margin-right: 4px
+                            &.highlight
+                                +mix.typography(12px, 700, map.get(vars.$basic, 'black'))
+                                background: #f0f4ff
+                                padding: 4px 8px
+                                border-radius: 4px
+                                .label
+                                    color: map.get(vars.$main, 'main')
+                .order-meta
+                    display: flex
+                    flex-direction: column
+                    align-items: flex-end
+                    gap: 8px
+                    .priority-badge
+                        padding: 6px 12px
+                        border-radius: 6px
+                        +mix.typography(12px, 700, map.get(vars.$basic, 'white'))
+                        text-transform: uppercase
+                        letter-spacing: 0.5px
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)
+                        &[data-priority="low"]
+                            background: #10b981
+                        &[data-priority="normal"]
+                            background: map.get(vars.$main, 'main')
+                        &[data-priority="high"]
+                            background: #f59e0b
+                        &[data-priority="urgent"]
+                            background: #ef4444
+                    .due-date
+                        +mix.typography(12px, 600, #333)
+                        background: #f9fafb
+                        padding: 4px 8px
+                        border-radius: 4px
+            .contract-info
+                display: none
+            .items-table
+                margin-bottom: 0
+                border-radius: 8px
+                overflow: hidden
+                border: 1px solid #e5e7eb
+                .table-header, .table-row
+                    display: grid
+                    grid-template-columns: 2fr 1fr 1fr 1fr 1fr
+                    gap: 12px
+                    padding: 10px 12px
+                    align-items: center
+                .table-header
+                    background: linear-gradient(135deg, map.get(vars.$main, 'light') 0%, #e8f1ff 100%)
+                    +mix.typography(12px, 700, map.get(vars.$basic, 'black'))
+                    text-transform: uppercase
+                    letter-spacing: 0.4px
+                    color: map.get(vars.$main, 'main')
+                .table-row
+                    border-bottom: 1px solid #f0f0f0
+                    +mix.typography(12px, 400, #333)
+                    background: #ffffff
+                    transition: background-color 0.2s ease
+                    &:hover
+                        background: #f9fafb
+                    &:last-child
+                        border-bottom: none
+            .order-totals
+                display: none
+        .expand-controls
+            display: flex
+            gap: 12px
+            margin-bottom: 16px
+            .expand-btn
+                display: flex
+                align-items: center
+                gap: 6px
+                padding: 8px 14px
+                background: #f3f4f6
+                border: 1px solid #e5e7eb
+                border-radius: 6px
+                +mix.typography(12px, 600, map.get(vars.$basic, 'black'))
+                cursor: pointer
+                transition: all 0.2s ease
+                &:hover
+                    background: map.get(vars.$main, 'light')
+                    border-color: map.get(vars.$main, 'main')
+                    color: map.get(vars.$main, 'main')
+                svg
+                    font-size: 12px
+        .order-detail-card
+            &.collapsed
+                .order-header
+                    padding-bottom: 0
+                    border-bottom: none
+                    margin-bottom: 0
+                .customer-details
+                    display: none
+                .items-table
+                    display: none
+            &.expanded
+                .order-header
+                    padding-bottom: 12px
+                    border-bottom: 2px solid #f3f4f6
+                    margin-bottom: 12px
+            .expand-icon
+                display: flex
+                align-items: center
+                min-width: 20px
+                font-size: 12px
+                color: map.get(vars.$main, 'main')
+                transition: transform 0.2s ease
+        .orders-summary
+            .summary-stats
+                display: grid
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
+                gap: 12px
+                .stat
+                    display: flex
+                    flex-direction: column
+                    gap: 4px
+                    padding: 12px
+                    background: map.get(vars.$basic, 'white')
+                    border: 1px solid #e5e7eb
+                    border-radius: 8px
+                    transition: all 0.3s ease
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04)
+                    &:hover
+                        border-color: map.get(vars.$main, 'main')
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+                    .stat-label
+                        +mix.typography(11px, 600, #999)
+                        text-transform: uppercase
+                        letter-spacing: 0.2px
+                    .stat-value
+                        +mix.typography(20px, 700, map.get(vars.$main, 'main'))
+                        letter-spacing: -0.3px

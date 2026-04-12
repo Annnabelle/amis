@@ -45,13 +45,17 @@ export const statusColors: Record<string, string> = {
     outsourcered: "yellow",
 
     draft: "default",
-    confirmed: "blue",
-    partially_assigned: "gold",
-    assigned: "green",
+    assigned_to_warehouse: "yellow",
+    loading: "blue",
+    loaded: "green",
+    in_transit: "cyan",
     partially_delivered: "orange",
     delivered: "green",
-    cancelled: "red",
+    returning: "purple",
+    returned: "gray",
     closed: "gray",
+    cancelled: "red",
+    failed: "red",
 };
 
 

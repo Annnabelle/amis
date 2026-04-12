@@ -64,10 +64,6 @@ const SalesOrdersList = () => {
     orderData: null,
   });
 
-  const handleDelete = (record: SalesOrdersTableDataType) => {
-    setModalState({ deleteOrder: true, orderData: record });
-  };
-
   const confirmDelete = async () => {
     if (!modalState.orderData) return;
     try {
@@ -98,7 +94,7 @@ const SalesOrdersList = () => {
         <div className="box-container">
           <div className="box-container-items">
             <ComponentTable<SalesOrdersTableDataType>
-              columns={SalesOrdersTableColumns(t, orgId, handleDelete)}
+              columns={SalesOrdersTableColumns(t, orgId)}
               data={SalesOrdersData}
               loading={isLoading}
               onRowClick={(record) =>
