@@ -7,9 +7,13 @@ import { useTranslation } from 'react-i18next';
 
 const DeliveryTasksDetails = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const taskId = id ?? '1';
   const { t } = useTranslation();
+  const backPath = orgId ? `/organization/${orgId}/delivery-tasks` : '/delivery-tasks';
+  const scanPath = orgId
+    ? `/organization/${orgId}/delivery-tasks/${taskId}/scan`
+    : `/delivery-tasks/${taskId}/scan`;
 
   return (
     <MainLayout>
@@ -29,7 +33,7 @@ const DeliveryTasksDetails = () => {
               <div className="detail-card">
                 <h4>{t('deliveryTasks.sections.session')}</h4>
                 <Empty description={t('deliveryTasks.details.sessionEmpty')} />
-                <CustomButton className="outline" onClick={() => navigate(`/delivery-tasks/${taskId}/scan`)}>
+                <CustomButton className="outline" onClick={() => navigate(scanPath)}>
                   {t('deliveryTasks.actions.openScan')}
                 </CustomButton>
               </div>
@@ -39,7 +43,7 @@ const DeliveryTasksDetails = () => {
               </div>
             </div>
             <div className="btns-group">
-              <CustomButton className="outline" onClick={() => navigate('/delivery-tasks')}>
+              <CustomButton className="outline" onClick={() => navigate(backPath)}>
                 {t('common.backToList')}
               </CustomButton>
             </div>

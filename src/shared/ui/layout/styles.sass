@@ -327,3 +327,169 @@
     flex-shrink: 0
     white-space: nowrap
     opacity: 0.7
+
+@media screen and (max-width: 900px)
+    .layout
+        height: auto
+        min-height: 100dvh
+        &-header
+            &-container
+                padding: 0 12px
+                &-items
+                    column-gap: 12px
+        &-content-wrapper
+            height: auto
+            margin-top: 0
+            overflow: visible
+            .layout-content
+                height: auto
+                padding: 12px
+                gap: 16px
+                &-container
+                    row-gap: 16px
+                    &-mobile
+                        width: 100%
+                .heading,
+                .box
+                    padding: 16px
+
+    .mobile-sider
+        width: 100%
+        display: flex
+        flex-direction: column
+        gap: 14px
+        padding: 18px
+        border-radius: 20px
+        background: map.get(vars.$basic, 'white')
+        box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
+
+    .mobile-sider-header
+        position: relative
+        display: flex
+        align-items: flex-start
+        justify-content: center
+        min-height: 36px
+
+    .mobile-sider-back,
+    .mobile-sider-back-placeholder
+        width: 36px
+        height: 36px
+        flex: 0 0 36px
+        border-radius: 10px
+
+    .mobile-sider-back-placeholder.is-hidden
+        display: none
+
+    .mobile-sider-back
+        position: absolute
+        left: 0
+        top: 0
+        border: 1px solid map.get(vars.$main, 'main-light')
+        background: transparent
+        color: map.get(vars.$main, 'main')
+        cursor: pointer
+
+    .mobile-sider-header-copy
+        display: flex
+        flex-direction: column
+        gap: 4px
+        min-width: 0
+        width: min(100%, 260px)
+        align-items: center
+        text-align: center
+        h2
+            +mix.typography(18px, 700, map.get(vars.$basic, 'black'))
+            line-height: 1.2
+            max-width: 100%
+            word-break: break-word
+        p
+            +mix.typography(13px, 500, map.get(vars.$main, 'grey'))
+            line-height: 1.4
+
+    .mobile-sider-eyebrow
+        +mix.typography(11px, 700, map.get(vars.$main, 'main'))
+        letter-spacing: 0.08em
+        text-transform: uppercase
+
+    .mobile-sider-list
+        display: flex
+        flex-direction: column
+        gap: 10px
+
+    .mobile-sider-item
+        width: 100%
+        display: flex
+        flex-direction: column
+        align-items: flex-start
+        gap: 10px
+        padding: 14px 16px
+        border-radius: 16px
+        border: 1px solid map.get(vars.$main, 'main-light')
+        background: transparent
+        text-align: left
+        cursor: pointer
+        transition: all 0.2s ease
+        &.is-active
+            background: map.get(vars.$main, 'main-light')
+            border-color: map.get(vars.$main, 'main')
+
+    .mobile-sider-item-label
+        +mix.typography(16px, 700, map.get(vars.$basic, 'black'))
+        line-height: 1.3
+
+    .mobile-sider-item-row
+        width: 100%
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 10px
+
+    .mobile-sider-item-meta
+        +mix.typography(12px, 500, map.get(vars.$main, 'grey'))
+
+    .mobile-sider-item
+        .status-badge
+            text-transform: none
+            letter-spacing: normal
+
+    .layout-content-container-mobile
+        .heading
+            position: relative
+
+        .mobile-route-toolbar
+            width: 100%
+            display: flex
+            flex-direction: row
+            align-items: center
+            gap: 8px
+            margin-top: 4px
+            margin-bottom: 0
+
+        .mobile-route-toolbar-back
+            display: flex
+            justify-content: flex-start
+
+            .btn
+                width: 40px
+                min-width: 40px
+                height: 40px
+                padding: 0
+                display: inline-flex
+                align-items: center
+                justify-content: center
+                border-radius: 12px
+
+        .mobile-route-toolbar-actions
+            flex: 1
+            display: grid
+            grid-template-columns: repeat(2, minmax(0, 1fr))
+            gap: 10px
+
+            .btn
+                min-height: 40px
+                width: 100%
+                padding: 9px 12px
+                border-radius: 12px
+                font-size: 13px
+                font-weight: 600
+                line-height: 1.1

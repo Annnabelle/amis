@@ -185,6 +185,20 @@ export const DeliveryRouteStatuses = Object.values(DeliveryRouteStatus);
 export type DeliveryRouteStatus =
   (typeof DeliveryRouteStatus)[keyof typeof DeliveryRouteStatus];
 
+export const DeliveryTaskStatus = {
+  Planned: "planned",
+  Loading: "loading",
+  Loaded: "loaded",
+  Delivering: "delivering",
+  PartiallyDelivered: "partially_delivered",
+  Delivered: "delivered",
+  IssueFailed: "issue_failed",
+  Cancelled: "cancelled",
+} as const;
+
+export type DeliveryTaskStatus =
+  (typeof DeliveryTaskStatus)[keyof typeof DeliveryTaskStatus];
+
 export const ProductSortField = {
   Id: '_id',
   Name: 'name',

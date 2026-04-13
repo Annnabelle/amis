@@ -10,12 +10,14 @@ import { useAppDispatch, useAppSelector } from 'app/store';
 import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
 import { DeliveryRoutesTableColumns } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes';
 import type { DeliveryRoutesTableDataType } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes/types';
+import { useIsMobile } from 'shared/lib';
 
 const DeliveryRoutesList = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const routes = useAppSelector((state) => state.deliveryRoutes.routes);
   const dataTotal = useAppSelector((state) => state.deliveryRoutes.total);
@@ -54,6 +56,8 @@ const DeliveryRoutesList = () => {
 
   return (
     <MainLayout>
+      {!isMobile && (
+      <>
       <Heading title={t('deliveryRoutes.title')} subtitle={t('common.total')} totalAmount={`${dataTotal}`}>
         <div className="btns-group">
           <CustomButton onClick={() => navigate(createPath)}>{t('deliveryRoutes.actions.create')}</CustomButton>
@@ -83,6 +87,8 @@ const DeliveryRoutesList = () => {
           </div>
         </div>
       </div>
+      </>
+      )}
     </MainLayout>
   );
 };

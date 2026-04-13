@@ -28,3 +28,40 @@
                     .btn
                         width: 100%
                         white-space: nowrap
+
+@media screen and (max-width: 900px)
+    .heading
+        &-container
+            &-items
+                flex-direction: column
+                align-items: stretch
+                row-gap: 14px
+                &-item
+                    width: 100%
+                    &-title
+                        .title
+                            font-size: 16px
+                            line-height: 1.25
+                    &-subtitle
+                        .subtitle
+                            font-size: 12px
+                            margin-bottom: 4px
+                    .btns-group
+                        align-items: stretch
+                        flex-direction: column
+                        gap: 12px
+                        &.mobile-route-actions
+                            width: 100%
+                            margin-top: 4px
+                            .btn
+                                min-height: 50px
+                                width: 100%
+                                border-radius: 14px
+                                font-size: 15px
+                                font-weight: 600
+                                padding: 14px 16px
+                                box-shadow: none
+                            .outline
+                                background: rgba(30, 144, 255, 0.04)
+                            &.is-hidden-mobile
+                                display: none

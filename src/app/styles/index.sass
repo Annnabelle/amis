@@ -265,6 +265,280 @@ input:-webkit-autofill:active
   word-break: break-word
   padding: 4px 0
 
+.delivery-task-items-grid
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
+  gap: 16px
+
+.delivery-task-item-card
+  display: flex
+  flex-direction: column
+  gap: 14px
+  padding: 16px
+  border-radius: 16px
+  border: 1px solid rgba(30, 144, 255, 0.12)
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.05) 0%, rgba(255, 255, 255, 1) 100%)
+
+.delivery-task-item-title
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+  h5
+    margin: 0
+    font-size: 16px
+    line-height: 1.3
+    color: #1E1E1E
+
+.delivery-task-item-shortname
+  font-size: 12px
+  font-weight: 600
+  color: #7C8595
+
+.delivery-task-item-stats
+  display: grid
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: 10px
+
+  .detail-stat
+    min-height: unset
+    padding: 12px
+
+    .value
+      font-size: 22px
+
+.route-task-controls
+  display: flex
+  gap: 10px
+  margin-bottom: 16px
+
+.route-task-control-btn
+  display: inline-flex
+  align-items: center
+  gap: 6px
+  padding: 8px 14px
+  border-radius: 999px
+  border: 1px solid rgba(30, 144, 255, 0.14)
+  background: rgba(30, 144, 255, 0.04)
+  color: #2D3A54
+  font-size: 12px
+  font-weight: 600
+  cursor: pointer
+  transition: all 0.2s ease
+
+  &:hover
+    border-color: rgba(30, 144, 255, 0.35)
+    background: rgba(30, 144, 255, 0.08)
+
+.route-task-card
+  border: 1px solid rgba(30, 144, 255, 0.10)
+  border-radius: 18px
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 255, 1) 100%)
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05)
+  transition: box-shadow 0.2s ease, border-color 0.2s ease
+  overflow: hidden
+
+  &:hover
+    border-color: rgba(30, 144, 255, 0.20)
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08)
+
+.route-task-header
+  display: grid
+  grid-template-columns: 28px minmax(0, 1fr) auto
+  gap: 16px
+  align-items: start
+  padding: 18px 20px
+
+.route-task-expand-icon
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  border-radius: 999px
+  background: rgba(30, 144, 255, 0.08)
+  color: #1E90FF
+  font-size: 12px
+  margin-top: 2px
+
+.route-task-main
+  display: flex
+  flex-direction: column
+  gap: 12px
+  min-width: 0
+
+.route-task-topline
+  display: grid
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr)
+  gap: 14px
+  align-items: start
+
+.route-task-number
+  margin: 0
+  font-size: 28px
+  line-height: 1.05
+  font-weight: 700
+  color: #1F2937
+  align-self: start
+
+.route-task-customer-block
+  display: flex
+  flex-direction: column
+  gap: 4px
+  min-width: 0
+  padding-top: 2px
+
+.route-task-customer-name
+  font-size: 16px
+  font-weight: 600
+  color: #2D3A54
+  line-height: 1.3
+  word-break: break-word
+
+.route-task-customer-meta
+  font-size: 13px
+  line-height: 1.35
+  color: #7C8595
+  word-break: break-word
+
+.route-task-metrics
+  display: grid
+  grid-template-columns: repeat(4, minmax(0, 1fr))
+  gap: 12px
+
+.route-task-metric
+  display: flex
+  flex-direction: column
+  gap: 6px
+  min-width: 0
+
+.route-task-metric-label
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: #8A94A6
+
+.route-task-metric-value
+  font-size: 22px
+  line-height: 1.1
+  font-weight: 700
+  color: #24324A
+
+.route-task-card.collapsed
+  .route-task-header
+    align-items: center
+
+  .route-task-main
+    gap: 0
+
+  .route-task-metrics
+    display: none
+
+  .route-task-customer-block
+    justify-content: center
+
+.route-task-side
+  display: flex
+  flex-direction: column
+  align-items: flex-end
+  gap: 10px
+
+.route-task-invoice
+  font-size: 13px
+  font-weight: 600
+  color: #7C8595
+
+.route-task-expanded
+  border-top: 1px solid rgba(30, 144, 255, 0.10)
+  padding: 0 20px 18px
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.route-task-expanded-meta
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: 12px
+  padding-top: 16px
+
+.route-task-expanded-item
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.route-task-expanded-label
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: #8A94A6
+
+.route-task-expanded-value
+  font-size: 14px
+  line-height: 1.45
+  color: #2D3A54
+  word-break: break-word
+
+.route-task-items-list
+  display: flex
+  flex-direction: column
+  border-radius: 14px
+  background: rgba(248, 250, 255, 0.9)
+
+.route-task-items-head,
+.route-task-item-row
+  display: grid
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(90px, 1fr))
+  gap: 12px
+  align-items: start
+  padding: 12px 16px
+
+.route-task-items-head
+  border-bottom: 1px solid rgba(30, 144, 255, 0.10)
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: #8A94A6
+
+.route-task-item-row
+  font-size: 14px
+  color: #2D3A54
+  border-bottom: 1px solid rgba(30, 144, 255, 0.06)
+
+  &:last-child
+    border-bottom: none
+
+.route-task-item-product
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.route-task-item-cell
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.route-task-item-cell-label
+  display: none
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: #8A94A6
+
+.route-task-item-name
+  font-weight: 600
+  color: #24324A
+
+.route-task-item-subname
+  font-size: 12px
+  color: #7C8595
+
+.route-task-item-row-empty
+  color: #9AA3B2
+
 @media (min-width: 1100px)
   .detail-card-wide
     grid-column: span 2
@@ -319,15 +593,185 @@ input:-webkit-autofill:active
   .detail-text-block
     color: #E0E0E0
 
+  .delivery-task-item-card
+    background: linear-gradient(180deg, rgba(30, 144, 255, 0.10) 0%, rgba(26, 26, 30, 1) 100%)
+    border-color: rgba(100, 181, 246, 0.18)
+
+  .delivery-task-item-title h5
+    color: #F5F7FB
+
+  .route-task-control-btn
+    background: rgba(100, 181, 246, 0.08)
+    border-color: rgba(100, 181, 246, 0.18)
+    color: #D9E7FF
+
+  .route-task-card
+    background: linear-gradient(180deg, rgba(28, 32, 40, 1) 0%, rgba(24, 28, 36, 1) 100%)
+    border-color: rgba(100, 181, 246, 0.12)
+
+  .route-task-number,
+  .route-task-item-name,
+  .route-task-metric-value,
+  .route-task-expanded-value
+    color: #F5F7FB
+
+  .route-task-customer-name
+    color: #E6EEF9
+
+  .route-task-customer-meta,
+  .route-task-invoice,
+  .route-task-item-subname,
+  .route-task-expanded-label,
+  .route-task-metric-label,
+  .route-task-items-head
+    color: #9EA7B8
+
+  .route-task-expand-icon
+    background: rgba(100, 181, 246, 0.12)
+    color: #8CC3FF
+
+  .route-task-expanded
+    border-top-color: rgba(100, 181, 246, 0.10)
+
+  .route-task-items-list
+    background: rgba(255, 255, 255, 0.02)
+
+  .route-task-items-head,
+  .route-task-item-row
+    border-bottom-color: rgba(100, 181, 246, 0.08)
+
+  .route-task-item-row
+    color: #D9E7FF
+
+  .route-task-item-cell-label
+    color: #9EA7B8
+
 @media (max-width: 900px)
   .detail-grid-secondary
     grid-template-columns: 1fr
 
   .route-overview-card
-    padding: 18px
+    gap: 14px
+    padding: 20px
+    border-radius: 22px
+    background: linear-gradient(180deg, rgba(30, 144, 255, 0.08) 0%, rgba(255, 255, 255, 0.98) 100%)
+    box-shadow: 0 12px 30px rgba(30, 144, 255, 0.10)
+
+  .route-overview-head
+    gap: 12px
 
   .route-overview-title h2
+    font-size: 18px
+    line-height: 1.15
+
+  .route-overview-title
+    gap: 4px
+
+    .label
+      font-size: 12px
+      letter-spacing: 0.03em
+      text-transform: none
+      color: #7C8595
+
+  .route-overview-inline
+    display: flex
+    align-items: center
+    gap: 6px
+    flex-wrap: wrap
+
+    h2
+      margin: 0
+
+    .inline-label,
+    .detail-separator
+      font-size: 16px !important
+      color: #7C8595 !important
+
+  .route-overview-inline-row
+    width: 100%
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 12px
+    flex-wrap: nowrap
+
+  .route-overview-status
+    .status-badge
+      min-height: 34px
+      padding: 8px 12px
+      border-radius: 12px
+      font-size: 13px
+      letter-spacing: 0
+      text-transform: none
+
+  .route-overview-inline-row
+    .status-badge
+      flex-shrink: 0
+      min-height: 34px
+      padding: 8px 12px
+      border-radius: 12px
+      font-size: 13px
+      letter-spacing: 0
+      text-transform: none
+
+  .route-overview-meta
+    grid-template-columns: 1fr
+
+  .delivery-task-item-stats
+    grid-template-columns: 1fr
+
+  .route-task-controls
+    flex-direction: column
+
+  .route-task-header
+    grid-template-columns: 28px 1fr
+
+  .route-task-side
+    grid-column: 2
+    align-items: flex-start
+
+  .route-task-topline
+    grid-template-columns: 1fr
+    gap: 8px
+
+  .route-task-number
     font-size: 24px
+
+  .route-task-metrics
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+
+  .route-task-expanded-meta
+    grid-template-columns: 1fr
+
+  .route-task-items-head
+    display: none
+
+  .route-task-item-row
+    grid-template-columns: 1fr
+    gap: 8px
+    padding: 14px 16px
+
+  .route-task-item-cell-label
+    display: block
+
+  .route-meta-chip
+    gap: 4px
+    padding: 0
+    border-radius: 0
+    background: transparent
+    border: none
+    box-shadow: none
+
+    .label
+      font-size: 16px
+      letter-spacing: 0.03em
+      text-transform: none
+      color: #7C8595
+
+    .value
+      font-size: 18px
+      font-weight: 700
+      line-height: 1.35
 
 .detail-card button
   width: 100%
@@ -367,6 +811,10 @@ input:-webkit-autofill:active
     background: #FFF3CD
     color: #856404
 
+  &.planned
+    background: #FFF6DA
+    color: #9A6700
+
   &.loading
     background: #FFE5E5
     color: #C22E2E
@@ -374,6 +822,10 @@ input:-webkit-autofill:active
   &.loaded
     background: #E4EBFF
     color: #1E3A8A
+
+  &.delivering
+    background: #E6F4FF
+    color: #0958D9
 
   &.in_transit
     background: #F0E5FF
@@ -407,6 +859,10 @@ input:-webkit-autofill:active
     background: #FFE5E5
     color: #C22E2E
 
+  &.issue_failed
+    background: #FFE5E5
+    color: #C22E2E
+
 :root[data-theme='dark']
   .status-badge
     &.draft
@@ -417,6 +873,10 @@ input:-webkit-autofill:active
       background: #664400
       color: #FFD700
 
+    &.planned
+      background: #5C4700
+      color: #FFD666
+
     &.loading
       background: #663333
       color: #FF6B6B
@@ -424,6 +884,10 @@ input:-webkit-autofill:active
     &.loaded
       background: #1E3A5F
       color: #64B5F6
+
+    &.delivering
+      background: #0C3B66
+      color: #69B1FF
 
     &.in_transit
       background: #4A2E7A
@@ -454,6 +918,10 @@ input:-webkit-autofill:active
       color: #EF5350
 
     &.failed
+      background: #663333
+      color: #FF6B6B
+
+    &.issue_failed
       background: #663333
       color: #FF6B6B
 

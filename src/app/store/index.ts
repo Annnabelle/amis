@@ -12,6 +12,7 @@ import {xTraceSlice} from "entities/xTrace/model";
 import {exportSlice} from "entities/export/model";
 import { salesOrdersSlice } from "entities/salesOrders/model";
 import { deliveryRoutesSlice } from "entities/deliveryRoutes/model";
+import { deliveryTasksSlice } from "entities/deliveryTasks/model";
 import {loaderSlice} from "./loader";
 
 export const store = configureStore({
@@ -28,6 +29,7 @@ export const store = configureStore({
         export: exportSlice.reducer,
         salesOrders: salesOrdersSlice.reducer,
         deliveryRoutes: deliveryRoutesSlice.reducer,
+        deliveryTasks: deliveryTasksSlice.reducer,
         loader: loaderSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
