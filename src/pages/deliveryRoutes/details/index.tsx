@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -8,29 +8,74 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
+import { getDeliveryTasks } from 'entities/deliveryTasks/model';
+import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
+import { useIsMobile } from 'shared/lib';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const isLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
+  const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
+  const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
 
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
   const canOpenReturn = route?.status === 'in_transit' || route?.status === 'loaded';
+  const loadingButtonLabel = isMobile
+    ? 'Начать погрузку'
+    : t('deliveryRoutes.actions.openLoading');
+  const returnButtonLabel = isMobile
+    ? 'Начать возврат'
+    : t('deliveryRoutes.actions.openReturn');
 
   useEffect(() => {
     if (id) {
       dispatch(getDeliveryRouteById(id));
+      dispatch(getDeliveryTasks({ routeId: id }));
     }
   }, [dispatch, id]);
+
+  const toggleTaskExpanded = (index: number) => {
+    setExpandedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  const expandAllTasks = () => {
+    setExpandedTasks(new Set(tasks.map((_, index) => index)));
+  };
+
+  const collapseAllTasks = () => {
+    setExpandedTasks(new Set());
+  };
 
   if (isLoading) {
     return (
       <MainLayout>
-        <Heading title={t('deliveryRoutes.detailsTitle')} subtitle={t('common.details')} />
+        {isMobile && (
+          <div className="mobile-route-toolbar">
+            <div className="mobile-route-toolbar-back">
+              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+                <LeftOutlined />
+              </CustomButton>
+            </div>
+          </div>
+        )}
+        {!isMobile && (
+          <Heading title={t('deliveryRoutes.detailsTitle')} subtitle={t('common.details')} />
+        )}
         <div className="box">
           <div className="box-container">
             <div className="box-container-items">
@@ -45,7 +90,18 @@ const DeliveryRoutesDetails = () => {
   if (!route) {
     return (
       <MainLayout>
-        <Heading title={t('deliveryRoutes.detailsTitle')} subtitle={t('common.details')} />
+        {isMobile && (
+          <div className="mobile-route-toolbar">
+            <div className="mobile-route-toolbar-back">
+              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+                <LeftOutlined />
+              </CustomButton>
+            </div>
+          </div>
+        )}
+        {!isMobile && (
+          <Heading title={t('deliveryRoutes.detailsTitle')} subtitle={t('common.details')} />
+        )}
         <div className="box">
           <div className="box-container">
             <div className="box-container-items">
@@ -103,44 +159,88 @@ const DeliveryRoutesDetails = () => {
       : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
 
+  const headingTitle = `${t('deliveryRoutes.detailsTitle')} - ${route.routeNumber}`;
+  const headingSubtitle = t('common.details');
+
   return (
     <MainLayout>
-      <Heading 
-        title={`${t('deliveryRoutes.detailsTitle')} - ${route.routeNumber}`} 
-        subtitle={t('common.details')} 
-      >
-        <div className="btns-group">
-          <CustomButton
-            className="primary"
-            onClick={() => navigate(`${backPath}/${route.id}/loading`)}
-          >
-            {t('deliveryRoutes.actions.openLoading')}
-          </CustomButton>
-          <CustomButton
-            className="outline"
-            onClick={() => navigate(`${backPath}/${route.id}/return`)}
-            disabled={!canOpenReturn}
-          >
-            {t('deliveryRoutes.actions.openReturn')}
-          </CustomButton>
+      {isMobile && (
+        <div className="mobile-route-toolbar">
+          <div className="mobile-route-toolbar-back">
+            <CustomButton className="outline" onClick={() => navigate(backPath)}>
+              <LeftOutlined />
+            </CustomButton>
+          </div>
+          <div className="mobile-route-toolbar-actions">
+            <CustomButton
+              className="outline"
+              onClick={() => navigate(`${backPath}/${route.id}/return`)}
+              disabled={!canOpenReturn}
+            >
+              {returnButtonLabel}
+            </CustomButton>
+            <CustomButton
+              className="primary"
+              onClick={() => navigate(`${backPath}/${route.id}/loading`)}
+            >
+              {loadingButtonLabel}
+            </CustomButton>
+          </div>
         </div>
-      </Heading>
+      )}
+      {!isMobile && (
+        <Heading 
+          title={headingTitle}
+          subtitle={headingSubtitle}
+        >
+          <div className={`btns-group ${isMobile ? 'mobile-route-actions is-hidden-mobile' : ''}`}>
+            <CustomButton
+              className="primary"
+              onClick={() => navigate(`${backPath}/${route.id}/loading`)}
+            >
+              {loadingButtonLabel}
+            </CustomButton>
+            <CustomButton
+              className="outline"
+              onClick={() => navigate(`${backPath}/${route.id}/return`)}
+              disabled={!canOpenReturn}
+            >
+              {returnButtonLabel}
+            </CustomButton>
+          </div>
+        </Heading>
+      )}
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
             <div className="route-overview-card">
               <div className="route-overview-head">
-                <div className="route-overview-title">
-                  <span className="label">{t('deliveryRoutes.fields.routeNumber')}</span>
-                  <h2>{route.routeNumber}</h2>
-                </div>
-                <div className="route-overview-status">
-                  <span className="label inline-label">{t('deliveryRoutes.fields.status')}</span>
-                  <span className="detail-separator">:</span>
-                  <span className={`status-badge ${route.status}`}>
-                    {t(`deliveryRoutes.status.${route.status}`)}
-                  </span>
-                </div>
+                {isMobile ? (
+                  <div className="route-overview-inline-row">
+                    <div className="route-overview-inline">
+                      <span className="label inline-label">{t('deliveryRoutes.fields.routeNumber')}</span>
+                      <span className="detail-separator">:</span>
+                      <h2>{route.routeNumber}</h2>
+                    </div>
+                    <span className={`status-badge ${route.status}`}>
+                      {t(`deliveryRoutes.status.${route.status}`)}
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="route-overview-title">
+                      <span className="label">{t('deliveryRoutes.fields.routeNumber')}</span>
+                      <h2>{route.routeNumber}</h2>
+                    </div>
+                    <div className="route-overview-status">
+                      <span className="label inline-label">{t('deliveryRoutes.fields.status')}</span>
+                      <span className="detail-separator">:</span>
+                      <span className={`status-badge ${route.status}`}>
+                        {t(`deliveryRoutes.status.${route.status}`)}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
               <div className="route-overview-meta">
                 {summaryItems.map((item) => (
@@ -217,6 +317,154 @@ const DeliveryRoutesDetails = () => {
                 <div className="detail-text-block">
                   {route.comment || '-'}
                 </div>
+              </div>
+            </div>
+
+            <div className="detail-grid detail-grid-single">
+              <div className="detail-card detail-card-full">
+                <h4>{t('deliveryRoutes.sections.tasks')}</h4>
+                {tasks.length === 0 && !tasksLoading ? (
+                  <Empty description={t('deliveryRoutes.details.tasksEmpty')} />
+                ) : (
+                  <div className="route-preview-section">
+                    <div className="route-preview-orders-details">
+                      {tasks.length > 0 && (
+                        <div className="route-task-controls">
+                          <button className="route-task-control-btn" onClick={expandAllTasks}>
+                            <DownOutlined /> {t('common.expandAll')}
+                          </button>
+                          <button className="route-task-control-btn" onClick={collapseAllTasks}>
+                            <UpOutlined /> {t('common.collapseAll')}
+                          </button>
+                        </div>
+                      )}
+
+                      {tasks.map((task, index) => (
+                        <div
+                          key={task.id}
+                          className={`route-task-card ${expandedTasks.has(index) ? 'expanded' : 'collapsed'}`}
+                        >
+                          <div
+                            className="route-task-header"
+                            onClick={() => toggleTaskExpanded(index)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <div className="route-task-expand-icon">
+                              {expandedTasks.has(index) ? <UpOutlined /> : <DownOutlined />}
+                            </div>
+                            <div className="route-task-main">
+                              <div className="route-task-topline">
+                                <span className="route-task-number">{task.taskNumber}</span>
+                                <div className="route-task-customer-block">
+                                  <span className="route-task-customer-name">{task.customer.name}</span>
+                                  <span className="route-task-customer-meta">
+                                    {t('deliveryRoutes.taskTable.customerTin')}: {task.customer.tin}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="route-task-metrics">
+                                <div className="route-task-metric">
+                                  <span className="route-task-metric-label">{t('deliveryRoutes.taskTable.plannedQuantity')}</span>
+                                  <span className="route-task-metric-value">{task.totals.plannedQuantity}</span>
+                                </div>
+                                <div className="route-task-metric">
+                                  <span className="route-task-metric-label">{t('deliveryRoutes.taskTable.loadedQuantity')}</span>
+                                  <span className="route-task-metric-value">{task.totals.loadedQuantity}</span>
+                                </div>
+                                <div className="route-task-metric">
+                                  <span className="route-task-metric-label">{t('deliveryRoutes.taskTable.deliveredQuantity')}</span>
+                                  <span className="route-task-metric-value">{task.totals.deliveredQuantity}</span>
+                                </div>
+                                <div className="route-task-metric">
+                                  <span className="route-task-metric-label">{t('deliveryRoutes.taskTable.amount')}</span>
+                                  <span className="route-task-metric-value">
+                                    {task.totals.amount != null ? task.totals.amount.toLocaleString() : '-'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="route-task-side">
+                              <span className={`status-badge ${task.status}`}>
+                                {t(`statuses.${task.status}`, { defaultValue: task.status })}
+                              </span>
+                              <span className="route-task-invoice">
+                                {task.invoice?.externalId || task.invoice?.status || task.invoice?.invoiceId || '-'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {expandedTasks.has(index) && (
+                            <div className="route-task-expanded">
+                              <div className="route-task-expanded-meta">
+                                <div className="route-task-expanded-item">
+                                  <span className="route-task-expanded-label">{t('deliveryRoutes.taskTable.invoice')}</span>
+                                  <span className="route-task-expanded-value">
+                                    {task.invoice?.externalId || task.invoice?.status || task.invoice?.invoiceId || '-'}
+                                  </span>
+                                </div>
+                                <div className="route-task-expanded-item">
+                                  <span className="route-task-expanded-label">{t('deliveryRoutes.taskTable.comment')}</span>
+                                  <span className="route-task-expanded-value">{task.comment || '-'}</span>
+                                </div>
+                              </div>
+
+                              <div className="route-task-items-list">
+                                <div className="route-task-items-head">
+                                  <span>{t('salesOrders.fields.product')}</span>
+                                  <span>{t('deliveryRoutes.taskTable.plannedQuantity')}</span>
+                                  <span>{t('deliveryRoutes.taskTable.loadedQuantity')}</span>
+                                  <span>{t('deliveryRoutes.taskTable.deliveredQuantity')}</span>
+                                  <span>{t('deliveryRoutes.taskTable.amount')}</span>
+                                </div>
+                                {task.items.map((item) => (
+                                  <div key={item.salesOrderItemId} className="route-task-item-row">
+                                    <div className="route-task-item-product">
+                                      <span className="route-task-item-name">{item.product.name}</span>
+                                      {item.product.shortName && (
+                                        <span className="route-task-item-subname">{item.product.shortName}</span>
+                                      )}
+                                    </div>
+                                    <div className="route-task-item-cell">
+                                      <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.plannedQuantity')}</span>
+                                      <span>{item.quantities.planned}</span>
+                                    </div>
+                                    <div className="route-task-item-cell">
+                                      <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.loadedQuantity')}</span>
+                                      <span>{item.quantities.loaded}</span>
+                                    </div>
+                                    <div className="route-task-item-cell">
+                                      <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.deliveredQuantity')}</span>
+                                      <span>{item.quantities.delivered}</span>
+                                    </div>
+                                    <div className="route-task-item-cell">
+                                      <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.amount')}</span>
+                                      <span>
+                                        {item.commercial?.amount != null
+                                          ? item.commercial.amount.toLocaleString()
+                                          : '-'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                                {!task.items.length && (
+                                  <div className="route-task-item-row route-task-item-row-empty">
+                                    <span>-</span>
+                                    <span>-</span>
+                                    <span>-</span>
+                                    <span>-</span>
+                                    <span>-</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

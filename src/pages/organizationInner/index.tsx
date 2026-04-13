@@ -8,7 +8,7 @@ import { getAllOrganizations, getOrganizationById } from 'entities/organization/
 import CustomButton from 'shared/ui/button'
 import FormComponent from 'shared/ui/formComponent'
 import { useNavigate, useParams } from 'react-router-dom'
-import {type LanguageKey, useNavigationBack} from 'shared/lib'
+import {type LanguageKey, useIsMobile, useNavigationBack} from 'shared/lib'
 import dayjs from "dayjs";
 import {fetchReferencesByType} from "entities/references/model";
 
@@ -18,6 +18,7 @@ const OrganizationsInner = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const navigateBack = useNavigationBack();
+    const isMobile = useIsMobile();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
 
     const [form] = Form.useForm()
@@ -105,6 +106,8 @@ const OrganizationsInner = () => {
 
   return (
     <MainLayout>
+        {!isMobile && (
+        <>
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')} totalAmount='100'>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
@@ -559,6 +562,8 @@ const OrganizationsInner = () => {
             </div>
         </div>
 
+        </>
+        )}
     </MainLayout>
   )
 }

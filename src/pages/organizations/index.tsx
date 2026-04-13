@@ -24,6 +24,7 @@ import {clearXTrace} from "entities/xTrace/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import { useIsMobile } from 'shared/lib';
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -37,6 +38,7 @@ const Organizations = () => {
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const [form] = Form.useForm();
     const [isXTraceValidated, setIsXTraceValidated] = useState(false);
+    const isMobile = useIsMobile();
     const lang = i18n.language as LanguageKey;
     const [searchQuery, setSearchQuery] = useState('');
     const productGroupReferences = useAppSelector(
@@ -310,6 +312,8 @@ const Organizations = () => {
 
     return (
         <MainLayout>
+            {!isMobile && (
+            <>
             <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
                     <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
@@ -865,6 +869,8 @@ const Organizations = () => {
                 </div>
             </ModalWindow>
 
+            </>
+            )}
         </MainLayout>
   )
 }
