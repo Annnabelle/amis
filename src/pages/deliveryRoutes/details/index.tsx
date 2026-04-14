@@ -7,10 +7,16 @@ import { Empty, Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
+import {
+  getDeliveryRouteById,
+  startDeliveryRouteLoading,
+  startDeliveryRouteTransit,
+} from 'entities/deliveryRoutes/model';
 import { getDeliveryTasks } from 'entities/deliveryTasks/model';
 import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
+import { toast } from 'react-toastify';
+import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
@@ -26,6 +32,14 @@ const DeliveryRoutesDetails = () => {
   const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
 
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const canOpenLoading = Boolean(
+    route?.status &&
+      ['assigned_to_warehouse', 'ready_for_loading', 'loading', 'loaded'].includes(route.status)
+  );
+  const canStartTransit = route?.status === 'loaded';
+  const transitButtonLabel = t('deliveryRoutes.actions.startTransit', {
+    defaultValue: 'Отправить машину',
+  });
   const canOpenReturn = route?.status === 'in_transit' || route?.status === 'loaded';
   const loadingButtonLabel = isMobile
     ? 'Начать погрузку'
@@ -33,6 +47,8 @@ const DeliveryRoutesDetails = () => {
   const returnButtonLabel = isMobile
     ? 'Начать возврат'
     : t('deliveryRoutes.actions.openReturn');
+  void canOpenReturn;
+  void returnButtonLabel;
 
   useEffect(() => {
     if (id) {
@@ -59,6 +75,47 @@ const DeliveryRoutesDetails = () => {
 
   const collapseAllTasks = () => {
     setExpandedTasks(new Set());
+  };
+
+  const handleOpenLoading = async () => {
+    if (!route?.id) return;
+
+    try {
+      await dispatch(startDeliveryRouteLoading(route.id)).unwrap();
+      navigate(`${backPath}/${route.id}/loading`);
+    } catch (error) {
+      toast.error(
+        getBackendErrorMessage(
+          error,
+          t('deliveryRoutes.messages.error.startLoading', {
+            defaultValue: 'Не удалось начать погрузку',
+          })
+        )
+      );
+    }
+  };
+
+  const handleStartTransit = async () => {
+    if (!route?.id) return;
+
+    try {
+      await dispatch(startDeliveryRouteTransit(route.id)).unwrap();
+      await dispatch(getDeliveryRouteById(route.id));
+      toast.success(
+        t('deliveryRoutes.messages.success.startTransit', {
+          defaultValue: 'Машина отправлена',
+        })
+      );
+    } catch (error) {
+      toast.error(
+        getBackendErrorMessage(
+          error,
+          t('deliveryRoutes.messages.error.startTransit', {
+            defaultValue: 'Не удалось отправить машину',
+          })
+        )
+      );
+    }
   };
 
   if (isLoading) {
@@ -173,18 +230,20 @@ const DeliveryRoutesDetails = () => {
           </div>
           <div className="mobile-route-toolbar-actions">
             <CustomButton
-              className="outline"
-              onClick={() => navigate(`${backPath}/${route.id}/return`)}
-              disabled={!canOpenReturn}
-            >
-              {returnButtonLabel}
-            </CustomButton>
-            <CustomButton
               className="primary"
-              onClick={() => navigate(`${backPath}/${route.id}/loading`)}
+              onClick={() => void handleOpenLoading()}
+              disabled={!canOpenLoading}
             >
               {loadingButtonLabel}
             </CustomButton>
+            {canStartTransit && (
+              <CustomButton
+                className="outline"
+                onClick={() => void handleStartTransit()}
+              >
+                {transitButtonLabel}
+              </CustomButton>
+            )}
           </div>
         </div>
       )}
@@ -196,17 +255,19 @@ const DeliveryRoutesDetails = () => {
           <div className={`btns-group ${isMobile ? 'mobile-route-actions is-hidden-mobile' : ''}`}>
             <CustomButton
               className="primary"
-              onClick={() => navigate(`${backPath}/${route.id}/loading`)}
+              onClick={() => void handleOpenLoading()}
+              disabled={!canOpenLoading}
             >
               {loadingButtonLabel}
             </CustomButton>
-            <CustomButton
-              className="outline"
-              onClick={() => navigate(`${backPath}/${route.id}/return`)}
-              disabled={!canOpenReturn}
-            >
-              {returnButtonLabel}
-            </CustomButton>
+            {canStartTransit && (
+              <CustomButton
+                className="outline"
+                onClick={() => void handleStartTransit()}
+              >
+                {transitButtonLabel}
+              </CustomButton>
+            )}
           </div>
         </Heading>
       )}

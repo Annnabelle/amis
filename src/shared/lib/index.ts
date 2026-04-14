@@ -5,3 +5,4 @@ export { getFileNameFromDisposition, useNavigationBack, FormatUzbekPhoneNumber }
 export { useIsMobile } from "./useIsMobile";
 export type { LanguageKey } from "./utils";
 export * from "./validateCompanyXTraceFunction";
+export * from "./scanner/zxingVideoScanner";

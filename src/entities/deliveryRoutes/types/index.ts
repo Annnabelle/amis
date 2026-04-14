@@ -21,6 +21,18 @@ export interface DeliveryRouteCrew {
   agentName?: string;
 }
 
+export interface DeliveryRouteProduct {
+  id: string;
+  name: string;
+  shortName?: string;
+  quantities: {
+    plannedQuantity: number;
+    loadedQuantity: number;
+    deliveredQuantity: number;
+    returnedQuantity: number;
+  };
+}
+
 export interface DeliveryRouteTotals {
   taskCount: number;
   plannedQuantity: number;
@@ -46,6 +58,7 @@ export interface DeliveryRouteModel extends BaseModel {
   schedule: DeliveryRouteSchedule;
   vehicle: DeliveryRouteVehicle;
   crew?: DeliveryRouteCrew;
+  products: DeliveryRouteProduct[];
   totals: DeliveryRouteTotals;
   timestamps: DeliveryRouteTimestamps;
   comment?: string;
@@ -74,6 +87,17 @@ export type DeliveryRouteResponse = {
     agentId?: string;
     agentName?: string;
   };
+  products: {
+    id: string;
+    name: string;
+    shortName?: string;
+    quantities: {
+      plannedQuantity: number;
+      loadedQuantity: number;
+      deliveredQuantity: number;
+      returnedQuantity: number;
+    };
+  }[];
   totals: {
     taskCount: number;
     plannedQuantity: number;
