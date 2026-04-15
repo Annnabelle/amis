@@ -36,6 +36,7 @@ interface DataMatrixScannerProps {
   scanInProgress?: boolean;
   cameraAutoStart?: boolean;
   lastScansContent?: ReactNode;
+  onCameraClose?: () => void | Promise<void>;
 }
 
 const CAMERA_DUPLICATE_COOLDOWN = 1600;
@@ -56,6 +57,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   scanInProgress = false,
   cameraAutoStart = false,
   lastScansContent,
+  onCameraClose,
 }) => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
@@ -172,7 +174,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
     [cameraActive, onScan, pushScan, scanDisabled, scanInProgress, t]
   );
 
-  const stopCamera = useCallback(async () => {
+  const stopCamera = useCallback(async (notifyParent = true) => {
     const scanner = scannerRef.current;
     scannerRef.current = null;
 
@@ -183,7 +185,11 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
     setCameraActive(false);
     setMobileCameraVisible(false);
     setScannerStage('idle');
-  }, []);
+
+    if (notifyParent) {
+      await onCameraClose?.();
+    }
+  }, [onCameraClose]);
 
   const startCamera = useCallback(async () => {
     if (!enableCamera || cameraActive || cameraStarting) return;
@@ -271,7 +277,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
 
   useEffect(() => {
     if (!enableCamera) {
-      void stopCamera();
+      void stopCamera(false);
       setCameraError(null);
       setDetectedCode(null);
     }
@@ -304,7 +310,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           size="large"
           icon={<StopOutlined />}
           onClick={() => void stopCamera()}
-          disabled={!cameraActive}
+          disabled={!cameraActive && !cameraError}
         >
           {t('scanner.stopCamera')}
         </Button>

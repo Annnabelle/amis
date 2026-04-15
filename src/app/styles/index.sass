@@ -1097,14 +1097,22 @@ input:-webkit-autofill:active
   word-break: break-all
 
 .loading-scan-item-delete
-  align-self: flex-start
-  border: none
-  background: transparent
-  color: #2563eb
-  font-size: 13px
-  font-weight: 600
-  padding: 0
-  cursor: pointer
+    align-self: flex-start
+    border: none
+    background: transparent
+    color: #dc2626
+    font-size: 13px
+    font-weight: 600
+    padding: 0
+    cursor: pointer
+    transition: color .2s ease
+
+    &:hover
+        color: #b91c1c
+
+    &:disabled
+        color: #fca5a5
+        cursor: not-allowed
 
 .loading-scan-item-reason
   font-size: 13px

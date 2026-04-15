@@ -23,6 +23,7 @@ import { completeDeliveryRouteLoading } from 'entities/deliveryRoutes/model';
 
 const SCAN_CACHE_PREFIX = 'loading-scans';
 const SCAN_RESULT_TOAST_ID = 'loading-scan-result';
+type ScannerMode = 'loading' | 'delete' | null;
 
 const getScanCacheKey = (routeId: string) => `${SCAN_CACHE_PREFIX}:${routeId}`;
 
@@ -45,6 +46,8 @@ const DeliveryRoutesLoading = () => {
   const scanError = useAppSelector((state) => state.scanSessions.error);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
+  const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
+  const [isClosingSession, setIsClosingSession] = useState(false);
 
   useEffect(() => {
     if (!routeId) return;
@@ -77,11 +80,11 @@ const DeliveryRoutesLoading = () => {
 
   useEffect(() => {
     return () => {
-      if (scanSession?.id) {
+      if (scanSession?.id && scanSession.status === 'active') {
         void dispatch(completeScanSession(scanSession.id));
       }
     };
-  }, [dispatch, scanSession?.id]);
+  }, [dispatch, scanSession?.id, scanSession?.status]);
 
   const headingTitle = route?.routeNumber
     ? `${t('deliveryRoutes.loadingPageTitle')} (${route.routeNumber})`
@@ -186,7 +189,12 @@ const DeliveryRoutesLoading = () => {
   );
 
   const handleStartScanning = async () => {
-    if (!routeId || scanSession) return;
+    if (!routeId) return;
+
+    if (scanSession?.id && scanSession.status === 'active') {
+      setScannerMode('loading');
+      return;
+    }
 
     try {
       await dispatch(
@@ -195,6 +203,7 @@ const DeliveryRoutesLoading = () => {
           routeId,
         })
       ).unwrap();
+      setScannerMode('loading');
     } catch (error) {
       toast.error(
         getBackendErrorMessage(error, t('deliveryRoutes.messages.error.createScanSession'))
@@ -202,7 +211,77 @@ const DeliveryRoutesLoading = () => {
     }
   };
 
+  const handleStartDeleteScanning = () => {
+    setScannerMode('delete');
+  };
+
+  const handleScannerClose = async () => {
+    if (scannerMode !== 'loading' || !scanSession?.id) {
+      setScannerMode(null);
+      return;
+    }
+
+    if (scanSession.status !== 'active') {
+      setScannerMode(null);
+      return;
+    }
+
+    try {
+      setIsClosingSession(true);
+      await dispatch(completeScanSession(scanSession.id)).unwrap();
+    } catch (error) {
+      toast.error(
+        getBackendErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
+      );
+    } finally {
+      setIsClosingSession(false);
+      setScannerMode(null);
+    }
+  };
+
   const handleScan = async (code: string) => {
+    if (scannerMode === 'delete') {
+      try {
+        await dispatch(
+          cancelScan({
+            code,
+            routeId,
+          })
+        ).unwrap();
+
+        await dispatch(getDeliveryRouteById(routeId));
+        pushSingleScanToast(
+          'success',
+          t('deliveryRoutes.messages.success.cancelScan', {
+            defaultValue: 'Ð¡ÐºÐ°Ð½ {{code}} ÑƒÐ´Ð°Ð»Ñ‘Ð½',
+            code: formatCodeForToast(code),
+          })
+        );
+
+        return { status: 'accepted' as const };
+      } catch (error: any) {
+        const reason = getBackendErrorMessage(
+          error?.error ?? error,
+          t('deliveryRoutes.messages.error.cancelScan', {
+            defaultValue: 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ ÑÐºÐ°Ð½',
+          })
+        );
+
+        pushSingleScanToast(
+          'error',
+          t('deliveryRoutes.messages.error.scanCodeDetailed', {
+            code: formatCodeForToast(code),
+            reason,
+          })
+        );
+
+        return {
+          status: 'rejected' as const,
+          reason,
+        };
+      }
+    }
+
     if (!scanSession?.id) {
       return {
         status: 'rejected' as const,
@@ -247,7 +326,7 @@ const DeliveryRoutesLoading = () => {
 
   const executeCompleteLoading = async (comment?: string) => {
     try {
-      if (scanSession?.id) {
+      if (scanSession?.id && scanSession.status === 'active') {
         await dispatch(completeScanSession(scanSession.id)).unwrap();
       }
 
@@ -399,11 +478,20 @@ const DeliveryRoutesLoading = () => {
     <MainLayout>
       <Heading title={headingTitle} subtitle={t('deliveryRoutes.loadingSubtitle')}>
         <div className="btns-group">
-          {!scanSession && (
-            <CustomButton className="primary" onClick={handleStartScanning} disabled={isCreating}>
-              {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
-            </CustomButton>
-          )}
+          <CustomButton
+            className="primary"
+            onClick={handleStartScanning}
+            disabled={isCreating || isClosingSession || scannerMode === 'delete'}
+          >
+            {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
+          </CustomButton>
+          <CustomButton
+            className="danger"
+            onClick={handleStartDeleteScanning}
+            disabled={isCreating || isCompleting || isClosingSession || scannerMode === 'loading'}
+          >
+            {t('deliveryRoutes.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
+          </CustomButton>
           <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -461,25 +549,51 @@ const DeliveryRoutesLoading = () => {
               {scanError && !recentScans.length && <Alert type="error" showIcon message={scanError} />}
 
               <DataMatrixScanner
-                title={t('deliveryRoutes.loadingScannerTitle')}
-                subtitle={t('deliveryRoutes.loadingScannerSubtitle', {
-                  id: route.routeNumber,
-                  vehicle: route.vehicle.name || '-',
-                })}
-                helperText={t('deliveryRoutes.loadingHelper')}
+                title={
+                  scannerMode === 'delete'
+                    ? t('deliveryRoutes.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })
+                    : t('deliveryRoutes.loadingScannerTitle')
+                }
+                subtitle={
+                  scannerMode === 'delete'
+                    ? t('deliveryRoutes.loadingWarnings.deleteScanSubtitle', {
+                        defaultValue: 'Рейс {{id}} / отсканируйте код для удаления из погрузки',
+                        id: route.routeNumber,
+                      })
+                    : t('deliveryRoutes.loadingScannerSubtitle', {
+                        id: route.routeNumber,
+                        vehicle: route.vehicle.name || '-',
+                      })
+                }
+                helperText={
+                  scannerMode === 'delete'
+                    ? t('deliveryRoutes.loadingWarnings.deleteScanHelper', {
+                        defaultValue: 'Откройте камеру и отсканируйте код, который нужно удалить из погрузки',
+                      })
+                    : t('deliveryRoutes.loadingHelper')
+                }
                 onScan={handleScan}
                 lastScans={recentScans}
                 acceptedCount={scanSession?.counters.accepted ?? 0}
                 rejectedCount={scanSession?.counters.rejected ?? 0}
                 primaryActionLabel={
-                  scanSession ? (isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading')) : undefined
+                  scannerMode === 'loading' && scanSession
+                    ? (isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading'))
+                    : undefined
                 }
-                onPrimaryAction={scanSession ? () => void handleComplete() : undefined}
-                enableCamera={Boolean(scanSession)}
-                cameraAutoStart={Boolean(scanSession)}
-                scanDisabled={!scanSession || isCreating || isCompleting}
+                onPrimaryAction={scannerMode === 'loading' && scanSession ? () => void handleComplete() : undefined}
+                enableCamera={scannerMode !== null}
+                cameraAutoStart={scannerMode !== null}
+                scanDisabled={
+                  scannerMode === 'loading'
+                    ? !scanSession || isCreating || isCompleting || isClosingSession
+                    : scannerMode === 'delete'
+                      ? isCreating || isCompleting || isClosingSession
+                      : true
+                }
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
+                onCameraClose={handleScannerClose}
               />
             </section>
           </div>
@@ -524,6 +638,7 @@ const DeliveryRoutesLoading = () => {
           />
         </div>
       </Modal>
+
     </MainLayout>
   );
 };
