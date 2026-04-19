@@ -5,6 +5,7 @@
                 yes: "Yes",
                 no: "No",
                 error: "Something went wrong. Please try again later.",
+                dataNotFound: "Data not found",
                 total: "Total",
                 create: "Create",
                 details: "Details",
@@ -20,6 +21,7 @@
                 inactive: "Inactive",
                 draft: "Draft",
                 assigned_to_warehouse: "Assigned to warehouse",
+                ready_for_loading: "Ready for loading",
                 planned: "Planned",
                 loading: "Loading",
                 loaded: "Loaded",
@@ -157,7 +159,26 @@
                 scan: "Scan",
                 latestScans: "Latest scans",
                 empty: "No scans yet",
-                placeholder: "Scan code"
+                placeholder: "Scan code",
+                codeLabel: "Code",
+                reasonLabel: "Reason",
+                startScanning: "Start scanning",
+                creatingSession: "Starting session...",
+                completingSession: "Completing session...",
+                startCamera: "Open camera",
+                stopCamera: "Stop camera",
+                cameraIdle: "Start scanning to open the camera",
+                cameraUnsupported: "Camera scanning is not supported on this device",
+                cameraError: "Could not access the camera",
+                scanFailed: "Scan failed",
+                status: {
+                    idle: "Camera is not started",
+                    starting: "Starting camera",
+                    cameraActive: "Camera is running",
+                    detected: "Code found: {{code}}",
+                    processing: "Processing scan",
+                    error: "Scanner error"
+                }
             },
             salesOrders: {
                 title: "Sales Orders",
@@ -286,6 +307,7 @@
                 title: "Delivery Routes",
                 detailsTitle: "Delivery Route",
                 loadingTitle: "Loading",
+                loadingPageTitle: "Route loading",
                 loadingSubtitle: "Route",
                 returnTitle: "Return",
                 returnSubtitle: "Route",
@@ -293,6 +315,7 @@
                 status: {
                     draft: "Draft",
                     assigned_to_warehouse: "Assigned to warehouse",
+                    ready_for_loading: "Ready for loading",
                     loading: "Loading",
                     loaded: "Loaded",
                     in_transit: "In transit",
@@ -316,7 +339,8 @@
                     actions: "Actions",
                     tasks: "Tasks",
                     loading: "Loading",
-                    return: "Return"
+                    return: "Return",
+                    loadingProducts: "Products for loading"
                 },
                   fields: {
                       company: "Company",
@@ -359,14 +383,20 @@
                       salesOrdersRequired: "Please select at least one sales order",
                       plateNumberInvalid: "Plate number must be in format: 00 AAA000 or 00 0AAA00"
                   },
-                  messages: {
-                      success: {
-                          create: "Delivery route created successfully"
-                      },
-                      error: {
-                          create: "Error creating delivery route"
-                      }
-                  },
+                messages: {
+                    success: {
+                        create: "Delivery route created successfully",
+                        scanCode: "Code {{code}} scanned successfully"
+                    },
+                    error: {
+                        create: "Error creating delivery route",
+                        createScanSession: "Error starting scan session",
+                        completeScanSession: "Error completing scan session",
+                        scanSessionRequired: "Start a scan session first",
+                        scanCode: "Error scanning code",
+                        scanCodeDetailed: "Code {{code}} was rejected: {{reason}}"
+                    }
+                },
                   hints: {
                     availableOrders: "Table of orders with remaining quantity to assign. Add selection and preview here.",
                     preview: "Show count of orders, customers, aggregated products, volume estimate."
@@ -425,8 +455,17 @@
                     invoice: "Invoice",
                     comment: "Comment"
                 },
+                loadingCounters: {
+                    planned: "Planned quantity",
+                    loaded: "Loaded quantity",
+                    products: "Products"
+                },
+                loadingTable: {
+                    planned: "Planned",
+                    loaded: "Loaded"
+                },
                 loadingScannerTitle: "Loading scan",
-                loadingScannerSubtitle: "Route {{id}} / Vehicle TBD",
+                loadingScannerSubtitle: "Route {{id}} / {{vehicle}}",
                 loadingHelper: "Scan codes to load items into the vehicle",
                 returnScannerTitle: "Return scan",
                 returnScannerSubtitle: "Route {{id}} / Remaining items",
@@ -1120,6 +1159,7 @@
                 yes: "Да",
                 no: "Нет",
                 error: "Произошла ошибка. Попробуйте позже.",
+                dataNotFound: "Данные не найдены",
                 total: "Всего",
                 create: "Создать",
                 details: "Детали",
@@ -1135,6 +1175,7 @@
                 inactive: "Неактивен",
                 draft: "Черновик",
                 assigned_to_warehouse: "Назначен на склад",
+                ready_for_loading: "Готов к погрузке",
                 planned: "Запланировано",
                 loading: "Загрузка",
                 loaded: "Загружено",
@@ -1272,7 +1313,26 @@
                 scan: "Сканировать",
                 latestScans: "Последние сканы",
                 empty: "Сканов пока нет",
-                placeholder: "Скан-код"
+                placeholder: "Скан-код",
+                codeLabel: "Код",
+                reasonLabel: "Причина",
+                startScanning: "Начать сканирование",
+                creatingSession: "Запуск сессии...",
+                completingSession: "Завершение сессии...",
+                startCamera: "Открыть камеру",
+                stopCamera: "Остановить камеру",
+                cameraIdle: "Нажмите «Начать сканирование», чтобы открыть камеру",
+                cameraUnsupported: "На этом устройстве сканирование через камеру не поддерживается",
+                cameraError: "Не удалось получить доступ к камере",
+                scanFailed: "Ошибка сканирования",
+                status: {
+                    idle: "Камера не запущена",
+                    starting: "Запускаем камеру",
+                    cameraActive: "Камера запущена",
+                    detected: "Код найден: {{code}}",
+                    processing: "Идет обработка",
+                    error: "Ошибка сканера"
+                }
             },
             salesOrders: {
                 title: "Заказы продаж",
@@ -1401,6 +1461,7 @@
                 title: "Рейсы",
                 detailsTitle: "Рейс",
                 loadingTitle: "Погрузка",
+                loadingPageTitle: "Погрузка рейса",
                 loadingSubtitle: "Рейс",
                 returnTitle: "Возврат",
                 returnSubtitle: "Рейс",
@@ -1408,6 +1469,7 @@
                 status: {
                     draft: "Черновик",
                     assigned_to_warehouse: "Назначен на склад",
+                    ready_for_loading: "Готов к погрузке",
                     loading: "Погрузка",
                     loaded: "Загружено",
                     in_transit: "В пути",
@@ -1431,7 +1493,8 @@
                     actions: "Действия",
                     tasks: "Задачи",
                     loading: "Погрузка",
-                    return: "Возврат"
+                    return: "Возврат",
+                    loadingProducts: "Товары для погрузки"
                 },
                   fields: {
                       company: "Компания",
@@ -1476,10 +1539,16 @@
                   },
                   messages: {
                       success: {
-                          create: "Рейс успешно создан"
+                          create: "Рейс успешно создан",
+                          scanCode: "Код {{code}} успешно принят"
                       },
                       error: {
-                          create: "Ошибка при создании рейса"
+                          create: "Ошибка при создании рейса",
+                          createScanSession: "Не удалось начать сессию сканирования",
+                          completeScanSession: "Не удалось завершить сессию сканирования",
+                          scanSessionRequired: "Сначала начните сессию сканирования",
+                          scanCode: "Не удалось обработать скан",
+                          scanCodeDetailed: "Код {{code}} отклонён: {{reason}}"
                       }
                   },
                   hints: {
@@ -1540,8 +1609,17 @@
                     invoice: "Инвойс",
                     comment: "Комментарий"
                 },
+                loadingCounters: {
+                    planned: "Всего товара",
+                    loaded: "Погружено",
+                    products: "Товаров"
+                },
+                loadingTable: {
+                    planned: "Запланировано",
+                    loaded: "Погружено"
+                },
                 loadingScannerTitle: "Сканирование погрузки",
-                loadingScannerSubtitle: "Рейс {{id}} / Транспорт TBD",
+                loadingScannerSubtitle: "Рейс {{id}} / {{vehicle}}",
                 loadingHelper: "Сканируйте коды для погрузки товаров в транспорт",
                 returnScannerTitle: "Сканирование возврата",
                 returnScannerSubtitle: "Рейс {{id}} / Остатки",
@@ -2236,6 +2314,7 @@
                 yes: "Ha",
                 no: "Yoʻq",
                 error: "Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.",
+                dataNotFound: "Ma'lumot topilmadi",
                 total: "Jami",
                 create: "Yaratish",
                 details: "Batafsil",
@@ -2250,6 +2329,7 @@
                 inactive: "Faol emas",
                 draft: "Taslagi",
                 assigned_to_warehouse: "Omborga tayinlash",
+                ready_for_loading: "Yuklashga tayyor",
                 planned: "Rejalashtirilgan",
                 loading: "Yuklash",
                 loaded: "Yuklangan",
@@ -2388,7 +2468,26 @@
                 scan: "Skan qilish",
                 latestScans: "So'nggi skanlar",
                 empty: "Hali skanlar yo'q",
-                placeholder: "Kod skan qilish"
+                placeholder: "Kod skan qilish",
+                codeLabel: "Kod",
+                reasonLabel: "Sabab",
+                startScanning: "Skanlashni boshlash",
+                creatingSession: "Sessiya ishga tushmoqda...",
+                completingSession: "Sessiya yakunlanmoqda...",
+                startCamera: "Kamerani ochish",
+                stopCamera: "Kamerani to'xtatish",
+                cameraIdle: "Kamerani ochish uchun skanlashni boshlang",
+                cameraUnsupported: "Bu qurilmada kamera orqali skanlash qo'llab-quvvatlanmaydi",
+                cameraError: "Kameraga ulanib bo'lmadi",
+                scanFailed: "Skanlashda xato",
+                status: {
+                    idle: "Kamera ishga tushmagan",
+                    starting: "Kamera ishga tushmoqda",
+                    cameraActive: "Kamera ishlayapti",
+                    detected: "Kod topildi: {{code}}",
+                    processing: "Qayta ishlanmoqda",
+                    error: "Skaner xatosi"
+                }
             },
             salesOrders: {
                 title: "Sotuv buyurtmalari",
@@ -2517,6 +2616,7 @@
                 title: "Reyslar",
                 detailsTitle: "Reys",
                 loadingTitle: "Yuklash",
+                loadingPageTitle: "Reysni yuklash",
                 loadingSubtitle: "Reys",
                 returnTitle: "Qaytarish",
                 returnSubtitle: "Reys",
@@ -2524,6 +2624,7 @@
                 status: {
                     draft: "Qoralama",
                     assigned_to_warehouse: "Omborga yuborilgan",
+                    ready_for_loading: "Yuklashga tayyor",
                     loading: "Yuklash",
                     loaded: "Yuklangan",
                     in_transit: "Yo'lda",
@@ -2547,7 +2648,8 @@
                     actions: "Harakatlar",
                     tasks: "Vazifalar",
                     loading: "Yuklash",
-                    return: "Qaytarish"
+                    return: "Qaytarish",
+                    loadingProducts: "Yuklash uchun mahsulotlar"
                 },
                   fields: {
                       company: "Kompaniya",
@@ -2585,10 +2687,16 @@
                   },
                   messages: {
                       success: {
-                          create: "Reys muvaffaqiyatli yaratildi"
+                          create: "Reys muvaffaqiyatli yaratildi",
+                          scanCode: "{{code}} kodi muvaffaqiyatli qabul qilindi"
                       },
                       error: {
-                          create: "Reys yaratishda xatolik"
+                          create: "Reys yaratishda xatolik",
+                          createScanSession: "Skan sessiyasini boshlashda xatolik",
+                          completeScanSession: "Skan sessiyasini yakunlashda xatolik",
+                          scanSessionRequired: "Avval skan sessiyasini boshlang",
+                          scanCode: "Skan kodini qayta ishlashda xatolik",
+                          scanCodeDetailed: "{{code}} kodi rad etildi: {{reason}}"
                       }
                   },
                   hints: {
@@ -2627,8 +2735,17 @@
                     invoice: "Hisob-faktura",
                     comment: "Izoh"
                 },
+                loadingCounters: {
+                    planned: "Jami mahsulot",
+                    loaded: "Yuklangan",
+                    products: "Mahsulotlar"
+                },
+                loadingTable: {
+                    planned: "Rejalashtirilgan",
+                    loaded: "Yuklangan"
+                },
                 loadingScannerTitle: "Yuklash skani",
-                loadingScannerSubtitle: "Reys {{id}} / Transport TBD",
+                loadingScannerSubtitle: "Reys {{id}} / {{vehicle}}",
                 loadingHelper: "Transportga yuklash uchun kodlarni skan qiling",
                 returnScannerTitle: "Qaytarish skani",
                 returnScannerSubtitle: "Reys {{id}} / Qolganlar",

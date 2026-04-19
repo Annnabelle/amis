@@ -53,6 +53,8 @@ export type DeliveryTaskResponse = {
 
 export type DeliveryTasksState = {
   tasks: DeliveryTaskResponse[];
+  taskById: DeliveryTaskResponse | null;
   isLoading: boolean;
+  loadingById: boolean;
   error: string | null;
 };

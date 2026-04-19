@@ -13,6 +13,7 @@ import {exportSlice} from "entities/export/model";
 import { salesOrdersSlice } from "entities/salesOrders/model";
 import { deliveryRoutesSlice } from "entities/deliveryRoutes/model";
 import { deliveryTasksSlice } from "entities/deliveryTasks/model";
+import { scanSessionsSlice } from "entities/scanSessions/model";
 import {loaderSlice} from "./loader";
 
 export const store = configureStore({
@@ -30,6 +31,7 @@ export const store = configureStore({
         salesOrders: salesOrdersSlice.reducer,
         deliveryRoutes: deliveryRoutesSlice.reducer,
         deliveryTasks: deliveryTasksSlice.reducer,
+        scanSessions: scanSessionsSlice.reducer,
         loader: loaderSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>

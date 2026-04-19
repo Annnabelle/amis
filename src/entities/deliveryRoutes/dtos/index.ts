@@ -19,6 +19,17 @@ export type DeliveryRouteResponseDto = {
     agentId?: string;
     agentName?: string;
   };
+  products: {
+    id: HexString;
+    name: string;
+    shortName?: string;
+    quantities: {
+      plannedQuantity: number;
+      loadedQuantity: number;
+      deliveredQuantity: number;
+      returnedQuantity: number;
+    };
+  }[];
   totals: {
     taskCount: number;
     plannedQuantity: number;
@@ -52,6 +63,17 @@ export type GetDeliveryRoutesResponseDto =
       data: DeliveryRouteResponseDto[];
     }
   | ErrorDto;
+
+export type GetDeliveryRouteResponseDto =
+  | {
+      success: boolean;
+      deliveryRoute: DeliveryRouteResponseDto;
+    }
+  | ErrorDto;
+
+export type CompleteDeliveryRouteLoadingDto = {
+  comment?: string;
+};
 
 export type CreateDeliveryRouteSalesOrderDto = {
   salesOrderId: HexString;

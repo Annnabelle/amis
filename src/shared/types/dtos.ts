@@ -168,6 +168,7 @@ export type SalesOrderStatus = (typeof SalesOrderStatus)[keyof typeof SalesOrder
 export const DeliveryRouteStatus = {
   Draft: "draft",
   AssignedToWarehouse: "assigned_to_warehouse",
+  ReadyForLoading: "ready_for_loading",
   Loading: "loading",
   Loaded: "loaded",
   InTransit: "in_transit",

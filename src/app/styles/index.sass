@@ -925,3 +925,259 @@ input:-webkit-autofill:active
       background: #663333
       color: #FF6B6B
 
+.loading-page-state
+  display: flex
+  flex-direction: column
+  gap: 16px
+  align-items: center
+  justify-content: center
+  min-height: 240px
+
+.loading-page-layout
+  display: flex
+  flex-direction: column
+  gap: 28px
+
+.loading-hero-section,
+.loading-scanner-section
+  display: flex
+  flex-direction: column
+  gap: 18px
+
+.loading-scanner-section
+  width: 100%
+
+.loading-products-card
+  padding: 20px 22px
+  border-radius: 20px
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04)
+
+.loading-route-counters
+  display: flex
+  flex-wrap: wrap
+  gap: 14px
+  width: 100%
+
+.loading-route-counter
+  display: flex
+  flex-direction: column
+  gap: 4px
+  min-width: 164px
+  padding: 14px 18px
+  border-radius: 18px
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.08) 0%, rgba(30, 144, 255, 0.03) 100%)
+  border: 1px solid rgba(30, 144, 255, 0.14)
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05)
+
+.loading-route-counter-label
+  font-size: 11px
+  font-weight: 600
+  color: #6b7280
+  text-transform: uppercase
+  letter-spacing: 0.04em
+
+.loading-route-counter-value
+  font-size: 30px
+  line-height: 1
+  font-weight: 700
+  color: #111827
+
+.loading-products-table
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.loading-products-table-head,
+.loading-products-table-row
+  display: grid
+  grid-template-columns: minmax(220px, 1.6fr) repeat(2, minmax(120px, 0.8fr))
+  gap: 12px
+  align-items: center
+
+.loading-products-table-head
+  padding: 0 0 14px
+  border-bottom: 1px solid #e5e7eb
+  font-size: 12px
+  font-weight: 700
+  color: #6b7280
+  text-transform: uppercase
+  letter-spacing: 0.04em
+
+.loading-products-table-row
+  padding: 16px 0
+  border-bottom: 1px solid #f1f5f9
+
+  &:last-child
+    border-bottom: none
+
+.loading-products-product
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.loading-products-product-name
+  font-weight: 600
+  font-size: 18px
+  line-height: 1.35
+  color: #111827
+
+.loading-products-product-short
+  font-size: 13px
+  color: #6b7280
+
+.loading-products-cell
+  display: flex
+  align-items: center
+  justify-content: flex-start
+  font-weight: 600
+  font-size: 22px
+  color: #111827
+
+.loading-products-cell-label
+  display: none
+
+.loading-scans-groups
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.loading-scan-group
+  display: flex
+  flex-direction: column
+  gap: 10px
+
+.loading-scan-group-title
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 10px
+  font-size: 14px
+  font-weight: 700
+  color: #111827
+
+.loading-scan-group-count
+  min-width: 28px
+  height: 28px
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  padding: 0 8px
+  border-radius: 999px
+  background: #eef2ff
+  color: #4338ca
+  font-size: 12px
+  font-weight: 700
+
+.loading-scan-group-items
+  display: flex
+  flex-direction: column
+  gap: 8px
+
+.loading-scan-item
+  display: flex
+  flex-direction: column
+  gap: 8px
+  padding: 12px 14px
+  border-radius: 14px
+  border: 1px solid #e5e7eb
+  background: #ffffff
+
+.loading-scan-item.accepted
+  border-left: 4px solid #22c55e
+
+.loading-scan-item.rejected
+  border-left: 4px solid #ef4444
+  background: #fff7f7
+
+.loading-scan-item-code
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace
+  font-size: 13px
+  line-height: 1.45
+  color: #0f172a
+  word-break: break-all
+
+.loading-scan-item-delete
+    align-self: flex-start
+    border: none
+    background: transparent
+    color: #dc2626
+    font-size: 13px
+    font-weight: 600
+    padding: 0
+    cursor: pointer
+    transition: color .2s ease
+
+    &:hover
+        color: #b91c1c
+
+    &:disabled
+        color: #fca5a5
+        cursor: not-allowed
+
+.loading-scan-item-reason
+  font-size: 13px
+  line-height: 1.4
+  color: #64748b
+
+.loading-complete-warning
+  display: flex
+  flex-direction: column
+  gap: 14px
+
+.loading-complete-warning-list
+  display: flex
+  flex-direction: column
+  gap: 8px
+  padding: 12px
+  border-radius: 12px
+  background: #f8fafc
+  border: 1px solid #e2e8f0
+
+.loading-complete-warning-item
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 12px
+  font-size: 14px
+  color: #334155
+
+@media (max-width: 720px)
+  .loading-page-layout
+    gap: 20px
+
+  .loading-hero-section,
+  .loading-scanner-section
+    gap: 14px
+
+  .loading-route-counters
+    gap: 10px
+
+  .loading-route-counter
+    flex: 1 1 calc(50% - 8px)
+    min-width: 0
+    padding: 12px 14px
+
+  .loading-complete-warning-item
+    flex-direction: column
+    align-items: flex-start
+
+  .loading-route-counter-value
+    font-size: 24px
+
+  .loading-products-table-head
+    display: none
+
+  .loading-products-table-row
+    grid-template-columns: 1fr
+    gap: 8px
+    padding: 16px 0
+
+  .loading-products-cell
+    justify-content: space-between
+
+  .loading-products-cell-label
+    display: inline
+    font-size: 12px
+    font-weight: 500
+    color: #6b7280
+

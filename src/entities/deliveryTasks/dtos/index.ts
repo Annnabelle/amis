@@ -61,3 +61,14 @@ export type GetDeliveryTasksResponseDto =
       data: DeliveryTaskResponseDto[];
     }
   | ErrorDto;
+
+export type GetDeliveryTaskResponseDto =
+  | {
+      success: boolean;
+      deliveryTask: DeliveryTaskResponseDto;
+    }
+  | ErrorDto;
+
+export type CompleteDeliveryTaskDto = {
+  comment?: string;
+};

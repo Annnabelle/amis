@@ -1,39 +1,50 @@
 .dm-scanner
   display: flex
   flex-direction: column
-  gap: 16px
-  background: #fff
-  border: 1px solid #e6e6e6
-  border-radius: 12px
-  padding: 20px
+  gap: 20px
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 252, 0.88) 100%)
+  border: 1px solid rgba(148, 163, 184, 0.18)
+  border-radius: 20px
+  padding: 26px
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06)
 
 .dm-scanner-header
   display: flex
   align-items: flex-start
   justify-content: space-between
-  gap: 16px
+  gap: 20px
+  flex-wrap: wrap
 
 .dm-scanner-title
   margin: 0
-  font-size: 20px
+  font-size: 22px
+  line-height: 1.2
 
 .dm-scanner-subtitle
-  margin: 4px 0 0
+  margin: 8px 0 0
+  font-size: 15px
   color: #6b7280
 
 .dm-scanner-counters
   display: flex
-  gap: 12px
+  gap: 10px
+  align-items: stretch
 
 .dm-scanner-counter
   display: flex
   flex-direction: column
   align-items: flex-end
+  justify-content: center
+  min-width: 108px
+  padding: 10px 14px
+  border-radius: 16px
+  background: rgba(255, 255, 255, 0.92)
+  border: 1px solid rgba(148, 163, 184, 0.2)
   font-size: 12px
 
 .dm-scanner-counter-value
-  font-size: 20px
-  font-weight: 600
+  font-size: 18px
+  font-weight: 700
 
 .dm-scanner-counter-value.accepted
   color: #16a34a
@@ -43,51 +54,343 @@
 
 .dm-scanner-helper
   margin: 0
+  font-size: 15px
+  line-height: 1.45
   color: #6b7280
+
+.dm-scanner-status
+  display: inline-flex
+  align-items: center
+  gap: 10px
+  width: fit-content
+  max-width: 100%
+  padding: 10px 14px
+  border-radius: 999px
+  border: 1px solid transparent
+  font-size: 13px
+  font-weight: 600
+
+.dm-scanner-status-dot
+  width: 8px
+  height: 8px
+  border-radius: 50%
+  flex: 0 0 auto
+
+.dm-scanner-status-idle
+  background: rgba(148, 163, 184, 0.12)
+  color: #64748b
+  border-color: rgba(148, 163, 184, 0.18)
+
+  .dm-scanner-status-dot
+    background: #94a3b8
+
+.dm-scanner-status-active
+  background: rgba(37, 99, 235, 0.1)
+  color: #2563eb
+  border-color: rgba(37, 99, 235, 0.16)
+
+  .dm-scanner-status-dot
+    background: #2563eb
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14)
+
+.dm-scanner-status-detected
+  background: rgba(245, 158, 11, 0.12)
+  color: #b45309
+  border-color: rgba(245, 158, 11, 0.18)
+
+  .dm-scanner-status-dot
+    background: #f59e0b
+
+.dm-scanner-status-processing
+  background: rgba(30, 144, 255, 0.1)
+  color: #1d4ed8
+  border-color: rgba(30, 144, 255, 0.18)
+
+  .dm-scanner-status-dot
+    background: #1e90ff
+
+.dm-scanner-status-error
+  background: rgba(239, 68, 68, 0.12)
+  color: #dc2626
+  border-color: rgba(239, 68, 68, 0.18)
+
+  .dm-scanner-status-dot
+    background: #ef4444
 
 .dm-scanner-input
   display: grid
-  grid-template-columns: 1fr auto auto
-  gap: 12px
+  grid-template-columns: minmax(0, 1fr) auto auto
+  gap: 14px
   align-items: center
 
+.dm-scanner-camera-block
+  display: flex
+  flex-direction: column
+  gap: 12px
+
+.dm-scanner-main
+  display: flex
+  flex-direction: column
+  gap: 20px
+
+.dm-scanner-main.with-camera
+  @media (min-width: 960px)
+    display: grid
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)
+    align-items: start
+    gap: 20px
+
+.dm-scanner-camera-actions
+  display: flex
+  gap: 12px
+  flex-wrap: wrap
+
+.dm-scanner-camera-preview
+  position: relative
+  overflow: hidden
+  min-height: 280px
+  border-radius: 12px
+  border: 1px solid #d1d5db
+  background: linear-gradient(145deg, #111827 0%, #1f2937 100%)
+
+  video
+    width: 100%
+    height: 100%
+    min-height: 280px
+    object-fit: cover
+    display: block
+
+.dm-scanner-camera-preview.active
+  border-color: #1e90ff
+
+.dm-scanner-camera-target
+  position: absolute
+  inset: 0
+  display: flex
+  align-items: center
+  justify-content: center
+  pointer-events: none
+  z-index: 1
+
+.dm-scanner-camera-target-frame
+  width: min(72vw, 280px)
+  height: min(72vw, 280px)
+  border: 2px solid rgba(255, 255, 255, 0.96)
+  border-radius: 20px
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.28), 0 0 0 8px rgba(59, 130, 246, 0.12)
+  backdrop-filter: blur(1px)
+
+.dm-scanner-camera-placeholder
+  position: absolute
+  inset: 0
+  display: flex
+  align-items: center
+  justify-content: center
+  padding: 16px
+  color: #e5e7eb
+  text-align: center
+  font-size: 14px
+
 .dm-scanner-list-title
-  margin: 0 0 8px
+  margin: 0 0 10px
+  font-size: 15px
   font-weight: 600
 
+.dm-scanner-list
+  min-width: 0
+
 .dm-scanner-empty
-  padding: 12px
+  padding: 14px 16px
   color: #9ca3af
   border: 1px dashed #d1d5db
-  border-radius: 8px
+  border-radius: 12px
+  background: rgba(255, 255, 255, 0.6)
 
 .dm-scanner-item
   display: flex
-  justify-content: space-between
-  align-items: center
-  padding: 8px 12px
+  flex-direction: column
+  align-items: stretch
+  padding: 12px 14px
   border: 1px solid #e5e7eb
-  border-radius: 8px
-  margin-bottom: 8px
+  border-radius: 14px
+  margin-bottom: 10px
+  gap: 8px
+  box-shadow: none
+  background: #ffffff
 
 .dm-scanner-item.accepted
-  background: #f0fdf4
+  border-left: 4px solid #22c55e
 
 .dm-scanner-item.rejected
-  background: #fef2f2
+  border-left: 4px solid #ef4444
 
-.dm-scanner-item-code
-  font-weight: 600
-
-.dm-scanner-item-meta
+.dm-scanner-item-top
   display: flex
   align-items: center
+  justify-content: flex-end
   gap: 8px
 
+.dm-scanner-item-code
+  padding: 10px 12px
+  border-radius: 10px
+  background: #f8fafc
+  border: 1px solid #e2e8f0
+  font-weight: 600
+  font-size: 13px
+  line-height: 1.45
+  color: #0f172a
+  white-space: normal
+  word-break: break-all
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace
+
+.dm-scanner-item-top
+  .ant-tag
+    margin-right: 0
+    flex: 0 0 auto
+    padding: 3px 10px
+    border-radius: 999px
+    font-size: 11px
+    font-weight: 600
+
 .dm-scanner-item-reason
-  color: #6b7280
+  color: #475569
   font-size: 12px
+  line-height: 1.35
+  word-break: break-word
+  padding-inline: 2px
+
+.dm-scanner-item-reason-muted
+  color: #64748b
+
+.dm-scanner-mobile-camera
+  display: none
 
 @media (max-width: 720px)
+  .dm-scanner
+    padding: 18px
+    border-radius: 16px
+
+  .dm-scanner-header
+    flex-direction: column
+    align-items: stretch
+
+  .dm-scanner-counters
+    width: 100%
+
+  .dm-scanner-counter
+    flex: 1 1 0
+    align-items: flex-start
+
+  .dm-scanner-camera-actions
+    flex-direction: column
+
   .dm-scanner-input
     grid-template-columns: 1fr
+
+  .dm-scanner-camera-block
+    display: none
+
+  .dm-scanner-main.with-camera
+    display: flex
+
+  .dm-scanner-item
+    gap: 6px
+
+  .dm-scanner-item-top
+    flex-wrap: wrap
+
+    .ant-tag
+      margin-inline-start: 0
+
+  .dm-scanner-mobile-camera
+    position: fixed
+    inset: 0
+    z-index: 1000
+    display: flex
+    flex-direction: column
+    gap: 14px
+    padding: 0
+    background: transparent
+
+    .dm-scanner-camera-block
+      display: flex
+      flex: 1 1 auto
+      min-height: 0
+      gap: 0
+
+    .dm-scanner-camera-actions
+      display: none
+
+    .dm-scanner-camera-preview
+      flex: 1 1 auto
+      min-height: 0
+      height: 100%
+      border-radius: 0
+      border: none
+
+      video
+        min-height: 100%
+        height: 100%
+
+    .dm-scanner-camera-target-frame
+      width: min(78vw, 320px)
+      height: min(78vw, 320px)
+      border-radius: 24px
+      border-width: 3px
+
+    .ant-alert
+      margin-top: auto
+
+.dm-scanner-mobile-camera-header
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  z-index: 3
+  display: flex
+  align-items: flex-start
+  justify-content: space-between
+  gap: 12px
+  padding: 18px 16px 12px
+  color: #f8fafc
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.72) 0%, rgba(2, 6, 23, 0.18) 72%, rgba(2, 6, 23, 0) 100%)
+
+.dm-scanner-mobile-camera-title
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+  span
+    font-size: 18px
+    font-weight: 700
+
+  small
+    font-size: 13px
+    line-height: 1.35
+    color: rgba(226, 232, 240, 0.88)
+
+.dm-scanner-mobile-camera-close
+  border: 1px solid rgba(148, 163, 184, 0.38)
+  background: rgba(15, 23, 42, 0.48)
+  color: #f8fafc
+  border-radius: 999px
+  padding: 10px 14px
+  font-size: 13px
+  font-weight: 600
+
+.dm-scanner-mobile-camera-footer
+  position: absolute
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 3
+  display: flex
+  justify-content: center
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom))
+  background: linear-gradient(0deg, rgba(2, 6, 23, 0.78) 0%, rgba(2, 6, 23, 0.18) 72%, rgba(2, 6, 23, 0) 100%)
+
+  .dm-scanner-mobile-camera-close
+    min-width: min(92vw, 340px)
+    padding: 12px 18px
+    background: rgba(15, 23, 42, 0.8)
+    border-color: rgba(148, 163, 184, 0.42)

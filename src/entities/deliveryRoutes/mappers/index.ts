@@ -45,6 +45,17 @@ export const mapDeliveryRouteDtoToEntity = (
         agentName: dto.crew.agentName,
       }
     : undefined,
+  products: dto.products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    shortName: product.shortName,
+    quantities: {
+      plannedQuantity: product.quantities.plannedQuantity,
+      loadedQuantity: product.quantities.loadedQuantity,
+      deliveredQuantity: product.quantities.deliveredQuantity,
+      returnedQuantity: product.quantities.returnedQuantity,
+    },
+  })),
   totals: {
     taskCount: dto.totals.taskCount,
     plannedQuantity: dto.totals.plannedQuantity,

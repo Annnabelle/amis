@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Button, Input, Tag } from 'antd';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Alert, Button, Input, Tag } from 'antd';
+import { CameraOutlined, LoadingOutlined, StopOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { ZxingVideoScanner, useIsMobile } from 'shared/lib';
 import './styles.sass';
 
 type ScanStatus = 'accepted' | 'rejected';
+type ScannerStage = 'idle' | 'starting' | 'camera_active' | 'code_detected' | 'processing' | 'error';
 
 export interface ScanResult {
   status: ScanStatus;
@@ -28,7 +31,27 @@ interface DataMatrixScannerProps {
   inputPlaceholder?: string;
   primaryActionLabel?: string;
   onPrimaryAction?: () => void;
+  enableCamera?: boolean;
+  scanDisabled?: boolean;
+  scanInProgress?: boolean;
+  cameraAutoStart?: boolean;
+  lastScansContent?: ReactNode;
+  onCameraClose?: () => void | Promise<void>;
 }
+
+const CAMERA_DUPLICATE_COOLDOWN = 1600;
+const GS1_GROUP_SEPARATOR = String.fromCharCode(29);
+
+const normalizeScannedCode = (rawValue: string) =>
+  rawValue
+    .replace(/^\]d2/i, '')
+    .replace(/\\u001d/gi, GS1_GROUP_SEPARATOR)
+    .replace(/\\x1d/gi, GS1_GROUP_SEPARATOR)
+    .replace(/<gs>/gi, GS1_GROUP_SEPARATOR)
+    .replace(/\[gs\]/gi, GS1_GROUP_SEPARATOR)
+    .replace(/\u241d/g, GS1_GROUP_SEPARATOR)
+    .replace(/\r?\n|\r/g, '')
+    .trim();
 
 const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   title,
@@ -41,10 +64,29 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   inputPlaceholder,
   primaryActionLabel,
   onPrimaryAction,
+  enableCamera = false,
+  scanDisabled = false,
+  scanInProgress = false,
+  cameraAutoStart = false,
+  lastScansContent,
+  onCameraClose,
 }) => {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [value, setValue] = useState('');
   const [localScans, setLocalScans] = useState<ScanItem[]>([]);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraSupported] = useState(() => ZxingVideoScanner.isSupported());
+  const [cameraStarting, setCameraStarting] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraAutoStartPending, setCameraAutoStartPending] = useState(cameraAutoStart);
+  const [mobileCameraVisible, setMobileCameraVisible] = useState(false);
+  const [scannerStage, setScannerStage] = useState<ScannerStage>('idle');
+  const [detectedCode, setDetectedCode] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const scannerRef = useRef<ZxingVideoScanner | null>(null);
+  const lastDetectedRef = useRef<{ code: string; ts: number } | null>(null);
+  const processingRef = useRef(false);
 
   const scans = lastScans ?? localScans;
   const resolvedPlaceholder = inputPlaceholder ?? t('scanner.placeholder');
@@ -75,19 +117,240 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
     setLocalScans((prev) => [next, ...prev].slice(0, 20));
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    const code = value.trim();
-    if (!code) return;
-
-    if (onScan) {
-      const result = await onScan(code);
-      pushScan(code, result);
-    } else {
-      pushScan(code, { status: 'accepted' });
+  const scannerStatus = useMemo(() => {
+    if (scannerStage === 'error') {
+      return {
+        tone: 'error',
+        text: cameraError ?? t('scanner.status.error'),
+      };
     }
 
+    if (scannerStage === 'processing' || scanInProgress) {
+      return {
+        tone: 'processing',
+        text: t('scanner.status.processing'),
+      };
+    }
+
+    if (scannerStage === 'code_detected' && detectedCode) {
+      return {
+        tone: 'detected',
+        text: t('scanner.status.detected', { code: detectedCode }),
+      };
+    }
+
+    if (scannerStage === 'camera_active' && cameraActive) {
+      return {
+        tone: 'active',
+        text: t('scanner.status.cameraActive'),
+      };
+    }
+
+    if (scannerStage === 'starting' || cameraStarting) {
+      return {
+        tone: 'processing',
+        text: t('scanner.status.starting'),
+      };
+    }
+
+    return {
+      tone: 'idle',
+      text: t('scanner.status.idle'),
+    };
+  }, [cameraActive, cameraError, cameraStarting, detectedCode, scanInProgress, scannerStage, t]);
+
+  const handleScan = useCallback(
+    async (code: string) => {
+      if (processingRef.current || scanDisabled || scanInProgress) return;
+
+      processingRef.current = true;
+      setScannerStage('processing');
+      try {
+        if (onScan) {
+          const result = await onScan(code);
+          pushScan(code, result);
+        } else {
+          pushScan(code, { status: 'accepted' });
+        }
+      } catch (error) {
+        pushScan(code, {
+          status: 'rejected',
+          reason: error instanceof Error ? error.message : t('scanner.scanFailed'),
+        });
+      } finally {
+        processingRef.current = false;
+        setDetectedCode(null);
+        setScannerStage(cameraActive ? 'camera_active' : 'idle');
+      }
+    },
+    [cameraActive, onScan, pushScan, scanDisabled, scanInProgress, t]
+  );
+
+  const stopCamera = useCallback(async (notifyParent = true) => {
+    const scanner = scannerRef.current;
+    scannerRef.current = null;
+
+    setCameraAutoStartPending(false);
+    await scanner?.stop();
+    processingRef.current = false;
+    setDetectedCode(null);
+    setCameraActive(false);
+    setMobileCameraVisible(false);
+    setScannerStage('idle');
+
+    if (notifyParent) {
+      await onCameraClose?.();
+    }
+  }, [onCameraClose]);
+
+  const startCamera = useCallback(async () => {
+    if (!enableCamera || cameraActive || cameraStarting) return;
+    if (!cameraSupported || !videoRef.current) {
+      setCameraError(t('scanner.cameraUnsupported'));
+      setScannerStage('error');
+      return;
+    }
+
+    setCameraStarting(true);
+    setCameraError(null);
+    setScannerStage('starting');
+
+    try {
+      const scanner = new ZxingVideoScanner({
+        videoElement: videoRef.current,
+        formats: ['data_matrix'],
+        onResult: async (rawCode) => {
+          const code = normalizeScannedCode(rawCode);
+          if (!code) return;
+
+          const now = Date.now();
+          const lastDetected = lastDetectedRef.current;
+          if (
+            lastDetected &&
+            lastDetected.code === code &&
+            now - lastDetected.ts < CAMERA_DUPLICATE_COOLDOWN
+          ) {
+            return;
+          }
+
+          lastDetectedRef.current = { code, ts: now };
+          setDetectedCode(code);
+          setScannerStage('code_detected');
+          await handleScan(code);
+        },
+        onError: (error) => {
+          if (error instanceof Error) {
+            setCameraError(error.message || t('scanner.cameraError'));
+            setScannerStage('error');
+          }
+        },
+      });
+
+      scannerRef.current = scanner;
+      await scanner.start();
+      setCameraActive(true);
+      setCameraAutoStartPending(false);
+      setScannerStage('camera_active');
+    } catch {
+      setCameraError(t('scanner.cameraError'));
+      setScannerStage('error');
+      scannerRef.current?.dispose();
+      scannerRef.current = null;
+      setCameraActive(false);
+    } finally {
+      setCameraStarting(false);
+    }
+  }, [cameraActive, cameraStarting, cameraSupported, enableCamera, handleScan, t]);
+
+  const handleSubmit = useCallback(async () => {
+    const code = normalizeScannedCode(value);
+    if (!code) return;
+
+    await handleScan(code);
     setValue('');
-  }, [onScan, pushScan, value]);
+  }, [handleScan, value]);
+
+  useEffect(() => {
+    if (enableCamera && cameraAutoStart) {
+      if (isMobile) {
+        setMobileCameraVisible(true);
+      }
+      setCameraAutoStartPending(true);
+    } else {
+      setCameraAutoStartPending(false);
+    }
+  }, [cameraAutoStart, enableCamera, isMobile]);
+
+  useEffect(() => {
+    if (enableCamera && cameraAutoStartPending && (!isMobile || mobileCameraVisible)) {
+      void startCamera();
+    }
+  }, [cameraAutoStartPending, enableCamera, isMobile, mobileCameraVisible, startCamera]);
+
+  useEffect(() => {
+    if (!enableCamera) {
+      void stopCamera(false);
+      setCameraError(null);
+      setDetectedCode(null);
+    }
+  }, [enableCamera, stopCamera]);
+
+  const handleStartCameraClick = useCallback(() => {
+    if (isMobile) {
+      setMobileCameraVisible(true);
+      setCameraAutoStartPending(true);
+      return;
+    }
+
+    void startCamera();
+  }, [isMobile, startCamera]);
+
+  const renderCameraBlock = () => (
+    <div className="dm-scanner-camera-block">
+      <div className="dm-scanner-camera-actions">
+        <Button
+          type="primary"
+          size="large"
+          icon={cameraStarting ? <LoadingOutlined /> : <CameraOutlined />}
+          onClick={handleStartCameraClick}
+          loading={cameraStarting}
+          disabled={cameraActive}
+        >
+          {t('scanner.startCamera')}
+        </Button>
+        <Button
+          size="large"
+          icon={<StopOutlined />}
+          onClick={() => void stopCamera()}
+          disabled={!cameraActive && !cameraError}
+        >
+          {t('scanner.stopCamera')}
+        </Button>
+      </div>
+
+      <div className={`dm-scanner-camera-preview ${cameraActive ? 'active' : ''}`}>
+        <video ref={videoRef} muted playsInline />
+        <div className="dm-scanner-camera-target" aria-hidden="true">
+          <div className="dm-scanner-camera-target-frame" />
+        </div>
+        {!cameraActive && (
+          <div className="dm-scanner-camera-placeholder">
+            {cameraSupported ? t('scanner.cameraIdle') : t('scanner.cameraUnsupported')}
+          </div>
+        )}
+      </div>
+
+      {cameraError && <Alert type="error" showIcon message={cameraError} />}
+    </div>
+  );
+
+  useEffect(
+    () => () => {
+      void scannerRef.current?.dispose();
+      scannerRef.current = null;
+    },
+    []
+  );
 
   return (
     <div className="dm-scanner">
@@ -110,6 +373,13 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
 
       {helperText && <p className="dm-scanner-helper">{helperText}</p>}
 
+      {enableCamera && (
+        <div className={`dm-scanner-status dm-scanner-status-${scannerStatus.tone}`}>
+          <span className="dm-scanner-status-dot" />
+          <span>{scannerStatus.text}</span>
+        </div>
+      )}
+
       <div className="dm-scanner-input">
         <Input
           autoFocus
@@ -117,9 +387,16 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           value={value}
           placeholder={resolvedPlaceholder}
           onChange={(event) => setValue(event.target.value)}
-          onPressEnter={handleSubmit}
+          onPressEnter={() => void handleSubmit()}
+          disabled={scanDisabled}
         />
-        <Button type="primary" size="large" onClick={handleSubmit}>
+        <Button
+          type="primary"
+          size="large"
+          onClick={() => void handleSubmit()}
+          loading={scanInProgress}
+          disabled={scanDisabled}
+        >
           {t('scanner.scan')}
         </Button>
         {primaryActionLabel && onPrimaryAction && (
@@ -129,23 +406,65 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
         )}
       </div>
 
-      <div className="dm-scanner-list">
-        <p className="dm-scanner-list-title">{t('scanner.latestScans')}</p>
-        {scans.length === 0 && (
-          <div className="dm-scanner-empty">{t('scanner.empty')}</div>
-        )}
-        {scans.map((item) => (
-          <div key={`${item.code}-${item.ts}`} className={`dm-scanner-item ${item.status}`}>
-            <div className="dm-scanner-item-code">{item.code}</div>
-            <div className="dm-scanner-item-meta">
-              <Tag color={item.status === 'accepted' ? 'green' : 'red'}>
-                {item.status === 'accepted' ? t('scanner.accepted') : t('scanner.rejected')}
-              </Tag>
-              {item.reason && <span className="dm-scanner-item-reason">{item.reason}</span>}
+      <div className={`dm-scanner-main ${enableCamera ? 'with-camera' : 'without-camera'}`}>
+        {enableCamera && !isMobile && renderCameraBlock()}
+
+        <div className="dm-scanner-list">
+          <p className="dm-scanner-list-title">{t('scanner.latestScans')}</p>
+          {lastScansContent ?? (
+            <>
+              {scans.length === 0 && <div className="dm-scanner-empty">{t('scanner.empty')}</div>}
+              {scans.map((item) => (
+                <div key={`${item.code}-${item.ts}`} className={`dm-scanner-item ${item.status}`}>
+                  <div className="dm-scanner-item-top">
+                    <Tag color={item.status === 'accepted' ? 'green' : 'red'}>
+                      {item.status === 'accepted' ? t('scanner.accepted') : t('scanner.rejected')}
+                    </Tag>
+                  </div>
+                  <div className="dm-scanner-item-code" title={item.code}>
+                    {item.code}
+                  </div>
+                  {item.reason && (
+                    <div className="dm-scanner-item-reason">
+                      {item.reason}
+                    </div>
+                  )}
+                  {!item.reason && item.status === 'accepted' && (
+                    <div className="dm-scanner-item-reason dm-scanner-item-reason-muted">
+                      {t('scanner.accepted')}
+                    </div>
+                  )}
+                  {!item.reason && item.status === 'rejected' && (
+                    <div className="dm-scanner-item-reason dm-scanner-item-reason-muted">
+                      {t('scanner.rejected')}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+      {enableCamera && isMobile && mobileCameraVisible && (
+        <div className="dm-scanner-mobile-camera">
+          <div className="dm-scanner-mobile-camera-header">
+            <div className="dm-scanner-mobile-camera-title">
+              <span>{title}</span>
+              {!cameraError && <small>{scannerStatus.text}</small>}
             </div>
           </div>
-        ))}
-      </div>
+          {renderCameraBlock()}
+          <div className="dm-scanner-mobile-camera-footer">
+            <button
+              type="button"
+              className="dm-scanner-mobile-camera-close"
+              onClick={() => void stopCamera()}
+            >
+              {t('scanner.stopScanning', { defaultValue: 'Завершить сканирование' })}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
