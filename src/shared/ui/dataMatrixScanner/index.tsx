@@ -40,6 +40,18 @@ interface DataMatrixScannerProps {
 }
 
 const CAMERA_DUPLICATE_COOLDOWN = 1600;
+const GS1_GROUP_SEPARATOR = String.fromCharCode(29);
+
+const normalizeScannedCode = (rawValue: string) =>
+  rawValue
+    .replace(/^\]d2/i, '')
+    .replace(/\\u001d/gi, GS1_GROUP_SEPARATOR)
+    .replace(/\\x1d/gi, GS1_GROUP_SEPARATOR)
+    .replace(/<gs>/gi, GS1_GROUP_SEPARATOR)
+    .replace(/\[gs\]/gi, GS1_GROUP_SEPARATOR)
+    .replace(/\u241d/g, GS1_GROUP_SEPARATOR)
+    .replace(/\r?\n|\r/g, '')
+    .trim();
 
 const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   title,
@@ -208,7 +220,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
         videoElement: videoRef.current,
         formats: ['data_matrix'],
         onResult: async (rawCode) => {
-          const code = rawCode.trim();
+          const code = normalizeScannedCode(rawCode);
           if (!code) return;
 
           const now = Date.now();
@@ -251,7 +263,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   }, [cameraActive, cameraStarting, cameraSupported, enableCamera, handleScan, t]);
 
   const handleSubmit = useCallback(async () => {
-    const code = value.trim();
+    const code = normalizeScannedCode(value);
     if (!code) return;
 
     await handleScan(code);

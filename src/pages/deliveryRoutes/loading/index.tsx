@@ -20,6 +20,7 @@ import {
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { completeDeliveryRouteLoading } from 'entities/deliveryRoutes/model';
+import { isWarehouseRole } from 'shared/lib/userRoles';
 
 const SCAN_CACHE_PREFIX = 'loading-scans';
 const SCAN_RESULT_TOAST_ID = 'loading-scan-result';
@@ -38,6 +39,7 @@ const DeliveryRoutesLoading = () => {
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const routeLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
+  const currentUser = useAppSelector((state) => state.users.currentUser);
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -48,6 +50,7 @@ const DeliveryRoutesLoading = () => {
   const [completeComment, setCompleteComment] = useState('');
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
   const [isClosingSession, setIsClosingSession] = useState(false);
+  const canUseScreen = isWarehouseRole(currentUser);
 
   useEffect(() => {
     if (!routeId) return;
@@ -253,7 +256,7 @@ const DeliveryRoutesLoading = () => {
         pushSingleScanToast(
           'success',
           t('deliveryRoutes.messages.success.cancelScan', {
-            defaultValue: 'Ð¡ÐºÐ°Ð½ {{code}} ÑƒÐ´Ð°Ð»Ñ‘Ð½',
+            defaultValue: 'Скан {{code}} удалён',
             code: formatCodeForToast(code),
           })
         );
@@ -263,7 +266,7 @@ const DeliveryRoutesLoading = () => {
         const reason = getBackendErrorMessage(
           error?.error ?? error,
           t('deliveryRoutes.messages.error.cancelScan', {
-            defaultValue: 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ ÑÐºÐ°Ð½',
+            defaultValue: 'Не удалось удалить скан',
           })
         );
 
@@ -466,6 +469,24 @@ const DeliveryRoutesLoading = () => {
               <Empty description={t('common.dataNotFound')} />
               <CustomButton className="outline" onClick={() => navigate(backPath)}>
                 {t('common.backToList')}
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!canUseScreen) {
+    return (
+      <MainLayout>
+        <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />
+        <div className="box">
+          <div className="box-container">
+            <div className="box-container-items loading-page-state">
+              <Empty description={t('common.dataNotFound', { defaultValue: 'Доступ запрещён' })} />
+              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+                {t('common.backToRoute')}
               </CustomButton>
             </div>
           </div>

@@ -211,7 +211,7 @@ export const cancelScan = createAsyncThunk<
           success: false,
           errorCode: 100,
           errorMessage: {
-            ru: "ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ñ‹Ð¹ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð¾Ñ‚Ð²ÐµÑ‚Ð° ÑÐµÑ€Ð²ÐµÑ€Ð°",
+            ru: "Неизвестный формат ответа сервера",
             en: "Unknown server response format",
             uz: "Server javobining noma'lum formati",
           },
@@ -254,7 +254,6 @@ export const scanSessionsSlice = createSlice({
       .addCase(createScanSession.pending, (state) => {
         state.isCreating = true;
         state.error = null;
-        state.recentScans = [];
       })
       .addCase(createScanSession.fulfilled, (state, action) => {
         state.isCreating = false;

@@ -254,6 +254,72 @@ export const startDeliveryRouteTransit = createAsyncThunk<
   }
 });
 
+export const startDeliveryRouteReturn = createAsyncThunk<
+  DeliveryRouteResponse,
+  string,
+  { rejectValue: ErrorDto }
+>("deliveryRoutes/startDeliveryRouteReturn", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await axiosInstance.post<GetDeliveryRouteResponseDto>(
+      `${BASE_URL}/delivery-routes/${id}/start-return`
+    );
+
+    const mapped = mapSingleRouteResponse(data);
+    if (mapped.success && mapped.deliveryRoute) {
+      return mapped.deliveryRoute;
+    }
+
+    return rejectWithValue(mapped.error as ErrorDto);
+  } catch (err: any) {
+    if (err.response?.data && "errorCode" in err.response.data) {
+      return rejectWithValue(err.response.data);
+    }
+
+    return rejectWithValue({
+      success: false,
+      errorCode: 403,
+      errorMessage: {
+        ru: "ÃÅ¾Ë†ÃÂ¸ÃÂ±ÃÂºÃÂ° Ã‘ÂÃÂµÃ‘â€šÃÂ¸",
+        en: "Network error",
+        uz: "Tarmoq xatosi",
+      },
+    });
+  }
+});
+
+export const completeDeliveryRouteReturn = createAsyncThunk<
+  DeliveryRouteResponse,
+  string,
+  { rejectValue: ErrorDto }
+>("deliveryRoutes/completeDeliveryRouteReturn", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await axiosInstance.post<GetDeliveryRouteResponseDto>(
+      `${BASE_URL}/delivery-routes/${id}/complete-return`
+    );
+
+    const mapped = mapSingleRouteResponse(data);
+    if (mapped.success && mapped.deliveryRoute) {
+      return mapped.deliveryRoute;
+    }
+
+    return rejectWithValue(mapped.error as ErrorDto);
+  } catch (err: any) {
+    if (err.response?.data && "errorCode" in err.response.data) {
+      return rejectWithValue(err.response.data);
+    }
+
+    return rejectWithValue({
+      success: false,
+      errorCode: 403,
+      errorMessage: {
+        ru: "ÃÅ¾Ë†ÃÂ¸ÃÂ±ÃÂºÃÂ° Ã‘ÂÃÂµÃ‘â€šÃÂ¸",
+        en: "Network error",
+        uz: "Tarmoq xatosi",
+      },
+    });
+  }
+});
+
 export const deliveryRoutesSlice = createSlice({
   name: "deliveryRoutes",
   initialState,
@@ -354,6 +420,30 @@ export const deliveryRoutesSlice = createSlice({
       .addCase(startDeliveryRouteTransit.rejected, (state, action) => {
         state.loadingById = false;
         state.error = getBackendErrorMessage(action.payload, "Error starting transit");
+      })
+      .addCase(startDeliveryRouteReturn.pending, (state) => {
+        state.loadingById = true;
+        state.error = null;
+      })
+      .addCase(startDeliveryRouteReturn.fulfilled, (state, action) => {
+        state.loadingById = false;
+        state.routeById = action.payload;
+      })
+      .addCase(startDeliveryRouteReturn.rejected, (state, action) => {
+        state.loadingById = false;
+        state.error = getBackendErrorMessage(action.payload, "Error starting return");
+      })
+      .addCase(completeDeliveryRouteReturn.pending, (state) => {
+        state.loadingById = true;
+        state.error = null;
+      })
+      .addCase(completeDeliveryRouteReturn.fulfilled, (state, action) => {
+        state.loadingById = false;
+        state.routeById = action.payload;
+      })
+      .addCase(completeDeliveryRouteReturn.rejected, (state, action) => {
+        state.loadingById = false;
+        state.error = getBackendErrorMessage(action.payload, "Error completing return");
       });
   },
 });
