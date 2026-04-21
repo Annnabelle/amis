@@ -25,6 +25,7 @@
                 planned: "Planned",
                 loading: "Loading",
                 loaded: "Loaded",
+                handover_in_progress: "Handover in progress",
                 delivering: "Delivering",
                 in_transit: "In transit",
                 partially_delivered: "Partially delivered",
@@ -1179,6 +1180,7 @@
                 planned: "Запланировано",
                 loading: "Загрузка",
                 loaded: "Загружено",
+                handover_in_progress: "Выдача начата",
                 delivering: "Доставка",
                 in_transit: "В пути",
                 partially_delivered: "Частично доставлено",
@@ -1302,7 +1304,7 @@
                 implementation: "Реализация",
                 deals: "Сделки",
                 routes: "Рейсы",
-                salesOrders: "Заказы продаж",
+                salesOrders: "Сделки",
                 deliveryRoutes: "Рейсы",
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
@@ -1335,10 +1337,10 @@
                 }
             },
             salesOrders: {
-                title: "Заказы продаж",
-                detailsTitle: "Заказ продажи",
-                create: "Создать заказ",
-                listEmpty: "Список заказов появится здесь",
+                title: "Сделки",
+                detailsTitle: "Сделка",
+                create: "Создать сделку",
+                listEmpty: "Список сделок появится здесь",
                 sections: {
                     company: "Компания",
                     customer: "Клиент",
@@ -1383,7 +1385,7 @@
                     priority: "Приоритет",
                     orderedQuantity: "Заказано",
                     assignedQuantity: "Назначено",
-                    deliveredQuantity: "Досавлено",
+                    deliveredQuantity: "Доставлено",
                     status: "Статус",
                     createdAt: "Создано"
                 },
@@ -1414,15 +1416,15 @@
                 },
                 messages: {
                     success: {
-                        create: "Заказ продаж успешно создан",
-                        delete: "Заказ успешно удален"
+                        create: "Сделка успешно создана",
+                        delete: "Сделка успешно удалена"
                     },
                     error: {
-                        create: "Ошибка при создании заказа продаж",
-                        delete: "Ошибка при удалении заказа"
+                        create: "Ошибка при создании сделки",
+                        delete: "Ошибка при удалении сделки"
                     }
                 },
-                deleteQuestion: "Вы уверены, что хотите удалить заказ",
+                deleteQuestion: "Вы уверены, что хотите удалить сделку",
                 priority: {
                     low: "Низкий",
                     normal: "Обычный",
@@ -1444,11 +1446,11 @@
                 },
                 actions: {
                     addItem: "Добавить позицию",
-                    create: "Создать заказ"
+                    create: "Создать сделку"
                 },
                 modalWindow: {
                     deletion: "Удаление",
-                    order: "заказ"
+                    order: "сделку"
                 },
                 details: {
                     headerEmpty: "Поля заголовка заказа",
@@ -1534,7 +1536,7 @@
                   validation: {
                       companyRequired: "Компания обязательна",
                       routeDateRequired: "Дата рейса обязательна",
-                      salesOrdersRequired: "Выберите хотя бы одну продажу",
+                      salesOrdersRequired: "Выберите хотя бы одну сделку",
                       plateNumberInvalid: "Номер машины должен быть в формате: 00 AAA000 или 00 0AAA00"
                   },
                   messages: {
@@ -1552,11 +1554,11 @@
                       }
                   },
                   hints: {
-                    availableOrders: "Таблица заказов с остатком для распределения. Добавьте выбор и предпросмотр.",
-                    preview: "Показать количество заказов, клиентов, агрегированные товары и оценку объема."
+                    availableOrders: "Таблица сделок с остатком для распределения. Добавьте выбор и предпросмотр.",
+                    preview: "Показать количество сделок, клиентов, агрегированные товары и оценку объема."
                 },
                 preview: {
-                    ordersSelected: "Заказов выбрано",
+                    ordersSelected: "Сделок выбрано",
                     customersCount: "Клиентов",
                     totalVolume: "Товаров выбрано",
                     aggregatedProducts: "Агрегированные товары",
@@ -1566,7 +1568,7 @@
                     driver: "Водитель",
                     agent: "Агент",
                     company: "Компания",
-                    selectedOrders: "Выбранные заказы",
+                    selectedOrders: "Выбранные сделки",
                     customer: "Клиент",
                     dueDate: "Срок",
                     priority: "Приоритет",
@@ -2333,6 +2335,7 @@
                 planned: "Rejalashtirilgan",
                 loading: "Yuklash",
                 loaded: "Yuklangan",
+                handover_in_progress: "Topshirish boshlandi",
                 delivering: "Yetkazilmoqda",
                 in_transit: "Yo'lda",
                 partially_delivered: "Qisman yetkazilgan",

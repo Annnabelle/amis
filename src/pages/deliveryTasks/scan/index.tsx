@@ -242,6 +242,8 @@ const DeliveryTasksScan = () => {
     }
   };
 
+  void handleScannerClose;
+
   const handleScan = async (code: string) => {
     if (!task?.id) {
       return {
@@ -428,6 +430,10 @@ const DeliveryTasksScan = () => {
     }
   };
 
+  const handleCloseScannerView = async () => {
+    setScannerMode(null);
+  };
+
   const lastScansContent = (
     <div className="loading-scans-groups">
       {acceptedScanGroups.length === 0 && rejectedScans.length === 0 && (
@@ -570,6 +576,15 @@ const DeliveryTasksScan = () => {
           >
             {t('deliveryTasks.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
           </CustomButton>
+          {scanSession?.status === 'active' && scannerMode !== 'delete' && (
+            <CustomButton
+              className="outline"
+              onClick={() => void handleComplete()}
+              disabled={isCreating || isCompletingSession || isClosingSession}
+            >
+              {isCompletingSession ? t('scanner.completingSession') : t('deliveryTasks.actions.completeDelivery')}
+            </CustomButton>
+          )}
           <CustomButton className="outline" onClick={() => navigate(routePath)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -678,7 +693,7 @@ const DeliveryTasksScan = () => {
                 }
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
-                onCameraClose={handleScannerClose}
+                onCameraClose={handleCloseScannerView}
               />
             </section>
           </div>

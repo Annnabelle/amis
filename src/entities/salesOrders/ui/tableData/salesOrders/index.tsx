@@ -72,18 +72,6 @@ export const SalesOrdersTableColumns = (
     ),
   },
   {
-    title: t("salesOrders.table.assignedQuantity"),
-    dataIndex: "assignedQuantity",
-    key: "assignedQuantity",
-    flex: 1,
-    align: "center",
-    render: (text: string | number) => (
-      <p className="table-text" style={{ textAlign: "center", width: "100%" }}>
-        {text}
-      </p>
-    ),
-  },
-  {
     title: t("salesOrders.table.deliveredQuantity"),
     dataIndex: "deliveredQuantity",
     key: "deliveredQuantity",
@@ -105,18 +93,20 @@ export const SalesOrdersTableColumns = (
       if (!status) return null;
       const key = status.toLowerCase();
       return (
-        <Tag color={statusColors[key] ?? statusColors[status]}>
+        <Tag
+          color={statusColors[key] ?? statusColors[status] ?? "blue"}
+          style={{
+            display: "inline-block",
+            maxWidth: "140px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
           {t(`salesOrders.statuses.${key}`)}
         </Tag>
       );
     },
-  },
-  {
-    title: t("salesOrders.table.createdAt"),
-    dataIndex: "createdAt",
-    key: "createdAt",
-    flex: 1,
-    render: (text: string) => <p className="table-text">{text}</p>,
   },
   // {
   //   title: "",

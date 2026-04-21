@@ -526,8 +526,10 @@ const DeliveryRoutesDetails = () => {
                               {canStartDelivery && !['delivered', 'cancelled'].includes(task.status) && (
                                 <CustomButton
                                   className="primary"
+                                  disabled={task.status === 'handover_in_progress'}
                                   onClick={(event) => {
                                     event.stopPropagation();
+                                    if (task.status === 'handover_in_progress') return;
                                     void handleStartDelivery(task.id);
                                   }}
                                 >

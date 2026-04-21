@@ -42,8 +42,24 @@
         .ant-input-number-input
             &::placeholder
                 +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+        .ant-input-number
+            .ant-input-number-handler-wrap
+                display: none
         .ant-select-selection-placeholder
             +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+        .ant-select-single.ant-select-lg:not(.ant-select-customize-input)
+            .ant-select-selector
+                min-height: 40px !important
+                padding: 0 11px !important
+                display: flex
+                align-items: center
+            .ant-select-selection-search
+                inset: 0 11px
+                display: flex
+                align-items: center
+            .ant-select-selection-item,
+            .ant-select-selection-placeholder
+                line-height: 38px !important
     .form-inputs-row
         width: 100%
         @include mix.flex-content(space-between, row)
@@ -157,6 +173,12 @@
 .custom-placeholder
     +mix.typography(14px, 400, map.get(vars.$basic, "black"))
     background: transparent
+
+.delivery-route-create-form
+    .ant-select-single.ant-select-lg:not(.ant-select-customize-input)
+        .ant-select-selection-search
+            inset: 0 !important
+
 .route-preview
     width: 100%
     .section-title

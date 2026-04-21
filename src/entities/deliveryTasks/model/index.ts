@@ -110,7 +110,7 @@ export const startDeliveryTaskDelivery = createAsyncThunk<
 >("deliveryTasks/startDeliveryTaskDelivery", async (id, { rejectWithValue }) => {
   try {
     const { data } = await axiosInstance.post<GetDeliveryTaskResponseDto>(
-      `${BASE_URL}/delivery-tasks/${id}/start-delivery`
+      `${BASE_URL}/delivery-tasks/${id}/start-handover`
     );
 
     const mapped = mapSingleTaskResponse(data);

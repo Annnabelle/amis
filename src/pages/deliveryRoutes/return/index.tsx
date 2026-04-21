@@ -253,6 +253,8 @@ const DeliveryRoutesReturn = () => {
     }
   };
 
+  void handleScannerClose;
+
   const handleScan = async (code: string) => {
     if (!scanSession?.id) {
       return {
@@ -320,6 +322,10 @@ const DeliveryRoutesReturn = () => {
         )
       );
     }
+  };
+
+  const handleCloseScannerView = async () => {
+    setScannerOpen(false);
   };
 
   const lastScansContent = (
@@ -429,6 +435,15 @@ const DeliveryRoutesReturn = () => {
           >
             {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
           </CustomButton>
+          {scanSession?.status === 'active' && (
+            <CustomButton
+              className="outline"
+              onClick={() => void handleComplete()}
+              disabled={isCreating || isCompletingSession || isClosingSession}
+            >
+              {isCompletingSession ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeReturn')}
+            </CustomButton>
+          )}
           <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -506,7 +521,7 @@ const DeliveryRoutesReturn = () => {
                 scanDisabled={!scanSession || isCreating || isCompletingSession || isClosingSession}
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
-                onCameraClose={handleScannerClose}
+                onCameraClose={handleCloseScannerView}
               />
             </section>
           </div>

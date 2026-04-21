@@ -36,6 +36,14 @@ const DeliveryRoutesCreate = () => {
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
   const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const initialValues = useMemo(
+    () => ({
+      schedule: {
+        routeDate: dayjs(),
+      },
+    }),
+    []
+  );
 
   const normalizePlateNumber = (value: string) => {
     const raw = value.toUpperCase().replace(/[^0-9A-Z]/g, '');
@@ -326,9 +334,10 @@ const DeliveryRoutesCreate = () => {
       <Heading title={t('deliveryRoutes.title')} subtitle={t('common.create')} />
       <div className="box">
         <div className="box-container">
-          <div className="box-container-items">
+          <div className="box-container-items delivery-route-create-form">
             <FormComponent
               form={form}
+              initialValues={initialValues}
               onFinish={handleCreateDeliveryRoute}
               onValuesChange={(changedValues) => {
                 if (changedValues.companyId) {
@@ -414,6 +423,7 @@ const DeliveryRoutesCreate = () => {
                 <Form.Item className="input" name={["crew", "driverName"]} label={t('deliveryRoutes.fields.driver')}>
                   <AutoComplete
                     className="input"
+                    size="large"
                     placeholder={t('deliveryRoutes.placeholders.driver')}
                     filterOption={false}
                     allowClear
@@ -474,6 +484,7 @@ const DeliveryRoutesCreate = () => {
                 <Form.Item className="input" name={["crew", "agentName"]} label={t('deliveryRoutes.fields.agent')}>
                   <AutoComplete
                     className="input"
+                    size="large"
                     placeholder={t('deliveryRoutes.placeholders.agent')}
                     filterOption={false}
                     allowClear

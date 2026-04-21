@@ -49,10 +49,8 @@ const SalesOrdersList = () => {
         : '-',
       priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
       orderedQuantity: order.totals.orderedQuantity ?? 0,
-      assignedQuantity: order.totals.assignedQuantity ?? 0,
       deliveredQuantity: order.totals.deliveredQuantity ?? 0,
       status: order.status,
-      createdAt: order.createdAt ? dayjs(order.createdAt).format('DD.MM.YYYY') : '-',
     }));
   }, [orders, t]);
   

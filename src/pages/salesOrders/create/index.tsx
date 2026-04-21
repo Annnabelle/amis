@@ -166,33 +166,73 @@ const SalesOrdersCreate = () => {
               }}
             >
               <div className="form-divider-title">
-                <h4 className="title">{t('salesOrders.sections.customer')}</h4>
+                <h4 className="title">{t('salesOrders.createSections.recipient', { defaultValue: 'Получатель' })}</h4>
               </div>
               <div className="form-inputs form-inputs-organization">
                 <Form.Item
                   className="input"
                   name={["customer", "tin"]}
-                  label={t('salesOrders.fields.customerTin')}
-                  rules={[{ required: true, message: t('salesOrders.validation.customerTinRequired') }]}
+                  label={t('salesOrders.createFields.companyTin', { defaultValue: 'ИНН компании' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.companyTinRequired', {
+                        defaultValue: 'ИНН компании обязателен',
+                      }),
+                    },
+                  ]}
                 >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.customerTin')} />
+                  <Input
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.companyTin', {
+                      defaultValue: 'ИНН компании',
+                    })}
+                  />
                 </Form.Item>
                 <Form.Item
                   className="input"
                   name={["customer", "name"]}
-                  label={t('salesOrders.fields.customerName')}
-                  rules={[{ required: true, message: t('salesOrders.validation.customerNameRequired') }]}
+                  label={t('salesOrders.createFields.companyName', { defaultValue: 'Название компании' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.companyNameRequired', {
+                        defaultValue: 'Название компании обязательно',
+                      }),
+                    },
+                  ]}
                 >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.customerName')} />
+                  <Input
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.companyName', {
+                      defaultValue: 'Название компании',
+                    })}
+                  />
                 </Form.Item>
               </div>
               <div className="form-inputs form-inputs-organization">
                 <Form.Item
                   className="input"
                   name={["customer", "address"]}
-                  label={t('salesOrders.fields.customerAddress')}
+                  label={t('salesOrders.createFields.companyAddress', { defaultValue: 'Адрес компании' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.companyAddressRequired', {
+                        defaultValue: 'Адрес компании обязателен',
+                      }),
+                    },
+                  ]}
                 >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.customerAddress')} />
+                  <Input
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.companyAddress', {
+                      defaultValue: 'Адрес компании',
+                    })}
+                  />
                 </Form.Item>
               </div>
 
@@ -243,10 +283,23 @@ const SalesOrdersCreate = () => {
                 <Form.Item
                   className="input"
                   name={["fulfillment", "dueDate"]}
-                  label={t('salesOrders.fields.dueDate')}
-                  rules={[{ required: true, message: t('salesOrders.validation.dueDateRequired') }]}
+                  label={t('salesOrders.createFields.expectedDate', { defaultValue: 'Ожидаемая дата' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.expectedDateRequired', {
+                        defaultValue: 'Ожидаемая дата обязательна',
+                      }),
+                    },
+                  ]}
                 >
-                  <DatePicker className="input" size="large" placeholder={t('salesOrders.placeholders.dueDate')} />
+                  <DatePicker
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.expectedDate', {
+                      defaultValue: 'Ожидаемая дата',
+                    })}
+                  />
                 </Form.Item>
                 <Form.Item
                   className="input"
@@ -304,6 +357,7 @@ const SalesOrdersCreate = () => {
                             min={1}
                             max={9999999999}
                             precision={0}
+                            type="text"
                             size="large"
                             className="input"
                             style={{ width: "100%", minWidth: 120 }}
@@ -324,6 +378,7 @@ const SalesOrdersCreate = () => {
                             min={100}
                             max={9999999}
                             precision={0}
+                            type="text"
                             size="large"
                             className="input"
                             style={{ width: "100%", minWidth: 140 }}

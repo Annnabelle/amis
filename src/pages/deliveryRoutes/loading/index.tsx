@@ -49,7 +49,7 @@ const DeliveryRoutesLoading = () => {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
-  const [isClosingSession, setIsClosingSession] = useState(false);
+  const isClosingSession = false;
   const canUseScreen = isWarehouseRole(currentUser);
 
   useEffect(() => {
@@ -218,30 +218,6 @@ const DeliveryRoutesLoading = () => {
     setScannerMode('delete');
   };
 
-  const handleScannerClose = async () => {
-    if (scannerMode !== 'loading' || !scanSession?.id) {
-      setScannerMode(null);
-      return;
-    }
-
-    if (scanSession.status !== 'active') {
-      setScannerMode(null);
-      return;
-    }
-
-    try {
-      setIsClosingSession(true);
-      await dispatch(completeScanSession(scanSession.id)).unwrap();
-    } catch (error) {
-      toast.error(
-        getBackendErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
-      );
-    } finally {
-      setIsClosingSession(false);
-      setScannerMode(null);
-    }
-  };
-
   const handleScan = async (code: string) => {
     if (scannerMode === 'delete') {
       try {
@@ -396,6 +372,10 @@ const DeliveryRoutesLoading = () => {
     }
   };
 
+  const handleCloseScannerView = async () => {
+    setScannerMode(null);
+  };
+
   const lastScansContent = (
     <div className="loading-scans-groups">
       {acceptedScanGroups.length === 0 && rejectedScans.length === 0 && (
@@ -513,6 +493,15 @@ const DeliveryRoutesLoading = () => {
           >
             {t('deliveryRoutes.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
           </CustomButton>
+          {scanSession?.status === 'active' && scannerMode !== 'delete' && (
+            <CustomButton
+              className="outline"
+              onClick={() => void handleComplete()}
+              disabled={isCreating || isCompleting || isClosingSession}
+            >
+              {isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading')}
+            </CustomButton>
+          )}
           <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -614,7 +603,7 @@ const DeliveryRoutesLoading = () => {
                 }
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
-                onCameraClose={handleScannerClose}
+                onCameraClose={handleCloseScannerView}
               />
             </section>
           </div>
