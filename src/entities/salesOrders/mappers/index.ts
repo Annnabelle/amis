@@ -28,6 +28,7 @@ export const mapSalesOrderDtoToEntity = (
 ): SalesOrderResponse => ({
   id: dto.id,
   companyId: dto.companyId,
+  salesOrderNumber: dto.salesOrderNumber,
   status: dto.status,
   customer: {
     companyId: dto.customer.companyId,

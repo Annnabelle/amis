@@ -313,7 +313,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
         <div className="dm-scanner-camera-target" aria-hidden="true">
           <div className="dm-scanner-camera-target-frame" />
         </div>
-        {!cameraActive && (
+        {!cameraActive && !(isMobile && mobileCameraVisible) && (
           <div className="dm-scanner-camera-placeholder">
             {cameraSupported ? t('scanner.cameraIdle') : t('scanner.cameraUnsupported')}
           </div>
@@ -324,9 +324,9 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
     </div>
   );
 
-  const renderSessionActions = (isMobileLayout = false) => (
+  const renderSessionActions = (isMobileLayout = false, includePrimaryAction = true) => (
     <>
-      {primaryActionLabel && onPrimaryAction && (
+      {includePrimaryAction && primaryActionLabel && onPrimaryAction && (
         isMobileLayout ? (
           <button
             type="button"
@@ -447,22 +447,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           </div>
           {renderCameraBlock()}
           <div className="dm-scanner-mobile-camera-footer">
-            {primaryActionLabel && onPrimaryAction && (
-              <button
-                type="button"
-                className="dm-scanner-mobile-camera-primary"
-                onClick={onPrimaryAction}
-              >
-                {primaryActionLabel}
-              </button>
-            )}
-            <button
-              type="button"
-              className="dm-scanner-mobile-camera-close"
-              onClick={() => void stopCamera()}
-            >
-              {t('scanner.stopScanning', { defaultValue: 'Завершить сканирование' })}
-            </button>
+            {renderSessionActions(true, false)}
           </div>
         </div>
       )}

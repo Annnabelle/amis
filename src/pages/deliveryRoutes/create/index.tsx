@@ -1,4 +1,4 @@
-import { AutoComplete, DatePicker, Form, Input, Select } from 'antd';
+import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import type { ChangeEvent } from 'react';
 import MainLayout from 'shared/ui/layout';
@@ -18,6 +18,23 @@ import { searchUsers } from 'entities/users/model';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
+
+const getPriorityColor = (priority?: string) => {
+  if (!priority) return 'default';
+
+  switch (priority.toLowerCase()) {
+    case 'urgent':
+      return 'red';
+    case 'high':
+      return 'gold';
+    case 'normal':
+      return 'blue';
+    case 'low':
+      return 'green';
+    default:
+      return 'default';
+  }
+};
 
 const DeliveryRoutesCreate = () => {
   const navigate = useNavigate();
@@ -221,7 +238,7 @@ const DeliveryRoutesCreate = () => {
       name: order.customer.name,
       tin: order.customer.tin,
       address: order.customer.address,
-      contractNumber: order.contract?.number ?? '-',
+      salesOrderNumber: order.salesOrderNumber ?? '-',
       contractDate: order.contract?.date ? dayjs(order.contract.date).format('DD.MM.YYYY') : '-',
       dueDate: dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY'),
       priority: order.fulfillment.priority,
@@ -608,7 +625,7 @@ const DeliveryRoutesCreate = () => {
                                   <span className="label">{t('deliveryRoutes.preview.address')}:</span> {customer.address}
                                 </span>
                                 <span className="detail-item">
-                                  <span className="label">{t('deliveryRoutes.preview.contractNumber')}:</span> {customer.contractNumber}
+                                  <span className="label">{t('salesOrders.fields.orderNumber')}:</span> {customer.salesOrderNumber}
                                 </span>
                                 <span className="detail-item">
                                   <span className="label">{t('deliveryRoutes.preview.contractDate')}:</span> {customer.contractDate}
@@ -622,9 +639,9 @@ const DeliveryRoutesCreate = () => {
                               </div>
                             </div>
                             <div className="order-meta">
-                              <span className="priority-badge" data-priority={customer.priority}>
+                              <Tag color={getPriorityColor(customer.priority)} style={{ margin: 0 }}>
                                 {t(`salesOrders.priority.${customer.priority}`)}
-                              </span>
+                              </Tag>
                               <span className="due-date">{customer.dueDate}</span>
                             </div>
                           </div>

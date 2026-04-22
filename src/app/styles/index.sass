@@ -180,6 +180,19 @@ input:-webkit-autofill:active
     padding-bottom: 12px
     border-bottom: 2px solid rgba(30, 144, 255, 0.1)
 
+.detail-card-header
+  display: flex
+  align-items: flex-start
+  justify-content: space-between
+  gap: 16px
+  margin-bottom: 16px
+
+  h4
+    margin: 0
+
+.detail-card-header-with-actions
+  flex-wrap: wrap
+
 .detail-card-wide
   grid-column: span 1
 
@@ -307,22 +320,31 @@ input:-webkit-autofill:active
     .value
       font-size: 22px
 
+.route-preview-orders-details
+  display: flex
+  flex-direction: column
+  gap: 14px
+
 .route-task-controls
   display: flex
   gap: 10px
   margin-bottom: 16px
+  flex-wrap: wrap
 
 .route-task-control-btn
   display: inline-flex
   align-items: center
-  gap: 6px
-  padding: 8px 14px
-  border-radius: 999px
+  justify-content: center
+  gap: 8px
+  padding: 7px 14px
+  border-radius: 14px
   border: 1px solid rgba(30, 144, 255, 0.14)
   background: rgba(30, 144, 255, 0.04)
   color: #2D3A54
   font-size: 12px
   font-weight: 600
+  line-height: 1.1
+  text-align: center
   cursor: pointer
   transition: all 0.2s ease
 
@@ -343,13 +365,18 @@ input:-webkit-autofill:active
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08)
 
 .route-task-header
+  position: relative
   display: grid
-  grid-template-columns: 28px minmax(0, 1fr) auto
+  grid-template-columns: minmax(0, 1fr) auto
   gap: 16px
   align-items: start
   padding: 18px 20px
+  padding-right: 56px
 
 .route-task-expand-icon
+  position: absolute
+  top: 18px
+  right: 20px
   display: flex
   align-items: center
   justify-content: center
@@ -359,7 +386,6 @@ input:-webkit-autofill:active
   background: rgba(30, 144, 255, 0.08)
   color: #1E90FF
   font-size: 12px
-  margin-top: 2px
 
 .route-task-main
   display: flex
@@ -721,41 +747,145 @@ input:-webkit-autofill:active
     grid-template-columns: 1fr
 
   .route-task-controls
-    flex-direction: column
+    flex-direction: row
+    flex-wrap: nowrap
+    width: auto
+    gap: 6px
+    margin-bottom: 0
+
+  .detail-card-header-with-actions
+    align-items: center
+    justify-content: space-between
+    gap: 8px
+    flex-wrap: nowrap
+
+    h4
+      flex: 1 1 auto
+      min-width: 0
+
+  .detail-card-header-with-actions
+    .route-task-controls
+      width: auto
+      margin-bottom: 0
+      flex: 0 0 auto
+
+  .route-task-control-btn
+    flex: 0 1 auto
+    min-width: 0
+    padding: 7px 12px
+    font-size: 10px
+    line-height: 1.1
+    border-radius: 12px
+    white-space: nowrap
 
   .route-task-header
-    grid-template-columns: 28px 1fr
+    grid-template-columns: minmax(0, 1fr)
+    gap: 12px
+    padding: 16px
+    padding-right: 52px
+
+  .route-task-expand-icon
+    top: 16px
+    right: 16px
 
   .route-task-side
-    grid-column: 2
+    grid-column: 1 / -1
     align-items: flex-start
+    width: 100%
+    gap: 8px
+
+    .status-badge
+      min-height: 32px
+      padding: 6px 12px
+      border-radius: 10px
+      font-size: 12px
+
+    .primary
+      width: 100%
+
+  .route-task-invoice
+    display: none
 
   .route-task-topline
     grid-template-columns: 1fr
     gap: 8px
 
   .route-task-number
-    font-size: 24px
+    font-size: 18px
+    line-height: 1.15
 
   .route-task-metrics
     grid-template-columns: repeat(2, minmax(0, 1fr))
+    gap: 10px
+
+  .route-task-expanded
+    padding: 0 16px 16px
+    gap: 12px
 
   .route-task-expanded-meta
     grid-template-columns: 1fr
+    gap: 8px
+    padding-top: 12px
+
+  .route-task-expanded-item
+    gap: 4px
+    padding: 10px 12px
+    border: 1px solid rgba(30, 144, 255, 0.10)
+    border-radius: 12px
+    background: rgba(248, 250, 255, 0.92)
+
+  .route-task-expanded-value
+    font-size: 13px
+    line-height: 1.35
 
   .route-task-items-head
     display: none
 
+  .route-task-items-list
+    gap: 8px
+    background: transparent
+
   .route-task-item-row
     grid-template-columns: 1fr
-    gap: 8px
-    padding: 14px 16px
+    gap: 10px
+    padding: 12px
+    border: 1px solid rgba(30, 144, 255, 0.08)
+    border-radius: 14px
+    background: rgba(248, 250, 255, 0.92)
+
+    &:last-child
+      border-bottom: 1px solid rgba(30, 144, 255, 0.08)
+
+  .route-task-item-product
+    gap: 2px
+    padding-bottom: 8px
+    border-bottom: 1px solid rgba(30, 144, 255, 0.08)
+
+  .route-task-item-cell
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    gap: 12px
+    font-size: 13px
+
+    > span:last-child
+      font-weight: 600
+      color: #24324A
+      text-align: right
+
+  .route-task-item-row-empty
+    display: flex
+    align-items: center
+    justify-content: center
+    min-height: 72px
 
   .route-task-item-cell-label
     display: block
 
   .route-meta-chip
-    gap: 4px
+    flex-direction: row
+    align-items: baseline
+    gap: 6px
     padding: 0
     border-radius: 0
     background: transparent
@@ -768,12 +898,30 @@ input:-webkit-autofill:active
       text-transform: none
       color: #7C8595
 
+      &::after
+        content: ':'
+        margin-left: 2px
+
     .value
       font-size: 18px
       font-weight: 700
       line-height: 1.35
 
-.detail-card button
+:root[data-theme='dark']
+  @media (max-width: 900px)
+    .route-task-expanded-item,
+    .route-task-item-row
+      background: rgba(255, 255, 255, 0.03)
+      border-color: rgba(100, 181, 246, 0.10)
+
+    .route-task-item-product
+      border-bottom-color: rgba(100, 181, 246, 0.10)
+
+    .route-task-item-cell
+      > span:last-child
+        color: #F5F7FB
+
+.detail-card button:not(.route-task-control-btn)
   width: 100%
   padding: 10px 12px
   border-radius: 8px

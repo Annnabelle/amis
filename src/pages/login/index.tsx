@@ -31,9 +31,8 @@ const LoginPage = () => {
             .then(() => {
                 toast.success(t('login.messages.successLogin'));
             })
-            .catch((error) => {
+            .catch(() => {
                 toast.error(t('login.messages.errorLogin'));
-                console.error(error);
                 setIsSubmitting(false);
             }); 
     };

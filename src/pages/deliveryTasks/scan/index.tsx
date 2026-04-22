@@ -551,15 +551,8 @@ const DeliveryTasksScan = () => {
   return (
     <MainLayout>
       <Heading
-        title={t('deliveryTasks.scanTitle', {
-          defaultValue: 'Выдача по задаче {{task}}',
-          task: task.taskNumber,
-        })}
-        subtitle={t('deliveryTasks.scanSubtitle', {
-          defaultValue: 'Рейс {{route}} / {{customer}}',
-          route: task.deliveryRouteId,
-          customer: task.customer.name,
-        })}
+        title={`${t('deliveryTasks.scanTitle')}: ${task.taskNumber}`}
+        subtitle={task.customer.name}
       >
         <div className="btns-group">
           <CustomButton
@@ -649,30 +642,14 @@ const DeliveryTasksScan = () => {
                 title={
                   scannerMode === 'delete'
                     ? t('deliveryTasks.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })
-                    : t('deliveryTasks.scanner.title', {
-                        defaultValue: 'Выдача по рейсу {{route}}',
-                        route: task.deliveryRouteId,
-                      })
+                    : `${t('deliveryTasks.scanTitle')}: ${task.taskNumber}`
                 }
                 subtitle={
                   scannerMode === 'delete'
                     ? t('deliveryTasks.scanner.deleteSubtitle', {
                         defaultValue: 'Отсканируйте код, который нужно удалить из выдачи',
                       })
-                    : t('deliveryTasks.scanner.subtitle', {
-                        defaultValue: 'Задача {{task}} / {{customer}}',
-                        task: task.taskNumber,
-                        customer: task.customer.name,
-                      })
-                }
-                helperText={
-                  scannerMode === 'delete'
-                    ? t('deliveryTasks.scanner.deleteHelper', {
-                        defaultValue: 'Откройте камеру и отсканируйте код для удаления из выдачи',
-                      })
-                    : t('deliveryTasks.scanner.helper', {
-                        defaultValue: 'Нажмите "Начать сканирование", чтобы открыть камеру и выдавать товар',
-                      })
+                    : task.customer.name
                 }
                 onScan={handleScan}
                 lastScans={recentScans}
@@ -740,3 +717,4 @@ const DeliveryTasksScan = () => {
 };
 
 export default DeliveryTasksScan;
+

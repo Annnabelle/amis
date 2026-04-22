@@ -303,8 +303,6 @@ const Organizations = () => {
         }, {} as Record<string, string>);
     }, [productGroupReferences, lang]);
 
-    console.log("group", productGroupReferences)
-
     const isFieldDisabled = (name: any) => {
         const value = form.getFieldValue(name);
         return isXTraceValidated && value !== undefined && value !== null && value !== "";

@@ -9,6 +9,7 @@ import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const UserSettings = () => {
   const { t } = useTranslation();
@@ -48,8 +49,8 @@ const UserSettings = () => {
 
       navigate("/");
     })
-    .catch((err) => {
-      console.error(`${t("changePasswordForm.message.error")}`, err);
+    .catch(() => {
+      toast.error(t('changePwd.changePasswordForm.message.error'));
     });
 
   setModalOpen(false);

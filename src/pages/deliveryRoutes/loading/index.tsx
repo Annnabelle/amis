@@ -575,23 +575,10 @@ const DeliveryRoutesLoading = () => {
                         vehicle: route.vehicle.name || '-',
                       })
                 }
-                helperText={
-                  scannerMode === 'delete'
-                    ? t('deliveryRoutes.loadingWarnings.deleteScanHelper', {
-                        defaultValue: 'Откройте камеру и отсканируйте код, который нужно удалить из погрузки',
-                      })
-                    : t('deliveryRoutes.loadingHelper')
-                }
                 onScan={handleScan}
                 lastScans={recentScans}
                 acceptedCount={scanSession?.counters.accepted ?? 0}
                 rejectedCount={scanSession?.counters.rejected ?? 0}
-                primaryActionLabel={
-                  scannerMode === 'loading' && scanSession
-                    ? (isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading'))
-                    : undefined
-                }
-                onPrimaryAction={scannerMode === 'loading' && scanSession ? () => void handleComplete() : undefined}
                 enableCamera={scannerMode !== null}
                 cameraAutoStart={scannerMode !== null}
                 scanDisabled={

@@ -215,7 +215,7 @@ export const deliveryTasksSlice = createSlice({
       })
       .addCase(startDeliveryTaskDelivery.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error starting delivery");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось начать доставку");
       })
       .addCase(completeDeliveryTaskDelivery.pending, (state) => {
         state.loadingById = true;
@@ -231,7 +231,7 @@ export const deliveryTasksSlice = createSlice({
       )
       .addCase(completeDeliveryTaskDelivery.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error completing delivery");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить доставку");
       });
   },
 });

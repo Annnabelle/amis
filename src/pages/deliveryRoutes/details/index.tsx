@@ -27,6 +27,7 @@ const DeliveryRoutesDetails = () => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
+  const [transitStarted, setTransitStarted] = useState(false);
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const isLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
@@ -42,7 +43,7 @@ const DeliveryRoutesDetails = () => {
       route?.status &&
       ['assigned_to_warehouse', 'ready_for_loading', 'loading', 'loaded'].includes(route.status)
   );
-  const canStartTransit = Boolean((isAgentUser || isWarehouseUser) && route?.status === 'loaded');
+  const canStartTransit = Boolean((isAgentUser || isWarehouseUser) && route?.status === 'loaded' && !transitStarted);
   const canStartDelivery = Boolean(isAgentUser && route?.status === 'in_transit');
   const transitButtonLabel = t('deliveryRoutes.actions.startTransit', {
     defaultValue: isAgentUser ? 'Начать поездку' : 'Отправить машину',
@@ -66,6 +67,12 @@ const DeliveryRoutesDetails = () => {
       dispatch(getDeliveryTasks({ routeId: id }));
     }
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (route?.status && route.status !== 'loaded') {
+      setTransitStarted(false);
+    }
+  }, [route?.status]);
 
   const toggleTaskExpanded = (index: number) => {
     setExpandedTasks((prev) => {
@@ -109,6 +116,7 @@ const DeliveryRoutesDetails = () => {
     if (!route?.id) return;
 
     try {
+      setTransitStarted(true);
       await dispatch(startDeliveryRouteTransit(route.id)).unwrap();
       await dispatch(getDeliveryRouteById(route.id));
       toast.success(
@@ -117,6 +125,7 @@ const DeliveryRoutesDetails = () => {
         })
       );
     } catch (error) {
+      setTransitStarted(false);
       toast.error(
         getBackendErrorMessage(
           error,
@@ -453,23 +462,34 @@ const DeliveryRoutesDetails = () => {
 
             <div className="detail-grid detail-grid-single">
               <div className="detail-card detail-card-full">
-                <h4>{t('deliveryRoutes.sections.tasks')}</h4>
+                <div className="detail-card-header detail-card-header-with-actions">
+                  <h4>{t('deliveryRoutes.sections.tasks')}</h4>
+                  {tasks.length > 0 && (
+                    <div className="route-task-controls">
+                      <button
+                        className="route-task-control-btn"
+                        onClick={expandAllTasks}
+                        aria-label={t('common.expandAll')}
+                        title={t('common.expandAll')}
+                      >
+                        <DownOutlined /> {isMobile ? 'Развернуть' : t('common.expandAll')}
+                      </button>
+                      <button
+                        className="route-task-control-btn"
+                        onClick={collapseAllTasks}
+                        aria-label={t('common.collapseAll')}
+                        title={t('common.collapseAll')}
+                      >
+                        <UpOutlined /> {isMobile ? 'Свернуть' : t('common.collapseAll')}
+                      </button>
+                    </div>
+                  )}
+                </div>
                 {tasks.length === 0 && !tasksLoading ? (
                   <Empty description={t('deliveryRoutes.details.tasksEmpty')} />
                 ) : (
                   <div className="route-preview-section">
                     <div className="route-preview-orders-details">
-                      {tasks.length > 0 && (
-                        <div className="route-task-controls">
-                          <button className="route-task-control-btn" onClick={expandAllTasks}>
-                            <DownOutlined /> {t('common.expandAll')}
-                          </button>
-                          <button className="route-task-control-btn" onClick={collapseAllTasks}>
-                            <UpOutlined /> {t('common.collapseAll')}
-                          </button>
-                        </div>
-                      )}
-
                       {tasks.map((task, index) => (
                         <div
                           key={task.id}
@@ -480,9 +500,6 @@ const DeliveryRoutesDetails = () => {
                             onClick={() => toggleTaskExpanded(index)}
                             style={{ cursor: 'pointer' }}
                           >
-                            <div className="route-task-expand-icon">
-                              {expandedTasks.has(index) ? <UpOutlined /> : <DownOutlined />}
-                            </div>
                             <div className="route-task-main">
                               <div className="route-task-topline">
                                 <span className="route-task-number">{task.taskNumber}</span>
@@ -541,6 +558,9 @@ const DeliveryRoutesDetails = () => {
                                   })}
                                 </CustomButton>
                               )}
+                            </div>
+                            <div className="route-task-expand-icon">
+                              {expandedTasks.has(index) ? <UpOutlined /> : <DownOutlined />}
                             </div>
                           </div>
 

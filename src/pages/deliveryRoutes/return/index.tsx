@@ -509,7 +509,6 @@ const DeliveryRoutesReturn = () => {
                 subtitle={t('deliveryRoutes.returnScannerSubtitle', {
                   id: route.routeNumber,
                 })}
-                helperText={t('deliveryRoutes.returnHelper')}
                 onScan={handleScan}
                 lastScans={recentScans}
                 acceptedCount={scanSession?.counters.accepted ?? 0}

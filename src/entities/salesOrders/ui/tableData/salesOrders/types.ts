@@ -5,6 +5,7 @@ export interface SalesOrdersTableDataType {
   customerTin: string;
   dueDate: string;
   priority: string;
+  priorityKey: string;
   orderedQuantity: number | string;
   deliveredQuantity: number | string;
   status: string;
