@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 /.env
-/runtime-config.js
+runtime-config.js
