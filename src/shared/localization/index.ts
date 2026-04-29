@@ -1359,7 +1359,7 @@
                 },
                 fields: {
                     company: "Компания",
-                    orderNumber: "Номер заказа",
+                    orderNumber: "Номер сделки",
                     customerTin: "ИНН клиента",
                     customerName: "Имя клиента",
                     customerAddress: "Адрес клиента",

@@ -5,7 +5,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
@@ -167,6 +167,7 @@ const DeliveryRoutesCreate = () => {
   type AvailableOrderRow = {
     key: string;
     customer: string;
+    salesOrderNumber: string;
     dueDate: string;
     priority: string;
     ordered: number;
@@ -182,6 +183,7 @@ const DeliveryRoutesCreate = () => {
         const ordered = order.totals.orderedQuantity ?? 0;
         const assigned = order.totals.assignedQuantity ?? 0;
         const delivered = order.totals.deliveredQuantity ?? 0;
+        const salesOrderNumber = order.salesOrderNumber;
         const remaining = Math.max(0, ordered - assigned);
 
         return {
@@ -192,6 +194,7 @@ const DeliveryRoutesCreate = () => {
             : '-',
           priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
           ordered,
+          salesOrderNumber,
           assigned,
           delivered,
           remaining,
@@ -269,6 +272,24 @@ const DeliveryRoutesCreate = () => {
 
   const availableOrdersColumns = useMemo<AdaptiveColumn<AvailableOrderRow>[]>(
     () => [
+      {
+        title: t("salesOrders.table.orderNumber"),
+        dataIndex: "salesOrderNumber",
+        key: "salesOrderNumber",
+        flex: 1.5,
+        render: (_, record) => (
+          <Link
+            className="table-text link"
+            to={
+              orgId
+                ? `/organization/${orgId}/sales-orders/${record.key}`
+                : `/sales-orders/${record.key}`
+            }
+          >
+            {record.salesOrderNumber}
+          </Link>
+        ),
+      },
       {
         title: t('salesOrders.table.customerName'),
         dataIndex: 'customer',
