@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Empty, Input, Modal } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -411,9 +412,11 @@ const DeliveryRoutesLoading = () => {
                 <button
                   type="button"
                   className="loading-scan-item-delete"
+                  aria-label={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
+                  title={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
                   onClick={() => void handleDeleteScan(scan.code)}
                 >
-                  {t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
+                  <DeleteOutlined />
                 </button>
               </div>
             ))}
