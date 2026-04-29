@@ -1,56 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, Tag } from 'antd';
 import { CameraOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ZxingVideoScanner, useIsMobile } from 'shared/lib';
+import { CAMERA_DUPLICATE_COOLDOWN, SCAN_PROCESSING_DELAY } from './constants';
+import type { DataMatrixScannerProps, ScanItem, ScanResult, ScannerStage } from './types';
+import { normalizeScannedCode, wait } from './utils';
 import './styles.sass';
 
-type ScanStatus = 'accepted' | 'rejected';
-type ScannerStage = 'idle' | 'starting' | 'camera_active' | 'code_detected' | 'processing' | 'error';
-
-export interface ScanResult {
-  status: ScanStatus;
-  reason?: string;
-}
-
-export interface ScanItem {
-  code: string;
-  status: ScanStatus;
-  reason?: string;
-  ts: string;
-}
-
-interface DataMatrixScannerProps {
-  title: string;
-  subtitle?: string;
-  helperText?: string;
-  onScan?: (code: string) => ScanResult | Promise<ScanResult>;
-  lastScans?: ScanItem[];
-  acceptedCount?: number;
-  rejectedCount?: number;
-  primaryActionLabel?: string;
-  onPrimaryAction?: () => void;
-  enableCamera?: boolean;
-  scanDisabled?: boolean;
-  scanInProgress?: boolean;
-  cameraAutoStart?: boolean;
-  lastScansContent?: ReactNode;
-  onCameraClose?: () => void | Promise<void>;
-}
-
-const CAMERA_DUPLICATE_COOLDOWN = 1600;
-const GS1_GROUP_SEPARATOR = String.fromCharCode(29);
-
-const normalizeScannedCode = (rawValue: string) =>
-  rawValue
-    .replace(/^\]d2/i, '')
-    .replace(/\\u001d/gi, GS1_GROUP_SEPARATOR)
-    .replace(/\\x1d/gi, GS1_GROUP_SEPARATOR)
-    .replace(/<gs>/gi, GS1_GROUP_SEPARATOR)
-    .replace(/\[gs\]/gi, GS1_GROUP_SEPARATOR)
-    .replace(/\u241d/g, GS1_GROUP_SEPARATOR)
-    .replace(/\r?\n|\r/g, '')
-    .trim();
+export type { DataMatrixScannerProps, ScanItem, ScanResult };
 
 const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   title,
@@ -174,6 +132,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           reason: error instanceof Error ? error.message : t('scanner.scanFailed'),
         });
       } finally {
+        await wait(SCAN_PROCESSING_DELAY);
         processingRef.current = false;
         setDetectedCode(null);
         setScannerStage(cameraActive ? 'camera_active' : 'idle');

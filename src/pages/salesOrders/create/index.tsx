@@ -330,6 +330,7 @@ const SalesOrdersCreate = () => {
                         <Form.Item
                           className="input sales-order-item sales-order-item--product"
                           name={[field.name, "productId"]}
+                          label={t('salesOrders.fields.product')}
                           rules={[{ required: true, message: t('salesOrders.validation.itemProductRequired') }]}
                         >
                           <Select
@@ -351,6 +352,7 @@ const SalesOrdersCreate = () => {
                         <Form.Item
                           className="input sales-order-item sales-order-item--quantity"
                           name={[field.name, "quantity"]}
+                          label={t('salesOrders.fields.quantity')}
                           rules={[{ required: true, message: t('salesOrders.validation.itemQuantityRequired') }]}
                         >
                           <InputNumber<string | number>
@@ -372,6 +374,7 @@ const SalesOrdersCreate = () => {
                         <Form.Item
                           className="input sales-order-item sales-order-item--unit-price"
                           name={[field.name, "unitPrice"]}
+                          label={t('salesOrders.fields.unitPrice')}
                           rules={[{ required: true, message: t('salesOrders.validation.itemUnitPriceRequired') }]}
                         >
                           <InputNumber<string | number>
@@ -390,7 +393,11 @@ const SalesOrdersCreate = () => {
                           />
                         </Form.Item>
 
-                        <Form.Item className="input sales-order-item sales-order-item--comment" name={[field.name, "comment"]}>
+                        <Form.Item
+                          className="input sales-order-item sales-order-item--comment"
+                          name={[field.name, "comment"]}
+                          label={t('salesOrders.fields.comment')}
+                        >
                           <Input className="input" size="large" placeholder={t('salesOrders.placeholders.itemComment')} />
                         </Form.Item>
 

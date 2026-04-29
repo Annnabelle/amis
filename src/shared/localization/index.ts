@@ -387,7 +387,7 @@
                       companyRequired: "Company is required",
                       routeDateRequired: "Route date is required",
                       salesOrdersRequired: "Please select at least one sales order",
-                      plateNumberInvalid: "Plate number must be in format: 00 AAA000 or 00 0AAA00"
+                      plateNumberInvalid: "Plate number must be in format: 00 000AAA or 00 0AAA00"
                   },
                 messages: {
                     success: {
@@ -1547,7 +1547,7 @@
                       companyRequired: "Компания обязательна",
                       routeDateRequired: "Дата рейса обязательна",
                       salesOrdersRequired: "Выберите хотя бы одну сделку",
-                      plateNumberInvalid: "Номер машины должен быть в формате: 00 AAA000 или 00 0AAA00"
+                      plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA или 00 0AAA00"
                   },
                   messages: {
                       success: {
@@ -2701,7 +2701,7 @@
                       companyRequired: "Kompaniya majburiy",
                       routeDateRequired: "Reys sanasi majburiy",
                       salesOrdersRequired: "Iltimos, kamida bitta sotuv buyurtmasini tanlang",
-                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 AAA000 yoki 00 0AAA00"
+                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA yoki 00 0AAA00"
                   },
                   messages: {
                       success: {
