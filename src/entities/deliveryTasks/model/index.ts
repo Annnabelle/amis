@@ -141,7 +141,7 @@ export const completeDeliveryTaskDelivery = createAsyncThunk<
 >("deliveryTasks/completeDeliveryTaskDelivery", async ({ id, payload }, { rejectWithValue }) => {
   try {
     const { data } = await axiosInstance.post<GetDeliveryTaskResponseDto>(
-      `${BASE_URL}/delivery-tasks/${id}/complete-delivery`,
+      `${BASE_URL}/delivery-tasks/${id}/complete-handover`,
       payload ?? {}
     );
 
