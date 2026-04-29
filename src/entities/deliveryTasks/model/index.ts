@@ -110,7 +110,7 @@ export const startDeliveryTaskDelivery = createAsyncThunk<
 >("deliveryTasks/startDeliveryTaskDelivery", async (id, { rejectWithValue }) => {
   try {
     const { data } = await axiosInstance.post<GetDeliveryTaskResponseDto>(
-      `${BASE_URL}/delivery-tasks/${id}/start-delivery`
+      `${BASE_URL}/delivery-tasks/${id}/start-handover`
     );
 
     const mapped = mapSingleTaskResponse(data);
@@ -141,7 +141,7 @@ export const completeDeliveryTaskDelivery = createAsyncThunk<
 >("deliveryTasks/completeDeliveryTaskDelivery", async ({ id, payload }, { rejectWithValue }) => {
   try {
     const { data } = await axiosInstance.post<GetDeliveryTaskResponseDto>(
-      `${BASE_URL}/delivery-tasks/${id}/complete-delivery`,
+      `${BASE_URL}/delivery-tasks/${id}/complete-handover`,
       payload ?? {}
     );
 
@@ -215,7 +215,7 @@ export const deliveryTasksSlice = createSlice({
       })
       .addCase(startDeliveryTaskDelivery.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error starting delivery");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось начать доставку");
       })
       .addCase(completeDeliveryTaskDelivery.pending, (state) => {
         state.loadingById = true;
@@ -231,7 +231,7 @@ export const deliveryTasksSlice = createSlice({
       )
       .addCase(completeDeliveryTaskDelivery.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error completing delivery");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить доставку");
       });
   },
 });

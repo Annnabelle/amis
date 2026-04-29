@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
-import { Empty, Spin } from 'antd';
+import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -27,6 +27,8 @@ const DeliveryRoutesDetails = () => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
+  const [transitStarted, setTransitStarted] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const isLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
@@ -42,7 +44,7 @@ const DeliveryRoutesDetails = () => {
       route?.status &&
       ['assigned_to_warehouse', 'ready_for_loading', 'loading', 'loaded'].includes(route.status)
   );
-  const canStartTransit = Boolean((isAgentUser || isWarehouseUser) && route?.status === 'loaded');
+  const canStartTransit = Boolean((isAgentUser || isWarehouseUser) && route?.status === 'loaded' && !transitStarted);
   const canStartDelivery = Boolean(isAgentUser && route?.status === 'in_transit');
   const transitButtonLabel = t('deliveryRoutes.actions.startTransit', {
     defaultValue: isAgentUser ? 'Начать поездку' : 'Отправить машину',
@@ -61,11 +63,36 @@ const DeliveryRoutesDetails = () => {
   const taskScanPath = (taskId: string) =>
     orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : `/delivery-tasks/${taskId}/scan`;
   useEffect(() => {
-    if (id) {
-      dispatch(getDeliveryRouteById(id));
-      dispatch(getDeliveryTasks({ routeId: id }));
+    let isMounted = true;
+
+    if (!id) {
+      setIsBootstrapping(false);
+      return () => {
+        isMounted = false;
+      };
     }
+
+    setIsBootstrapping(true);
+
+    Promise.allSettled([
+      dispatch(getDeliveryRouteById(id)).unwrap(),
+      dispatch(getDeliveryTasks({ routeId: id })).unwrap(),
+    ]).finally(() => {
+      if (isMounted) {
+        setIsBootstrapping(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (route?.status && route.status !== 'loaded') {
+      setTransitStarted(false);
+    }
+  }, [route?.status]);
 
   const toggleTaskExpanded = (index: number) => {
     setExpandedTasks((prev) => {
@@ -109,6 +136,7 @@ const DeliveryRoutesDetails = () => {
     if (!route?.id) return;
 
     try {
+      setTransitStarted(true);
       await dispatch(startDeliveryRouteTransit(route.id)).unwrap();
       await dispatch(getDeliveryRouteById(route.id));
       toast.success(
@@ -117,6 +145,7 @@ const DeliveryRoutesDetails = () => {
         })
       );
     } catch (error) {
+      setTransitStarted(false);
       toast.error(
         getBackendErrorMessage(
           error,
@@ -168,33 +197,13 @@ const DeliveryRoutesDetails = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <MainLayout>
-        {isMobile && (
-          <div className="mobile-route-toolbar">
-            <div className="mobile-route-toolbar-back">
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
-                <LeftOutlined />
-              </CustomButton>
-            </div>
-          </div>
-        )}
-        {!isMobile && (
-          <Heading title={t('deliveryRoutes.detailsTitle')} subtitle={t('common.details')} />
-        )}
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items">
-              <Spin size="large" />
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
+  const isCurrentRouteLoaded = route?.id === id;
+
+  if (isBootstrapping || (isLoading && !isCurrentRouteLoaded)) {
+    return null;
   }
 
-  if (!route) {
+  if (!isCurrentRouteLoaded || !route) {
     return (
       <MainLayout>
         {isMobile && (
@@ -441,35 +450,46 @@ const DeliveryRoutesDetails = () => {
                 </div>
               </div>
             </div>
-
-            <div className="detail-grid detail-grid-single">
-              <div className="detail-card detail-card-full">
-                <h4>{t('deliveryRoutes.fields.comment')}</h4>
-                <div className="detail-text-block">
-                  {route.comment || '-'}
+            {route.comment && (
+              <div className="detail-grid detail-grid-single">
+                <div className="detail-card detail-card-full">
+                  <h4>{t('deliveryRoutes.fields.comment')}</h4>
+                  <div className="detail-text-block">
+                    {route.comment || '-'}
+                  </div>
                 </div>
               </div>
-            </div>
-
+            )}
             <div className="detail-grid detail-grid-single">
               <div className="detail-card detail-card-full">
-                <h4>{t('deliveryRoutes.sections.tasks')}</h4>
+                <div className="detail-card-header detail-card-header-with-actions">
+                  <h4>{t('deliveryRoutes.sections.tasks')}</h4>
+                  {tasks.length > 0 && (
+                    <div className="route-task-controls">
+                      <button
+                        className="route-task-control-btn"
+                        onClick={expandAllTasks}
+                        aria-label={t('common.expandAll')}
+                        title={t('common.expandAll')}
+                      >
+                        <DownOutlined /> {isMobile ? 'Развернуть' : t('common.expandAll')}
+                      </button>
+                      <button
+                        className="route-task-control-btn"
+                        onClick={collapseAllTasks}
+                        aria-label={t('common.collapseAll')}
+                        title={t('common.collapseAll')}
+                      >
+                        <UpOutlined /> {isMobile ? 'Свернуть' : t('common.collapseAll')}
+                      </button>
+                    </div>
+                  )}
+                </div>
                 {tasks.length === 0 && !tasksLoading ? (
                   <Empty description={t('deliveryRoutes.details.tasksEmpty')} />
                 ) : (
                   <div className="route-preview-section">
                     <div className="route-preview-orders-details">
-                      {tasks.length > 0 && (
-                        <div className="route-task-controls">
-                          <button className="route-task-control-btn" onClick={expandAllTasks}>
-                            <DownOutlined /> {t('common.expandAll')}
-                          </button>
-                          <button className="route-task-control-btn" onClick={collapseAllTasks}>
-                            <UpOutlined /> {t('common.collapseAll')}
-                          </button>
-                        </div>
-                      )}
-
                       {tasks.map((task, index) => (
                         <div
                           key={task.id}
@@ -480,9 +500,6 @@ const DeliveryRoutesDetails = () => {
                             onClick={() => toggleTaskExpanded(index)}
                             style={{ cursor: 'pointer' }}
                           >
-                            <div className="route-task-expand-icon">
-                              {expandedTasks.has(index) ? <UpOutlined /> : <DownOutlined />}
-                            </div>
                             <div className="route-task-main">
                               <div className="route-task-topline">
                                 <span className="route-task-number">{task.taskNumber}</span>
@@ -526,8 +543,10 @@ const DeliveryRoutesDetails = () => {
                               {canStartDelivery && !['delivered', 'cancelled'].includes(task.status) && (
                                 <CustomButton
                                   className="primary"
+                                  disabled={task.status === 'handover_in_progress'}
                                   onClick={(event) => {
                                     event.stopPropagation();
+                                    if (task.status === 'handover_in_progress') return;
                                     void handleStartDelivery(task.id);
                                   }}
                                 >
@@ -539,6 +558,9 @@ const DeliveryRoutesDetails = () => {
                                   })}
                                 </CustomButton>
                               )}
+                            </div>
+                            <div className="route-task-expand-icon">
+                              {expandedTasks.has(index) ? <UpOutlined /> : <DownOutlined />}
                             </div>
                           </div>
 

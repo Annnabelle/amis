@@ -140,6 +140,28 @@
     align-items: start
     gap: 20px
 
+.dm-scanner-session-actions
+  display: flex
+  justify-content: flex-end
+  align-items: center
+  flex-wrap: wrap
+  gap: 12px
+  padding-top: 4px
+
+.dm-scanner-session-close
+  border: 1px solid rgba(148, 163, 184, 0.42)
+  background: rgba(255, 255, 255, 0.92)
+  color: #0f172a
+  border-radius: 999px
+  padding: 11px 18px
+  font-size: 14px
+  font-weight: 600
+  cursor: pointer
+
+  &:disabled
+    opacity: 0.55
+    cursor: not-allowed
+
 .dm-scanner-camera-actions
   display: flex
   gap: 12px
@@ -270,6 +292,11 @@
     padding: 18px
     border-radius: 16px
 
+  .dm-scanner-title
+    font-size: 18px
+    line-height: 1.2
+    word-break: break-word
+
   .dm-scanner-header
     flex-direction: column
     align-items: stretch
@@ -283,6 +310,13 @@
 
   .dm-scanner-camera-actions
     flex-direction: column
+
+  .dm-scanner-session-actions
+    justify-content: stretch
+
+  .dm-scanner-session-primary,
+  .dm-scanner-session-close
+    width: 100%
 
   .dm-scanner-input
     grid-template-columns: 1fr
@@ -361,8 +395,10 @@
   gap: 6px
 
   span
-    font-size: 18px
+    font-size: 16px
     font-weight: 700
+    line-height: 1.25
+    word-break: break-word
 
   small
     font-size: 13px
@@ -378,6 +414,15 @@
   font-size: 13px
   font-weight: 600
 
+.dm-scanner-mobile-camera-primary
+  border: 1px solid #2563eb
+  background: #2563eb
+  color: #f8fafc
+  border-radius: 999px
+  padding: 10px 14px
+  font-size: 13px
+  font-weight: 600
+
 .dm-scanner-mobile-camera-footer
   position: absolute
   left: 0
@@ -385,12 +430,22 @@
   bottom: 0
   z-index: 3
   display: flex
+  flex-direction: column
   justify-content: center
+  align-items: center
+  gap: 10px
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom))
   background: linear-gradient(0deg, rgba(2, 6, 23, 0.78) 0%, rgba(2, 6, 23, 0.18) 72%, rgba(2, 6, 23, 0) 100%)
 
+  .dm-scanner-mobile-camera-primary,
   .dm-scanner-mobile-camera-close
     min-width: min(92vw, 340px)
     padding: 12px 18px
+
+  .dm-scanner-mobile-camera-primary
+    background: #2563eb
+    border-color: #2563eb
+
+  .dm-scanner-mobile-camera-close
     background: rgba(15, 23, 42, 0.8)
     border-color: rgba(148, 163, 184, 0.42)

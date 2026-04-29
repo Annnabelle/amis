@@ -1,11 +1,11 @@
-import { AutoComplete, DatePicker, Form, Input, Select } from 'antd';
+import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import type { ChangeEvent } from 'react';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
@@ -18,6 +18,23 @@ import { searchUsers } from 'entities/users/model';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
+
+const getPriorityColor = (priority?: string) => {
+  if (!priority) return 'default';
+
+  switch (priority.toLowerCase()) {
+    case 'urgent':
+      return 'red';
+    case 'high':
+      return 'gold';
+    case 'normal':
+      return 'blue';
+    case 'low':
+      return 'green';
+    default:
+      return 'default';
+  }
+};
 
 const DeliveryRoutesCreate = () => {
   const navigate = useNavigate();
@@ -36,6 +53,14 @@ const DeliveryRoutesCreate = () => {
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
   const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const initialValues = useMemo(
+    () => ({
+      schedule: {
+        routeDate: dayjs(),
+      },
+    }),
+    []
+  );
 
   const normalizePlateNumber = (value: string) => {
     const raw = value.toUpperCase().replace(/[^0-9A-Z]/g, '');
@@ -142,6 +167,7 @@ const DeliveryRoutesCreate = () => {
   type AvailableOrderRow = {
     key: string;
     customer: string;
+    salesOrderNumber: string;
     dueDate: string;
     priority: string;
     ordered: number;
@@ -157,6 +183,7 @@ const DeliveryRoutesCreate = () => {
         const ordered = order.totals.orderedQuantity ?? 0;
         const assigned = order.totals.assignedQuantity ?? 0;
         const delivered = order.totals.deliveredQuantity ?? 0;
+        const salesOrderNumber = order.salesOrderNumber;
         const remaining = Math.max(0, ordered - assigned);
 
         return {
@@ -167,6 +194,7 @@ const DeliveryRoutesCreate = () => {
             : '-',
           priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
           ordered,
+          salesOrderNumber,
           assigned,
           delivered,
           remaining,
@@ -213,7 +241,7 @@ const DeliveryRoutesCreate = () => {
       name: order.customer.name,
       tin: order.customer.tin,
       address: order.customer.address,
-      contractNumber: order.contract?.number ?? '-',
+      salesOrderNumber: order.salesOrderNumber ?? '-',
       contractDate: order.contract?.date ? dayjs(order.contract.date).format('DD.MM.YYYY') : '-',
       dueDate: dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY'),
       priority: order.fulfillment.priority,
@@ -244,6 +272,24 @@ const DeliveryRoutesCreate = () => {
 
   const availableOrdersColumns = useMemo<AdaptiveColumn<AvailableOrderRow>[]>(
     () => [
+      {
+        title: t("salesOrders.table.orderNumber"),
+        dataIndex: "salesOrderNumber",
+        key: "salesOrderNumber",
+        flex: 1.5,
+        render: (_, record) => (
+          <Link
+            className="table-text link"
+            to={
+              orgId
+                ? `/organization/${orgId}/sales-orders/${record.key}`
+                : `/sales-orders/${record.key}`
+            }
+          >
+            {record.salesOrderNumber}
+          </Link>
+        ),
+      },
       {
         title: t('salesOrders.table.customerName'),
         dataIndex: 'customer',
@@ -326,9 +372,10 @@ const DeliveryRoutesCreate = () => {
       <Heading title={t('deliveryRoutes.title')} subtitle={t('common.create')} />
       <div className="box">
         <div className="box-container">
-          <div className="box-container-items">
+          <div className="box-container-items delivery-route-create-form">
             <FormComponent
               form={form}
+              initialValues={initialValues}
               onFinish={handleCreateDeliveryRoute}
               onValuesChange={(changedValues) => {
                 if (changedValues.companyId) {
@@ -414,6 +461,7 @@ const DeliveryRoutesCreate = () => {
                 <Form.Item className="input" name={["crew", "driverName"]} label={t('deliveryRoutes.fields.driver')}>
                   <AutoComplete
                     className="input"
+                    size="large"
                     placeholder={t('deliveryRoutes.placeholders.driver')}
                     filterOption={false}
                     allowClear
@@ -474,6 +522,7 @@ const DeliveryRoutesCreate = () => {
                 <Form.Item className="input" name={["crew", "agentName"]} label={t('deliveryRoutes.fields.agent')}>
                   <AutoComplete
                     className="input"
+                    size="large"
                     placeholder={t('deliveryRoutes.placeholders.agent')}
                     filterOption={false}
                     allowClear
@@ -597,7 +646,7 @@ const DeliveryRoutesCreate = () => {
                                   <span className="label">{t('deliveryRoutes.preview.address')}:</span> {customer.address}
                                 </span>
                                 <span className="detail-item">
-                                  <span className="label">{t('deliveryRoutes.preview.contractNumber')}:</span> {customer.contractNumber}
+                                  <span className="label">{t('salesOrders.fields.orderNumber')}:</span> {customer.salesOrderNumber}
                                 </span>
                                 <span className="detail-item">
                                   <span className="label">{t('deliveryRoutes.preview.contractDate')}:</span> {customer.contractDate}
@@ -611,9 +660,9 @@ const DeliveryRoutesCreate = () => {
                               </div>
                             </div>
                             <div className="order-meta">
-                              <span className="priority-badge" data-priority={customer.priority}>
+                              <Tag color={getPriorityColor(customer.priority)} style={{ margin: 0 }}>
                                 {t(`salesOrders.priority.${customer.priority}`)}
-                              </span>
+                              </Tag>
                               <span className="due-date">{customer.dueDate}</span>
                             </div>
                           </div>

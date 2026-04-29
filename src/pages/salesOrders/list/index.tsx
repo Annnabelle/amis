@@ -32,7 +32,7 @@ const SalesOrdersList = () => {
       getSalesOrders({
         page: dataPage || 1,
         limit: dataLimit || 10,
-        sortOrder: 'asc',
+        sortOrder: 'desc',
         companyId: orgId,
       })
     );
@@ -41,18 +41,17 @@ const SalesOrdersList = () => {
   const SalesOrdersData = useMemo<SalesOrdersTableDataType[]>(() => {
     return orders.map((order) => ({
       key: order.id,
-      orderNumber: order.contract?.number ?? order.id,
+      orderNumber: order.salesOrderNumber,
       customerName: order.customer.name,
       customerTin: order.customer.tin,
       dueDate: order.fulfillment.dueDate
         ? dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY')
         : '-',
       priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
+      priorityKey: order.fulfillment.priority,
       orderedQuantity: order.totals.orderedQuantity ?? 0,
-      assignedQuantity: order.totals.assignedQuantity ?? 0,
       deliveredQuantity: order.totals.deliveredQuantity ?? 0,
       status: order.status,
-      createdAt: order.createdAt ? dayjs(order.createdAt).format('DD.MM.YYYY') : '-',
     }));
   }, [orders, t]);
   
@@ -74,7 +73,7 @@ const SalesOrdersList = () => {
         getSalesOrders({
           page: dataPage || 1,
           limit: dataLimit || 10,
-          sortOrder: 'asc',
+          sortOrder: 'desc',
           companyId: orgId,
         })
       );
@@ -116,7 +115,7 @@ const SalesOrdersList = () => {
                     getSalesOrders({
                       page: newPage,
                       limit: newLimit || dataLimit || 10,
-                      sortOrder: 'asc',
+                      sortOrder: 'desc',
                       companyId: orgId,
                     })
                   );

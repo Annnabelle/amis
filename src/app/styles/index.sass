@@ -72,7 +72,6 @@ a
   padding: 0 50px
   margin: 0 auto
 
-
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -179,6 +178,45 @@ input:-webkit-autofill:active
     letter-spacing: 0.5px
     padding-bottom: 12px
     border-bottom: 2px solid rgba(30, 144, 255, 0.1)
+
+.detail-card-header
+  display: flex
+  align-items: flex-start
+  justify-content: space-between
+  gap: 16px
+  margin-bottom: 16px
+
+  h4
+    margin: 0
+
+.detail-card-header-with-actions
+  display: grid
+  grid-template-columns: 1fr auto 1fr
+  align-items: center
+  gap: 16px
+
+  h4
+    grid-column: 2
+    display: inline-flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    gap: 4px
+    padding-bottom: 0
+    border-bottom: none
+    text-align: center
+
+    &::after
+      content: ''
+      width: 68px
+      height: 2px
+      border-radius: 999px
+      background: rgba(30, 144, 255, 0.12)
+
+  .route-task-controls
+    grid-column: 3
+    justify-self: end
+    margin-bottom: 0
 
 .detail-card-wide
   grid-column: span 1
@@ -307,24 +345,47 @@ input:-webkit-autofill:active
     .value
       font-size: 22px
 
+.route-preview-orders-details
+  display: flex
+  flex-direction: column
+  gap: 14px
+
 .route-task-controls
   display: flex
   gap: 10px
   margin-bottom: 16px
+  flex-wrap: wrap
 
 .route-task-control-btn
   display: inline-flex
   align-items: center
-  gap: 6px
-  padding: 8px 14px
-  border-radius: 999px
+  justify-content: center
+  gap: 8px
+  padding: 7px 14px
+  border-radius: 14px
   border: 1px solid rgba(30, 144, 255, 0.14)
   background: rgba(30, 144, 255, 0.04)
   color: #2D3A54
   font-size: 12px
   font-weight: 600
+  line-height: 1.1
+  text-align: center
   cursor: pointer
   transition: all 0.2s ease
+  white-space: nowrap
+
+  .anticon
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    flex: 0 0 14px
+    width: 14px
+    height: 14px
+    line-height: 1
+    transform: translateY(-1px)
+
+    svg
+      display: block
 
   &:hover
     border-color: rgba(30, 144, 255, 0.35)
@@ -343,13 +404,18 @@ input:-webkit-autofill:active
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08)
 
 .route-task-header
+  position: relative
   display: grid
-  grid-template-columns: 28px minmax(0, 1fr) auto
+  grid-template-columns: minmax(0, 1fr) auto
   gap: 16px
   align-items: start
   padding: 18px 20px
+  padding-right: 56px
 
 .route-task-expand-icon
+  position: absolute
+  top: 18px
+  right: 20px
   display: flex
   align-items: center
   justify-content: center
@@ -359,7 +425,6 @@ input:-webkit-autofill:active
   background: rgba(30, 144, 255, 0.08)
   color: #1E90FF
   font-size: 12px
-  margin-top: 2px
 
 .route-task-main
   display: flex
@@ -561,7 +626,7 @@ input:-webkit-autofill:active
   .detail-card
     background: #1A1A1E
     border-color: #2E2E38
-    
+
     &:hover
       border-color: #1E90FF
       box-shadow: 0 2px 8px rgba(30, 144, 255, 0.15)
@@ -721,41 +786,150 @@ input:-webkit-autofill:active
     grid-template-columns: 1fr
 
   .route-task-controls
-    flex-direction: column
+    flex-direction: row
+    flex-wrap: nowrap
+    width: auto
+    gap: 6px
+    margin-bottom: 0
+
+  .detail-card-header-with-actions
+    align-items: center
+    gap: 8px
+    grid-template-columns: minmax(0, 1fr) auto
+
+    h4
+      grid-column: 1
+      align-items: flex-start
+      min-width: 0
+      text-align: left
+
+      &::after
+        width: 56px
+
+  .detail-card-header-with-actions
+    .route-task-controls
+      width: auto
+      margin-bottom: 0
+      grid-column: 2
+      flex: 0 0 auto
+
+  .route-task-control-btn
+    flex: 0 1 auto
+    min-width: 0
+    padding: 7px 12px
+    font-size: 10px
+    line-height: 1
+    border-radius: 12px
+    white-space: nowrap
 
   .route-task-header
-    grid-template-columns: 28px 1fr
+    grid-template-columns: minmax(0, 1fr)
+    gap: 12px
+    padding: 16px
+    padding-right: 52px
+
+  .route-task-expand-icon
+    top: 16px
+    right: 16px
 
   .route-task-side
-    grid-column: 2
+    grid-column: 1 / -1
     align-items: flex-start
+    width: 100%
+    gap: 8px
+
+    .status-badge
+      min-height: 32px
+      padding: 6px 12px
+      border-radius: 10px
+      font-size: 12px
+
+    .primary
+      width: 100%
+
+  .route-task-invoice
+    display: none
 
   .route-task-topline
     grid-template-columns: 1fr
     gap: 8px
 
   .route-task-number
-    font-size: 24px
+    font-size: 18px
+    line-height: 1.15
 
   .route-task-metrics
     grid-template-columns: repeat(2, minmax(0, 1fr))
+    gap: 10px
+
+  .route-task-expanded
+    padding: 0 16px 16px
+    gap: 12px
 
   .route-task-expanded-meta
     grid-template-columns: 1fr
+    gap: 8px
+    padding-top: 12px
+
+  .route-task-expanded-item
+    gap: 4px
+    padding: 10px 12px
+    border: 1px solid rgba(30, 144, 255, 0.10)
+    border-radius: 12px
+    background: rgba(248, 250, 255, 0.92)
+
+  .route-task-expanded-value
+    font-size: 13px
+    line-height: 1.35
 
   .route-task-items-head
     display: none
 
+  .route-task-items-list
+    gap: 8px
+    background: transparent
+
   .route-task-item-row
     grid-template-columns: 1fr
-    gap: 8px
-    padding: 14px 16px
+    gap: 10px
+    padding: 12px
+    border: 1px solid rgba(30, 144, 255, 0.08)
+    border-radius: 14px
+    background: rgba(248, 250, 255, 0.92)
+
+    &:last-child
+      border-bottom: 1px solid rgba(30, 144, 255, 0.08)
+
+  .route-task-item-product
+    gap: 2px
+    padding-bottom: 8px
+    border-bottom: 1px solid rgba(30, 144, 255, 0.08)
+
+  .route-task-item-cell
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    gap: 12px
+    font-size: 13px
+
+    > span:last-child
+      font-weight: 600
+      color: #24324A
+      text-align: right
+
+  .route-task-item-row-empty
+    display: flex
+    align-items: center
+    justify-content: center
+    min-height: 72px
 
   .route-task-item-cell-label
     display: block
 
   .route-meta-chip
-    gap: 4px
+    flex-direction: row
+    align-items: baseline
+    gap: 6px
     padding: 0
     border-radius: 0
     background: transparent
@@ -768,12 +942,30 @@ input:-webkit-autofill:active
       text-transform: none
       color: #7C8595
 
+      &::after
+        content: ':'
+        margin-left: 2px
+
     .value
       font-size: 18px
       font-weight: 700
       line-height: 1.35
 
-.detail-card button
+:root[data-theme='dark']
+  @media (max-width: 900px)
+    .route-task-expanded-item,
+    .route-task-item-row
+      background: rgba(255, 255, 255, 0.03)
+      border-color: rgba(100, 181, 246, 0.10)
+
+    .route-task-item-product
+      border-bottom-color: rgba(100, 181, 246, 0.10)
+
+    .route-task-item-cell
+      > span:last-child
+        color: #F5F7FB
+
+.detail-card button:not(.route-task-control-btn)
   width: 100%
   padding: 10px 12px
   border-radius: 8px
@@ -822,6 +1014,10 @@ input:-webkit-autofill:active
   &.loaded
     background: #E4EBFF
     color: #1E3A8A
+
+  &.handover_in_progress
+    background: #E6F4FF
+    color: #0958D9
 
   &.delivering
     background: #E6F4FF
@@ -884,6 +1080,10 @@ input:-webkit-autofill:active
     &.loaded
       background: #1E3A5F
       color: #64B5F6
+
+    &.handover_in_progress
+      background: #0C3B66
+      color: #69B1FF
 
     &.delivering
       background: #0C3B66
@@ -1074,10 +1274,11 @@ input:-webkit-autofill:active
   gap: 8px
 
 .loading-scan-item
+  position: relative
   display: flex
   flex-direction: column
   gap: 8px
-  padding: 12px 14px
+  padding: 12px 42px 12px 14px
   border-radius: 14px
   border: 1px solid #e5e7eb
   background: #ffffff
@@ -1097,22 +1298,33 @@ input:-webkit-autofill:active
   word-break: break-all
 
 .loading-scan-item-delete
-    align-self: flex-start
-    border: none
-    background: transparent
-    color: #dc2626
-    font-size: 13px
-    font-weight: 600
-    padding: 0
-    cursor: pointer
-    transition: color .2s ease
+  position: absolute
+  top: 10px
+  right: 12px
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  border: none
+  border-radius: 8px
+  background: transparent
+  color: #dc2626
+  padding: 0
+  cursor: pointer
+  transition: color .2s ease, background .2s ease
 
-    &:hover
-        color: #b91c1c
+  &:hover
+    background: #fee2e2
+    color: #b91c1c
 
-    &:disabled
-        color: #fca5a5
-        cursor: not-allowed
+  .anticon
+    display: inline-flex
+    font-size: 15px
+
+  &:disabled
+    color: #fca5a5
+    cursor: not-allowed
 
 .loading-scan-item-reason
   font-size: 13px
@@ -1180,4 +1392,3 @@ input:-webkit-autofill:active
     font-size: 12px
     font-weight: 500
     color: #6b7280
-

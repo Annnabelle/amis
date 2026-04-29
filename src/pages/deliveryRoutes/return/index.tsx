@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Empty, Spin } from 'antd';
+import { Alert, Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -49,13 +49,28 @@ const DeliveryRoutesReturn = () => {
 
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isClosingSession, setIsClosingSession] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const canUseScreen = isWarehouseRole(currentUser);
 
   useEffect(() => {
-    if (!routeId) return;
+    let isMounted = true;
 
-    dispatch(getDeliveryRouteById(routeId));
+    if (!routeId) {
+      setIsBootstrapping(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsBootstrapping(true);
+    dispatch(getDeliveryRouteById(routeId))
+      .unwrap()
+      .finally(() => {
+        if (isMounted) {
+          setIsBootstrapping(false);
+        }
+      });
     dispatch(resetScanSessionState());
 
     try {
@@ -71,6 +86,7 @@ const DeliveryRoutesReturn = () => {
     }
 
     return () => {
+      isMounted = false;
       dispatch(resetScanSessionState());
     };
   }, [dispatch, routeId]);
@@ -253,6 +269,8 @@ const DeliveryRoutesReturn = () => {
     }
   };
 
+  void handleScannerClose;
+
   const handleScan = async (code: string) => {
     if (!scanSession?.id) {
       return {
@@ -322,6 +340,10 @@ const DeliveryRoutesReturn = () => {
     }
   };
 
+  const handleCloseScannerView = async () => {
+    setScannerOpen(false);
+  };
+
   const lastScansContent = (
     <div className="loading-scans-groups">
       {acceptedScanGroups.length === 0 && rejectedScans.length === 0 && (
@@ -367,22 +389,13 @@ const DeliveryRoutesReturn = () => {
     </div>
   );
 
-  if (routeLoading && !route) {
-    return (
-      <MainLayout>
-        <Heading title={t('deliveryRoutes.returnTitle')} subtitle={t('deliveryRoutes.returnSubtitle')} />
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items loading-page-state">
-              <Spin size="large" />
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
+  const isCurrentRouteLoaded = route?.id === routeId;
+
+  if (isBootstrapping || (routeLoading && !isCurrentRouteLoaded)) {
+    return null;
   }
 
-  if (!route) {
+  if (!isCurrentRouteLoaded || !route) {
     return (
       <MainLayout>
         <Heading title={t('deliveryRoutes.returnTitle')} subtitle={t('deliveryRoutes.returnSubtitle')} />
@@ -429,6 +442,15 @@ const DeliveryRoutesReturn = () => {
           >
             {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
           </CustomButton>
+          {scanSession?.status === 'active' && (
+            <CustomButton
+              className="outline"
+              onClick={() => void handleComplete()}
+              disabled={isCreating || isCompletingSession || isClosingSession}
+            >
+              {isCompletingSession ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeReturn')}
+            </CustomButton>
+          )}
           <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -494,7 +516,6 @@ const DeliveryRoutesReturn = () => {
                 subtitle={t('deliveryRoutes.returnScannerSubtitle', {
                   id: route.routeNumber,
                 })}
-                helperText={t('deliveryRoutes.returnHelper')}
                 onScan={handleScan}
                 lastScans={recentScans}
                 acceptedCount={scanSession?.counters.accepted ?? 0}
@@ -506,7 +527,7 @@ const DeliveryRoutesReturn = () => {
                 scanDisabled={!scanSession || isCreating || isCompletingSession || isClosingSession}
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
-                onCameraClose={handleScannerClose}
+                onCameraClose={handleCloseScannerView}
               />
             </section>
           </div>

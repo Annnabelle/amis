@@ -59,10 +59,11 @@ const UsersEdit = () => {
                 ]);
 
                 toast.success(t("organizations.messages.success.assignOrganization"));
+            } else {
+                toast.error(t("organizations.messages.error.assignOrganization"));
             }
-        } finally {
-            // setIsLoading(false);
-            console.log("error in handleAssignOrganization")
+        } catch {
+            toast.error(t("organizations.messages.error.assignOrganization"));
         }
     };
     

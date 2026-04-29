@@ -190,6 +190,7 @@ export const DeliveryTaskStatus = {
   Planned: "planned",
   Loading: "loading",
   Loaded: "loaded",
+  HandoverInProgress: "handover_in_progress",
   Delivering: "delivering",
   PartiallyDelivered: "partially_delivered",
   Delivered: "delivered",
