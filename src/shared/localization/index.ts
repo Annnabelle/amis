@@ -255,6 +255,9 @@
                 validation: {
                     companyRequired: "Company is required",
                     customerTinRequired: "TIN is required",
+                    customerTinDigitsOnly: "TIN must contain digits only",
+                    customerTinLength: "TIN must consist of 9 digits",
+                    customerTinInvalid: "Enter a valid TIN",
                     customerNameRequired: "Name is required",
                     dueDateRequired: "Due date is required",
                     priorityRequired: "Priority is required",
@@ -1415,6 +1418,9 @@
                 validation: {
                     companyRequired: "Компания обязательна",
                     customerTinRequired: "ИНН обязателен",
+                    customerTinDigitsOnly: "ИНН должен содержать только цифры",
+                    customerTinLength: "ИНН должен состоять из 9 цифр",
+                    customerTinInvalid: "Введите корректный ИНН",
                     customerNameRequired: "Имя обязательно",
                     dueDateRequired: "Срок обязателен",
                     priorityRequired: "Приоритет обязателен",
@@ -2576,6 +2582,9 @@
                 validation: {
                     companyRequired: "Kompaniya majburiy",
                     customerTinRequired: "STIR majburiy",
+                    customerTinDigitsOnly: "STIR faqat raqamlardan iborat bo'lishi kerak",
+                    customerTinLength: "STIR 9 ta raqamdan iborat bo'lishi kerak",
+                    customerTinInvalid: "To'g'ri STIR kiriting",
                     customerNameRequired: "Ism majburiy",
                     dueDateRequired: "Muddat majburiy",
                     priorityRequired: "Ustuvorlik majburiy",

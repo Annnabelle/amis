@@ -12,8 +12,10 @@ import { createSalesOrder } from 'entities/salesOrders/model';
 import { mapSalesOrderFormToCreateDto, type SalesOrderFormValues } from 'entities/salesOrders/mappers';
 import { searchProducts } from 'entities/products/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, type ChangeEvent } from 'react';
 import { SalesOrderPriorities } from 'shared/types/dtos';
+
+const TIN_LENGTH = 9;
 
 const SalesOrdersCreate = () => {
   const navigate = useNavigate();
@@ -107,6 +109,14 @@ const SalesOrdersCreate = () => {
     }
   };
 
+  const normalizeTin = (value: string) => value.replace(/\D/g, '').slice(0, TIN_LENGTH);
+
+  const handleTinChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const normalized = normalizeTin(event.target.value);
+    const customer = form.getFieldValue('customer') || {};
+    form.setFieldsValue({ customer: { ...customer, tin: normalized } });
+  };
+
   useEffect(() => {
     if (!orgId) return;
     dispatch(
@@ -176,15 +186,42 @@ const SalesOrdersCreate = () => {
                   rules={[
                     {
                       required: true,
-                      message: t('salesOrders.createValidation.companyTinRequired', {
-                        defaultValue: 'ИНН компании обязателен',
-                      }),
+                      message: t('salesOrders.validation.customerTinRequired'),
+                    },
+                    {
+                      validator: async (_, value) => {
+                        const tin = String(value ?? '').trim();
+
+                        if (!tin) {
+                          return Promise.resolve();
+                        }
+
+                        if (!/^\d+$/.test(tin)) {
+                          return Promise.reject(new Error(t('salesOrders.validation.customerTinDigitsOnly')));
+                        }
+
+                        if (tin.length !== TIN_LENGTH) {
+                          return Promise.reject(new Error(t('salesOrders.validation.customerTinLength')));
+                        }
+
+                        if (/^0+$/.test(tin)) {
+                          return Promise.reject(new Error(t('salesOrders.validation.customerTinInvalid')));
+                        }
+
+                        return Promise.resolve();
+                      },
                     },
                   ]}
                 >
                   <Input
                     className="input"
                     size="large"
+                    maxLength={TIN_LENGTH}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    onChange={handleTinChange}
+                    onKeyDown={allowOnlyDigitsKeyDown(TIN_LENGTH)}
+                    onPaste={allowOnlyDigitsPaste(TIN_LENGTH)}
                     placeholder={t('salesOrders.createPlaceholders.companyTin', {
                       defaultValue: 'ИНН компании',
                     })}

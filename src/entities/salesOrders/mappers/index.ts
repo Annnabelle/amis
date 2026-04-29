@@ -142,7 +142,7 @@ export const mapSalesOrderFormToCreateDto = (
     companyId,
     customer: {
       companyId: values.customer.companyId,
-      tin: values.customer.tin.trim(),
+      tin: values.customer.tin.replace(/\D/g, '').trim(),
       name: values.customer.name.trim(),
       address: values.customer.address?.trim() || undefined,
     },
