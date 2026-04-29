@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Empty, Input, Modal, Spin } from 'antd';
+import { Alert, Empty, Input, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -49,13 +49,28 @@ const DeliveryRoutesLoading = () => {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
   const isClosingSession = false;
   const canUseScreen = isWarehouseRole(currentUser);
 
   useEffect(() => {
-    if (!routeId) return;
+    let isMounted = true;
 
-    dispatch(getDeliveryRouteById(routeId));
+    if (!routeId) {
+      setIsBootstrapping(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsBootstrapping(true);
+    dispatch(getDeliveryRouteById(routeId))
+      .unwrap()
+      .finally(() => {
+        if (isMounted) {
+          setIsBootstrapping(false);
+        }
+      });
     dispatch(resetScanSessionState());
 
     try {
@@ -71,6 +86,7 @@ const DeliveryRoutesLoading = () => {
     }
 
     return () => {
+      isMounted = false;
       dispatch(resetScanSessionState());
     };
   }, [dispatch, routeId]);
@@ -424,22 +440,13 @@ const DeliveryRoutesLoading = () => {
     </div>
   );
 
-  if (routeLoading && !route) {
-    return (
-      <MainLayout>
-        <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items loading-page-state">
-              <Spin size="large" />
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
+  const isCurrentRouteLoaded = route?.id === routeId;
+
+  if (isBootstrapping || (routeLoading && !isCurrentRouteLoaded)) {
+    return null;
   }
 
-  if (!route) {
+  if (!isCurrentRouteLoaded || !route) {
     return (
       <MainLayout>
         <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />
