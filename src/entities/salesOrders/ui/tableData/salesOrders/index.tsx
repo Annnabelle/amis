@@ -74,8 +74,19 @@ export const SalesOrdersTableColumns = (
     dataIndex: "priority",
     key: "priority",
     flex: 1.5,
+    className: "no-ellipsis",
     render: (_: string, record) => (
-      <Tag color={getPriorityColor(record.priorityKey)} style={{ margin: 0 }}>
+      <Tag
+        color={getPriorityColor(record.priorityKey)}
+        style={{
+          margin: 0,
+          display: "inline-block",
+          maxWidth: "140px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
         {record.priority}
       </Tag>
     ),
