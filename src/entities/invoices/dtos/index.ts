@@ -10,6 +10,14 @@ export const InvoiceStatus = {
   InReview: "in_review",
   Approved: "approved",
   Sent: "sent",
+  Pending: "pending",
+  Completed: "completed",
+  Rejected: "rejected",
+  Canceled: "canceled",
+  Returned: "returned",
+  Unknown: "unknown",
+  Registered: "registered",
+  Deleted: "deleted",
 } as const;
 
 export const ExternalInvoiceStatus = {
