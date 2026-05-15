@@ -23,7 +23,7 @@ const Languages: React.FC = () => {
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [handleClickOutside])
   const handleLanguageChange = (language: string) => {
