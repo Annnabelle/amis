@@ -563,7 +563,14 @@
                     in_review: "In review",
                     approved: "Approved",
                     sent: "Sent",
-                    pending: "Pending"
+                    pending: "Pending",
+                    completed: "Completed",
+                    rejected: "Rejected",
+                    canceled: "Canceled",
+                    returned: "Returned",
+                    unknown: "Unknown",
+                    registered: "Registered",
+                    deleted: "Deleted"
                 },
                 externalStatuses: {
                     None: "Unavailable",
@@ -1814,7 +1821,14 @@
                     in_review: "На проверке",
                     approved: "Утвержден",
                     sent: "Отправлен",
-                    pending: "В ожидании"
+                    pending: "В ожидании",
+                    completed: "Завершен",
+                    rejected: "Отклонен",
+                    canceled: "Отменен",
+                    returned: "Возвращен",
+                    unknown: "Неизвестен",
+                    registered: "Зарегистрирован",
+                    deleted: "Удален"
                 },
                 externalStatuses: {
                     None: "Недоступен",
@@ -3037,7 +3051,14 @@
                     in_review: "Tekshiruvda",
                     approved: "Tasdiqlangan",
                     sent: "Yuborilgan",
-                    pending: "Kutilmoqda"
+                    pending: "Kutilmoqda",
+                    completed: "Yakunlangan",
+                    rejected: "Rad etilgan",
+                    canceled: "Bekor qilingan",
+                    returned: "Qaytarilgan",
+                    unknown: "Noma'lum",
+                    registered: "Ro'yxatdan o'tgan",
+                    deleted: "O'chirilgan"
                 },
                 externalStatuses: {
                     None: "Mavjud emas",
