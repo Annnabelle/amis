@@ -74,8 +74,6 @@ export const createOrganization = createAsyncThunk(
         payload
       );
 
-        console.log("CreateCompany response:", response.data);
-
       if (isCompanyCreateSuccessResponse(response.data)) {
         return mapCreateOrganizationDtoToEntity(response.data);
       }

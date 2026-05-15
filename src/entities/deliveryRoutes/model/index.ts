@@ -81,9 +81,9 @@ export const createDeliveryRoute = createAsyncThunk<
       success: false,
       errorCode: 100,
       errorMessage: {
-        ru: "ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ñ‹Ð¹ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð¾Ñ‚Ð²ÐµÑ‚Ð° ÑÐµÑ€Ð²ÐµÑ€Ð°",
+        ru: "Неизвестный формат ответа сервера",
         en: "Unknown server response format",
-        uz: "Server javobining nomaÊ¼lum formati",
+        uz: "Server javobining noma'lum formati",
       },
     });
   } catch (err: any) {
@@ -95,7 +95,7 @@ export const createDeliveryRoute = createAsyncThunk<
       success: false,
       errorCode: 403,
       errorMessage: {
-        ru: "ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐµÑ‚Ð¸",
+        ru: "Ошибка сети",
         en: "Network error",
         uz: "Tarmoq xatosi",
       },
@@ -146,7 +146,7 @@ const mapSingleRouteResponse = (
       success: false,
       errorCode: 100,
       errorMessage: {
-        ru: "ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ñ‹Ð¹ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð¾Ñ‚Ð²ÐµÑ‚Ð° ÑÐµÑ€Ð²ÐµÑ€Ð°",
+        ru: "Неизвестный формат ответа сервера",
         en: "Unknown server response format",
         uz: "Server javobining noma'lum formati",
       },
@@ -179,7 +179,7 @@ export const startDeliveryRouteLoading = createAsyncThunk<
       success: false,
       errorCode: 403,
       errorMessage: {
-        ru: "ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐµÑ‚Ð¸",
+        ru: "Ошибка сети",
         en: "Network error",
         uz: "Tarmoq xatosi",
       },
@@ -213,7 +213,7 @@ export const completeDeliveryRouteLoading = createAsyncThunk<
       success: false,
       errorCode: 403,
       errorMessage: {
-        ru: "ÐžˆÐ¸Ð±ÐºÐ° ÑÐµÑ‚Ð¸",
+        ru: "Ошибка сети",
         en: "Network error",
         uz: "Tarmoq xatosi",
       },
@@ -246,7 +246,7 @@ export const startDeliveryRouteTransit = createAsyncThunk<
       success: false,
       errorCode: 403,
       errorMessage: {
-        ru: "ÐžˆÐ¸Ð±ÐºÐ° ÑÐµÑ‚Ð¸",
+        ru: "Ошибка сети",
         en: "Network error",
         uz: "Tarmoq xatosi",
       },
@@ -279,7 +279,7 @@ export const startDeliveryRouteReturn = createAsyncThunk<
       success: false,
       errorCode: 403,
       errorMessage: {
-        ru: "ÃÅ¾Ë†ÃÂ¸ÃÂ±ÃÂºÃÂ° Ã‘ÂÃÂµÃ‘â€šÃÂ¸",
+        ru: "Ошибка сети",
         en: "Network error",
         uz: "Tarmoq xatosi",
       },
@@ -312,7 +312,7 @@ export const completeDeliveryRouteReturn = createAsyncThunk<
       success: false,
       errorCode: 403,
       errorMessage: {
-        ru: "ÃÅ¾Ë†ÃÂ¸ÃÂ±ÃÂºÃÂ° Ã‘ÂÃÂµÃ‘â€šÃÂ¸",
+        ru: "Ошибка сети",
         en: "Network error",
         uz: "Tarmoq xatosi",
       },
@@ -367,7 +367,7 @@ export const deliveryRoutesSlice = createSlice({
         state.isLoading = false;
         state.error = getBackendErrorMessage(
           action.payload,
-          "Error creating delivery route"
+          "Не удалось создать рейс"
         );
       })
       .addCase(getDeliveryRouteById.pending, (state) => {
@@ -395,7 +395,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(startDeliveryRouteLoading.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error starting loading");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось начать погрузку");
       })
       .addCase(completeDeliveryRouteLoading.pending, (state) => {
         state.loadingById = true;
@@ -407,7 +407,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(completeDeliveryRouteLoading.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error completing loading");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить погрузку");
       })
       .addCase(startDeliveryRouteTransit.pending, (state) => {
         state.loadingById = true;
@@ -419,7 +419,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(startDeliveryRouteTransit.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error starting transit");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось начать рейс");
       })
       .addCase(startDeliveryRouteReturn.pending, (state) => {
         state.loadingById = true;
@@ -431,7 +431,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(startDeliveryRouteReturn.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error starting return");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось начать возврат");
       })
       .addCase(completeDeliveryRouteReturn.pending, (state) => {
         state.loadingById = true;
@@ -443,7 +443,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(completeDeliveryRouteReturn.rejected, (state, action) => {
         state.loadingById = false;
-        state.error = getBackendErrorMessage(action.payload, "Error completing return");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить возврат");
       });
   },
 });

@@ -1,57 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Alert, Button, Input, Tag } from 'antd';
-import { CameraOutlined, LoadingOutlined, StopOutlined } from '@ant-design/icons';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Button, Tag } from 'antd';
+import { CameraOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ZxingVideoScanner, useIsMobile } from 'shared/lib';
+import { CAMERA_DUPLICATE_COOLDOWN, SCAN_PROCESSING_DELAY } from './constants';
+import type { DataMatrixScannerProps, ScanItem, ScanResult, ScannerStage } from './types';
+import { normalizeScannedCode, wait } from './utils';
 import './styles.sass';
 
-type ScanStatus = 'accepted' | 'rejected';
-type ScannerStage = 'idle' | 'starting' | 'camera_active' | 'code_detected' | 'processing' | 'error';
-
-export interface ScanResult {
-  status: ScanStatus;
-  reason?: string;
-}
-
-export interface ScanItem {
-  code: string;
-  status: ScanStatus;
-  reason?: string;
-  ts: string;
-}
-
-interface DataMatrixScannerProps {
-  title: string;
-  subtitle?: string;
-  helperText?: string;
-  onScan?: (code: string) => ScanResult | Promise<ScanResult>;
-  lastScans?: ScanItem[];
-  acceptedCount?: number;
-  rejectedCount?: number;
-  inputPlaceholder?: string;
-  primaryActionLabel?: string;
-  onPrimaryAction?: () => void;
-  enableCamera?: boolean;
-  scanDisabled?: boolean;
-  scanInProgress?: boolean;
-  cameraAutoStart?: boolean;
-  lastScansContent?: ReactNode;
-  onCameraClose?: () => void | Promise<void>;
-}
-
-const CAMERA_DUPLICATE_COOLDOWN = 1600;
-const GS1_GROUP_SEPARATOR = String.fromCharCode(29);
-
-const normalizeScannedCode = (rawValue: string) =>
-  rawValue
-    .replace(/^\]d2/i, '')
-    .replace(/\\u001d/gi, GS1_GROUP_SEPARATOR)
-    .replace(/\\x1d/gi, GS1_GROUP_SEPARATOR)
-    .replace(/<gs>/gi, GS1_GROUP_SEPARATOR)
-    .replace(/\[gs\]/gi, GS1_GROUP_SEPARATOR)
-    .replace(/\u241d/g, GS1_GROUP_SEPARATOR)
-    .replace(/\r?\n|\r/g, '')
-    .trim();
+export type { DataMatrixScannerProps, ScanItem, ScanResult };
 
 const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   title,
@@ -61,7 +18,6 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   lastScans,
   acceptedCount,
   rejectedCount,
-  inputPlaceholder,
   primaryActionLabel,
   onPrimaryAction,
   enableCamera = false,
@@ -73,7 +29,6 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
 }) => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  const [value, setValue] = useState('');
   const [localScans, setLocalScans] = useState<ScanItem[]>([]);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [cameraSupported] = useState(() => ZxingVideoScanner.isSupported());
@@ -89,7 +44,6 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   const processingRef = useRef(false);
 
   const scans = lastScans ?? localScans;
-  const resolvedPlaceholder = inputPlaceholder ?? t('scanner.placeholder');
 
   const counts = useMemo(() => {
     if (typeof acceptedCount === 'number' && typeof rejectedCount === 'number') {
@@ -178,6 +132,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           reason: error instanceof Error ? error.message : t('scanner.scanFailed'),
         });
       } finally {
+        await wait(SCAN_PROCESSING_DELAY);
         processingRef.current = false;
         setDetectedCode(null);
         setScannerStage(cameraActive ? 'camera_active' : 'idle');
@@ -262,14 +217,6 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
     }
   }, [cameraActive, cameraStarting, cameraSupported, enableCamera, handleScan, t]);
 
-  const handleSubmit = useCallback(async () => {
-    const code = normalizeScannedCode(value);
-    if (!code) return;
-
-    await handleScan(code);
-    setValue('');
-  }, [handleScan, value]);
-
   useEffect(() => {
     if (enableCamera && cameraAutoStart) {
       if (isMobile) {
@@ -318,14 +265,6 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
         >
           {t('scanner.startCamera')}
         </Button>
-        <Button
-          size="large"
-          icon={<StopOutlined />}
-          onClick={() => void stopCamera()}
-          disabled={!cameraActive && !cameraError}
-        >
-          {t('scanner.stopCamera')}
-        </Button>
       </div>
 
       <div className={`dm-scanner-camera-preview ${cameraActive ? 'active' : ''}`}>
@@ -333,7 +272,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
         <div className="dm-scanner-camera-target" aria-hidden="true">
           <div className="dm-scanner-camera-target-frame" />
         </div>
-        {!cameraActive && (
+        {!cameraActive && !(isMobile && mobileCameraVisible) && (
           <div className="dm-scanner-camera-placeholder">
             {cameraSupported ? t('scanner.cameraIdle') : t('scanner.cameraUnsupported')}
           </div>
@@ -342,6 +281,39 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
 
       {cameraError && <Alert type="error" showIcon message={cameraError} />}
     </div>
+  );
+
+  const renderSessionActions = (isMobileLayout = false, includePrimaryAction = true) => (
+    <>
+      {includePrimaryAction && primaryActionLabel && onPrimaryAction && (
+        isMobileLayout ? (
+          <button
+            type="button"
+            className="dm-scanner-mobile-camera-primary"
+            onClick={onPrimaryAction}
+          >
+            {primaryActionLabel}
+          </button>
+        ) : (
+          <Button
+            type="primary"
+            size="large"
+            className="dm-scanner-session-primary"
+            onClick={onPrimaryAction}
+          >
+            {primaryActionLabel}
+          </Button>
+        )
+      )}
+      <button
+        type="button"
+        className={isMobileLayout ? 'dm-scanner-mobile-camera-close' : 'dm-scanner-session-close'}
+        onClick={() => void stopCamera()}
+        disabled={!cameraActive && !cameraError}
+      >
+        {t('scanner.stopScanning', { defaultValue: 'Завершить сканирование' })}
+      </button>
+    </>
   );
 
   useEffect(
@@ -379,32 +351,6 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           <span>{scannerStatus.text}</span>
         </div>
       )}
-
-      <div className="dm-scanner-input">
-        <Input
-          autoFocus
-          size="large"
-          value={value}
-          placeholder={resolvedPlaceholder}
-          onChange={(event) => setValue(event.target.value)}
-          onPressEnter={() => void handleSubmit()}
-          disabled={scanDisabled}
-        />
-        <Button
-          type="primary"
-          size="large"
-          onClick={() => void handleSubmit()}
-          loading={scanInProgress}
-          disabled={scanDisabled}
-        >
-          {t('scanner.scan')}
-        </Button>
-        {primaryActionLabel && onPrimaryAction && (
-          <Button size="large" onClick={onPrimaryAction}>
-            {primaryActionLabel}
-          </Button>
-        )}
-      </div>
 
       <div className={`dm-scanner-main ${enableCamera ? 'with-camera' : 'without-camera'}`}>
         {enableCamera && !isMobile && renderCameraBlock()}
@@ -445,6 +391,11 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           )}
         </div>
       </div>
+      {enableCamera && !isMobile && (
+        <div className="dm-scanner-session-actions">
+          {renderSessionActions()}
+        </div>
+      )}
       {enableCamera && isMobile && mobileCameraVisible && (
         <div className="dm-scanner-mobile-camera">
           <div className="dm-scanner-mobile-camera-header">
@@ -455,13 +406,7 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
           </div>
           {renderCameraBlock()}
           <div className="dm-scanner-mobile-camera-footer">
-            <button
-              type="button"
-              className="dm-scanner-mobile-camera-close"
-              onClick={() => void stopCamera()}
-            >
-              {t('scanner.stopScanning', { defaultValue: 'Завершить сканирование' })}
-            </button>
+            {renderSessionActions(true, false)}
           </div>
         </div>
       )}

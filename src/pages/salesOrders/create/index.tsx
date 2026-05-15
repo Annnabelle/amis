@@ -12,8 +12,10 @@ import { createSalesOrder } from 'entities/salesOrders/model';
 import { mapSalesOrderFormToCreateDto, type SalesOrderFormValues } from 'entities/salesOrders/mappers';
 import { searchProducts } from 'entities/products/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, type ChangeEvent } from 'react';
 import { SalesOrderPriorities } from 'shared/types/dtos';
+
+const TIN_LENGTH = 9;
 
 const SalesOrdersCreate = () => {
   const navigate = useNavigate();
@@ -107,6 +109,14 @@ const SalesOrdersCreate = () => {
     }
   };
 
+  const normalizeTin = (value: string) => value.replace(/\D/g, '').slice(0, TIN_LENGTH);
+
+  const handleTinChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const normalized = normalizeTin(event.target.value);
+    const customer = form.getFieldValue('customer') || {};
+    form.setFieldsValue({ customer: { ...customer, tin: normalized } });
+  };
+
   useEffect(() => {
     if (!orgId) return;
     dispatch(
@@ -166,33 +176,100 @@ const SalesOrdersCreate = () => {
               }}
             >
               <div className="form-divider-title">
-                <h4 className="title">{t('salesOrders.sections.customer')}</h4>
+                <h4 className="title">{t('salesOrders.createSections.recipient', { defaultValue: 'Получатель' })}</h4>
               </div>
               <div className="form-inputs form-inputs-organization">
                 <Form.Item
                   className="input"
                   name={["customer", "tin"]}
-                  label={t('salesOrders.fields.customerTin')}
-                  rules={[{ required: true, message: t('salesOrders.validation.customerTinRequired') }]}
+                  label={t('salesOrders.createFields.companyTin', { defaultValue: 'ИНН компании' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.validation.customerTinRequired'),
+                    },
+                    {
+                      validator: async (_, value) => {
+                        const tin = String(value ?? '').trim();
+
+                        if (!tin) {
+                          return Promise.resolve();
+                        }
+
+                        if (!/^\d+$/.test(tin)) {
+                          return Promise.reject(new Error(t('salesOrders.validation.customerTinDigitsOnly')));
+                        }
+
+                        if (tin.length !== TIN_LENGTH) {
+                          return Promise.reject(new Error(t('salesOrders.validation.customerTinLength')));
+                        }
+
+                        if (/^0+$/.test(tin)) {
+                          return Promise.reject(new Error(t('salesOrders.validation.customerTinInvalid')));
+                        }
+
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
                 >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.customerTin')} />
+                  <Input
+                    className="input"
+                    size="large"
+                    maxLength={TIN_LENGTH}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    onChange={handleTinChange}
+                    onKeyDown={allowOnlyDigitsKeyDown(TIN_LENGTH)}
+                    onPaste={allowOnlyDigitsPaste(TIN_LENGTH)}
+                    placeholder={t('salesOrders.createPlaceholders.companyTin', {
+                      defaultValue: 'ИНН компании',
+                    })}
+                  />
                 </Form.Item>
                 <Form.Item
                   className="input"
                   name={["customer", "name"]}
-                  label={t('salesOrders.fields.customerName')}
-                  rules={[{ required: true, message: t('salesOrders.validation.customerNameRequired') }]}
+                  label={t('salesOrders.createFields.companyName', { defaultValue: 'Название компании' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.companyNameRequired', {
+                        defaultValue: 'Название компании обязательно',
+                      }),
+                    },
+                  ]}
                 >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.customerName')} />
+                  <Input
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.companyName', {
+                      defaultValue: 'Название компании',
+                    })}
+                  />
                 </Form.Item>
               </div>
               <div className="form-inputs form-inputs-organization">
                 <Form.Item
                   className="input"
                   name={["customer", "address"]}
-                  label={t('salesOrders.fields.customerAddress')}
+                  label={t('salesOrders.createFields.companyAddress', { defaultValue: 'Адрес компании' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.companyAddressRequired', {
+                        defaultValue: 'Адрес компании обязателен',
+                      }),
+                    },
+                  ]}
                 >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.customerAddress')} />
+                  <Input
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.companyAddress', {
+                      defaultValue: 'Адрес компании',
+                    })}
+                  />
                 </Form.Item>
               </div>
 
@@ -243,10 +320,23 @@ const SalesOrdersCreate = () => {
                 <Form.Item
                   className="input"
                   name={["fulfillment", "dueDate"]}
-                  label={t('salesOrders.fields.dueDate')}
-                  rules={[{ required: true, message: t('salesOrders.validation.dueDateRequired') }]}
+                  label={t('salesOrders.createFields.expectedDate', { defaultValue: 'Ожидаемая дата' })}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('salesOrders.createValidation.expectedDateRequired', {
+                        defaultValue: 'Ожидаемая дата обязательна',
+                      }),
+                    },
+                  ]}
                 >
-                  <DatePicker className="input" size="large" placeholder={t('salesOrders.placeholders.dueDate')} />
+                  <DatePicker
+                    className="input"
+                    size="large"
+                    placeholder={t('salesOrders.createPlaceholders.expectedDate', {
+                      defaultValue: 'Ожидаемая дата',
+                    })}
+                  />
                 </Form.Item>
                 <Form.Item
                   className="input"
@@ -277,6 +367,7 @@ const SalesOrdersCreate = () => {
                         <Form.Item
                           className="input sales-order-item sales-order-item--product"
                           name={[field.name, "productId"]}
+                          label={t('salesOrders.fields.product')}
                           rules={[{ required: true, message: t('salesOrders.validation.itemProductRequired') }]}
                         >
                           <Select
@@ -298,12 +389,14 @@ const SalesOrdersCreate = () => {
                         <Form.Item
                           className="input sales-order-item sales-order-item--quantity"
                           name={[field.name, "quantity"]}
+                          label={t('salesOrders.fields.quantity')}
                           rules={[{ required: true, message: t('salesOrders.validation.itemQuantityRequired') }]}
                         >
                           <InputNumber<string | number>
                             min={1}
                             max={9999999999}
                             precision={0}
+                            type="text"
                             size="large"
                             className="input"
                             style={{ width: "100%", minWidth: 120 }}
@@ -318,12 +411,14 @@ const SalesOrdersCreate = () => {
                         <Form.Item
                           className="input sales-order-item sales-order-item--unit-price"
                           name={[field.name, "unitPrice"]}
+                          label={t('salesOrders.fields.unitPrice')}
                           rules={[{ required: true, message: t('salesOrders.validation.itemUnitPriceRequired') }]}
                         >
                           <InputNumber<string | number>
                             min={100}
                             max={9999999}
                             precision={0}
+                            type="text"
                             size="large"
                             className="input"
                             style={{ width: "100%", minWidth: 140 }}
@@ -335,7 +430,11 @@ const SalesOrdersCreate = () => {
                           />
                         </Form.Item>
 
-                        <Form.Item className="input sales-order-item sales-order-item--comment" name={[field.name, "comment"]}>
+                        <Form.Item
+                          className="input sales-order-item sales-order-item--comment"
+                          name={[field.name, "comment"]}
+                          label={t('salesOrders.fields.comment')}
+                        >
                           <Input className="input" size="large" placeholder={t('salesOrders.placeholders.itemComment')} />
                         </Form.Item>
 

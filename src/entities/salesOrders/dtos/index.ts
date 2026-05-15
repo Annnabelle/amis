@@ -10,6 +10,7 @@ import type {
 export type SalesOrderResponseDto = {
   id: string;
   companyId: string;
+  salesOrderNumber: string;
   status: SalesOrderStatus;
   customer: {
     companyId?: string;
@@ -19,10 +20,10 @@ export type SalesOrderResponseDto = {
   };
   contract?: {
     number: string;
-    date: Date | string;
+    date: Date;
   };
   fulfillment: {
-    dueDate: Date | string;
+    dueDate: Date;
     priority: SalesOrderPriority;
   };
   items: {
@@ -52,8 +53,8 @@ export type SalesOrderResponseDto = {
   comment?: string;
   createdBy: string;
   updatedBy?: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type CreateSalesOrderDto = {

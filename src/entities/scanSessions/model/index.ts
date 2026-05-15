@@ -261,7 +261,7 @@ export const scanSessionsSlice = createSlice({
       })
       .addCase(createScanSession.rejected, (state, action) => {
         state.isCreating = false;
-        state.error = getBackendErrorMessage(action.payload, "Error creating scan session");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось создать сессию сканирования");
       })
       .addCase(completeScanSession.pending, (state) => {
         state.isCompleting = true;
@@ -273,7 +273,7 @@ export const scanSessionsSlice = createSlice({
       })
       .addCase(completeScanSession.rejected, (state, action) => {
         state.isCompleting = false;
-        state.error = getBackendErrorMessage(action.payload, "Error completing scan session");
+        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить сессию сканирования");
       })
       .addCase(scanSessionCode.pending, (state) => {
         state.isScanning = true;

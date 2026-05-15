@@ -146,8 +146,6 @@ const MarkingCodes = () => {
                 })
             ).unwrap();
 
-            console.log("result", result)
-
             toast.success(`Созданы отчеты о нанесении: номер ${result[0].reportNumber}`);
         } catch (error: any) {
             toast.error(

@@ -39,24 +39,15 @@ export const Login = createAsyncThunk(
         const mapped = mapLoginResponseDtoToLoginResponse(response.data);
 
         if (mapped.success && mapped.user) {
-          console.log("[LOGIN THUNK] Успешный ответ сервера → сохраняем в LS");
           localStorage.setItem('accessToken', mapped.accessToken!);
           localStorage.setItem('refreshToken', mapped.refreshToken!);
           localStorage.setItem('user', JSON.stringify(mapped.user));
-          // ... остальные setItem
-
-          console.log("[LOGIN THUNK] Токен сохранён:", mapped.accessToken?.slice(0, 15) + "...");
-          console.log("[LOGIN THUNK] User сохранён:", mapped.user.email);
-
-          // ← здесь уже можно принудительно посмотреть состояние
-          // но лучше смотреть после .unwrap()
 
           return mapped;
         } else {
           return rejectWithValue(mapped.error?.errorMessage?.ru || 'Ошибка авторизации');
         }
       } catch (error: any) {
-        console.error("[LOGIN THUNK] Ошибка:", error);
         return rejectWithValue(error.response?.data?.message || 'Ошибка сервера');
       }
     }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Empty, Input, Modal, Spin } from 'antd';
+import { Alert, Empty, Input, Modal } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -49,13 +50,28 @@ const DeliveryRoutesLoading = () => {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
-  const [isClosingSession, setIsClosingSession] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const isClosingSession = false;
   const canUseScreen = isWarehouseRole(currentUser);
 
   useEffect(() => {
-    if (!routeId) return;
+    let isMounted = true;
 
-    dispatch(getDeliveryRouteById(routeId));
+    if (!routeId) {
+      setIsBootstrapping(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsBootstrapping(true);
+    dispatch(getDeliveryRouteById(routeId))
+      .unwrap()
+      .finally(() => {
+        if (isMounted) {
+          setIsBootstrapping(false);
+        }
+      });
     dispatch(resetScanSessionState());
 
     try {
@@ -71,6 +87,7 @@ const DeliveryRoutesLoading = () => {
     }
 
     return () => {
+      isMounted = false;
       dispatch(resetScanSessionState());
     };
   }, [dispatch, routeId]);
@@ -216,30 +233,6 @@ const DeliveryRoutesLoading = () => {
 
   const handleStartDeleteScanning = () => {
     setScannerMode('delete');
-  };
-
-  const handleScannerClose = async () => {
-    if (scannerMode !== 'loading' || !scanSession?.id) {
-      setScannerMode(null);
-      return;
-    }
-
-    if (scanSession.status !== 'active') {
-      setScannerMode(null);
-      return;
-    }
-
-    try {
-      setIsClosingSession(true);
-      await dispatch(completeScanSession(scanSession.id)).unwrap();
-    } catch (error) {
-      toast.error(
-        getBackendErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
-      );
-    } finally {
-      setIsClosingSession(false);
-      setScannerMode(null);
-    }
   };
 
   const handleScan = async (code: string) => {
@@ -396,6 +389,10 @@ const DeliveryRoutesLoading = () => {
     }
   };
 
+  const handleCloseScannerView = async () => {
+    setScannerMode(null);
+  };
+
   const lastScansContent = (
     <div className="loading-scans-groups">
       {acceptedScanGroups.length === 0 && rejectedScans.length === 0 && (
@@ -415,9 +412,11 @@ const DeliveryRoutesLoading = () => {
                 <button
                   type="button"
                   className="loading-scan-item-delete"
+                  aria-label={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
+                  title={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
                   onClick={() => void handleDeleteScan(scan.code)}
                 >
-                  {t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
+                  <DeleteOutlined />
                 </button>
               </div>
             ))}
@@ -444,22 +443,13 @@ const DeliveryRoutesLoading = () => {
     </div>
   );
 
-  if (routeLoading && !route) {
-    return (
-      <MainLayout>
-        <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items loading-page-state">
-              <Spin size="large" />
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
+  const isCurrentRouteLoaded = route?.id === routeId;
+
+  if (isBootstrapping || (routeLoading && !isCurrentRouteLoaded)) {
+    return null;
   }
 
-  if (!route) {
+  if (!isCurrentRouteLoaded || !route) {
     return (
       <MainLayout>
         <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />
@@ -513,6 +503,15 @@ const DeliveryRoutesLoading = () => {
           >
             {t('deliveryRoutes.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
           </CustomButton>
+          {scanSession?.status === 'active' && scannerMode !== 'delete' && (
+            <CustomButton
+              className="outline"
+              onClick={() => void handleComplete()}
+              disabled={isCreating || isCompleting || isClosingSession}
+            >
+              {isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading')}
+            </CustomButton>
+          )}
           <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -586,23 +585,10 @@ const DeliveryRoutesLoading = () => {
                         vehicle: route.vehicle.name || '-',
                       })
                 }
-                helperText={
-                  scannerMode === 'delete'
-                    ? t('deliveryRoutes.loadingWarnings.deleteScanHelper', {
-                        defaultValue: 'Откройте камеру и отсканируйте код, который нужно удалить из погрузки',
-                      })
-                    : t('deliveryRoutes.loadingHelper')
-                }
                 onScan={handleScan}
                 lastScans={recentScans}
                 acceptedCount={scanSession?.counters.accepted ?? 0}
                 rejectedCount={scanSession?.counters.rejected ?? 0}
-                primaryActionLabel={
-                  scannerMode === 'loading' && scanSession
-                    ? (isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading'))
-                    : undefined
-                }
-                onPrimaryAction={scannerMode === 'loading' && scanSession ? () => void handleComplete() : undefined}
                 enableCamera={scannerMode !== null}
                 cameraAutoStart={scannerMode !== null}
                 scanDisabled={
@@ -614,7 +600,7 @@ const DeliveryRoutesLoading = () => {
                 }
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
-                onCameraClose={handleScannerClose}
+                onCameraClose={handleCloseScannerView}
               />
             </section>
           </div>

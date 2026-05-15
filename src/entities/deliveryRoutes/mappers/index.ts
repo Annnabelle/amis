@@ -97,9 +97,9 @@ export const mapCreateDeliveryRouteResponseDtoToEntity = (
         success: false,
         errorCode: 100,
         errorMessage: {
-          ru: "ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ñ‹Ð¹ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð¾Ñ‚Ð²ÐµÑ‚Ð° ÑÐµÑ€Ð²ÐµÑ€Ð°",
+          ru: "Неизвестный формат ответа сервера",
           en: "Unknown server response format",
-          uz: "Server javobining nomaÊ¼lum formati",
+          uz: "Server javobining noma'lum formati",
         },
       },
     };

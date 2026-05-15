@@ -3,6 +3,7 @@ import type { HexString, SalesOrderPriority, SalesOrderStatus } from "shared/typ
 export type SalesOrderResponse = {
   id: string;
   companyId: string;
+  salesOrderNumber: string;
   status: SalesOrderStatus;
   customer: {
     companyId?: string;

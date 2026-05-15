@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Empty, Input, Modal, Spin } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -242,6 +243,8 @@ const DeliveryTasksScan = () => {
     }
   };
 
+  void handleScannerClose;
+
   const handleScan = async (code: string) => {
     if (!task?.id) {
       return {
@@ -428,6 +431,10 @@ const DeliveryTasksScan = () => {
     }
   };
 
+  const handleCloseScannerView = async () => {
+    setScannerMode(null);
+  };
+
   const lastScansContent = (
     <div className="loading-scans-groups">
       {acceptedScanGroups.length === 0 && rejectedScans.length === 0 && (
@@ -447,9 +454,11 @@ const DeliveryTasksScan = () => {
                 <button
                   type="button"
                   className="loading-scan-item-delete"
+                  aria-label={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
+                  title={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
                   onClick={() => void handleDeleteScan(scan.code)}
                 >
-                  {t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
+                  <DeleteOutlined />
                 </button>
               </div>
             ))}
@@ -545,15 +554,8 @@ const DeliveryTasksScan = () => {
   return (
     <MainLayout>
       <Heading
-        title={t('deliveryTasks.scanTitle', {
-          defaultValue: 'Выдача по задаче {{task}}',
-          task: task.taskNumber,
-        })}
-        subtitle={t('deliveryTasks.scanSubtitle', {
-          defaultValue: 'Рейс {{route}} / {{customer}}',
-          route: task.deliveryRouteId,
-          customer: task.customer.name,
-        })}
+        title={`${t('deliveryTasks.scanTitle')}: ${task.taskNumber}`}
+        subtitle={task.customer.name}
       >
         <div className="btns-group">
           <CustomButton
@@ -570,6 +572,15 @@ const DeliveryTasksScan = () => {
           >
             {t('deliveryTasks.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
           </CustomButton>
+          {scanSession?.status === 'active' && scannerMode !== 'delete' && (
+            <CustomButton
+              className="outline"
+              onClick={() => void handleComplete()}
+              disabled={isCreating || isCompletingSession || isClosingSession}
+            >
+              {isCompletingSession ? t('scanner.completingSession') : t('deliveryTasks.actions.completeDelivery')}
+            </CustomButton>
+          )}
           <CustomButton className="outline" onClick={() => navigate(routePath)}>
             {t('common.backToRoute')}
           </CustomButton>
@@ -634,30 +645,14 @@ const DeliveryTasksScan = () => {
                 title={
                   scannerMode === 'delete'
                     ? t('deliveryTasks.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })
-                    : t('deliveryTasks.scanner.title', {
-                        defaultValue: 'Выдача по рейсу {{route}}',
-                        route: task.deliveryRouteId,
-                      })
+                    : `${t('deliveryTasks.scanTitle')}: ${task.taskNumber}`
                 }
                 subtitle={
                   scannerMode === 'delete'
                     ? t('deliveryTasks.scanner.deleteSubtitle', {
                         defaultValue: 'Отсканируйте код, который нужно удалить из выдачи',
                       })
-                    : t('deliveryTasks.scanner.subtitle', {
-                        defaultValue: 'Задача {{task}} / {{customer}}',
-                        task: task.taskNumber,
-                        customer: task.customer.name,
-                      })
-                }
-                helperText={
-                  scannerMode === 'delete'
-                    ? t('deliveryTasks.scanner.deleteHelper', {
-                        defaultValue: 'Откройте камеру и отсканируйте код для удаления из выдачи',
-                      })
-                    : t('deliveryTasks.scanner.helper', {
-                        defaultValue: 'Нажмите "Начать сканирование", чтобы открыть камеру и выдавать товар',
-                      })
+                    : task.customer.name
                 }
                 onScan={handleScan}
                 lastScans={recentScans}
@@ -678,7 +673,7 @@ const DeliveryTasksScan = () => {
                 }
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
-                onCameraClose={handleScannerClose}
+                onCameraClose={handleCloseScannerView}
               />
             </section>
           </div>
@@ -725,3 +720,4 @@ const DeliveryTasksScan = () => {
 };
 
 export default DeliveryTasksScan;
+

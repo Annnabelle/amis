@@ -25,6 +25,7 @@
                 planned: "Planned",
                 loading: "Loading",
                 loaded: "Loaded",
+                handover_in_progress: "Handover in progress",
                 delivering: "Delivering",
                 in_transit: "In transit",
                 partially_delivered: "Partially delivered",
@@ -209,6 +210,7 @@
                     product: "Product",
                     quantity: "Quantity",
                     unitPrice: "Unit price",
+                    price: "Price/unit",
                     comment: "Comment",
                     status: "Status",
                     createdAt: "Created at",
@@ -216,13 +218,17 @@
                     createdBy: "Created by",
                     updatedBy: "Updated by",
                     orderedQuantity: "Ordered quantity",
+                    orderedQuantityShort: "Ordered",
                     assignedQuantity: "Assigned quantity",
+                    assignedQuantityShort: "Assigned",
                     deliveredQuantity: "Delivered quantity",
+                    deliveredQuantityShort: "Delivered",
                     amount: "Amount",
+                    amountShort: "Amount",
                     totalAmount: "Total amount"
                 },
                 table: {
-                    orderNumber: "Order number",
+                    orderNumber: "Number",
                     customerName: "Customer name",
                     customerTin: "Customer TIN",
                     dueDate: "Due date",
@@ -249,6 +255,9 @@
                 validation: {
                     companyRequired: "Company is required",
                     customerTinRequired: "TIN is required",
+                    customerTinDigitsOnly: "TIN must contain digits only",
+                    customerTinLength: "TIN must consist of 9 digits",
+                    customerTinInvalid: "Enter a valid TIN",
                     customerNameRequired: "Name is required",
                     dueDateRequired: "Due date is required",
                     priorityRequired: "Priority is required",
@@ -381,7 +390,7 @@
                       companyRequired: "Company is required",
                       routeDateRequired: "Route date is required",
                       salesOrdersRequired: "Please select at least one sales order",
-                      plateNumberInvalid: "Plate number must be in format: 00 AAA000 or 00 0AAA00"
+                      plateNumberInvalid: "Plate number must be in format: 00 000AAA or 00 0AAA00"
                   },
                 messages: {
                     success: {
@@ -475,8 +484,8 @@
                 title: "Delivery Tasks",
                 subtitle: "My tasks",
                 detailsTitle: "Delivery Task",
-                scanTitle: "Delivery scan",
-                scanSubtitle: "Task",
+                scanTitle: "Delivery task",
+                scanSubtitle: "Customer",
                 listEmpty: "My delivery tasks will appear here",
                 sections: {
                     header: "Header",
@@ -1179,6 +1188,7 @@
                 planned: "Запланировано",
                 loading: "Загрузка",
                 loaded: "Загружено",
+                handover_in_progress: "Выдача начата",
                 delivering: "Доставка",
                 in_transit: "В пути",
                 partially_delivered: "Частично доставлено",
@@ -1302,7 +1312,7 @@
                 implementation: "Реализация",
                 deals: "Сделки",
                 routes: "Рейсы",
-                salesOrders: "Заказы продаж",
+                salesOrders: "Сделки",
                 deliveryRoutes: "Рейсы",
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
@@ -1335,10 +1345,10 @@
                 }
             },
             salesOrders: {
-                title: "Заказы продаж",
-                detailsTitle: "Заказ продажи",
-                create: "Создать заказ",
-                listEmpty: "Список заказов появится здесь",
+                title: "Сделки",
+                detailsTitle: "Сделка",
+                create: "Создать сделку",
+                listEmpty: "Список сделок появится здесь",
                 sections: {
                     company: "Компания",
                     customer: "Клиент",
@@ -1352,7 +1362,7 @@
                 },
                 fields: {
                     company: "Компания",
-                    orderNumber: "Номер заказа",
+                    orderNumber: "Номер сделки",
                     customerTin: "ИНН клиента",
                     customerName: "Имя клиента",
                     customerAddress: "Адрес клиента",
@@ -1363,6 +1373,7 @@
                     product: "Товар",
                     quantity: "Количество",
                     unitPrice: "Цена за единицу",
+                    price: "Цена за ед.",
                     comment: "Комментарий",
                     status: "Статус",
                     createdAt: "Создано",
@@ -1370,20 +1381,24 @@
                     createdBy: "Создал",
                     updatedBy: "Обновил",
                     orderedQuantity: "Заказано",
+                    orderedQuantityShort: "Заказано",
                     assignedQuantity: "Назначено",
+                    assignedQuantityShort: "Назначено",
                     deliveredQuantity: "Доставлено",
+                    deliveredQuantityShort: "Доставлено",
                     amount: "Сумма",
+                    amountShort: "Сумма",
                     totalAmount: "Итого"
                 },
                 table: {
-                    orderNumber: "Номер заказа",
+                    orderNumber: "Номер",
                     customerName: "Клиент",
                     customerTin: "ИНН клиента",
                     dueDate: "Срок",
                     priority: "Приоритет",
                     orderedQuantity: "Заказано",
                     assignedQuantity: "Назначено",
-                    deliveredQuantity: "Досавлено",
+                    deliveredQuantity: "Доставлено",
                     status: "Статус",
                     createdAt: "Создано"
                 },
@@ -1403,6 +1418,9 @@
                 validation: {
                     companyRequired: "Компания обязательна",
                     customerTinRequired: "ИНН обязателен",
+                    customerTinDigitsOnly: "ИНН должен содержать только цифры",
+                    customerTinLength: "ИНН должен состоять из 9 цифр",
+                    customerTinInvalid: "Введите корректный ИНН",
                     customerNameRequired: "Имя обязательно",
                     dueDateRequired: "Срок обязателен",
                     priorityRequired: "Приоритет обязателен",
@@ -1414,15 +1432,15 @@
                 },
                 messages: {
                     success: {
-                        create: "Заказ продаж успешно создан",
-                        delete: "Заказ успешно удален"
+                        create: "Сделка успешно создана",
+                        delete: "Сделка успешно удалена"
                     },
                     error: {
-                        create: "Ошибка при создании заказа продаж",
-                        delete: "Ошибка при удалении заказа"
+                        create: "Ошибка при создании сделки",
+                        delete: "Ошибка при удалении сделки"
                     }
                 },
-                deleteQuestion: "Вы уверены, что хотите удалить заказ",
+                deleteQuestion: "Вы уверены, что хотите удалить сделку",
                 priority: {
                     low: "Низкий",
                     normal: "Обычный",
@@ -1444,11 +1462,11 @@
                 },
                 actions: {
                     addItem: "Добавить позицию",
-                    create: "Создать заказ"
+                    create: "Создать сделку"
                 },
                 modalWindow: {
                     deletion: "Удаление",
-                    order: "заказ"
+                    order: "сделку"
                 },
                 details: {
                     headerEmpty: "Поля заголовка заказа",
@@ -1475,7 +1493,7 @@
                     in_transit: "В пути",
                     partially_delivered: "Частично доставлено",
                     delivered: "Доставлено",
-                    returning: "Возвращение",
+                    returning: "Возврат",
                     returned: "Возвращено",
                     closed: "Закрыто",
                     cancelled: "Отменено",
@@ -1534,8 +1552,8 @@
                   validation: {
                       companyRequired: "Компания обязательна",
                       routeDateRequired: "Дата рейса обязательна",
-                      salesOrdersRequired: "Выберите хотя бы одну продажу",
-                      plateNumberInvalid: "Номер машины должен быть в формате: 00 AAA000 или 00 0AAA00"
+                      salesOrdersRequired: "Выберите хотя бы одну сделку",
+                      plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA или 00 0AAA00"
                   },
                   messages: {
                       success: {
@@ -1552,11 +1570,11 @@
                       }
                   },
                   hints: {
-                    availableOrders: "Таблица заказов с остатком для распределения. Добавьте выбор и предпросмотр.",
-                    preview: "Показать количество заказов, клиентов, агрегированные товары и оценку объема."
+                    availableOrders: "Таблица сделок с остатком для распределения. Добавьте выбор и предпросмотр.",
+                    preview: "Показать количество сделок, клиентов, агрегированные товары и оценку объема."
                 },
                 preview: {
-                    ordersSelected: "Заказов выбрано",
+                    ordersSelected: "Сделок выбрано",
                     customersCount: "Клиентов",
                     totalVolume: "Товаров выбрано",
                     aggregatedProducts: "Агрегированные товары",
@@ -1566,7 +1584,7 @@
                     driver: "Водитель",
                     agent: "Агент",
                     company: "Компания",
-                    selectedOrders: "Выбранные заказы",
+                    selectedOrders: "Выбранные сделки",
                     customer: "Клиент",
                     dueDate: "Срок",
                     priority: "Приоритет",
@@ -1629,8 +1647,8 @@
                 title: "Задачи доставки",
                 subtitle: "Мои задачи",
                 detailsTitle: "Задача доставки",
-                scanTitle: "Сканирование доставки",
-                scanSubtitle: "Задача",
+                scanTitle: "Выдача по задаче",
+                scanSubtitle: "Клиент",
                 listEmpty: "Список задач появится здесь",
                 sections: {
                     header: "Шапка",
@@ -2333,6 +2351,7 @@
                 planned: "Rejalashtirilgan",
                 loading: "Yuklash",
                 loaded: "Yuklangan",
+                handover_in_progress: "Topshirish boshlandi",
                 delivering: "Yetkazilmoqda",
                 in_transit: "Yo'lda",
                 partially_delivered: "Qisman yetkazilgan",
@@ -2518,6 +2537,7 @@
                     product: "Mahsulot",
                     quantity: "Miqdor",
                     unitPrice: "Birlik narxi",
+                    price: "Birlik narxi",
                     comment: "Izoh",
                     status: "Holat",
                     createdAt: "Yaratilgan sana",
@@ -2525,13 +2545,17 @@
                     createdBy: "Yaratgan",
                     updatedBy: "Yangilagan",
                     orderedQuantity: "Buyurtma miqdori",
+                    orderedQuantityShort: "Buyurtma",
                     assignedQuantity: "Biriktirilgan miqdor",
+                    assignedQuantityShort: "Birikt.",
                     deliveredQuantity: "Yetkazilgan miqdor",
+                    deliveredQuantityShort: "Yetkaz.",
                     amount: "Summa",
+                    amountShort: "Summa",
                     totalAmount: "Jami summa"
                 },
                 table: {
-                    orderNumber: "Buyurtma raqami",
+                    orderNumber: "Raqam",
                     customerName: "Mijoz",
                     customerTin: "Mijoz STIR",
                     dueDate: "Muddat",
@@ -2558,6 +2582,9 @@
                 validation: {
                     companyRequired: "Kompaniya majburiy",
                     customerTinRequired: "STIR majburiy",
+                    customerTinDigitsOnly: "STIR faqat raqamlardan iborat bo'lishi kerak",
+                    customerTinLength: "STIR 9 ta raqamdan iborat bo'lishi kerak",
+                    customerTinInvalid: "To'g'ri STIR kiriting",
                     customerNameRequired: "Ism majburiy",
                     dueDateRequired: "Muddat majburiy",
                     priorityRequired: "Ustuvorlik majburiy",
@@ -2683,7 +2710,7 @@
                       companyRequired: "Kompaniya majburiy",
                       routeDateRequired: "Reys sanasi majburiy",
                       salesOrdersRequired: "Iltimos, kamida bitta sotuv buyurtmasini tanlang",
-                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 AAA000 yoki 00 0AAA00"
+                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA yoki 00 0AAA00"
                   },
                   messages: {
                       success: {
@@ -2755,8 +2782,8 @@
                 title: "Yetkazib berish vazifalari",
                 subtitle: "Mening vazifalarim",
                 detailsTitle: "Yetkazib berish vazifasi",
-                scanTitle: "Yetkazib berish skani",
-                scanSubtitle: "Vazifa",
+                scanTitle: "Vazifa bo'yicha topshirish",
+                scanSubtitle: "Mijoz",
                 listEmpty: "Vazifalar ro'yxati shu yerda bo'ladi",
                 sections: {
                     header: "Sarlavha",

@@ -33,16 +33,20 @@ export function useAdaptiveColumns<T extends object>(
     columns: AdaptiveColumn<T>[],
     tableWidth: number
 ): AdaptiveColumn<T>[] {
-    const plainColumnsCount = columns.filter(
+    const plainColumns = columns.filter(
         (col) => !('children' in col)
-    ).length || 1;
-
-    const calculatedWidth = Math.floor(tableWidth / plainColumnsCount);
+    );
+    const plainColumnsCount = plainColumns.length || 1;
+    const totalFlex = plainColumns.reduce((sum, col) => sum + (col.flex ?? 1), 0) || plainColumnsCount;
+    const fallbackWidth = Math.floor(tableWidth / plainColumnsCount);
 
     return columns.map((col) => {
         if ('children' in col) {
             return applyHeaderAlign(col);
         }
+
+        const proportionalWidth = Math.floor(tableWidth * ((col.flex ?? 1) / totalFlex));
+        const calculatedWidth = Math.max(col.minWidth ?? 0, proportionalWidth || fallbackWidth);
 
         return applyHeaderAlign({
             ...col,
