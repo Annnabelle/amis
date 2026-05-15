@@ -157,6 +157,7 @@ input:-webkit-autofill:active
     color: #1E1E1E
 
 .detail-card
+  min-width: 0
   border: 1px solid var(--main-secondary-white)
   border-radius: 12px
   padding: 16px
@@ -224,6 +225,92 @@ input:-webkit-autofill:active
 .detail-card-full
   grid-column: 1 / -1
 
+.invoice-items-cards
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr))
+  gap: 12px
+
+.invoice-item-card
+  min-width: 0
+  padding: 14px
+  border: 1px solid rgba(30, 144, 255, 0.12)
+  border-radius: 8px
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.04) 0%, rgba(255, 255, 255, 1) 100%)
+
+.invoice-item-card-head
+  display: grid
+  grid-template-columns: minmax(0, 1fr) auto
+  gap: 14px
+  align-items: start
+  padding-bottom: 12px
+  margin-bottom: 12px
+  border-bottom: 1px solid rgba(30, 144, 255, 0.10)
+
+.invoice-item-product,
+.invoice-item-amount,
+.invoice-item-chip
+  min-width: 0
+  display: flex
+  gap: 6px
+
+.invoice-item-product,
+.invoice-item-amount
+  flex-direction: row
+  align-items: baseline
+
+.invoice-item-product strong
+  display: block
+  min-width: 0
+  max-width: 100%
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+  font-size: 14px
+  font-weight: 600
+  color: #1E1E1E
+
+.invoice-item-amount
+  text-align: right
+
+  strong
+    font-size: 15px
+    font-weight: 700
+    color: #1E90FF
+    white-space: nowrap
+
+.invoice-item-card-grid
+  display: grid
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: 10px
+
+.invoice-item-chip
+  align-items: baseline
+  flex-direction: column
+  padding: 10px
+  border-radius: 8px
+  background: rgba(255, 255, 255, 0.78)
+  border: 1px solid rgba(30, 144, 255, 0.08)
+
+  .label
+    flex: 0 0 auto
+
+  .value
+    display: block
+    width: 100%
+    max-width: 100%
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+    font-size: 13px
+    font-weight: 600
+    color: #1E1E1E
+
+.invoice-items-pagination
+  display: flex
+  justify-content: flex-end
+  margin-top: 16px
+
 .detail-items
   display: flex
   flex-direction: column
@@ -253,6 +340,15 @@ input:-webkit-autofill:active
     color: #1E1E1E
     word-break: break-word
     line-height: 1.4
+
+  .link
+    color: #1E90FF
+    text-decoration: none
+    transition: color 0.2s ease, text-decoration-color 0.2s ease
+
+    &:hover
+      color: #0F6FD6
+      text-decoration: none
 
 .inline-label
   text-transform: none !important
@@ -648,6 +744,21 @@ input:-webkit-autofill:active
     .value
       color: #64B5F6
 
+  .invoice-item-card
+    background: linear-gradient(180deg, rgba(100, 181, 246, 0.08) 0%, rgba(26, 26, 30, 1) 100%)
+    border-color: rgba(100, 181, 246, 0.14)
+
+  .invoice-item-product strong,
+  .invoice-item-chip .value
+    color: #F5F7FB
+
+  .invoice-item-amount strong
+    color: #64B5F6
+
+  .invoice-item-chip
+    background: rgba(255, 255, 255, 0.03)
+    border-color: rgba(100, 181, 246, 0.10)
+
   .detail-note
     color: #9EA7B8
 
@@ -812,6 +923,19 @@ input:-webkit-autofill:active
       margin-bottom: 0
       grid-column: 2
       flex: 0 0 auto
+
+  .invoice-items-cards
+    grid-template-columns: 1fr
+
+  .invoice-item-card-head
+    grid-template-columns: 1fr
+
+  .invoice-item-amount
+    align-items: flex-start
+    text-align: left
+
+  .invoice-item-card-grid
+    grid-template-columns: repeat(2, minmax(0, 1fr))
 
   .route-task-control-btn
     flex: 0 1 auto
