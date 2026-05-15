@@ -1,5 +1,5 @@
 import { Table } from 'antd';
-import type { TablePaginationConfig } from 'antd';
+import type { TablePaginationConfig, TableProps } from 'antd';
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { useTableWidth } from './useTableWidth';
 import './styles.sass';
@@ -14,6 +14,7 @@ interface ComponentTableProps<T> {
     pagination?: TablePaginationConfig | false;
     rowSelection?: TableRowSelection<T>;
     rowClassName?: string | ((record: T, index: number) => string);
+    scroll?: TableProps<T>['scroll'] | false;
 }
 
 const ComponentTable = <T extends object>({
@@ -24,6 +25,7 @@ const ComponentTable = <T extends object>({
       pagination,
       rowSelection,
       rowClassName,
+      scroll = { x: 'max-content' },
   }: ComponentTableProps<T>) => {
     const { ref, width } = useTableWidth();
 
@@ -38,7 +40,7 @@ const ComponentTable = <T extends object>({
             <Table<T>
                 className="amis-table"
                 tableLayout="fixed"
-                scroll={{ x: '100%' }}
+                scroll={scroll === false ? undefined : scroll}
                 columns={adaptiveColumns}
                 dataSource={data}
                 loading={loading}
