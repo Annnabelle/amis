@@ -59,6 +59,43 @@
                 transition: color 0.3s ease
                 &:hover
                     +mix.typography(14px, 400, map.get(vars.$main, 'main'))
+            .invoice-status-tag
+                display: inline-flex
+                align-items: center
+                max-width: 100%
+                min-width: 0
+                margin: 0
+                overflow: hidden
+                vertical-align: middle
+                .invoice-status-tag-label
+                    display: block
+                    min-width: 0
+                    overflow: hidden
+                    text-overflow: ellipsis
+                    white-space: nowrap
+            .invoice-items-product
+                font-weight: 500
+            .invoice-items-psic
+                display: flex
+                min-width: 0
+                flex-direction: column
+                gap: 2px
+                line-height: 1.25
+            .invoice-items-psic-code
+                display: block
+                min-width: 0
+                overflow: hidden
+                text-overflow: ellipsis
+                white-space: nowrap
+                font-weight: 500
+            .invoice-items-psic-name
+                display: block
+                min-width: 0
+                overflow: hidden
+                text-overflow: ellipsis
+                white-space: nowrap
+                color: rgba(30, 30, 30, 0.58)
+                font-size: 12px
         .ant-table-selection-column
             overflow: visible !important
     .clickable-row
