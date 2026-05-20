@@ -14,6 +14,9 @@ import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { useTheme } from 'app/themeContext';
 import './styles.sass';
 
+const mobileToastPosition = () =>
+    window.matchMedia('(max-width: 600px)').matches ? 'bottom-center' : undefined;
+
 const LoginPage = () => {
     const form = useFormInstance();
     const dispatch = useAppDispatch();
@@ -29,7 +32,9 @@ const LoginPage = () => {
         setIsSubmitting(true);
         dispatch(Login(values)).unwrap()
             .then(() => {
-                toast.success(t('login.messages.successLogin'));
+                toast.success(t('login.messages.successLogin'), {
+                    position: mobileToastPosition(),
+                });
             })
             .catch(() => {
                 toast.error(t('login.messages.errorLogin'));
