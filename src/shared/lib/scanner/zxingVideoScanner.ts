@@ -41,7 +41,6 @@ const selectPreferredDeviceId = async (
 
   const LAST_DEVICE_KEY = 'amis.lastVideoDeviceId';
 
-  // Try to reuse previously selected device (persisted in localStorage)
   try {
     const last = localStorage.getItem(LAST_DEVICE_KEY);
     if (last) {
@@ -49,7 +48,9 @@ const selectPreferredDeviceId = async (
       if (found) return found.deviceId;
     }
   } catch {
-    // ignore storage errors
+    console.log('====================================');
+    console.log("smth went wrong");
+    console.log('====================================');
   }
 
   const preferredDevice = devices.find((device) =>
@@ -61,7 +62,7 @@ const selectPreferredDeviceId = async (
   try {
     localStorage.setItem(LAST_DEVICE_KEY, chosen);
   } catch {
-    // ignore storage errors
+      console.log("smth went wrong");
   }
 
   return chosen;
