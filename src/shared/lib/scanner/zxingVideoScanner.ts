@@ -39,11 +39,33 @@ const selectPreferredDeviceId = async (
   const devices = await BrowserCodeReader.listVideoInputDevices();
   if (!devices.length) return undefined;
 
+  const LAST_DEVICE_KEY = 'amis.lastVideoDeviceId';
+
+  try {
+    const last = localStorage.getItem(LAST_DEVICE_KEY);
+    if (last) {
+      const found = devices.find((d) => d.deviceId === last);
+      if (found) return found.deviceId;
+    }
+  } catch {
+    console.log('====================================');
+    console.log("smth went wrong");
+    console.log('====================================');
+  }
+
   const preferredDevice = devices.find((device) =>
     /back|rear|environment|camera 0|traseira/i.test(device.label)
   );
 
-  return preferredDevice?.deviceId ?? devices[0].deviceId;
+  const chosen = preferredDevice?.deviceId ?? devices[0].deviceId;
+
+  try {
+    localStorage.setItem(LAST_DEVICE_KEY, chosen);
+  } catch {
+      console.log("smth went wrong");
+  }
+
+  return chosen;
 };
 
 export class ZxingVideoScanner {
