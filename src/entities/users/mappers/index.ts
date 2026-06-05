@@ -1,6 +1,6 @@
 import type { ErrorDto } from "shared/types/dtos";
-import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, UserResponseDto } from "entities/users/dtos/login";
-import type { ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserResponse } from "entities/users/types";
+import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
+import type { ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserPreview, UserResponse } from "entities/users/types";
 
 export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
   return {
@@ -38,6 +38,15 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
     : undefined,
   language: dto.language,
   lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
+});
+
+export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => ({
+  id: dto.id,
+  firstName: dto.firstName,
+  lastName: dto.lastName,
+  status: dto.status,
+  email: dto.email,
+  phone: dto.phone,
 });
 
 

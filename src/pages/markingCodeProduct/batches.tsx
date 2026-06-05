@@ -6,6 +6,7 @@ import {Link, useParams} from "react-router-dom";
 import BatchItem from "./batchItem.tsx";
 import {Tag} from "antd";
 import {statusColors} from "shared/ui/statuses.tsx";
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard'
 import "./styles.sass"
 import dayjs from "dayjs";
 
@@ -78,7 +79,13 @@ const MarkingCodeProductBatches = () => {
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.executor')}>
-                            {orderProductBatch?.order.userId}
+                            {orderProductBatch?.order.userId ? (
+                                <div style={{ width: 360, maxWidth: '100%' }}>
+                                    <UserPreviewCardById userId={orderProductBatch.order.userId} compact />
+                                </div>
+                            ) : (
+                                orderProductBatch?.order.userId
+                            )}
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.orderTime')}>

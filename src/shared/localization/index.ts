@@ -14,7 +14,17 @@
                 backToTask: "Back to task",
                 crew: "Crew",
                 expandAll: "Expand all",
-                collapseAll: "Collapse all"
+                collapseAll: "Collapse all",
+                creator: "Creator",
+                history: "History",
+                createdBy: "Created by",
+                updatedBy: "Updated by",
+                user: "User",
+                userId: "ID",
+                email: "Email",
+                phone: "Phone",
+                status: "Status",
+                moreDetails: "More details"
             },
             statuses: {
                 active: "Active",
@@ -1272,7 +1282,17 @@
                 backToTask: "Назад к задаче",
                 crew: "Экипаж",
                 expandAll: "Развернуть все",
-                collapseAll: "Свернуть все"
+                collapseAll: "Свернуть все",
+                creator: "Создатель",
+                history: "История",
+                createdBy: "Создал",
+                updatedBy: "Обновил",
+                user: "Пользователь",
+                userId: "ID",
+                email: "Email",
+                phone: "Телефон",
+                status: "Статус",
+                moreDetails: "Подробнее"
             },
             statuses: {
                 active: "Активен",
@@ -2530,7 +2550,8 @@
                 backToRoute: "Reysga qaytish",
                 backToTask: "Vazifaga qaytish",
                 expandAll: "Barchasini yoyish",
-                collapseAll: "Barchasini buklash"
+                collapseAll: "Barchasini buklash",
+                history: "Tarix"
             },
             statuses: {
                 active: "Faol",

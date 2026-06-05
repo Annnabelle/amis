@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getSalesOrderById } from 'entities/salesOrders/model';
 import { statusColors } from 'shared/ui/statuses.tsx';
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 
 const SalesOrdersDetails = () => {
   const navigate = useNavigate();
@@ -86,6 +87,11 @@ const SalesOrdersDetails = () => {
                       placeholder={order.createdAt ? dayjs(order.createdAt).format('DD.MM.YYYY') : empty}
                     />
                   </Form.Item>
+                  {order.createdBy && (
+                    <Form.Item className="input" label={t('common.createdBy')}>
+                      <UserPreviewCardById userId={order.createdBy} compact />
+                    </Form.Item>
+                  )}
                 </div>
                 <div className="form-divider-title">
                   <h4 className="title">{t('salesOrders.sections.customer')}</h4>

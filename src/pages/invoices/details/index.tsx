@@ -14,6 +14,7 @@ import { statusColors } from 'shared/ui/statuses.tsx';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 
 const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
 const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
@@ -212,6 +213,16 @@ const InvoicesDetails = () => {
                   </div>
                 ))}
               </div>
+              {invoice.createdBy && (
+                <div className="detail-grid detail-grid-single" style={{ marginTop: 16 }}>
+                  <div className="detail-card detail-card-full">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span className="label inline-label">{t('common.createdBy')}:</span>
+                      <UserPreviewCardById userId={invoice.createdBy} compact />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="detail-grid detail-grid-secondary">

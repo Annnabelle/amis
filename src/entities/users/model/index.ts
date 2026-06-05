@@ -1,8 +1,8 @@
 import type { LoginForm, UserResponse, UsersState } from "entities/users/types";
-import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, RegisterUserDto, UpdateUserDto, UpdateUserResponseDto, UserResponseDto } from "entities/users/dtos/login";
+import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, RegisterUserDto, UpdateUserDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto } from "entities/users/dtos/login";
 import type { PaginatedResponseDto } from "shared/types/dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
+import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 
@@ -13,6 +13,7 @@ const storedRefreshToken = localStorage.getItem("refreshToken");
 const initialState: UsersState = {
   user: storedUser ? JSON.parse(storedUser) : null,
   userById: null,
+  userPreviewById: {},
   updateUser: null,
   users: [],
   searchedUsers: [],
@@ -148,6 +149,31 @@ export const getUserById = createAsyncThunk(
       }
 
       return rejectWithValue("Ошибка загрузки пользователя");
+    } catch (err: any) {
+      return rejectWithValue(err.message || "Ошибка сервера");
+    }
+  }
+);
+
+function isGetUserPreviewSuccessResponse(
+  res: GetUserPreviewResponseDto
+): res is { success: boolean; data: UserPreviewDto } {
+  return "success" in res && res.success === true && "data" in res;
+}
+
+export const getUserPreview = createAsyncThunk(
+  "users/getUserPreview",
+  async (params: GetUserDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get<GetUserPreviewResponseDto>(
+        `${BASE_URL}/users/${params.id}/preview`
+      );
+
+      if (isGetUserPreviewSuccessResponse(response.data)) {
+        return mapUserPreviewDtoToEntity(response.data.data);
+      }
+
+      return rejectWithValue("Ошибка загрузки превью пользователя");
     } catch (err: any) {
       return rejectWithValue(err.message || "Ошибка сервера");
     }
@@ -383,6 +409,20 @@ export const usersSlice = createSlice({
       })
 
       .addCase(getUserById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getUserPreview.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getUserPreview.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          state.userPreviewById[action.payload.id] = action.payload;
+        }
+      })
+      .addCase(getUserPreview.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

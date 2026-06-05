@@ -69,6 +69,20 @@ export type GetUserResponseDto = {
   user: UserResponseDto,
 } | ErrorDto;
 
+export type UserPreviewDto = {
+  id: HexString,
+  firstName: string,
+  lastName: string,
+  status: UserStatus,
+  email: string,
+  phone: string,
+}
+
+export type GetUserPreviewResponseDto = {
+  success: boolean,
+  data: UserPreviewDto,
+} | ErrorDto;
+
 export class UpdateUserDto {
   firstName?: string;
   lastName?: string;
