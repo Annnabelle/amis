@@ -22,6 +22,15 @@ export type UserResponse = {
     lastLoggedInAt: Date | null,
 }
 
+export type UserPreview = {
+    id: HexString,
+    firstName: string,
+    lastName: string,
+    status: string,
+    email: string,
+    phone: string,
+}
+
 export type LoginForm = {
   email: string;
   password: string;
@@ -38,6 +47,7 @@ export type LoginResponse = {
 export type UsersState = {
     user: UserResponse | null;
     userById: UserResponse | null;
+    userPreviewById: Record<HexString, UserPreview>;
     updateUser: UserResponse | null;
     searchedUsers: UserResponse[];
     users: UserResponse[];

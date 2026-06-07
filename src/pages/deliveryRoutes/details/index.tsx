@@ -13,6 +13,7 @@ import {
   startDeliveryRouteReturn,
   startDeliveryRouteTransit,
 } from 'entities/deliveryRoutes/model';
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { getDeliveryTasks, startDeliveryTaskDelivery } from 'entities/deliveryTasks/model';
 import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
@@ -35,7 +36,6 @@ const DeliveryRoutesDetails = () => {
   const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
   const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
   const currentUser = useAppSelector((state) => state.users.currentUser);
-
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
   const isWarehouseUser = isWarehouseRole(currentUser);
   const isAgentUser = isAgentRole(currentUser);
@@ -244,8 +244,18 @@ const DeliveryRoutesDetails = () => {
   ];
 
   const crewItems = [
-    { label: t('deliveryRoutes.fields.driverName'), value: route.crew?.driverName || '-' },
-    { label: t('deliveryRoutes.fields.agentName'), value: route.crew?.agentName || '-' },
+    {
+      label: t('deliveryRoutes.fields.driverName'),
+      value: route.crew?.driverId ? (
+        <UserPreviewCardById userId={route.crew.driverId} compact />
+      ) : route.crew?.driverName || '-',
+    },
+    {
+      label: t('deliveryRoutes.fields.agentName'),
+      value: route.crew?.agentId ? (
+        <UserPreviewCardById userId={route.crew.agentId} compact />
+      ) : route.crew?.agentName || '-',
+    },
   ];
 
   const totalItems = [
@@ -390,6 +400,14 @@ const DeliveryRoutesDetails = () => {
                   </div>
                 ))}
               </div>
+              {route.createdBy && (
+                <div className="detail-grid detail-grid-single" style={{ marginTop: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span className="label inline-label">{t('common.createdBy')}:</span>
+                    <UserPreviewCardById userId={route.createdBy} compact />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="detail-grid detail-grid-main">
@@ -409,15 +427,17 @@ const DeliveryRoutesDetails = () => {
               <div className="detail-card">
                 <h4>{t('deliveryRoutes.sections.crew')}</h4>
                 {route.crew ? (
-                  <div className="detail-items">
-                    {crewItems.map((item) => (
-                      <div className="detail-item" key={item.label}>
-                        <span className="label inline-label">{item.label}</span>
-                        <span className="detail-separator">:</span>
-                        <span className="value">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <div className="detail-items">
+                      {crewItems.map((item) => (
+                        <div className="detail-item" key={item.label}>
+                          <span className="label inline-label">{item.label}</span>
+                          <span className="detail-separator">:</span>
+                          <span className="value">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 ) : (
                   <Empty description={t('deliveryRoutes.details.crewEmpty')} />
                 )}
