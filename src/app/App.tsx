@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
 import Router from './routes';
-import { useAppSelector } from './store';
+import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
+import { logout } from 'entities/users/model';
+import { AUTH_SESSION_EXPIRED_EVENT, isStoredSessionExpired } from 'shared/lib/authSession';
 import './styles/App.sass';
 
 const THEME_STORAGE_KEY = 'amis-theme-mode';
@@ -16,6 +19,54 @@ const getInitialTheme = (): ThemeMode => {
     return savedTheme;
   }
   return 'light';
+};
+
+const AuthSessionGuard = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleLogout = () => {
+      dispatch(logout());
+      navigate('/', { replace: true });
+    };
+
+    const handleSessionCheck = () => {
+      if (isStoredSessionExpired()) {
+        handleLogout();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleSessionCheck();
+      }
+    };
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'accessToken' && !event.newValue) {
+        handleLogout();
+      }
+    };
+
+    window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleLogout);
+    window.addEventListener('focus', handleSessionCheck);
+    window.addEventListener('pageshow', handleSessionCheck);
+    window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    handleSessionCheck();
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleLogout);
+      window.removeEventListener('focus', handleSessionCheck);
+      window.removeEventListener('pageshow', handleSessionCheck);
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [dispatch, navigate]);
+
+  return null;
 };
 
 function App() {
@@ -66,6 +117,7 @@ function App() {
       >
         <GlobalLoader loading={loading} />
         <BrowserRouter>
+          <AuthSessionGuard />
           <Router />
         </BrowserRouter>
       </ConfigProvider>

@@ -5,6 +5,7 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
+import { clearAuthStorage } from "shared/lib/authSession";
 
 const storedUser = localStorage.getItem("user");
 const storedAccessToken = localStorage.getItem("accessToken");
@@ -293,12 +294,7 @@ export const usersSlice = createSlice({
       state.sessionStart = null;
       state.isAuthenticated = false;
       state.currentUser = null;
-      localStorage.removeItem("userName");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("sessionEnd");
+      clearAuthStorage();
     },
     login: (state) => {
       state.isAuthenticated = true;
