@@ -15,7 +15,7 @@ const hasAnyRoleToken = (user: UserResponse | null, tokens: string[]) => {
 };
 
 export const isWarehouseRole = (user: UserResponse | null) =>
-  hasAnyRoleToken(user, ["warehouse", "склад", "ombor", "superadmin"]);
+  hasAnyRoleToken(user, ["warehouse", "superadmin", "admin"]);
 
 export const isAgentRole = (user: UserResponse | null) =>
-  hasAnyRoleToken(user, ["agent", "агент", "superadmin"]);
+  hasAnyRoleToken(user, ["agent", "superadmin"]);

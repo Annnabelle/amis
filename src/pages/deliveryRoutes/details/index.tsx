@@ -39,6 +39,7 @@ const DeliveryRoutesDetails = () => {
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
   const isWarehouseUser = isWarehouseRole(currentUser);
   const isAgentUser = isAgentRole(currentUser);
+  console.log(route?.status)
   const canOpenLoading = Boolean(
     isWarehouseUser &&
       route?.status &&
