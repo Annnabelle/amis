@@ -5,6 +5,7 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
+import { clearAuthStorage } from "shared/lib/authSession";
 
 const storedUser = localStorage.getItem("user");
 const storedAccessToken = localStorage.getItem("accessToken");
@@ -221,7 +222,7 @@ export const deleteUser = createAsyncThunk(
       );
 
       if (isDeleteUserSuccessResponse(response.data)) {
-        return { id }; // вернём только id, чтобы удалить из state
+        return { id };
       }
 
       return rejectWithValue("Ошибка при удалении пользователя");
@@ -233,11 +234,23 @@ export const deleteUser = createAsyncThunk(
 
 export const searchUsers = createAsyncThunk(
   'users/search',
-  async ({ query, page = 1, limit = 10, sortOrder = 'asc' }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }) => {
-    const response = await axiosInstance.get(`/users/search`, {
-      params: { query, page, limit, sortOrder }
-    });
-    return response.data;
+  async (
+    { query, page = 1, limit = 10, sortOrder = 'asc' }: {
+      query: string;
+      page?: number;
+      limit?: number;
+      sortOrder?: 'asc' | 'desc';
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get(`/users/search`, {
+        params: { query, page, limit, sortOrder }
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error);
+    }
   }
 );
 
@@ -293,12 +306,7 @@ export const usersSlice = createSlice({
       state.sessionStart = null;
       state.isAuthenticated = false;
       state.currentUser = null;
-      localStorage.removeItem("userName");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("sessionEnd");
+      clearAuthStorage();
     },
     login: (state) => {
       state.isAuthenticated = true;
