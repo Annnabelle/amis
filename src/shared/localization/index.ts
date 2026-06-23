@@ -675,7 +675,8 @@
                     error: {
                         createUser: "Error creating user",
                         updateUser: "Error updating user",
-                        deleteUser: "Error deleting user"
+                        deleteUser: "Error deleting user",
+                        loadUsers: "Error searching for users"
                     },
                 },
                 addUserForm: {
@@ -1943,7 +1944,8 @@
                     error: {
                         createUser: "Ошибка при создании пользователя",
                         updateUser: "Ошибка при обновлении пользователя",
-                        deleteUser: "Ошибка при удалении пользователя"
+                        deleteUser: "Ошибка при удалении пользователя",
+                        loadUsers: "Ошибка при поиске пользователей"
                     },
                 },
                 addUserForm: {
@@ -3174,7 +3176,8 @@
                     error: {
                         createUser: "Foydalanuvchini yaratishda xatolik",
                         updateUser: "Foydalanuvchini yangilashda xatolik",
-                        deleteUser: "Foydalanuvchini o‘chirishda xatolik"
+                        deleteUser: "Foydalanuvchini o‘chirishda xatolik",
+                        loadUsers: "Foydalanuvchilarni qidirishda xatolik"
                     },
                 },
                 addUserForm: {

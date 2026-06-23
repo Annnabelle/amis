@@ -164,6 +164,20 @@ const DeliveryRoutesCreate = () => {
     }
   };
 
+  const handleUserSearch = async (value: string) => {
+    if (!value.trim()) return;
+
+    try {
+      await dispatch(
+        searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' })
+      ).unwrap();
+    } catch (error: unknown) {
+      toast.error(
+        getBackendErrorMessage(error, t('users.messages.error.loadUsers'))
+      );
+    }
+  };
+
   type AvailableOrderRow = {
     key: string;
     customer: string;
@@ -465,11 +479,7 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.driver')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => {
-                      if (value.trim()) {
-                        dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
-                      }
-                    }}
+                    onSearch={(value) => void handleUserSearch(value)}
                     options={searchedUsers.map((user) => ({
                       value: `${user.firstName} ${user.lastName}`,
                       userId: user.id,
@@ -526,11 +536,7 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.agent')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => {
-                      if (value.trim()) {
-                        dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
-                      }
-                    }}
+                    onSearch={(value) => void handleUserSearch(value)}
                     options={searchedUsers.map((user) => ({
                       value: `${user.firstName} ${user.lastName}`,
                       userId: user.id,

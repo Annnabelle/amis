@@ -222,7 +222,7 @@ export const deleteUser = createAsyncThunk(
       );
 
       if (isDeleteUserSuccessResponse(response.data)) {
-        return { id }; // вернём только id, чтобы удалить из state
+        return { id };
       }
 
       return rejectWithValue("Ошибка при удалении пользователя");
@@ -234,11 +234,23 @@ export const deleteUser = createAsyncThunk(
 
 export const searchUsers = createAsyncThunk(
   'users/search',
-  async ({ query, page = 1, limit = 10, sortOrder = 'asc' }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }) => {
-    const response = await axiosInstance.get(`/users/search`, {
-      params: { query, page, limit, sortOrder }
-    });
-    return response.data;
+  async (
+    { query, page = 1, limit = 10, sortOrder = 'asc' }: {
+      query: string;
+      page?: number;
+      limit?: number;
+      sortOrder?: 'asc' | 'desc';
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get(`/users/search`, {
+        params: { query, page, limit, sortOrder }
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error);
+    }
   }
 );
 

@@ -63,14 +63,28 @@ const getErrorText = (data: unknown): string => {
 };
 
 export const isAuthErrorResponse = (status?: number, data?: unknown) => {
-  if (status === 401) {
-    return true;
-  }
-
-  if (status !== 403) {
+  if (status !== 401 && status !== 403) {
     return false;
   }
 
   const errorText = getErrorText(data).toLowerCase();
-  return TOKEN_ERROR_MARKERS.some((marker) => errorText.includes(marker));
+  const hasTokenErrorMarker = TOKEN_ERROR_MARKERS.some((marker) =>
+    errorText.includes(marker)
+  );
+
+  if (hasTokenErrorMarker) {
+    return true;
+  }
+
+  if (data && typeof data === "object") {
+    const response = data as Record<string, unknown>;
+    const isBusinessError =
+      response.success === false && response.errorCode !== undefined;
+
+    if (isBusinessError) {
+      return false;
+    }
+  }
+
+  return status === 401;
 };
