@@ -329,6 +329,29 @@
     opacity: 0.7
 
 @media screen and (max-width: 900px)
+    .mobile-header
+        position: sticky
+        top: 0
+        z-index: 20
+        min-height: 56px
+        padding: 8px 16px
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 12px
+        background: map.get(vars.$basic, 'white')
+        box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
+
+    .mobile-header-logo
+        +mix.typography(22px, 700, map.get(vars.$main, 'main'))
+
+    .mobile-header-logout
+        width: auto
+        min-width: 96px
+        min-height: 40px
+        padding: 9px 18px
+        font-size: 14px
+
     .layout
         height: auto
         min-height: 100dvh
