@@ -34,8 +34,6 @@ import { getAllOrganizations } from 'entities/organization/model';
 import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
-import { logout } from 'entities/users/model';
-import CustomButton from 'shared/ui/button';
 
 const { Header, Content, Sider } = Layout;
 
@@ -67,11 +65,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/', { replace: true });
-  };
 
   const getOrgOpenKeys = (pathname: string) => {
     const parts = pathname.split('/');
@@ -410,12 +403,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {isMobile && (
         <div className="mobile-header">
           <span className="mobile-header-logo">AMIS</span>
-          <CustomButton
-            className="mobile-header-logout"
-            onClick={handleLogout}
-          >
-            {t('users.logOut')}
-          </CustomButton>
+          <div className="mobile-header-profile">
+            <UserInfo showProfileAction={false} />
+          </div>
         </div>
       )}
 
