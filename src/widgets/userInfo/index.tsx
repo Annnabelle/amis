@@ -9,7 +9,17 @@ import CustomButton from "shared/ui/button";
 import "./styles.sass";
 import { logout } from "entities/users/model";
 
-const UserInfo: React.FC = () => {
+type UserInfoProps = {
+  showDropdown?: boolean;
+  onProfileClick?: () => void;
+  showProfileAction?: boolean;
+};
+
+const UserInfo: React.FC<UserInfoProps> = ({
+  showDropdown = true,
+  onProfileClick,
+  showProfileAction = true,
+}) => {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -21,7 +31,7 @@ const UserInfo: React.FC = () => {
 
 
   const currentLang = (i18n.language as Lang) || 'en';
-  // клик вне дропдауна
+
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
       if (isOpen && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -39,16 +49,20 @@ const UserInfo: React.FC = () => {
   }, [handleClickOutside]);
 
   const handleLogout = () => {
-    dispatch(logout()); // очистим Redux + localStorage
-    navigate("/", { replace: true }); // уйдём на login без reload
+    dispatch(logout());
+    navigate("/", { replace: true });
   };
 
   return (
     <div className="user" ref={dropdownRef}>
       <div
-        className="user-info"
+        className={`user-info ${showDropdown ? "" : "user-info-static"}`}
         onClick={(e) => {
           e.stopPropagation();
+          if (!showDropdown) {
+            onProfileClick?.();
+            return;
+          }
           setIsOpen((prev) => !prev);
         }}
       >
@@ -69,17 +83,21 @@ const UserInfo: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="user-arrow">
-          <IoIosArrowDown />
-        </div>
-      </div>
-      {isOpen && (
-        <div className="user-dropdown">
-          <div className="user-dropdown-action">
-            <CustomButton className="outline" onClick={() => navigate('/profile')}>
-             {t("changePwd.title")}
-            </CustomButton>
+        {showDropdown && (
+          <div className="user-arrow">
+            <IoIosArrowDown />
           </div>
+        )}
+      </div>
+      {showDropdown && isOpen && (
+        <div className="user-dropdown">
+          {showProfileAction && (
+            <div className="user-dropdown-action">
+              <CustomButton className="outline" onClick={() => navigate('/profile')}>
+               {t("changePwd.title")}
+              </CustomButton>
+            </div>
+          )}
           <div className="user-dropdown-action">
             <CustomButton onClick={handleLogout}>{t("users.logOut")}</CustomButton>
           </div>
