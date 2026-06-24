@@ -349,7 +349,7 @@
                 sections: {
                     info: "Route info",
                     availableOrders: "Available deals",
-                    preview: "Selected orders preview",
+                    preview: "Selected deals preview",
                     summary: "Summary",
                     vehicle: "Vehicle",
                     crew: "Crew",
@@ -1618,7 +1618,7 @@
                 sections: {
                     info: "Информация о рейсе",
                     availableOrders: "Доступные сделки",
-                    preview: "Предпросмотр выбранных заказов",
+                    preview: "Предпросмотр выбранных сделок",
                     summary: "Сводка",
                     vehicle: "Транспортное средство",
                     crew: "Экипаж",
@@ -2879,7 +2879,7 @@
                 sections: {
                     info: "Reys ma'lumoti",
                     availableOrders: "Mavjud bitimlar",
-                    preview: "Tanlangan buyurtmalar ko'rinishi",
+                    preview: "Tanlangan bitimlar ko'rinishi",
                     summary: "Xulosa",
                     vehicle: "Transport vositasi",
                     crew: "Ekipaj",
