@@ -290,7 +290,7 @@ const DeliveryRoutesCreate = () => {
         title: t("salesOrders.table.orderNumber"),
         dataIndex: "salesOrderNumber",
         key: "salesOrderNumber",
-        flex: 1.5,
+        flex: 1,
         render: (_, record) => (
           <Link
             className="table-text link"
@@ -308,9 +308,9 @@ const DeliveryRoutesCreate = () => {
         title: t('salesOrders.table.customerName'),
         dataIndex: 'customer',
         key: 'customer',
-        flex: 2,
+        flex: 1,
         render: (text: string) => (
-          <p className="table-text" style={{ overflow: 'visible', textOverflow: 'ellipsis' }}>
+          <p className="table-text">
             {text}
           </p>
         ),
@@ -590,12 +590,13 @@ const DeliveryRoutesCreate = () => {
               <div className="form-divider-title">
                 <h4 className="title">{t('deliveryRoutes.sections.availableOrders')}</h4>
               </div>
-              <div className="table-wrapper" style={{ overflowX: 'auto' }}>
+              <div className="delivery-route-orders-table">
                 <ComponentTable<AvailableOrderRow>
                   columns={availableOrdersColumns}
                   data={availableOrders}
                   loading={isOrdersLoading}
                   pagination={false}
+                  scroll={false}
                   rowSelection={{
                     selectedRowKeys: selectedOrderIds,
                     onChange: (keys) => setSelectedOrderIds(keys as string[]),
