@@ -1,6 +1,5 @@
-import { Tag, type TableProps } from "antd";
+import type { TableProps } from "antd";
 import type { TFunction } from "i18next";
-import { statusColors } from "shared/ui/statuses";
 import type { DeliveryRoutesTableDataType } from "./types";
 
 export const DeliveryRoutesTableColumns = (
@@ -30,12 +29,9 @@ export const DeliveryRoutesTableColumns = (
     key: "status",
     width: 160,
     render: (status) => (
-      <Tag 
-        color={statusColors[status] || "blue"}
-        style={{ display: 'inline-block', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-      >
-        {t(`statuses.${status}`)}
-      </Tag>
+      <span className={`status-badge ${status}`}>
+        {t(`deliveryRoutes.status.${status}`)}
+      </span>
     ),
   },
 ];
