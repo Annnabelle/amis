@@ -292,6 +292,14 @@ export const AvailablePackageType = {
 
 export type AvailablePackageType = (typeof AvailablePackageType)[keyof typeof AvailablePackageType];
 
+export const SalesOrderPaymentMethod = {
+  Cash: "cash",
+  Transfer: "transfer",
+} as const;
+
+export type SalesOrderPaymentMethod =
+  (typeof SalesOrderPaymentMethod)[keyof typeof SalesOrderPaymentMethod];
+
 
 
 export const UtilizationReportStatus = {
