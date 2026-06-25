@@ -19,7 +19,8 @@ import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
 import { toast } from 'react-toastify';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
-import { isAgentRole, isWarehouseRole } from 'shared/lib/userRoles';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
@@ -35,23 +36,30 @@ const DeliveryRoutesDetails = () => {
   const isLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
   const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
   const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
-  const currentUser = useAppSelector((state) => state.users.currentUser);
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
-  const isWarehouseUser = isWarehouseRole(currentUser);
-  const isAgentUser = isAgentRole(currentUser);
-  console.log(route?.status)
+  const canStartLoading = useCan(Permissions.DeliveryRoutesStartLoading, 'COMPANY');
+  const canStartTransitPermission = useCan(Permissions.DeliveryRoutesStartTransit, 'COMPANY');
+  const canStartReturn = useCan(Permissions.DeliveryRoutesStartReturn, 'COMPANY');
+  const canStartHandover = useCan(Permissions.DeliveryTasksStartHandover, 'COMPANY');
   const canOpenLoading = Boolean(
-    isWarehouseUser &&
+    canStartLoading &&
       route?.status &&
       ['assigned_to_warehouse', 'ready_for_loading', 'loading', 'loaded'].includes(route.status)
   );
-  const canStartTransit = Boolean((isAgentUser || isWarehouseUser) && route?.status === 'loaded' && !transitStarted);
-  const canStartDelivery = Boolean(isAgentUser && route?.status === 'in_transit');
+  const canStartTransit = Boolean(
+    canStartTransitPermission &&
+      route?.status === 'loaded' &&
+      !transitStarted
+  );
+  const canStartDelivery = Boolean(
+    canStartHandover &&
+      route?.status === 'in_transit'
+  );
   const transitButtonLabel = t('deliveryRoutes.actions.startTransit', {
-    defaultValue: isAgentUser ? 'Начать поездку' : 'Отправить машину',
+    defaultValue: 'Начать перевозку',
   });
   const canOpenReturn = Boolean(
-    isWarehouseUser &&
+    canStartReturn &&
       route?.status &&
       ['in_transit', 'returning'].includes(route.status)
   );
@@ -299,7 +307,7 @@ const DeliveryRoutesDetails = () => {
             </CustomButton>
           </div>
           <div className="mobile-route-toolbar-actions">
-            {isWarehouseUser && (
+            {canStartLoading && (
               <CustomButton
                 className="primary"
                 onClick={() => void handleOpenLoading()}
@@ -333,7 +341,7 @@ const DeliveryRoutesDetails = () => {
           subtitle={headingSubtitle}
         >
           <div className={`btns-group ${isMobile ? 'mobile-route-actions is-hidden-mobile' : ''}`}>
-            {isWarehouseUser && (
+            {canStartLoading && (
               <CustomButton
                 className="primary"
                 onClick={() => void handleOpenLoading()}

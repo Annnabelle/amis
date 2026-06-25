@@ -12,12 +12,18 @@ import { deleteSalesOrder, getSalesOrders } from 'entities/salesOrders/model';
 import { SalesOrdersTableColumns } from 'entities/salesOrders/ui/tableData/salesOrders';
 import type { SalesOrdersTableDataType } from 'entities/salesOrders/ui/tableData/salesOrders/types';
 import { toast } from 'react-toastify';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const SalesOrdersList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const canCreateSalesOrder = useCan(
+    Permissions.SalesOrdersCreate,
+    'COMPANY'
+  );
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const dataLimit = useAppSelector((state) => state.salesOrders.limit);
   const dataPage = useAppSelector((state) => state.salesOrders.page);
@@ -83,9 +89,13 @@ const SalesOrdersList = () => {
   return (
     <MainLayout>
       <Heading title={t('salesOrders.title')} subtitle={t('common.total')} totalAmount={`${dataTotal}`}>
-        <div className="btns-group">
-          <CustomButton onClick={() => navigate(createPath)}>{t('salesOrders.create')}</CustomButton>
-        </div>
+        {canCreateSalesOrder && (
+          <div className="btns-group">
+            <CustomButton onClick={() => navigate(createPath)}>
+              {t('salesOrders.create')}
+            </CustomButton>
+          </div>
+        )}
       </Heading>
       <div className="box">
         <div className="box-container">

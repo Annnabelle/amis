@@ -1,12 +1,11 @@
 import type { ErrorDto } from "shared/types/dtos";
-import type { AccessModule } from "entities/access/types";
+import type { AccessModule, Permission } from "entities/access/types";
 
 export type AccessRoleAlias = string;
-export type PermissionAlias = string;
 
 export type AccessScopeDto = {
   roles: AccessRoleAlias[];
-  permissions: PermissionAlias[];
+  permissions: Permission[];
   modules: AccessModule[];
 };
 

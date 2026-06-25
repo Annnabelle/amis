@@ -21,7 +21,8 @@ import {
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { completeDeliveryRouteLoading } from 'entities/deliveryRoutes/model';
-import { isWarehouseRole } from 'shared/lib/userRoles';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const SCAN_CACHE_PREFIX = 'loading-scans';
 const SCAN_RESULT_TOAST_ID = 'loading-scan-result';
@@ -40,7 +41,6 @@ const DeliveryRoutesLoading = () => {
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const routeLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
-  const currentUser = useAppSelector((state) => state.users.currentUser);
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -52,7 +52,14 @@ const DeliveryRoutesLoading = () => {
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const isClosingSession = false;
-  const canUseScreen = isWarehouseRole(currentUser);
+  const canCreateScanSession = useCan(Permissions.ScanSessionsCreate, 'COMPANY');
+  const canScan = useCan(Permissions.ScanSessionsScan, 'COMPANY');
+  const canCancelScan = useCan(Permissions.ScanSessionsCancelScan, 'COMPANY');
+  const canCompleteScanSession = useCan(Permissions.ScanSessionsComplete, 'COMPANY');
+  const canCompleteLoading = useCan(Permissions.DeliveryRoutesCompleteLoading, 'COMPANY');
+  const canCompleteOperation =
+    canCompleteLoading &&
+    (scanSession?.status !== 'active' || canCompleteScanSession);
 
   useEffect(() => {
     let isMounted = true;
@@ -409,15 +416,17 @@ const DeliveryRoutesLoading = () => {
             {group.scans.map((scan) => (
               <div key={`${scan.code}-${scan.ts}`} className="loading-scan-item accepted">
                 <div className="loading-scan-item-code">{scan.code}</div>
-                <button
-                  type="button"
-                  className="loading-scan-item-delete"
-                  aria-label={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
-                  title={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
-                  onClick={() => void handleDeleteScan(scan.code)}
-                >
-                  <DeleteOutlined />
-                </button>
+                {canCancelScan && (
+                  <button
+                    type="button"
+                    className="loading-scan-item-delete"
+                    aria-label={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
+                    title={t('deliveryRoutes.actions.deleteScan', { defaultValue: 'Удалить' })}
+                    onClick={() => void handleDeleteScan(scan.code)}
+                  >
+                    <DeleteOutlined />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -467,43 +476,31 @@ const DeliveryRoutesLoading = () => {
     );
   }
 
-  if (!canUseScreen) {
-    return (
-      <MainLayout>
-        <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items loading-page-state">
-              <Empty description={t('common.dataNotFound', { defaultValue: 'Доступ запрещён' })} />
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
-                {t('common.backToRoute')}
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout>
       <Heading title={headingTitle} subtitle={t('deliveryRoutes.loadingSubtitle')}>
         <div className="btns-group">
-          <CustomButton
-            className="primary"
-            onClick={handleStartScanning}
-            disabled={isCreating || isClosingSession || scannerMode === 'delete'}
-          >
-            {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
-          </CustomButton>
-          <CustomButton
-            className="danger"
-            onClick={handleStartDeleteScanning}
-            disabled={isCreating || isCompleting || isClosingSession || scannerMode === 'loading'}
-          >
-            {t('deliveryRoutes.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
-          </CustomButton>
-          {scanSession?.status === 'active' && scannerMode !== 'delete' && (
+          {canCreateScanSession && (
+            <CustomButton
+              className="primary"
+              onClick={handleStartScanning}
+              disabled={isCreating || isClosingSession || scannerMode === 'delete'}
+            >
+              {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
+            </CustomButton>
+          )}
+          {canCancelScan && (
+            <CustomButton
+              className="danger"
+              onClick={handleStartDeleteScanning}
+              disabled={isCreating || isCompleting || isClosingSession || scannerMode === 'loading'}
+            >
+              {t('deliveryRoutes.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
+            </CustomButton>
+          )}
+          {scanSession?.status === 'active' &&
+            scannerMode !== 'delete' &&
+            canCompleteOperation && (
             <CustomButton
               className="outline"
               onClick={() => void handleComplete()}
@@ -593,9 +590,9 @@ const DeliveryRoutesLoading = () => {
                 cameraAutoStart={scannerMode !== null}
                 scanDisabled={
                   scannerMode === 'loading'
-                    ? !scanSession || isCreating || isCompleting || isClosingSession
+                    ? !canScan || !scanSession || isCreating || isCompleting || isClosingSession
                     : scannerMode === 'delete'
-                      ? isCreating || isCompleting || isClosingSession
+                      ? !canCancelScan || isCreating || isCompleting || isClosingSession
                       : true
                 }
                 scanInProgress={isScanning}

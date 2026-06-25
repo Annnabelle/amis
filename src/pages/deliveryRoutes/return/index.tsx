@@ -21,7 +21,8 @@ import {
 } from 'entities/scanSessions/model';
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
-import { isWarehouseRole } from 'shared/lib/userRoles';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const SCAN_CACHE_PREFIX = 'return-scans';
 const SCAN_RESULT_TOAST_ID = 'return-scan-result';
@@ -39,7 +40,6 @@ const DeliveryRoutesReturn = () => {
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const routeLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
-  const currentUser = useAppSelector((state) => state.users.currentUser);
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -51,7 +51,13 @@ const DeliveryRoutesReturn = () => {
   const [isClosingSession, setIsClosingSession] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
-  const canUseScreen = isWarehouseRole(currentUser);
+  const canCreateScanSession = useCan(Permissions.ScanSessionsCreate, 'COMPANY');
+  const canScan = useCan(Permissions.ScanSessionsScan, 'COMPANY');
+  const canCompleteScanSession = useCan(Permissions.ScanSessionsComplete, 'COMPANY');
+  const canCompleteReturn = useCan(Permissions.DeliveryRoutesCompleteReturn, 'COMPANY');
+  const canCompleteOperation =
+    canCompleteReturn &&
+    (scanSession?.status !== 'active' || canCompleteScanSession);
 
   useEffect(() => {
     let isMounted = true;
@@ -413,36 +419,20 @@ const DeliveryRoutesReturn = () => {
     );
   }
 
-  if (!canUseScreen) {
-    return (
-      <MainLayout>
-        <Heading title={t('deliveryRoutes.returnTitle')} subtitle={t('deliveryRoutes.returnSubtitle')} />
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items loading-page-state">
-              <Empty description={t('common.dataNotFound', { defaultValue: 'Доступ запрещён' })} />
-              <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
-                {t('common.backToRoute')}
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout>
       <Heading title={headingTitle} subtitle={t('deliveryRoutes.returnSubtitle')}>
         <div className="btns-group">
-          <CustomButton
-            className="primary"
-            onClick={handleStartScanning}
-            disabled={isCreating || isClosingSession}
-          >
-            {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
-          </CustomButton>
-          {scanSession?.status === 'active' && (
+          {canCreateScanSession && (
+            <CustomButton
+              className="primary"
+              onClick={handleStartScanning}
+              disabled={isCreating || isClosingSession}
+            >
+              {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
+            </CustomButton>
+          )}
+          {scanSession?.status === 'active' && canCompleteOperation && (
             <CustomButton
               className="outline"
               onClick={() => void handleComplete()}
@@ -520,11 +510,25 @@ const DeliveryRoutesReturn = () => {
                 lastScans={recentScans}
                 acceptedCount={scanSession?.counters.accepted ?? 0}
                 rejectedCount={scanSession?.counters.rejected ?? 0}
-                primaryActionLabel={scannerOpen ? t('deliveryRoutes.actions.completeReturn') : undefined}
-                onPrimaryAction={scannerOpen ? () => void handleComplete() : undefined}
+                primaryActionLabel={
+                  scannerOpen && canCompleteOperation
+                    ? t('deliveryRoutes.actions.completeReturn')
+                    : undefined
+                }
+                onPrimaryAction={
+                  scannerOpen && canCompleteOperation
+                    ? () => void handleComplete()
+                    : undefined
+                }
                 enableCamera={scannerOpen}
                 cameraAutoStart={scannerOpen}
-                scanDisabled={!scanSession || isCreating || isCompletingSession || isClosingSession}
+                scanDisabled={
+                  !canScan ||
+                  !scanSession ||
+                  isCreating ||
+                  isCompletingSession ||
+                  isClosingSession
+                }
                 scanInProgress={isScanning}
                 lastScansContent={lastScansContent}
                 onCameraClose={handleCloseScannerView}
