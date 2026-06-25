@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, InputNumber, Select, Spin } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Spin } from 'antd';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -15,7 +15,7 @@ import { searchOrganizations } from 'entities/organization/model';
 import type { CompanyResponse } from 'entities/organization/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
-import { SalesOrderPriorities } from 'shared/types/dtos';
+import { SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
 
 const TIN_LENGTH = 9;
 
@@ -241,7 +241,10 @@ const SalesOrdersCreate = () => {
               form={form}
               onFinish={handleCreateSalesOrder}
               initialValues={{
-                fulfillment: { priority: 'normal' },
+                fulfillment: {
+                  priority: 'normal',
+                  paymentMethod: SalesOrderPaymentMethod.Transfer,
+                },
               }}
             >
               <div className="form-divider-title">
@@ -430,6 +433,22 @@ const SalesOrdersCreate = () => {
                     }))}
                     placeholder={t('salesOrders.priority.normal')}
                   />
+                </Form.Item>
+              </div>
+
+              <div className="form-divider-title">
+                <h4 className="title">{t('salesOrders.sections.paymentMethod')}</h4>
+              </div>
+              <div className="form-inputs">
+                <Form.Item
+                  className="input"
+                  name={["fulfillment", "paymentMethod"]}
+                  rules={[{ required: true, message: t('salesOrders.validation.paymentMethodRequired') }]}
+                >
+                  <Radio.Group size="large">
+                    <Radio value={SalesOrderPaymentMethod.Cash}>{t('salesOrders.paymentMethods.cash')}</Radio>
+                    <Radio value={SalesOrderPaymentMethod.Transfer}>{t('salesOrders.paymentMethods.transfer')}</Radio>
+                  </Radio.Group>
                 </Form.Item>
               </div>
 
