@@ -53,9 +53,7 @@ export type DeliveryRouteResponseDto = {
   updatedAt: Date | string;
 };
 
-export type GetDeliveryRoutesDto = {
-  companyId?: HexString;
-};
+export type GetDeliveryRoutesDto = Record<string, never>;
 
 export type GetDeliveryRoutesResponseDto =
   | {

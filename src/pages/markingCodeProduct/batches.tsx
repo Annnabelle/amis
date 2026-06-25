@@ -21,7 +21,8 @@ const MarkingCodeProductBatches = () => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
     const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
-    const { orderId, batchId } = useParams<{
+    const { orgId, orderId, batchId } = useParams<{
+        orgId: string;
         orderId: string;
         batchId: string;
     }>();
@@ -29,7 +30,7 @@ const MarkingCodeProductBatches = () => {
     useEffect(() => {
         if (!orderId || !batchId) return;
         dispatch(getBatch({orderId: orderId, batchId: batchId}))
-    }, [dispatch]);
+    }, [batchId, dispatch, orderId]);
 
     return (
         <div className="box batch-inner-box">
@@ -40,7 +41,13 @@ const MarkingCodeProductBatches = () => {
                     <h4 className="section-title">{t("markingCodes.batches.batchData.productName")}:</h4>
                     {orderProductBatch?.productName && (
                         <div className="product-title">
-                            <Link to={`/organization/${orderId}/products/${orderProductBatch.productId}`}>
+                            <Link
+                                to={
+                                    orgId
+                                        ? `/organization/${orgId}/products/${orderProductBatch.productId}`
+                                        : "/organization"
+                                }
+                            >
                                 {orderProductBatch.productName}
                             </Link>
                         </div>
@@ -73,7 +80,13 @@ const MarkingCodeProductBatches = () => {
 
                     <div className="grid">
                         <BatchItem label={t('markingCodes.batches.batchData.orderNumber')}>
-                            <Link to={`/orders/${orderProductBatch?.order.id}`}>
+                            <Link
+                                to={
+                                    orgId
+                                        ? `/organization/${orgId}/orders/${orderProductBatch?.order.id}`
+                                        : "/organization"
+                                }
+                            >
                                 {orderProductBatch?.order.orderNumber}
                             </Link>
                         </BatchItem>

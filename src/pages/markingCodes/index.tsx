@@ -41,7 +41,6 @@ const MarkingCodes = () => {
     );
     const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
         page: dataPage || 1,
-        companyId: orgId!,
         limit: dataLimit || 10,
     });
     useEffect(() => {

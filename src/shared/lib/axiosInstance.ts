@@ -5,6 +5,44 @@ import {
   emitAuthSessionExpired,
   isAuthErrorResponse,
 } from './authSession';
+import { getRuntimeCompanyId } from './companyContext';
+
+const COMPANY_SCOPED_PATHS = [
+  /^\/products(?:\/|$)/,
+  /^\/orders(?:\/|$)/,
+  /^\/codes\/batches(?:\/|$)/,
+  /^\/sales-orders(?:\/|$)/,
+  /^\/delivery-routes(?:\/|$)/,
+  /^\/delivery-tasks(?:\/|$)/,
+  /^\/scan-sessions(?:\/|$)/,
+  /^\/invoices(?:\/|$)/,
+  /^\/reports(?:\/|$)/,
+];
+
+const getRequestPathname = (url?: string) => {
+  if (!url) return '';
+
+  try {
+    return new URL(url, BASE_URL).pathname;
+  } catch {
+    return url.split('?')[0];
+  }
+};
+
+const isCompanyScopedRequest = (url?: string) => {
+  const pathname = getRequestPathname(url);
+
+  if (/^\/references\/roles\/company(?:\/assignable)?\/?$/.test(pathname)) {
+    return true;
+  }
+
+  return COMPANY_SCOPED_PATHS.some((pattern) => pattern.test(pathname));
+};
+
+const getCompanyIdFromLocation = () =>
+  window.location.pathname.match(
+    /^\/organization\/([^/]+)(?:\/|$)/
+  )?.[1] ?? null;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -18,6 +56,21 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
+
+  if (isCompanyScopedRequest(config.url)) {
+    const companyId = getCompanyIdFromLocation() ?? getRuntimeCompanyId();
+
+    if (!companyId) {
+      return Promise.reject(
+        new Error(`Company context is required for ${config.url ?? 'request'}`)
+      );
+    }
+
+    config.headers['x-company-id'] = companyId;
+  } else {
+    delete config.headers['x-company-id'];
+  }
+
   return config;
 }, (error) => {
   return Promise.reject(error);

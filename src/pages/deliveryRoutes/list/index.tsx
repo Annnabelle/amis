@@ -25,14 +25,10 @@ const DeliveryRoutesList = () => {
 
   const createPath = orgId
     ? `/organization/${orgId}/delivery-routes/create`
-    : '/delivery-routes/create';
+    : '/organization';
 
   useEffect(() => {
-    dispatch(
-      getDeliveryRoutes({
-        companyId: orgId,
-      })
-    );
+    dispatch(getDeliveryRoutes({}));
   }, [dispatch, orgId]);
 
   const deliveryRoutesData = useMemo<DeliveryRoutesTableDataType[]>(() => {
@@ -74,7 +70,7 @@ const DeliveryRoutesList = () => {
                 navigate(
                   orgId
                     ? `/organization/${orgId}/delivery-routes/${record.key}`
-                    : `/delivery-routes/${record.key}`
+                    : '/organization'
                 )
               }
               pagination={{

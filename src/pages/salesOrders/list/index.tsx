@@ -25,7 +25,7 @@ const SalesOrdersList = () => {
   const isLoading = useAppSelector((state) => state.salesOrders.isLoading);
   const createPath = orgId
     ? `/organization/${orgId}/sales-orders/create`
-    : '/sales-orders/create';
+    : '/organization';
 
   useEffect(() => {
     dispatch(
@@ -33,7 +33,6 @@ const SalesOrdersList = () => {
         page: dataPage || 1,
         limit: dataLimit || 10,
         sortOrder: 'desc',
-        companyId: orgId,
       })
     );
   }, [dispatch, dataPage, dataLimit, orgId]);
@@ -74,7 +73,6 @@ const SalesOrdersList = () => {
           page: dataPage || 1,
           limit: dataLimit || 10,
           sortOrder: 'desc',
-          companyId: orgId,
         })
       );
     } catch (err) {
@@ -98,9 +96,9 @@ const SalesOrdersList = () => {
               loading={isLoading}
               onRowClick={(record) =>
                 navigate(
-                  orgId
-                    ? `/organization/${orgId}/sales-orders/${record.key}`
-                    : `/sales-orders/${record.key}`
+                    orgId
+                      ? `/organization/${orgId}/sales-orders/${record.key}`
+                      : '/organization'
                 )
               }
               pagination={{
@@ -116,7 +114,6 @@ const SalesOrdersList = () => {
                       page: newPage,
                       limit: newLimit || dataLimit || 10,
                       sortOrder: 'desc',
-                      companyId: orgId,
                     })
                   );
                 },

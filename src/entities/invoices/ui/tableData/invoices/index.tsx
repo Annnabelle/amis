@@ -57,7 +57,7 @@ export const InvoicesTableColumns = (
         to={
           orgId
             ? `/organization/${orgId}/invoices/${record.key}`
-            : `/invoices/${record.key}`
+            : '/organization'
         }
       >
         {shortenMiddle(record.invoiceNumber)}

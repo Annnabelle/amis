@@ -68,7 +68,7 @@ const OrderForm = () => {
   // --- Поиск продуктов при вводе ---
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
-      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
+      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
     }
   };
 

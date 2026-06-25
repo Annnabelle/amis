@@ -36,7 +36,7 @@ const InvoicesDetails = () => {
   const invoiceItemsPage = useAppSelector((state) => state.invoices.itemsPage);
   const invoiceItemsLimit = useAppSelector((state) => state.invoices.itemsLimit);
   const invoiceItemsLoading = useAppSelector((state) => state.invoices.itemsLoading);
-  const listPath = orgId ? `/organization/${orgId}/invoices` : '/invoices';
+  const listPath = orgId ? `/organization/${orgId}/invoices` : '/organization';
 
   useEffect(() => {
     if (!id) return;
@@ -64,7 +64,7 @@ const InvoicesDetails = () => {
   const externalStatus = invoice?.external?.status;
   const linkedPath = (section: string, linkedId?: string) => {
     if (!linkedId) return undefined;
-    return orgId ? `/organization/${orgId}/${section}/${linkedId}` : `/${section}/${linkedId}`;
+    return orgId ? `/organization/${orgId}/${section}/${linkedId}` : '/organization';
   };
 
   const invoiceItemsData = useMemo<InvoiceItemsTableDataType[]>(() => {

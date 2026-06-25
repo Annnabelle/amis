@@ -11,6 +11,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {type LanguageKey, useIsMobile, useNavigationBack} from 'shared/lib'
 import dayjs from "dayjs";
 import {fetchReferencesByType} from "entities/references/model";
+import { setCurrentCompanyId } from "entities/access/model";
+import { AccessModules, type AccessModule } from "entities/access/types";
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
@@ -20,6 +22,7 @@ const OrganizationsInner = () => {
     const navigateBack = useNavigationBack();
     const isMobile = useIsMobile();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
+    const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? [])
 
     const [form] = Form.useForm()
 
@@ -100,8 +103,31 @@ const OrganizationsInner = () => {
         }
     }, [dispatch, id])
 
-    const handleProductNavigation = (id: any) => {
-        navigate(`/organization/${id}/products`); 
+    const getFirstCompanyModulePath = (
+        companyId: string,
+        modules: AccessModule[]
+    ) => {
+        const modulePaths: Array<{ module: AccessModule; path: string }> = [
+            { module: AccessModules.Products, path: `/organization/${companyId}/products` },
+            { module: AccessModules.Orders, path: `/organization/${companyId}/orders` },
+            { module: AccessModules.Reports, path: `/organization/${companyId}/agregations` },
+            { module: AccessModules.SalesOrders, path: `/organization/${companyId}/sales-orders` },
+            { module: AccessModules.DeliveryRoutes, path: `/organization/${companyId}/delivery-routes` },
+            { module: AccessModules.Invoices, path: `/organization/${companyId}/invoices` },
+        ];
+
+        return modulePaths.find((item) => modules.includes(item.module))?.path;
+    };
+
+    const handleEnterCompany = () => {
+        if (!id) return;
+
+        dispatch(setCurrentCompanyId(id));
+        const firstModulePath = getFirstCompanyModulePath(id, systemModules);
+
+        if (firstModulePath) {
+            navigate(firstModulePath);
+        }
     }
 
   return (
@@ -111,7 +137,7 @@ const OrganizationsInner = () => {
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')} totalAmount='100'>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
-                <CustomButton onClick={() => handleProductNavigation(id)}>{t('btn.toProducts')}</CustomButton>
+                <CustomButton onClick={handleEnterCompany}>{t('btn.enterCompany')}</CustomButton>
             </div>
         </Heading>
         <div className="box">

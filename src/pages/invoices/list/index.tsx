@@ -29,7 +29,6 @@ const InvoicesList = () => {
         limit: dataLimit || 10,
         sortOrder: 'desc',
         sortBy: 'createdAt',
-        companyId: orgId,
       })
     );
   }, [dispatch, dataPage, dataLimit, orgId]);
@@ -65,7 +64,7 @@ const InvoicesList = () => {
                 navigate(
                   orgId
                     ? `/organization/${orgId}/invoices/${record.key}`
-                    : `/invoices/${record.key}`
+                    : '/organization'
                 )
               }
               pagination={{
@@ -82,7 +81,6 @@ const InvoicesList = () => {
                       limit: newLimit || dataLimit || 10,
                       sortOrder: 'desc',
                       sortBy: 'createdAt',
-                      companyId: orgId,
                     })
                   );
                 },

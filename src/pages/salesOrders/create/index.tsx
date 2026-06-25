@@ -26,7 +26,7 @@ const SalesOrdersCreate = () => {
   const [form] = Form.useForm<SalesOrderFormValues>();
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
-    : '/sales-orders';
+    : '/organization';
 
   const items = Form.useWatch('items', form);
 
@@ -125,7 +125,6 @@ const SalesOrdersCreate = () => {
         page: 1,
         limit: 10,
         sortOrder: 'asc',
-        companyId: orgId,
       })
     );
   }, [dispatch, orgId]);
@@ -138,7 +137,6 @@ const SalesOrdersCreate = () => {
         page: 1,
         limit: 10,
         sortOrder: 'asc',
-        companyId: orgId,
       })
     );
   };

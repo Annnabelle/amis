@@ -60,10 +60,10 @@ const DeliveryTasksScan = () => {
   const routePath = task?.deliveryRouteId
     ? orgId
       ? `/organization/${orgId}/delivery-routes/${task.deliveryRouteId}`
-      : `/delivery-routes/${task.deliveryRouteId}`
+      : '/organization'
     : orgId
       ? `/organization/${orgId}/delivery-routes`
-      : '/delivery-routes';
+      : '/organization';
 
   useEffect(() => {
     if (!taskId) return;

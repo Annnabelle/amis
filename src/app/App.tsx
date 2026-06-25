@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
 import Router from './routes';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
 import { logout } from 'entities/users/model';
+import {
+  clearAccess,
+  fetchCurrentUserAccess,
+  setCurrentCompanyId,
+} from 'entities/access/model';
 import { AUTH_SESSION_EXPIRED_EVENT, isStoredSessionExpired } from 'shared/lib/authSession';
 import './styles/App.sass';
 
@@ -69,6 +74,40 @@ const AuthSessionGuard = () => {
   return null;
 };
 
+const AccessBootstrap = () => {
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
+  const accessToken = useAppSelector((state) => state.users.accessToken);
+
+  useEffect(() => {
+    if (isAuthenticated && accessToken) {
+      void dispatch(fetchCurrentUserAccess());
+      return;
+    }
+
+    dispatch(clearAccess());
+  }, [accessToken, dispatch, isAuthenticated]);
+
+  return null;
+};
+
+const CompanyRouteSync = () => {
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  useEffect(() => {
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const companyId =
+      pathSegments[0] === 'organization' && pathSegments.length > 2
+        ? pathSegments[1]
+        : null;
+
+    dispatch(setCurrentCompanyId(companyId));
+  }, [dispatch, location.pathname]);
+
+  return null;
+};
+
 function App() {
   const { darkAlgorithm, defaultAlgorithm } = theme;
   const loading = useAppSelector((state) => state.loader.loading);
@@ -118,6 +157,8 @@ function App() {
         <GlobalLoader loading={loading} />
         <BrowserRouter>
           <AuthSessionGuard />
+          <AccessBootstrap />
+          <CompanyRouteSync />
           <Router />
         </BrowserRouter>
       </ConfigProvider>

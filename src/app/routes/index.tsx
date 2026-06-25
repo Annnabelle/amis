@@ -40,7 +40,6 @@ const Router: React.FC = () => {
         <Route path='/users' element={<Users />} />
         <Route path="/users/:id" element={<UsersRetrieve />} />
         <Route path="/users/:id/edit" element={<UsersEdit />} />
-        {/* <Route path='/products' element={<Products/>}/> */}
         <Route path='/organization' element={<Organizations/>}/>
         <Route path='/organization/:id' element={<OrganizationsInner/>}/>
         <Route path= '/organization/:id/products' element={<Products/>}/>
@@ -67,19 +66,6 @@ const Router: React.FC = () => {
         <Route path='/organization/:orgId/delivery-tasks/:id/scan' element={<DeliveryTasksScan/>} />
         <Route path='/organization/:orgId/invoices' element={<InvoicesList/>} />
         <Route path='/organization/:orgId/invoices/:id' element={<InvoicesDetails/>} />
-        <Route path='/sales-orders' element={<SalesOrdersList/>} />
-        <Route path='/sales-orders/create' element={<SalesOrdersCreate/>} />
-        <Route path='/sales-orders/:id' element={<SalesOrdersDetails/>} />
-        <Route path='/delivery-routes' element={<DeliveryRoutesList/>} />
-        <Route path='/delivery-routes/create' element={<DeliveryRoutesCreate/>} />
-        <Route path='/delivery-routes/:id' element={<DeliveryRoutesDetails/>} />
-        <Route path='/delivery-routes/:id/loading' element={<DeliveryRoutesLoading/>} />
-        <Route path='/delivery-routes/:id/return' element={<DeliveryRoutesReturn/>} />
-        <Route path='/delivery-tasks' element={<DeliveryTasksList/>} />
-        <Route path='/delivery-tasks/:id' element={<DeliveryTasksDetails/>} />
-        <Route path='/delivery-tasks/:id/scan' element={<DeliveryTasksScan/>} />
-        <Route path='/invoices' element={<InvoicesList/>} />
-        <Route path='/invoices/:id' element={<InvoicesDetails/>} />
       </Routes>
     </Suspense>
   );

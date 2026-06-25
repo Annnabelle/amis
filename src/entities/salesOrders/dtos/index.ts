@@ -90,7 +90,6 @@ export type CreateSalesOrderResponseDto =
   | ErrorDto;
 
 export type GetSalesOrdersDto = PaginatedDto & {
-  companyId?: HexString;
   status?: SalesOrderStatus;
 };
 

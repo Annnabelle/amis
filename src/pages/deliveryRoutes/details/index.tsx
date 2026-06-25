@@ -36,7 +36,7 @@ const DeliveryRoutesDetails = () => {
   const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
   const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
   const currentUser = useAppSelector((state) => state.users.currentUser);
-  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
   const isWarehouseUser = isWarehouseRole(currentUser);
   const isAgentUser = isAgentRole(currentUser);
   console.log(route?.status)
@@ -62,7 +62,7 @@ const DeliveryRoutesDetails = () => {
     ? 'Начать возврат'
     : t('deliveryRoutes.actions.openReturn');
   const taskScanPath = (taskId: string) =>
-    orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : `/delivery-tasks/${taskId}/scan`;
+    orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : '/organization';
   useEffect(() => {
     let isMounted = true;
 

@@ -52,7 +52,7 @@ const DeliveryRoutesCreate = () => {
   const isSelectingDriverRef = useRef(false);
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
-  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
   const initialValues = useMemo(
     () => ({
       schedule: {
@@ -113,7 +113,6 @@ const DeliveryRoutesCreate = () => {
         page: 1,
         limit: 50,
         sortOrder: 'asc',
-        companyId,
       })
     );
   }, [dispatch, companyId]);
@@ -297,7 +296,7 @@ const DeliveryRoutesCreate = () => {
             to={
               orgId
                 ? `/organization/${orgId}/sales-orders/${record.key}`
-                : `/sales-orders/${record.key}`
+                : '/organization'
             }
           >
             {record.salesOrderNumber}

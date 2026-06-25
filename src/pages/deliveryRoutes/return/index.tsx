@@ -35,7 +35,7 @@ const DeliveryRoutesReturn = () => {
   const { t } = useTranslation();
 
   const routeId = id ?? '';
-  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
   const routeLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);

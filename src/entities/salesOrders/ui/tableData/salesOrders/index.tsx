@@ -37,7 +37,7 @@ export const SalesOrdersTableColumns = (
         to={
           orgId
             ? `/organization/${orgId}/sales-orders/${record.key}`
-            : `/sales-orders/${record.key}`
+            : '/organization'
         }
       >
         {record.orderNumber}

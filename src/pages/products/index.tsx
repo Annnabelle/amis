@@ -110,7 +110,6 @@ const Products = () => {
                 page: dataPage || 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
-                companyId: id,
             })
             );
         }
@@ -231,7 +230,6 @@ const Products = () => {
                     sortOrder: 'asc',
                     status: 'active',
                     sortBy: 'name',
-                    companyId: "68aad743aad6b8936a833ef7", 
                 }));
             } else {
                 toast.error(t('products.messages.error.deleteProduct'));
@@ -253,7 +251,6 @@ const Products = () => {
                 page: 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
-                companyId: id
             })
             );
         } else {
@@ -263,7 +260,6 @@ const Products = () => {
                 page: 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
-                companyId: id,
             })
             );
         }
@@ -319,7 +315,7 @@ const Products = () => {
                             pageSizeOptions: ['10', '15', '20', '25'],
                             locale: { items_per_page: '' },
                             onChange: (newPage, newLimit) => {
-                            dispatch(getAllProducts({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc", companyId: id }));
+                            dispatch(getAllProducts({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
                             },
                         }}
                     />

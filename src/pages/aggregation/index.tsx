@@ -58,7 +58,6 @@ const Aggregations = () => {
             fetchAggregations({
                 page: dataPage || 1,
                 limit: dataLimit || 10,
-                companyId: orgId,
                 status: filters.status,
                 dateFrom: filters.dateFrom,
                 dateTo: filters.dateTo,
@@ -80,7 +79,6 @@ const Aggregations = () => {
                 fetchMarkingCodes({
                     page: 1,
                     limit: 20,
-                    companyId: orgId,
                     status: "codes_utilized",
                 })
             );
@@ -170,7 +168,7 @@ const Aggregations = () => {
             .then(() => {
                 toast.success(t("aggregations.messages.createSuccess"));
                 handleModal("addAggregation", false);
-                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10, companyId: orgId! }));
+                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
             })
             .catch((err: ApiErrorResponse) => {
                 toast.error(
@@ -186,7 +184,6 @@ const Aggregations = () => {
             query: value,
             page: 1,
             limit: 10,
-            companyId: orgId
         }));
     };
 
@@ -320,7 +317,6 @@ const Aggregations = () => {
                                         fetchAggregations({
                                             page,
                                             limit: pageSize || dataLimit || 10,
-                                            companyId: orgId,
                                             status: filters.status,
                                             dateFrom: filters.dateFrom,
                                             dateTo: filters.dateTo,

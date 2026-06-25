@@ -31,7 +31,7 @@ const MarkingCodeProduct = () => {
     useEffect(() => {
         if (!orderId || !batchId) return;
         dispatch(getBatch({orderId: orderId, batchId: batchId}))
-    }, [dispatch]);
+    }, [batchId, dispatch, orderId]);
 
     const OrderProductData = useMemo(() => {
         if (!orderProduct || !orderProduct.success || !('data' in orderProduct)) {
