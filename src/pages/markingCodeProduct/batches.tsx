@@ -2,13 +2,15 @@ import { useAppDispatch, useAppSelector } from 'app/store'
 import {useEffect} from 'react'
 import { useTranslation } from 'react-i18next'
 import {getBatch} from 'entities/markingCodes/model'
-import {Link, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import BatchItem from "./batchItem.tsx";
 import {Tag} from "antd";
 import {statusColors} from "shared/ui/statuses.tsx";
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard'
 import "./styles.sass"
 import dayjs from "dayjs";
+import { PermissionLink } from "entities/access/ui";
+import { Permissions } from "entities/access/types";
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -41,7 +43,9 @@ const MarkingCodeProductBatches = () => {
                     <h4 className="section-title">{t("markingCodes.batches.batchData.productName")}:</h4>
                     {orderProductBatch?.productName && (
                         <div className="product-title">
-                            <Link
+                            <PermissionLink
+                                permission={Permissions.ProductsRead}
+                                scope="COMPANY"
                                 to={
                                     orgId
                                         ? `/organization/${orgId}/products/${orderProductBatch.productId}`
@@ -49,7 +53,7 @@ const MarkingCodeProductBatches = () => {
                                 }
                             >
                                 {orderProductBatch.productName}
-                            </Link>
+                            </PermissionLink>
                         </div>
                     )}
 
@@ -80,7 +84,9 @@ const MarkingCodeProductBatches = () => {
 
                     <div className="grid">
                         <BatchItem label={t('markingCodes.batches.batchData.orderNumber')}>
-                            <Link
+                            <PermissionLink
+                                permission={Permissions.OrdersRead}
+                                scope="COMPANY"
                                 to={
                                     orgId
                                         ? `/organization/${orgId}/orders/${orderProductBatch?.order.id}`
@@ -88,7 +94,7 @@ const MarkingCodeProductBatches = () => {
                                 }
                             >
                                 {orderProductBatch?.order.orderNumber}
-                            </Link>
+                            </PermissionLink>
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.executor')}>

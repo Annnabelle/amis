@@ -1,8 +1,9 @@
 import { Tag, type TableProps } from 'antd';
 import type { TFunction } from 'i18next';
-import { Link } from 'react-router-dom';
 import type { BatchTableDataType } from '../markingCodes/types';
 import {statusColors} from "shared/ui/statuses.tsx";
+import { PermissionLink } from "entities/access/ui";
+import { Permissions } from "entities/access/types";
 
 export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined) : TableProps<BatchTableDataType>["columns"] => [
   {
@@ -10,13 +11,15 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
     dataIndex: "batchNumber",
     key: "batchNumber",
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        permission={Permissions.OrdersRead}
+        scope="COMPANY"
         className="table-text link"
         // to=""
         to={`/organization/${orgId}/orderId/${record?.id}/batchId/${record?.batchId}`}
       >
         {record.batchNumber}
-      </Link>
+      </PermissionLink>
     ),
   },
   {
@@ -24,12 +27,14 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
     dataIndex: "productName",
     key: "productName",
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        permission={Permissions.ProductsRead}
+        scope="COMPANY"
         className="table-text link"
         to={`/organization/${orgId}/products/${record?.productId}`}
       >
         {record.productName}
-      </Link>
+      </PermissionLink>
     ),
   },
   {

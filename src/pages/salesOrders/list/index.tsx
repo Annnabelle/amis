@@ -24,6 +24,10 @@ const SalesOrdersList = () => {
     Permissions.SalesOrdersCreate,
     'COMPANY'
   );
+  const canReadSalesOrder = useCan(
+    Permissions.SalesOrdersRead,
+    'COMPANY'
+  );
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const dataLimit = useAppSelector((state) => state.salesOrders.limit);
   const dataPage = useAppSelector((state) => state.salesOrders.page);
@@ -104,12 +108,15 @@ const SalesOrdersList = () => {
               columns={SalesOrdersTableColumns(t, orgId)}
               data={SalesOrdersData}
               loading={isLoading}
-              onRowClick={(record) =>
-                navigate(
-                    orgId
-                      ? `/organization/${orgId}/sales-orders/${record.key}`
-                      : '/organization'
-                )
+              onRowClick={
+                canReadSalesOrder
+                  ? (record) =>
+                      navigate(
+                        orgId
+                          ? `/organization/${orgId}/sales-orders/${record.key}`
+                          : '/organization'
+                      )
+                  : undefined
               }
               pagination={{
                 current: dataPage || 1,

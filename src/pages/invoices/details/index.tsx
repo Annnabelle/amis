@@ -15,6 +15,8 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
 const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
@@ -25,6 +27,10 @@ const InvoicesDetails = () => {
   const dispatch = useAppDispatch();
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const { t } = useTranslation();
+  const canReadSalesOrder = useCan(Permissions.SalesOrdersRead, 'COMPANY');
+  const canReadDeliveryRoute = useCan(Permissions.DeliveryRoutesRead, 'COMPANY');
+  const canReadDeliveryTask = useCan(Permissions.DeliveryTasksRead, 'COMPANY');
+  const canReadCompany = useCan(Permissions.CompaniesRead, 'GLOBAL');
 
   const invoice = useAppSelector((state) => state.invoices.invoiceById);
   const isLoading = useAppSelector((state) => state.invoices.loadingById);
@@ -47,18 +53,25 @@ const InvoicesDetails = () => {
   useEffect(() => {
     if (!invoice || invoice.id !== id) return;
 
-    if (invoice.salesOrderId) {
+    if (invoice.salesOrderId && canReadSalesOrder) {
       dispatch(getSalesOrderById({ id: invoice.salesOrderId }));
     }
 
-    if (invoice.deliveryRouteId) {
+    if (invoice.deliveryRouteId && canReadDeliveryRoute) {
       dispatch(getDeliveryRouteById(invoice.deliveryRouteId));
     }
 
-    if (invoice.deliveryTaskId) {
+    if (invoice.deliveryTaskId && canReadDeliveryTask) {
       dispatch(getDeliveryTaskById(invoice.deliveryTaskId));
     }
-  }, [dispatch, id, invoice]);
+  }, [
+    canReadDeliveryRoute,
+    canReadDeliveryTask,
+    canReadSalesOrder,
+    dispatch,
+    id,
+    invoice,
+  ]);
 
   const invoiceStatusKey = getInvoiceStatusKey(invoice?.status);
   const externalStatus = invoice?.external?.status;
@@ -121,17 +134,23 @@ const InvoicesDetails = () => {
     {
       label: t('invoices.fields.salesOrderId'),
       value: salesOrder?.id === invoice.salesOrderId ? salesOrder.salesOrderNumber : invoice.salesOrderId,
-      path: linkedPath('sales-orders', invoice.salesOrderId),
+      path: canReadSalesOrder
+        ? linkedPath('sales-orders', invoice.salesOrderId)
+        : undefined,
     },
     {
       label: t('invoices.fields.deliveryRouteId'),
       value: deliveryRoute?.id === invoice.deliveryRouteId ? deliveryRoute.routeNumber : invoice.deliveryRouteId,
-      path: linkedPath('delivery-routes', invoice.deliveryRouteId),
+      path: canReadDeliveryRoute
+        ? linkedPath('delivery-routes', invoice.deliveryRouteId)
+        : undefined,
     },
     {
       label: t('invoices.fields.deliveryTaskId'),
       value: deliveryTask?.id === invoice.deliveryTaskId ? deliveryTask.taskNumber : invoice.deliveryTaskId,
-      path: linkedPath('delivery-routes', invoice.deliveryRouteId),
+      path: canReadDeliveryTask
+        ? linkedPath('delivery-tasks', invoice.deliveryTaskId)
+        : undefined,
     },
   ];
 
@@ -142,13 +161,17 @@ const InvoicesDetails = () => {
         {
           label: t('invoices.fields.name'),
           value: invoice.sender.name,
-          path: `/organization/${invoice.sender.companyId}`,
+          path: canReadCompany
+            ? `/organization/${invoice.sender.companyId}`
+            : undefined,
         },
         { label: t('invoices.fields.tin'), value: invoice.sender.tin || '-' },
         {
           label: t('invoices.fields.companyId'),
           value: invoice.sender.companyId,
-          path: `/organization/${invoice.sender.companyId}`,
+          path: canReadCompany
+            ? `/organization/${invoice.sender.companyId}`
+            : undefined,
         },
         { label: t('invoices.fields.address'), value: invoice.sender.address || '-' },
       ],
@@ -159,13 +182,19 @@ const InvoicesDetails = () => {
         {
           label: t('invoices.fields.name'),
           value: invoice.receiver.name,
-          path: invoice.receiver.companyId ? `/organization/${invoice.receiver.companyId}` : undefined,
+          path:
+            canReadCompany && invoice.receiver.companyId
+              ? `/organization/${invoice.receiver.companyId}`
+              : undefined,
         },
         { label: t('invoices.fields.tin'), value: invoice.receiver.tin || '-' },
         {
           label: t('invoices.fields.companyId'),
           value: invoice.receiver.companyId || '-',
-          path: invoice.receiver.companyId ? `/organization/${invoice.receiver.companyId}` : undefined,
+          path:
+            canReadCompany && invoice.receiver.companyId
+              ? `/organization/${invoice.receiver.companyId}`
+              : undefined,
         },
         { label: t('invoices.fields.address'), value: invoice.receiver.address || '-' },
       ],

@@ -11,11 +11,12 @@ import { toast } from 'react-toastify';
 import { createSalesOrder } from 'entities/salesOrders/model';
 import { mapSalesOrderFormToCreateDto, type SalesOrderFormValues } from 'entities/salesOrders/mappers';
 import { searchProducts } from 'entities/products/model';
-import { searchOrganizations } from 'entities/organization/model';
-import type { CompanyResponse } from 'entities/organization/types';
+import { getCompanyByTin } from 'entities/organization/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { SalesOrderPriorities } from 'shared/types/dtos';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const TIN_LENGTH = 9;
 
@@ -24,6 +25,8 @@ const SalesOrdersCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const canReadCompanyLegalInfo = useCan(Permissions.CompaniesLegalInfoRead, 'COMPANY');
+  const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
   const products = useAppSelector((state) => state.products.products);
   const [form] = Form.useForm<SalesOrderFormValues>();
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
@@ -116,12 +119,6 @@ const SalesOrdersCreate = () => {
 
   const normalizeTin = (value: string) => value.replace(/\D/g, '').slice(0, TIN_LENGTH);
 
-  const formatCompanyAddress = (company: CompanyResponse) =>
-    [company.address?.region, company.address?.district, company.address?.address]
-      .map((part) => part?.trim())
-      .filter(Boolean)
-      .join(', ');
-
   const handleTinChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const normalized = normalizeTin(event.target.value);
     const requestId = ++companyLookupRequestRef.current;
@@ -136,6 +133,11 @@ const SalesOrdersCreate = () => {
     });
     setIsCompanyFound(false);
 
+    if (!canReadCompanyLegalInfo) {
+      setIsSearchingCompany(false);
+      return;
+    }
+
     if (normalized.length !== TIN_LENGTH || /^0+$/.test(normalized)) {
       setIsSearchingCompany(false);
       return;
@@ -144,18 +146,9 @@ const SalesOrdersCreate = () => {
     setIsSearchingCompany(true);
 
     try {
-      const response = await dispatch(
-        searchOrganizations({
-          query: normalized,
-          page: 1,
-          limit: 10,
-          sortOrder: 'asc',
-        })
-      ).unwrap() as { data?: CompanyResponse[] };
+      const company = await dispatch(getCompanyByTin(normalized)).unwrap();
 
       if (requestId !== companyLookupRequestRef.current) return;
-
-      const company = response.data?.find((item) => item.tin === normalized);
 
       if (!company) {
         setIsSearchingCompany(false);
@@ -165,10 +158,10 @@ const SalesOrdersCreate = () => {
 
       form.setFieldsValue({
         customer: {
-          companyId: company.id,
+          companyId: undefined,
           tin: normalized,
-          name: company.displayName,
-          address: formatCompanyAddress(company),
+          name: company.name,
+          address: company.address,
         },
       });
       setIsCompanyFound(true);
@@ -182,7 +175,7 @@ const SalesOrdersCreate = () => {
   };
 
   useEffect(() => {
-    if (!orgId) return;
+    if (!orgId || !canListProducts) return;
     dispatch(
       searchProducts({
         query: '',
@@ -191,10 +184,10 @@ const SalesOrdersCreate = () => {
         sortOrder: 'asc',
       })
     );
-  }, [dispatch, orgId]);
+  }, [canListProducts, dispatch, orgId]);
 
   const handleProductSearch = (value: string) => {
-    if (!orgId || !value.trim()) return;
+    if (!orgId || !canListProducts || !value.trim()) return;
     dispatch(
       searchProducts({
         query: value,
@@ -211,7 +204,7 @@ const SalesOrdersCreate = () => {
       return;
     }
 
-    if (!isCompanyFound || !values.customer.companyId) {
+    if (!isCompanyFound) {
       toast.error(t('salesOrders.validation.customerCompanyNotFound'));
       return;
     }
@@ -249,7 +242,6 @@ const SalesOrdersCreate = () => {
                 <Form.Item
                   name={["customer", "companyId"]}
                   hidden
-                  rules={[{ required: true, message: t('salesOrders.validation.customerCompanyNotFound') }]}
                 >
                   <Input />
                 </Form.Item>
@@ -549,7 +541,14 @@ const SalesOrdersCreate = () => {
                 <CustomButton className="outline" onClick={() => navigate(listPath)}>
                   {t('btn.cancel')}
                 </CustomButton>
-                <CustomButton type="submit" disabled={!isCompanyFound}>
+                <CustomButton
+                  type="submit"
+                  disabled={
+                    !isCompanyFound ||
+                    !canReadCompanyLegalInfo ||
+                    !canListProducts
+                  }
+                >
                   {t('salesOrders.actions.create')}
                 </CustomButton>
               </div>

@@ -1,8 +1,9 @@
 import {type TableProps, Tag} from 'antd';
 import type { TFunction } from 'i18next';
 import type {AggregationDataType} from "./types.ts";
-import {Link} from "react-router-dom";
 import {statusColors} from "shared/ui/statuses.tsx";
+import { PermissionLink } from "entities/access/ui";
+import { Permissions } from "entities/access/types";
 
 export const AggregationColumns = (t: TFunction, orgId: string | undefined) : TableProps<AggregationDataType>["columns"] => [
     {
@@ -10,11 +11,13 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         dataIndex: "aggregationNumber",
         key: "aggregationNumber",
         render: (_, record) => (
-            <Link
+            <PermissionLink
+                permission={Permissions.ReportsRead}
+                scope="COMPANY"
                 to={`/organization/${orgId}/aggregations/${record?.id}`}
                 className="table-text">
                 {record.aggregationNumber}
-            </Link>
+            </PermissionLink>
         )
     },
     {
@@ -22,11 +25,13 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         dataIndex: "batchNumberParent",
         key: "batchNumberParent",
         render: (_, record) => (
-            <Link
+            <PermissionLink
+                permission={Permissions.OrdersRead}
+                scope="COMPANY"
                 to={`/organization/${orgId}/orderId/${record?.orderIdParent}/batchId/${record?.batchIdParent}`}
                 className="table-text">
                 {record.batchNumberParent}
-            </Link>
+            </PermissionLink>
         )
     },
     {
@@ -34,11 +39,13 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         dataIndex: "batchNumberChild",
         key: "batchNumberChild",
         render: (_, record) => (
-            <Link
+            <PermissionLink
+                permission={Permissions.OrdersRead}
+                scope="COMPANY"
                 to={`/organization/${orgId}/orderId/${record?.childOrderId}/batchId/${record?.batchOrderId}`}
                 className="table-text">
                 {record.batchNumberChild}
-            </Link>
+            </PermissionLink>
         )
     },
     {

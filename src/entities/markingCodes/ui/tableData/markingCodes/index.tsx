@@ -2,11 +2,12 @@ import { Tag } from 'antd';
 import CustomButton from 'shared/ui/button';
 import type { TFunction } from 'i18next';
 import type { MarkingCodesTableDataType } from './types';
-import { Link } from 'react-router-dom';
 import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
+import { PermissionLink } from "entities/access/ui";
+import { Permissions } from "entities/access/types";
 
-export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined,  handleAppoint: (
+export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, handleAppoint: (
     e: React.MouseEvent,
     record: MarkingCodesTableDataType,
 ) => void): AdaptiveColumn<MarkingCodesTableDataType>[] => [
@@ -17,12 +18,14 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       flex: 1,
     key: "batchNumber",
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        permission={Permissions.OrdersRead}
+        scope="COMPANY"
         className="table-text link"
         to={`/organization/${orgId}/orderId/${record?.orderId}/batchId/${record?.batchId}`}
       >
         {record.batchNumber}
-      </Link>
+      </PermissionLink>
     ),
   },
   {
@@ -32,12 +35,14 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       flex: 1,
     key: "orderNumber",
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        permission={Permissions.OrdersRead}
+        scope="COMPANY"
         className="table-text link"
         to={`/organization/${orgId}/orders/${record?.orderId}`}
       >
         {record.orderNumber}
-      </Link>
+      </PermissionLink>
     ),
   },
    {
@@ -46,7 +51,9 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
        flex: 2,
     key: "productName",
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        permission={Permissions.ProductsRead}
+        scope="COMPANY"
         className="table-text link"
         to={`/organization/${orgId}/products/${record?.productId}`}
         style={{
@@ -57,7 +64,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
         }}
       >
         {record.productName}
-      </Link>
+      </PermissionLink>
     ),
   },
   {
@@ -167,6 +174,10 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     key: 'action',
       flex: 1,
     render: (_, record) => {
+      if (!canCreateUtilization) {
+        return null;
+      }
+
       // Показываем кнопку "Нанести" только если статус === 'codes_received'
       if (record.status !== 'codes_received') {
         return null; // или можно вернуть <span>—</span> или другой плейсхолдер

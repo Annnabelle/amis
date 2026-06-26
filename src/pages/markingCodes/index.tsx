@@ -23,12 +23,19 @@ import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
+import { useCan } from "entities/access/lib";
+import { Permissions } from "entities/access/types";
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const orgId = id
     const dispatch = useAppDispatch()
+    const canCreateOrder = useCan(Permissions.OrdersCreate, 'COMPANY');
+    const canCreateUtilization = useCan(Permissions.ReportsCreateUtilization, 'COMPANY');
+    const canListUsers = useCan(Permissions.UsersList, 'GLOBAL');
+    const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
+    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)
@@ -48,8 +55,10 @@ const MarkingCodes = () => {
     }, [dispatch, queryParams]);
 
     useEffect(() => {
-        dispatch(fetchReferencesByType("cisType"));
-    }, [dispatch]);
+        if (canReadReferences) {
+            dispatch(fetchReferencesByType("cisType"));
+        }
+    }, [canReadReferences, dispatch]);
 
     const packageTypeMap = useMemo(() => {
         const lang = i18n.language as keyof (typeof packTypeReferences)[number]["title"];
@@ -158,7 +167,9 @@ const MarkingCodes = () => {
     <MainLayout>
         <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
-                <CustomButton onClick={() => handleModal('addMarkingCodes', true)}>{t('markingCodes.order')}</CustomButton>
+                {canCreateOrder && (
+                    <CustomButton onClick={() => handleModal('addMarkingCodes', true)}>{t('markingCodes.order')}</CustomButton>
+                )}
             </div>
         </Heading>
         <div className="box">
@@ -166,6 +177,7 @@ const MarkingCodes = () => {
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         <FilterBar className="filters-large">
+                            {canListUsers && (
                             <FilterBarItem>
                                 <Form.Item name="user" className="input">
                                         <Select
@@ -192,6 +204,8 @@ const MarkingCodes = () => {
 
                                 </Form.Item>
                             </FilterBarItem>
+                            )}
+                            {canListProducts && (
                             <FilterBarItem>
                                 <Form.Item name="product" className="input">
                                     <Select
@@ -215,6 +229,7 @@ const MarkingCodes = () => {
                                     />
                                 </Form.Item>
                             </FilterBarItem>
+                            )}
                             <FilterBarItem>
                                 <Form.Item name="status" className="input">
                                     <Select
@@ -235,7 +250,7 @@ const MarkingCodes = () => {
                 </div>
                 <div className="box-container-items">
                     <ComponentTable<MarkingCodesTableDataType>
-                        columns={MarkingCodesTableColumns(t, orgId, handleAppoint)}
+                        columns={MarkingCodesTableColumns(t, orgId, canCreateUtilization, handleAppoint)}
                         data={MarkingCodesData}
                         pagination={{
                             current: queryParams.page,

@@ -77,6 +77,30 @@ export type GetCompanyResponseDto =
   | { success: boolean; company: CompanyResponseDto }
   | ErrorDto;
 
+export type PersonNameReadModel = {
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+};
+
+export type CompanyByTinReadModel = {
+  tin: string;
+  name: string;
+  address: string;
+  phone?: string;
+  bankInfo: {
+    account: string;
+    name: string;
+    mfo: string;
+  };
+  vatCode?: string;
+  director?: PersonNameReadModel;
+  accountant?: PersonNameReadModel;
+  warehouseManager?: PersonNameReadModel;
+};
+
+export type GetCompanyByTinResponseDto = CompanyByTinReadModel | ErrorDto;
+
 export type UpdateCompanyResponseDto =
   | { success: boolean; company: CompanyResponseDto }
   | ErrorDto;

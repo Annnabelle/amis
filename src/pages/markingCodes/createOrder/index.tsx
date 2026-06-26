@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import { fetchReferencesByType } from "entities/references/model";
 import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import { useCan } from "entities/access/lib";
+import { Permissions } from "entities/access/types";
 
 type OrderFormValues = {
   items: {
@@ -35,6 +37,9 @@ const OrderForm = () => {
   const { id } = useParams<{ id: string }>();
   const orgId = id;
   const dispatch = useAppDispatch();
+  const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
+  const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
+  const canReadProduct = useCan(Permissions.ProductsRead, 'COMPANY');
 
   const generateOptions = [
     { value: "self", label: t("markingCodes.independently") },
@@ -57,17 +62,21 @@ const OrderForm = () => {
 
   // --- Загрузка справочников ---
   useEffect(() => {
-    dispatch(fetchReferencesByType("cisType"));
-  }, [dispatch]);
+    if (canReadReferences) {
+      dispatch(fetchReferencesByType("cisType"));
+    }
+  }, [canReadReferences, dispatch]);
 
   // --- Начальный поиск продуктов ---
   useEffect(() => {
-    dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc" }));
-  }, [dispatch]);
+    if (canListProducts) {
+      dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc" }));
+    }
+  }, [canListProducts, dispatch]);
 
   // --- Поиск продуктов при вводе ---
   const handleProductSearch = (value: string) => {
-    if (value.trim()) {
+    if (canListProducts && value.trim()) {
       dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
     }
   };
@@ -124,7 +133,9 @@ const OrderForm = () => {
                             onSearch={handleProductSearch}
                             onChange={(productId) => {
                               form.setFieldValue(["items", field.name, "packType"], undefined);
-                              dispatch(getProductById({ id: productId }));
+                              if (canReadProduct) {
+                                dispatch(getProductById({ id: productId }));
+                              }
                             }}
                             options={products.map((product) => ({
                               value: product.id,
@@ -231,7 +242,16 @@ const OrderForm = () => {
           )}
         </Form.List>
 
-        <CustomButton disabled={isSubmitting} type="submit" className="outline full-width">
+        <CustomButton
+          disabled={
+            isSubmitting ||
+            !canReadReferences ||
+            !canListProducts ||
+            !canReadProduct
+          }
+          type="submit"
+          className="outline full-width"
+        >
           {t("markingCodes.orderCreation.submitOrder")}
         </CustomButton>
       </FormComponent>

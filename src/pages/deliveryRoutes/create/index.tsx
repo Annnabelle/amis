@@ -5,7 +5,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
@@ -18,6 +18,9 @@ import { searchUsers } from 'entities/users/model';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
+import { PermissionLink } from 'entities/access/ui';
+import { Permissions } from 'entities/access/types';
+import { useCan } from 'entities/access/lib';
 
 const getPriorityColor = (priority?: string) => {
   if (!priority) return 'default';
@@ -41,6 +44,8 @@ const DeliveryRoutesCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const canListSalesOrders = useCan(Permissions.SalesOrdersList, 'COMPANY');
+  const canListUsers = useCan(Permissions.UsersList, 'GLOBAL');
   const organizations = useAppSelector((state) => state.organizations.organizations);
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const isOrdersLoading = useAppSelector((state) => state.salesOrders.isLoading);
@@ -106,7 +111,7 @@ const DeliveryRoutesCreate = () => {
   }, [form, orgId]);
 
   useEffect(() => {
-    if (!companyId) return;
+    if (!companyId || !canListSalesOrders) return;
     setSelectedOrderIds([]);
     dispatch(
       getSalesOrders({
@@ -115,7 +120,7 @@ const DeliveryRoutesCreate = () => {
         sortOrder: 'asc',
       })
     );
-  }, [dispatch, companyId]);
+  }, [canListSalesOrders, dispatch, companyId]);
 
   const toggleCardExpanded = (index: number) => {
     const newExpanded = new Set(expandedCards);
@@ -164,7 +169,7 @@ const DeliveryRoutesCreate = () => {
   };
 
   const handleUserSearch = async (value: string) => {
-    if (!value.trim()) return;
+    if (!canListUsers || !value.trim()) return;
 
     try {
       await dispatch(
@@ -291,7 +296,9 @@ const DeliveryRoutesCreate = () => {
         key: "salesOrderNumber",
         flex: 1,
         render: (_, record) => (
-          <Link
+          <PermissionLink
+            permission={Permissions.SalesOrdersRead}
+            scope="COMPANY"
             className="table-text link"
             to={
               orgId
@@ -300,7 +307,7 @@ const DeliveryRoutesCreate = () => {
             }
           >
             {record.salesOrderNumber}
-          </Link>
+          </PermissionLink>
         ),
       },
       {
@@ -396,6 +403,8 @@ const DeliveryRoutesCreate = () => {
                 }
               }}
             >
+              {canListSalesOrders && (
+              <>
               <div className="form-divider-title">
                 <h4 className="title">{t('deliveryRoutes.sections.info')}</h4>
               </div>
@@ -716,12 +725,16 @@ const DeliveryRoutesCreate = () => {
                   </div>
                 // {/* </div> */}
               )}
+              </>
+              )}
 
               <div className="form-btns-group">
                 <CustomButton className="outline" onClick={() => navigate(listPath)}>
                   {t('btn.cancel')}
                 </CustomButton>
-                <CustomButton type="submit">{t('deliveryRoutes.actions.create')}</CustomButton>
+                <CustomButton type="submit" disabled={!canListSalesOrders}>
+                  {t('deliveryRoutes.actions.create')}
+                </CustomButton>
               </div>
             </FormComponent>
           </div>

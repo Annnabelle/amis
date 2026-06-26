@@ -9,12 +9,15 @@ import type { InvoicesTableDataType } from 'entities/invoices/ui/tableData/invoi
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const InvoicesList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const canReadInvoice = useCan(Permissions.InvoicesRead, 'COMPANY');
 
   const invoices = useAppSelector((state) => state.invoices.invoices);
   const dataLimit = useAppSelector((state) => state.invoices.limit);
@@ -60,12 +63,15 @@ const InvoicesList = () => {
               data={invoicesData}
               loading={isLoading}
               scroll={false}
-              onRowClick={(record) =>
-                navigate(
-                  orgId
-                    ? `/organization/${orgId}/invoices/${record.key}`
-                    : '/organization'
-                )
+              onRowClick={
+                canReadInvoice
+                  ? (record) =>
+                      navigate(
+                        orgId
+                          ? `/organization/${orgId}/invoices/${record.key}`
+                          : '/organization'
+                      )
+                  : undefined
               }
               pagination={{
                 current: dataPage || 1,

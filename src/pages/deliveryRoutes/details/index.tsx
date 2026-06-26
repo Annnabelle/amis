@@ -41,6 +41,7 @@ const DeliveryRoutesDetails = () => {
   const canStartTransitPermission = useCan(Permissions.DeliveryRoutesStartTransit, 'COMPANY');
   const canStartReturn = useCan(Permissions.DeliveryRoutesStartReturn, 'COMPANY');
   const canStartHandover = useCan(Permissions.DeliveryTasksStartHandover, 'COMPANY');
+  const canListTasks = useCan(Permissions.DeliveryTasksList, 'COMPANY');
   const canOpenLoading = Boolean(
     canStartLoading &&
       route?.status &&
@@ -83,10 +84,15 @@ const DeliveryRoutesDetails = () => {
 
     setIsBootstrapping(true);
 
-    Promise.allSettled([
+    const requests: Promise<unknown>[] = [
       dispatch(getDeliveryRouteById(id)).unwrap(),
-      dispatch(getDeliveryTasks({ routeId: id })).unwrap(),
-    ]).finally(() => {
+    ];
+
+    if (canListTasks) {
+      requests.push(dispatch(getDeliveryTasks({ routeId: id })).unwrap());
+    }
+
+    Promise.allSettled(requests).finally(() => {
       if (isMounted) {
         setIsBootstrapping(false);
       }
@@ -95,7 +101,7 @@ const DeliveryRoutesDetails = () => {
     return () => {
       isMounted = false;
     };
-  }, [dispatch, id]);
+  }, [canListTasks, dispatch, id]);
 
   useEffect(() => {
     if (route?.status && route.status !== 'loaded') {
@@ -489,6 +495,7 @@ const DeliveryRoutesDetails = () => {
                 </div>
               </div>
             )}
+            {canListTasks && (
             <div className="detail-grid detail-grid-single">
               <div className="detail-card detail-card-full">
                 <div className="detail-card-header detail-card-header-with-actions">
@@ -665,6 +672,7 @@ const DeliveryRoutesDetails = () => {
                 )}
               </div>
             </div>
+            )}
 
             <div className="btns-group">
               <CustomButton className="outline" onClick={() => navigate(backPath)}>

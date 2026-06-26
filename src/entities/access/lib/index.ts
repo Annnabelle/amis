@@ -4,7 +4,7 @@ import type {
   UserAccess,
 } from "entities/access/types";
 
-export type PermissionScope = "GLOBAL" | "COMPANY";
+export type PermissionScope = "GLOBAL" | "COMPANY" | "ANY";
 
 type CanAccessParams = {
   access: UserAccess | null;
@@ -21,11 +21,27 @@ export const canAccess = ({
 }: CanAccessParams): boolean => {
   if (!access) return false;
 
+  if (scope === "GLOBAL") {
+    return access.system.permissions.includes(permission);
+  }
+
+  if (scope === "ANY") {
+    if (!companyId) {
+      return access.system.permissions.includes(permission);
+    }
+
+    const companyAccess = access.companies.find(
+      (company) => company.companyId === companyId
+    );
+
+    return companyAccess?.permissions.includes(permission) ?? false;
+  }
+
   if (access.system.permissions.includes(permission)) {
     return true;
   }
 
-  if (scope === "GLOBAL" || !companyId) {
+  if (!companyId) {
     return false;
   }
 
@@ -44,11 +60,19 @@ export const useCan = (
   const companyId = useAppSelector(
     (state) => state.access.currentCompanyId
   );
+  const pathSegments =
+    typeof window === "undefined"
+      ? []
+      : window.location.pathname.split("/").filter(Boolean);
+  const routeCompanyId =
+    pathSegments[0] === "organization" && pathSegments.length > 2
+      ? pathSegments[1]
+      : null;
 
   return canAccess({
     access,
     permission,
     scope,
-    companyId,
+    companyId: routeCompanyId ?? companyId,
   });
 };

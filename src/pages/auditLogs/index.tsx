@@ -25,7 +25,6 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { fetchAuditLogs } from "entities/auditLog/model";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
-import { Link } from "react-router-dom";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
@@ -33,8 +32,29 @@ import { useTheme } from "app/themeContext";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
+import { PermissionLink } from "entities/access/ui";
+import { Permissions, type Permission } from "entities/access/types";
+import type { PermissionScope } from "entities/access/lib";
 
 const { Panel } = Collapse;
+
+const getTargetAccess = (
+  targetEntity: string
+): { permission: Permission; scope: PermissionScope } | null => {
+  switch (targetEntity) {
+    case "user":
+      return { permission: Permissions.UsersRead, scope: "GLOBAL" };
+    case "company":
+      return { permission: Permissions.CompaniesRead, scope: "GLOBAL" };
+    case "product":
+      return { permission: Permissions.ProductsRead, scope: "COMPANY" };
+    case "markingCodeOrder":
+    case "order":
+      return { permission: Permissions.OrdersRead, scope: "COMPANY" };
+    default:
+      return null;
+  }
+};
 
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -196,13 +216,15 @@ const AuditLogsPage: React.FC = () => {
             </div>
             <div className="content-items-item-description">
               <h5 className="description">
-                <Link
+                <PermissionLink
+                    permission={Permissions.OrdersRead}
+                    scope="COMPANY"
                     to={`/organization/${orgId}/orderId/${orderId}/batchId/${target.batches?.[0]?.id || ""}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
                   {target.orderNumber}
-                </Link>
+                </PermissionLink>
               </h5>
             </div>
           </div>
@@ -216,13 +238,15 @@ const AuditLogsPage: React.FC = () => {
             </div>
             <div className="content-items-item-description">
               <h5 className="description">
-                <Link
+                <PermissionLink
+                    permission={Permissions.OrdersRead}
+                    scope="COMPANY"
                     to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
                   {batch.id}
-                </Link>
+                </PermissionLink>
               </h5>
             </div>
           </div>
@@ -301,11 +325,18 @@ const AuditLogsPage: React.FC = () => {
                 break;
             }
 
-            if (path) {
+            const targetAccess = getTargetAccess(targetEntity ?? "");
+            if (path && targetAccess) {
               formattedValue = (
-                  <Link to={path} className="actor-link-hover" style={{ color: "inherit" }}>
+                  <PermissionLink
+                    permission={targetAccess.permission}
+                    scope={targetAccess.scope}
+                    to={path}
+                    className="actor-link-hover"
+                    style={{ color: "inherit" }}
+                  >
                     {value}
-                  </Link>
+                  </PermissionLink>
               );
             }
           }
@@ -392,9 +423,15 @@ const AuditLogsPage: React.FC = () => {
                   {
                     label:`${t('users.addUserForm.label.firstName')}`,
                     value: (
-                      <Link to={`/users/${item.actorId}`} style={{ color: "inherit" }} className="actor-link-hover">
+                      <PermissionLink
+                        permission={Permissions.UsersRead}
+                        scope="GLOBAL"
+                        to={`/users/${item.actorId}`}
+                        style={{ color: "inherit" }}
+                        className="actor-link-hover"
+                      >
                         {item.firstName} {item.lastName}
-                      </Link>
+                      </PermissionLink>
                     ),
                     icon: <UserOutlined style={{ color: "#1890ff" }} />,
                   },
@@ -494,10 +531,15 @@ const AuditLogsPage: React.FC = () => {
                                         return (
                                           <span className="log-list-heading-container-target" style={{ marginLeft: 6 }}>
                                             {" "}<FaArrowRightLong/>{" "}
-                                            {targetInfo.path ? (
-                                              <Link to={targetInfo.path} className="actor-link-hover">
+                                            {targetInfo.path && getTargetAccess(item.targetEntity) ? (
+                                              <PermissionLink
+                                                permission={getTargetAccess(item.targetEntity)!.permission}
+                                                scope={getTargetAccess(item.targetEntity)!.scope}
+                                                to={targetInfo.path}
+                                                className="actor-link-hover"
+                                              >
                                                 {targetInfo.name}
-                                              </Link>
+                                              </PermissionLink>
                                             ) : (
                                               <span>{targetInfo.name}</span>
                                             )}

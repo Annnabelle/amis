@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import BatchItem from "../../markingCodeProduct/batchItem.tsx";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,8 @@ import { useAppSelector } from "app/store";
 import "../../markingCodeProduct/styles.sass"
 import { Tag } from "antd";
 import { statusColors } from "shared/ui/statuses.tsx";
+import { PermissionLink } from "entities/access/ui";
+import { Permissions } from "entities/access/types";
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -31,9 +33,13 @@ const AgregationReport: React.FC = () => {
                     <h4 className="section-title">{t("aggregations.agregationReportPage.productName")}:</h4>
                     {reportData?.product.name && (
                         <div className="product-title">
-                            <Link to={`/organization/${orgId}/products/${reportData?.product.id}`}>
+                            <PermissionLink
+                                permission={Permissions.ProductsRead}
+                                scope="COMPANY"
+                                to={`/organization/${orgId}/products/${reportData?.product.id}`}
+                            >
                                 {reportData?.product.name}
-                            </Link>
+                            </PermissionLink>
                         </div>
                     )}
                 </section>

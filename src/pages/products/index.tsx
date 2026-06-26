@@ -23,12 +23,21 @@ import type {MultiLanguage} from "shared/types/dtos";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import { useCan } from "entities/access/lib";
+import { Permissions } from "entities/access/types";
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
+    const canReadProduct = useCan(Permissions.ProductsRead, 'COMPANY');
+    const canCreateProduct = useCan(Permissions.ProductsCreate, 'COMPANY');
+    const canUpdateProduct = useCan(Permissions.ProductsUpdate, 'COMPANY');
+    const canDeleteProduct = useCan(Permissions.ProductsDelete, 'COMPANY');
+    const canReadAudit = useCan(Permissions.AuditList, 'GLOBAL');
+    const canReadCompany = useCan(Permissions.CompaniesRead, 'GLOBAL');
+    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
     const products = useAppSelector((state) => state.products.products)
     const dataLimit = useAppSelector((state) => state.products.limit)
     const dataPage = useAppSelector((state) => state.products.page)
@@ -46,10 +55,10 @@ const Products = () => {
     const company = useAppSelector(state => state.organizations.organizationById)
 
     useEffect(() => {
-        if (id){
+        if (id && canReadCompany){
             dispatch(getOrganizationById({id: id}))
         }
-    }, [dispatch, id])
+    }, [canReadCompany, dispatch, id])
 
     const currentLang = (i18n.language as Lang) || 'en';
     const productGroupTitleByAlias = useMemo(() => {
@@ -74,9 +83,11 @@ const Products = () => {
     }, [company?.productGroups, productGroupReferences])
 
     useEffect(() => {
-        dispatch(fetchReferencesByType("countryCode"));
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+        if (canReadReferences) {
+            dispatch(fetchReferencesByType("countryCode"));
+            dispatch(fetchReferencesByType("productGroup"));
+        }
+    }, [canReadReferences, dispatch]);
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
@@ -194,10 +205,10 @@ const Products = () => {
     };
 
     useEffect(() => {
-        if (selectedProductId){
+        if (selectedProductId && canReadProduct){
             dispatch(getProductById({id: selectedProductId}))
         }
-    }, [dispatch, selectedProductId])
+    }, [canReadProduct, dispatch, selectedProductId])
 
 
     const handleDeleteProduct = (record: ProductTableDataType) => {
@@ -278,8 +289,12 @@ const Products = () => {
         <MainLayout>
             <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
-                    <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
-                    <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
+                    {canReadAudit && (
+                        <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                    )}
+                    {canCreateProduct && canReadCompany && canReadReferences && (
+                        <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
+                    )}
                 </div>
             </Heading>
             <div className="box">
@@ -304,9 +319,21 @@ const Products = () => {
                 </div>
                 <div className="box-container-items">
                     <ComponentTable<ProductTableDataType>
-                        columns={ProductsTableColumns(t, handleRowClick, handleDeleteProduct)}
+                        columns={ProductsTableColumns(
+                            t,
+                            handleRowClick,
+                            handleDeleteProduct,
+                            {
+                                canUpdate: canUpdateProduct,
+                                canDelete: canDeleteProduct,
+                            }
+                        )}
                         data={ProductsData}
-                        onRowClick={(record) => handleRowClick('Product', 'retrieve', record)}
+                        onRowClick={
+                            canReadProduct
+                                ? (record) => handleRowClick('Product', 'retrieve', record)
+                                : undefined
+                        }
                         pagination={{
                             current: dataPage || 1,
                             pageSize: dataLimit || 10,

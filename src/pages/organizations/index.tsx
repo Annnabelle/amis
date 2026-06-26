@@ -25,11 +25,19 @@ import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useIsMobile } from 'shared/lib';
+import { useCan } from 'entities/access/lib';
+import { Permissions } from 'entities/access/types';
 
 const Organizations = () => {
     const navigate = useNavigate()
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
+    const canReadCompany = useCan(Permissions.CompaniesRead, 'GLOBAL');
+    const canCreateCompany = useCan(Permissions.CompaniesCreate, 'GLOBAL');
+    const canValidateXTrace = useCan(Permissions.CompaniesValidateXTraceToken, 'GLOBAL');
+    const canDeleteCompany = useCan(Permissions.CompaniesDelete, 'GLOBAL');
+    const canReadAudit = useCan(Permissions.AuditList, 'GLOBAL');
+    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
     const organizations = useAppSelector((state) => state.organizations.organizations)
     const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)
@@ -46,8 +54,10 @@ const Organizations = () => {
     ) ?? [];
 
     useEffect(() => {
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+        if (canReadReferences) {
+            dispatch(fetchReferencesByType("productGroup"));
+        }
+    }, [canReadReferences, dispatch]);
 
     useEffect(() => {
         if (!organizationById) return;
@@ -314,8 +324,12 @@ const Organizations = () => {
             <>
             <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
-                    <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
-                    <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
+                    {canReadAudit && (
+                        <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                    )}
+                    {canCreateCompany && canValidateXTrace && canReadReferences && (
+                        <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
+                    )}
                 </div>
             </Heading>
             <div className="box">
@@ -339,9 +353,13 @@ const Organizations = () => {
                     </div>
                     <div className="box-container-items">
                         <ComponentTable<OrganizationTableDataType>
-                            columns={OrganizationsTableColumns(t, handleDeleteOrganization)}
+                            columns={OrganizationsTableColumns(t, handleDeleteOrganization, canDeleteCompany)}
                             data={OrganizationsData}
-                            onRowClick={(record) => handleRowClick('Company', 'retrieve', record)}
+                            onRowClick={
+                                canReadCompany
+                                    ? (record) => handleRowClick('Company', 'retrieve', record)
+                                    : undefined
+                            }
                             pagination={{
                                 current: dataPage || 1,
                                 pageSize: dataLimit || 10,

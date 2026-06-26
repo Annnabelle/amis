@@ -11,12 +11,15 @@ import { getProductById } from 'entities/products/model';
 import { useNavigationBack } from 'shared/lib';
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
+import { useCan } from "entities/access/lib";
+import { Permissions } from "entities/access/types";
 
 const ProductsView = () => {
     const params = useParams();
     const orgId = params.orgId;
     const productId = params.id;
     const dispatch = useAppDispatch()
+    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
     const { t, i18n } = useTranslation();
     const navigateBack = useNavigationBack();
     const productById = useAppSelector((state) => state.products.productById)
@@ -30,8 +33,10 @@ const ProductsView = () => {
     const [countryLabel, setCountryLabel] = useState<string>("");
 
     useEffect(() => {
-        dispatch(fetchReferencesByType("countryCode"));
-    }, [dispatch]);
+        if (canReadReferences) {
+            dispatch(fetchReferencesByType("countryCode"));
+        }
+    }, [canReadReferences, dispatch]);
 
 
     useEffect(() => {

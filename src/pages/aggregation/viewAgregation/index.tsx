@@ -17,6 +17,8 @@ import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
 import {Pagination, Select} from "antd";
+import { useCan } from "entities/access/lib";
+import { Permissions } from "entities/access/types";
 
 type ExportLoadingState = {
     type: "group" | "unit";
@@ -36,6 +38,7 @@ const AggregationReportPage: React.FC = () => {
 
     const exportError = useAppSelector(state => state.export.error);
     const dispatch = useAppDispatch();
+    const canExportAggregation = useCan(Permissions.ReportsExportAggregation, 'COMPANY');
 
     const units = useAppSelector((state) => state.aggregations.units)
     const unitsData = id ? (units[id]?.data ?? []) : [];
@@ -114,21 +117,25 @@ const AggregationReportPage: React.FC = () => {
         <MainLayout>
             <Heading title={t('aggregations.agregationReportPage.aggregation')} subtitle={t('organizations.subtitle')}>
                     <div className="btns-group export-dropdown">
-                            <ExportDropdownButton
-                                type="group"
-                                loading={exportLoading?.type === "group"}
-                                label={t("aggregations.exportGrouped")}
-                                onExport={handleExport}
-                                t={t}
-                            />
+                            {canExportAggregation && (
+                                <>
+                                    <ExportDropdownButton
+                                        type="group"
+                                        loading={exportLoading?.type === "group"}
+                                        label={t("aggregations.exportGrouped")}
+                                        onExport={handleExport}
+                                        t={t}
+                                    />
 
-                            <ExportDropdownButton
-                                type="unit"
-                                loading={exportLoading?.type === "unit"}
-                                label={t("aggregations.exportUnit")}
-                                onExport={handleExport}
-                                t={t}
-                            />
+                                    <ExportDropdownButton
+                                        type="unit"
+                                        loading={exportLoading?.type === "unit"}
+                                        label={t("aggregations.exportUnit")}
+                                        onExport={handleExport}
+                                        t={t}
+                                    />
+                                </>
+                            )}
 
                             <CustomButton
                                 className="outline"

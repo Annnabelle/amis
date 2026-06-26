@@ -6,7 +6,8 @@ import type { TFunction } from 'i18next';
 import {statusColors} from "shared/ui/statuses.tsx";
 export const UsersTableColumns = (
   t: TFunction,
-  handleRowClick: (type: "User", action: "retrieve" | "edit" | "delete", record: UserTableDataType) => void
+  handleRowClick: (type: "User", action: "retrieve" | "edit" | "delete", record: UserTableDataType) => void,
+  permissions: { canUpdate: boolean; canDelete: boolean }
 ): TableProps<UserTableDataType>["columns"] => [
   {
     title: t('users.addUserForm.label.email'),
@@ -68,12 +69,17 @@ export const UsersTableColumns = (
   {
     title: '',
     key: "action",
-    render: (_, record) => (
+    render: (_, record) => {
+      if (!permissions.canUpdate && !permissions.canDelete) {
+        return null;
+      }
+
+      return (
       <Dropdown
         overlay={
           <Menu
             items={[
-              {
+              permissions.canUpdate ? {
                 key: "edit",
                 label: (
                   <CustomButton
@@ -87,8 +93,8 @@ export const UsersTableColumns = (
                     {t('btn.edit')}
                   </CustomButton>
                 ),
-              },
-              {
+              } : null,
+              permissions.canDelete ? {
                 key: "delete",
                 label: (
                   <CustomButton
@@ -102,8 +108,8 @@ export const UsersTableColumns = (
                     {t('btn.delete')}
                   </CustomButton>
                 ),
-              },
-            ]}
+              } : null,
+            ].filter(Boolean)}
           />
         }
         trigger={["click"]}
@@ -111,7 +117,8 @@ export const UsersTableColumns = (
       >
         <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} />
       </Dropdown>
-    ),
+      );
+    },
   },
 ];
 

@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
-import { getAllOrganizations, getOrganizationById } from 'entities/organization/model'
+import { getOrganizationById } from 'entities/organization/model'
 import CustomButton from 'shared/ui/button'
 import FormComponent from 'shared/ui/formComponent'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -12,7 +12,8 @@ import {type LanguageKey, useIsMobile, useNavigationBack} from 'shared/lib'
 import dayjs from "dayjs";
 import {fetchReferencesByType} from "entities/references/model";
 import { setCurrentCompanyId } from "entities/access/model";
-import { AccessModules, type AccessModule } from "entities/access/types";
+import { AccessModules, Permissions, type AccessModule } from "entities/access/types";
+import { useCan } from "entities/access/lib";
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ const OrganizationsInner = () => {
     const isMobile = useIsMobile();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? [])
+    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
 
     const [form] = Form.useForm()
 
@@ -32,8 +34,10 @@ const OrganizationsInner = () => {
     ) ?? [];
 
     useEffect(() => {
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+        if (canReadReferences) {
+            dispatch(fetchReferencesByType("productGroup"));
+        }
+    }, [canReadReferences, dispatch]);
 
     useEffect(() => {
         if (organizationById) {
@@ -86,16 +90,6 @@ const OrganizationsInner = () => {
             })
         }
     }, [organizationById, form])
-
-    useEffect(() => {
-        dispatch(getAllOrganizations({
-            page: 1,
-            limit: 10,
-            sortOrder: 'asc',
-        })) 
-    }, [dispatch])
-
-
 
     useEffect(() => {
         if (id){

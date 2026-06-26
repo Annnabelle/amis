@@ -21,12 +21,17 @@ import { searchProducts} from "entities/products/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import { useCan } from "entities/access/lib";
+import { Permissions } from "entities/access/types";
 
 const Aggregations = () => {
     const { t } = useTranslation();
     const params = useParams();
     const orgId = params.id;
     const dispatch = useAppDispatch()
+    const canCreateAggregation = useCan(Permissions.ReportsCreateAggregation, 'COMPANY');
+    const canListOrders = useCan(Permissions.OrdersList, 'COMPANY');
+    const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
     const aggregations = useAppSelector((state) => state.aggregations.aggregations)
     const dataLimit = useAppSelector((state) => state.aggregations.limit)
     const dataPage = useAppSelector((state) => state.aggregations.page)
@@ -74,7 +79,7 @@ const Aggregations = () => {
     ]);
 
     useEffect(() => {
-        if (modalState.addAggregation) {
+        if (modalState.addAggregation && canListOrders) {
             dispatch(
                 fetchMarkingCodes({
                     page: 1,
@@ -83,7 +88,7 @@ const Aggregations = () => {
                 })
             );
         }
-    }, [modalState.addAggregation, dispatch]);
+    }, [canListOrders, modalState.addAggregation, dispatch]);
 
     useEffect(() => {
         if (!error) return;
@@ -213,13 +218,16 @@ const Aggregations = () => {
                 title={`${t('aggregations.title')}`}
                 subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}
             >
-                <CustomButton onClick={() => handleModal('addAggregation', true)}>{t('aggregations.btnAdd')}</CustomButton>
+                {canCreateAggregation && canListOrders && (
+                    <CustomButton onClick={() => handleModal('addAggregation', true)}>{t('aggregations.btnAdd')}</CustomButton>
+                )}
             </Heading>
             <div className="box">
                 <div className="box-container">
                     <div className="box-container-items">
                         <div className="box-container-items-item">
                             <FilterBar className="filters-large filters-large-inputs">
+                                {canListProducts && (
                                 <FilterBarItem>
                                     <Form.Item name="status" className="input">
                                         <Select
@@ -248,6 +256,7 @@ const Aggregations = () => {
                                         />
                                     </Form.Item>
                                 </FilterBarItem>
+                                )}
                                 <FilterBarItem>
                                     <Form.Item name="dateRange" className="input">
                                         <DatePicker.RangePicker

@@ -12,6 +12,7 @@ const COMPANY_SCOPED_PATHS = [
   /^\/orders(?:\/|$)/,
   /^\/codes\/batches(?:\/|$)/,
   /^\/sales-orders(?:\/|$)/,
+  /^\/companies\/by-tin(?:\/|$)/,
   /^\/delivery-routes(?:\/|$)/,
   /^\/delivery-tasks(?:\/|$)/,
   /^\/scan-sessions(?:\/|$)/,

@@ -107,11 +107,20 @@ const DeliveryRoutesLoading = () => {
 
   useEffect(() => {
     return () => {
-      if (scanSession?.id && scanSession.status === 'active') {
+      if (
+        canCompleteScanSession &&
+        scanSession?.id &&
+        scanSession.status === 'active'
+      ) {
         void dispatch(completeScanSession(scanSession.id));
       }
     };
-  }, [dispatch, scanSession?.id, scanSession?.status]);
+  }, [
+    canCompleteScanSession,
+    dispatch,
+    scanSession?.id,
+    scanSession?.status,
+  ]);
 
   const headingTitle = route?.routeNumber
     ? `${t('deliveryRoutes.loadingPageTitle')} (${route.routeNumber})`

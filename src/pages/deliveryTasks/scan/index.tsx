@@ -103,11 +103,20 @@ const DeliveryTasksScan = () => {
 
   useEffect(() => {
     return () => {
-      if (scanSession?.id && scanSession.status === 'active') {
+      if (
+        canCompleteScanSession &&
+        scanSession?.id &&
+        scanSession.status === 'active'
+      ) {
         void dispatch(completeScanSession(scanSession.id));
       }
     };
-  }, [dispatch, scanSession?.id, scanSession?.status]);
+  }, [
+    canCompleteScanSession,
+    dispatch,
+    scanSession?.id,
+    scanSession?.status,
+  ]);
 
   const formatCodeForToast = (code: string) => {
     const trimmed = code.trim();
