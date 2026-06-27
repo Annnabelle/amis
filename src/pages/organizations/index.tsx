@@ -27,6 +27,7 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -34,10 +35,8 @@ const Organizations = () => {
     const dispatch = useAppDispatch()
     const canReadCompany = useCan(endpointAccessMap.companiesRead);
     const canCreateCompany = useCan(endpointAccessMap.companiesCreate);
-    const canValidateXTrace = useCan(endpointAccessMap.companiesValidateXTrace);
     const canDeleteCompany = useCan(endpointAccessMap.companiesDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
-    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const organizations = useAppSelector((state) => state.organizations.organizations)
     const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)
@@ -52,12 +51,14 @@ const Organizations = () => {
     const productGroupReferences = useAppSelector(
         (state) => state.references.references.productGroup
     ) ?? [];
+    const referencesError = useAppSelector((state) => state.references.error);
+    const referencesLoading = useAppSelector((state) => state.references.loading);
+    const xTraceError = useAppSelector((state) => state.xTrace.error);
+    const xTraceLoading = useAppSelector((state) => state.xTrace.loading);
 
     useEffect(() => {
-        if (canReadReferences) {
-            dispatch(fetchReferencesByType("productGroup"));
-        }
-    }, [canReadReferences, dispatch]);
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
 
     useEffect(() => {
         if (!organizationById) return;
@@ -327,7 +328,7 @@ const Organizations = () => {
                     {canReadAudit && (
                         <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                     )}
-                    {canCreateCompany && canValidateXTrace && canReadReferences && (
+                    {canCreateCompany && (
                         <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
                     )}
                 </div>
@@ -385,6 +386,13 @@ const Organizations = () => {
                 </div>
             </div>
             <ModalWindow maskClosable={false}  className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
+                <RequiredDataAlert
+                    endpoints={[
+                        endpointAccessMap.companiesValidateXTrace,
+                        endpointAccessMap.referencesRead,
+                    ]}
+                    errors={[xTraceError, referencesError]}
+                />
                 <FormComponent
                     form={form}
                     onFinish={handleCreateCompany}
@@ -855,7 +863,17 @@ const Organizations = () => {
                             {/*        />*/}
                             {/*    </Form.Item>*/}
                             {/*</div>*/}
-                            <CustomButton type="submit">{t('btn.create')}</CustomButton>
+                            <CustomButton
+                                type="submit"
+                                disabled={
+                                    referencesLoading ||
+                                    xTraceLoading ||
+                                    Boolean(referencesError) ||
+                                    Boolean(xTraceError)
+                                }
+                            >
+                                {t('btn.create')}
+                            </CustomButton>
                         </>
                     )}
                 </FormComponent>

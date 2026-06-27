@@ -9,13 +9,13 @@ import ComponentTable from "shared/ui/table";
 import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orderProduct/types.ts";
 import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/orderProduct";
 import MarkingCodeProductBatches from "./batches.tsx";
-import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const MarkingCodeProduct = () => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
-    const canReadCodes = useCan(endpointAccessMap.codesRead);
+    const requestError = useAppSelector((state) => state.markingCodes.error)
     const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
     const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
     const [page, setPage] = useState(1);
@@ -26,10 +26,10 @@ const MarkingCodeProduct = () => {
     }>();
 
     useEffect(() => {
-        if (!orderId || !batchId || !canReadCodes) return;
+        if (!orderId || !batchId) return;
 
         dispatch(getOrderProduct({ orderId, batchId, page, limit }));
-    }, [canReadCodes, dispatch, orderId, batchId, page, limit]);
+    }, [dispatch, orderId, batchId, page, limit]);
 
     useEffect(() => {
         if (!orderId || !batchId) return;
@@ -57,11 +57,14 @@ const MarkingCodeProduct = () => {
 
     return (
     <MainLayout>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.codesRead, endpointAccessMap.ordersRead]}
+            errors={[requestError]}
+        />
         <Heading 
             title={`${t('markingCodes.tableTitles.batchNumber')}: ${orderProductBatch?.batchNumber}`}
         />
         <MarkingCodeProductBatches/>
-        {canReadCodes && (
         <div className="box">
             <div className="box-container">
                 {/*<div className="box-container-items">*/}
@@ -94,7 +97,6 @@ const MarkingCodeProduct = () => {
                 </div>
             </div>
         </div>
-        )}
     </MainLayout>
   )
 }

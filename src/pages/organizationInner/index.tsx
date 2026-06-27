@@ -13,8 +13,8 @@ import dayjs from "dayjs";
 import {fetchReferencesByType} from "entities/references/model";
 import { setCurrentCompanyId } from "entities/access/model";
 import { AccessModules, type AccessModule } from "entities/access/types";
-import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
@@ -25,7 +25,6 @@ const OrganizationsInner = () => {
     const isMobile = useIsMobile();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? [])
-    const canReadReferences = useCan(endpointAccessMap.referencesRead);
 
     const [form] = Form.useForm()
 
@@ -33,12 +32,11 @@ const OrganizationsInner = () => {
     const productGroupReferences = useAppSelector(
         (state) => state.references.references.productGroup
     ) ?? [];
+    const referencesError = useAppSelector((state) => state.references.error);
 
     useEffect(() => {
-        if (canReadReferences) {
-            dispatch(fetchReferencesByType("productGroup"));
-        }
-    }, [canReadReferences, dispatch]);
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
 
     useEffect(() => {
         if (organizationById) {
@@ -127,6 +125,10 @@ const OrganizationsInner = () => {
 
   return (
     <MainLayout>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.referencesRead]}
+            errors={[referencesError]}
+        />
         {!isMobile && (
         <>
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')} totalAmount='100'>

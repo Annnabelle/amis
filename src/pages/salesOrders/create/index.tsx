@@ -15,8 +15,8 @@ import { getCompanyByTin } from 'entities/organization/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { SalesOrderPriorities } from 'shared/types/dtos';
-import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const TIN_LENGTH = 9;
 
@@ -25,12 +25,12 @@ const SalesOrdersCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const canReadCompanyLegalInfo = useCan(endpointAccessMap.companiesByTin);
-  const canListProducts = useCan(endpointAccessMap.productsList);
-  const products = useAppSelector((state) => state.products.products);
+  const { products, isLoading: productsLoading, error: productsError } =
+    useAppSelector((state) => state.products);
   const [form] = Form.useForm<SalesOrderFormValues>();
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
   const [isCompanyFound, setIsCompanyFound] = useState(false);
+  const [companyLookupError, setCompanyLookupError] = useState<string | null>(null);
   const companyLookupRequestRef = useRef(0);
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
@@ -132,11 +132,7 @@ const SalesOrdersCreate = () => {
       },
     });
     setIsCompanyFound(false);
-
-    if (!canReadCompanyLegalInfo) {
-      setIsSearchingCompany(false);
-      return;
-    }
+    setCompanyLookupError(null);
 
     if (normalized.length !== TIN_LENGTH || /^0+$/.test(normalized)) {
       setIsSearchingCompany(false);
@@ -166,16 +162,18 @@ const SalesOrdersCreate = () => {
       });
       setIsCompanyFound(true);
       setIsSearchingCompany(false);
-    } catch {
+    } catch (error: unknown) {
       if (requestId === companyLookupRequestRef.current) {
         setIsSearchingCompany(false);
-        toast.error(t('salesOrders.validation.customerCompanyNotFound'));
+        const message = getBackendErrorMessage(error, t('common.error'));
+        setCompanyLookupError(message);
+        toast.error(message);
       }
     }
   };
 
   useEffect(() => {
-    if (!orgId || !canListProducts) return;
+    if (!orgId) return;
     dispatch(
       searchProducts({
         query: '',
@@ -184,10 +182,10 @@ const SalesOrdersCreate = () => {
         sortOrder: 'asc',
       })
     );
-  }, [canListProducts, dispatch, orgId]);
+  }, [dispatch, orgId]);
 
   const handleProductSearch = (value: string) => {
-    if (!orgId || !canListProducts || !value.trim()) return;
+    if (!orgId || !value.trim()) return;
     dispatch(
       searchProducts({
         query: value,
@@ -225,6 +223,13 @@ const SalesOrdersCreate = () => {
   return (
     <MainLayout>
       <Heading title={t('salesOrders.title')} subtitle={t('common.create')} />
+      <RequiredDataAlert
+        endpoints={[
+          endpointAccessMap.companiesByTin,
+          endpointAccessMap.productsList,
+        ]}
+        errors={[companyLookupError, productsError]}
+      />
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -545,8 +550,9 @@ const SalesOrdersCreate = () => {
                   type="submit"
                   disabled={
                     !isCompanyFound ||
-                    !canReadCompanyLegalInfo ||
-                    !canListProducts
+                    productsLoading ||
+                    Boolean(companyLookupError) ||
+                    Boolean(productsError)
                   }
                 >
                   {t('salesOrders.actions.create')}

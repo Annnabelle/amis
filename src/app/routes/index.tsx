@@ -57,7 +57,7 @@ const Router: React.FC = () => {
         <Route path='/organization/:orgId/products/:id/edit' element={protectedPage(routeAccess.productsUpdate, <ProductsEdit/>)}/>
         <Route path='/organization/:id/orders' element={protectedPage(routeAccess.ordersList, <MarkingCodes/>)}/>
         <Route path='/organization/:orgId/orders/:orderId' element={protectedPage(routeAccess.ordersRead, <Batches/>)}/>
-        <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={protectedPage(routeAccess.ordersRead, <MarkingCodeProduct/>)}/>
+        <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={protectedPage(routeAccess.codesRead, <MarkingCodeProduct/>)}/>
         <Route path='/organization/:id/agregations' element={protectedPage(routeAccess.reportsList, <Aggregations/>)}/>
         <Route path='/organization/:orgId/aggregations/:id' element={protectedPage(routeAccess.reportsRead, <AggregationReportPage/>)}/>
         <Route path='/organization/:orgId/sales-orders' element={protectedPage(routeAccess.salesOrdersList, <SalesOrdersList/>)} />

@@ -43,6 +43,17 @@ axiosInstance.interceptors.request.use((config) => {
     config.method,
     getRequestPathname(config.url)
   );
+  if (!endpointAccess) {
+    const method = config.method?.toUpperCase() ?? 'UNKNOWN';
+    const pathname = getRequestPathname(config.url) || config.url || 'UNKNOWN';
+
+    return Promise.reject(
+      new Error(
+        `[EndpointAccessMap] ${method} ${pathname} is not registered`
+      )
+    );
+  }
+
   const companyId = getCompanyIdFromLocation() ?? getRuntimeCompanyId();
   const requiresCompanyId = endpointAccess?.scope === EndpointScopes.Company;
   const acceptsCompanyId = endpointAccess?.scope === EndpointScopes.Any;

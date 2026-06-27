@@ -23,6 +23,7 @@ import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const Aggregations = () => {
     const { t } = useTranslation();
@@ -30,13 +31,14 @@ const Aggregations = () => {
     const orgId = params.id;
     const dispatch = useAppDispatch()
     const canCreateAggregation = useCan(endpointAccessMap.aggregationReportsCreate);
-    const canListOrders = useCan(endpointAccessMap.ordersList);
     const canListProducts = useCan(endpointAccessMap.productsList);
     const aggregations = useAppSelector((state) => state.aggregations.aggregations)
     const dataLimit = useAppSelector((state) => state.aggregations.limit)
     const dataPage = useAppSelector((state) => state.aggregations.page)
     const dataTotal = useAppSelector((state) => state.aggregations.total)
     const orders = useAppSelector(state => state.markingCodes.data);
+    const ordersError = useAppSelector(state => state.markingCodes.error);
+    const ordersLoading = useAppSelector(state => state.markingCodes.loading);
     const error = useAppSelector(state => state.aggregations.error);
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
@@ -79,7 +81,7 @@ const Aggregations = () => {
     ]);
 
     useEffect(() => {
-        if (modalState.addAggregation && canListOrders) {
+        if (modalState.addAggregation) {
             dispatch(
                 fetchMarkingCodes({
                     page: 1,
@@ -88,7 +90,7 @@ const Aggregations = () => {
                 })
             );
         }
-    }, [canListOrders, modalState.addAggregation, dispatch]);
+    }, [modalState.addAggregation, dispatch]);
 
     useEffect(() => {
         if (!error) return;
@@ -218,7 +220,7 @@ const Aggregations = () => {
                 title={`${t('aggregations.title')}`}
                 subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}
             >
-                {canCreateAggregation && canListOrders && (
+                {canCreateAggregation && (
                     <CustomButton onClick={() => handleModal('addAggregation', true)}>{t('aggregations.btnAdd')}</CustomButton>
                 )}
             </Heading>
@@ -343,6 +345,10 @@ const Aggregations = () => {
                     closeModal={() => handleModal('addAggregation', false)}
                     className="modal-large"
                 >
+                    <RequiredDataAlert
+                        endpoints={[endpointAccessMap.ordersList]}
+                        errors={[ordersError]}
+                    />
                     <FormComponent onFinish={handleCreateAggregation}>
                         <div className="form-inputs">
                             <Form.Item
@@ -393,7 +399,10 @@ const Aggregations = () => {
 
 
 
-                        <CustomButton type="submit">
+                        <CustomButton
+                            type="submit"
+                            disabled={ordersLoading || Boolean(ordersError)}
+                        >
                             {t('btn.create')}
                         </CustomButton>
                     </FormComponent>

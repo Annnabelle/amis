@@ -25,6 +25,7 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
@@ -35,13 +36,13 @@ const MarkingCodes = () => {
     const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
     const canListUsers = useCan(endpointAccessMap.usersList);
     const canListProducts = useCan(endpointAccessMap.productsList);
-    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)
     const dataTotal = useAppSelector((state) => state.markingCodes.total)
     const packTypeReferences =
         useAppSelector(state => state.references.references.cisType) ?? [];
+    const referencesError = useAppSelector((state) => state.references.error);
     const { products } = useAppSelector((state) => state.products);
     const searchedUsers = useAppSelector(
         state => state.users.searchedUsers
@@ -55,10 +56,8 @@ const MarkingCodes = () => {
     }, [dispatch, queryParams]);
 
     useEffect(() => {
-        if (canReadReferences) {
-            dispatch(fetchReferencesByType("cisType"));
-        }
-    }, [canReadReferences, dispatch]);
+        dispatch(fetchReferencesByType("cisType"));
+    }, [dispatch]);
 
     const packageTypeMap = useMemo(() => {
         const lang = i18n.language as keyof (typeof packTypeReferences)[number]["title"];
@@ -165,6 +164,10 @@ const MarkingCodes = () => {
 
     return (
     <MainLayout>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.referencesRead]}
+            errors={[referencesError]}
+        />
         <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
                 {canCreateOrder && (

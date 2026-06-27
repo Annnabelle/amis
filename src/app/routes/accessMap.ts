@@ -22,6 +22,7 @@ export const routeAccess = {
 
   ordersList: endpointAccessMap.ordersList,
   ordersRead: endpointAccessMap.ordersRead,
+  codesRead: endpointAccessMap.codesRead,
 
   reportsList: endpointAccessMap.aggregationReportsList,
   reportsRead: endpointAccessMap.aggregationReportsRead,

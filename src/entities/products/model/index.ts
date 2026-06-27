@@ -247,6 +247,10 @@ export const productsSlice = createSlice({
             state.isLoading = false;
             state.error = action.payload as string;
         })
+        .addCase(searchProducts.pending, (state) => {
+          state.isLoading = true;
+          state.error = null;
+        })
         .addCase(searchProducts.fulfilled, (state, action) => {
           const { data = [], total, page, limit } = action.payload;
 
@@ -263,6 +267,11 @@ export const productsSlice = createSlice({
           state.total = total;
           state.page = page;
           state.limit = limit;
+          state.isLoading = false;
+        })
+        .addCase(searchProducts.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.payload as string;
         })
 
         .addCase(createProduct.pending, (state) => {

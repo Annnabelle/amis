@@ -25,6 +25,7 @@ import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -36,8 +37,6 @@ const Products = () => {
     const canUpdateProduct = useCan(endpointAccessMap.productsUpdate);
     const canDeleteProduct = useCan(endpointAccessMap.productsDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
-    const canReadCompany = useCan(endpointAccessMap.companiesRead);
-    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const products = useAppSelector((state) => state.products.products)
     const dataLimit = useAppSelector((state) => state.products.limit)
     const dataPage = useAppSelector((state) => state.products.page)
@@ -53,12 +52,16 @@ const Products = () => {
     type Lang = LangKey[number];
     const orgId = id
     const company = useAppSelector(state => state.organizations.organizationById)
+    const companyError = useAppSelector(state => state.organizations.error)
+    const companyLoading = useAppSelector(state => state.organizations.isLoading)
+    const referencesError = useAppSelector(state => state.references.error)
+    const referencesLoading = useAppSelector(state => state.references.loading)
 
     useEffect(() => {
-        if (id && canReadCompany){
+        if (id){
             dispatch(getOrganizationById({id: id}))
         }
-    }, [canReadCompany, dispatch, id])
+    }, [dispatch, id])
 
     const currentLang = (i18n.language as Lang) || 'en';
     const productGroupTitleByAlias = useMemo(() => {
@@ -83,11 +86,9 @@ const Products = () => {
     }, [company?.productGroups, productGroupReferences])
 
     useEffect(() => {
-        if (canReadReferences) {
-            dispatch(fetchReferencesByType("countryCode"));
-            dispatch(fetchReferencesByType("productGroup"));
-        }
-    }, [canReadReferences, dispatch]);
+        dispatch(fetchReferencesByType("countryCode"));
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
@@ -292,7 +293,7 @@ const Products = () => {
                     {canReadAudit && (
                         <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                     )}
-                    {canCreateProduct && canReadCompany && canReadReferences && (
+                    {canCreateProduct && (
                         <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
                     )}
                 </div>
@@ -356,6 +357,13 @@ const Products = () => {
             closeModal={() => handleModal('addProduct', false)}
             className="modal-large"
             >
+            <RequiredDataAlert
+                endpoints={[
+                    endpointAccessMap.companiesRead,
+                    endpointAccessMap.referencesRead,
+                ]}
+                errors={[companyError, referencesError]}
+            />
             <FormComponent onFinish={handleRegisterProduct}
               form={form}
                 onValuesChange={(changedValues) => {
@@ -648,7 +656,17 @@ const Products = () => {
                     </Form.Item>
                 </div>
 
-                <CustomButton type="submit">{t('btn.create')}</CustomButton>
+                <CustomButton
+                    type="submit"
+                    disabled={
+                        companyLoading ||
+                        referencesLoading ||
+                        Boolean(companyError) ||
+                        Boolean(referencesError)
+                    }
+                >
+                    {t('btn.create')}
+                </CustomButton>
             </FormComponent>
         </ModalWindow>
         <ModalWindow

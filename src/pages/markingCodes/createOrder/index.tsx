@@ -13,8 +13,8 @@ import { useEffect, useState } from "react";
 import { fetchReferencesByType } from "entities/references/model";
 import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
-import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 type OrderFormValues = {
   items: {
@@ -37,10 +37,6 @@ const OrderForm = () => {
   const { id } = useParams<{ id: string }>();
   const orgId = id;
   const dispatch = useAppDispatch();
-  const canReadReferences = useCan(endpointAccessMap.referencesRead);
-  const canListProducts = useCan(endpointAccessMap.productsList);
-  const canReadProduct = useCan(endpointAccessMap.productsRead);
-
   const generateOptions = [
     { value: "self", label: t("markingCodes.independently") },
     { value: "operator", label: t("markingCodes.byOperator") },
@@ -49,9 +45,16 @@ const OrderForm = () => {
   const packTypeReferences =
       useAppSelector((state) => state.references.references.cisType) ?? [];
 
-  const { products, productById: rawProductById } = useAppSelector(
+  const {
+    products,
+    productById: rawProductById,
+    isLoading: productsLoading,
+    error: productsError,
+  } = useAppSelector(
       (state) => state.products
   );
+  const referencesLoading = useAppSelector((state) => state.references.loading);
+  const referencesError = useAppSelector((state) => state.references.error);
 
   // --- безопасный объект productById для TS ---
   const productById: Record<string, Product> = rawProductById
@@ -62,21 +65,17 @@ const OrderForm = () => {
 
   // --- Загрузка справочников ---
   useEffect(() => {
-    if (canReadReferences) {
-      dispatch(fetchReferencesByType("cisType"));
-    }
-  }, [canReadReferences, dispatch]);
+    dispatch(fetchReferencesByType("cisType"));
+  }, [dispatch]);
 
   // --- Начальный поиск продуктов ---
   useEffect(() => {
-    if (canListProducts) {
-      dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc" }));
-    }
-  }, [canListProducts, dispatch]);
+    dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc" }));
+  }, [dispatch]);
 
   // --- Поиск продуктов при вводе ---
   const handleProductSearch = (value: string) => {
-    if (canListProducts && value.trim()) {
+    if (value.trim()) {
       dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
     }
   };
@@ -109,6 +108,15 @@ const OrderForm = () => {
   };
 
   return (
+    <>
+      <RequiredDataAlert
+        endpoints={[
+          endpointAccessMap.referencesRead,
+          endpointAccessMap.productsList,
+          endpointAccessMap.productsRead,
+        ]}
+        errors={[referencesError, productsError]}
+      />
       <FormComponent form={form} onFinish={handleCreateMarkingCode}>
         <Form.List name="items" initialValue={[{}]}>
           {(fields, { add, remove }) => (
@@ -133,9 +141,7 @@ const OrderForm = () => {
                             onSearch={handleProductSearch}
                             onChange={(productId) => {
                               form.setFieldValue(["items", field.name, "packType"], undefined);
-                              if (canReadProduct) {
-                                dispatch(getProductById({ id: productId }));
-                              }
+                              dispatch(getProductById({ id: productId }));
                             }}
                             options={products.map((product) => ({
                               value: product.id,
@@ -245,9 +251,10 @@ const OrderForm = () => {
         <CustomButton
           disabled={
             isSubmitting ||
-            !canReadReferences ||
-            !canListProducts ||
-            !canReadProduct
+            referencesLoading ||
+            productsLoading ||
+            Boolean(referencesError) ||
+            Boolean(productsError)
           }
           type="submit"
           className="outline full-width"
@@ -255,6 +262,7 @@ const OrderForm = () => {
           {t("markingCodes.orderCreation.submitOrder")}
         </CustomButton>
       </FormComponent>
+    </>
   );
 };
 
