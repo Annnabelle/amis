@@ -23,15 +23,15 @@ import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Users = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
-    const canReadUser = useCan(Permissions.UsersRead, 'GLOBAL');
-    const canUpdateUser = useCan(Permissions.UsersUpdate, 'GLOBAL');
-    const canDeleteUser = useCan(Permissions.UsersDelete, 'GLOBAL');
-    const canReadAudit = useCan(Permissions.AuditList, 'GLOBAL');
+    const canReadUser = useCan(endpointAccessMap.usersRead);
+    const canUpdateUser = useCan(endpointAccessMap.usersUpdate);
+    const canDeleteUser = useCan(endpointAccessMap.usersDelete);
+    const canReadAudit = useCan(endpointAccessMap.auditList);
     const navigate = useNavigate();
     const users = useAppSelector((state) => state.users.users)
     const dataLimit = useAppSelector((state) => state.users.limit)

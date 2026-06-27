@@ -14,13 +14,13 @@ import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'
 import PhoneInput from 'shared/ui/phoneInput'
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const UsersEdit = () => {
     const { id } = useParams();
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    const canListCompanies = useCan(Permissions.CompaniesList, 'GLOBAL');
+    const canListCompanies = useCan(endpointAccessMap.companiesList);
     const userById = useAppSelector((state) => state.users.userById);
     const organizations = useAppSelector((state) => state.organizations.organizations);
     const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations);

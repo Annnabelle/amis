@@ -16,7 +16,7 @@ import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
 const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
@@ -27,10 +27,10 @@ const InvoicesDetails = () => {
   const dispatch = useAppDispatch();
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const { t } = useTranslation();
-  const canReadSalesOrder = useCan(Permissions.SalesOrdersRead, 'COMPANY');
-  const canReadDeliveryRoute = useCan(Permissions.DeliveryRoutesRead, 'COMPANY');
-  const canReadDeliveryTask = useCan(Permissions.DeliveryTasksRead, 'COMPANY');
-  const canReadCompany = useCan(Permissions.CompaniesRead, 'GLOBAL');
+  const canReadSalesOrder = useCan(endpointAccessMap.salesOrdersRead);
+  const canReadDeliveryRoute = useCan(endpointAccessMap.deliveryRoutesRead);
+  const canReadDeliveryTask = useCan(endpointAccessMap.deliveryTasksRead);
+  const canReadCompany = useCan(endpointAccessMap.companiesRead);
 
   const invoice = useAppSelector((state) => state.invoices.invoiceById);
   const isLoading = useAppSelector((state) => state.invoices.loadingById);

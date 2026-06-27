@@ -281,7 +281,7 @@ export const unassignUserToCompany = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axiosInstance.patch(`/users/${userId}/companies/unassign `, {
+      const response = await axiosInstance.patch(`/users/${userId}/companies/unassign`, {
         companyId,
       });
       return response.data;

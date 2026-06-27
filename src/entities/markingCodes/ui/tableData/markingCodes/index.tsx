@@ -5,7 +5,7 @@ import type { MarkingCodesTableDataType } from './types';
 import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 import { PermissionLink } from "entities/access/ui";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, handleAppoint: (
     e: React.MouseEvent,
@@ -19,8 +19,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     key: "batchNumber",
     render: (_, record) => (
       <PermissionLink
-        permission={Permissions.OrdersRead}
-        scope="COMPANY"
+        endpoint={endpointAccessMap.ordersRead}
         className="table-text link"
         to={`/organization/${orgId}/orderId/${record?.orderId}/batchId/${record?.batchId}`}
       >
@@ -36,8 +35,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     key: "orderNumber",
     render: (_, record) => (
       <PermissionLink
-        permission={Permissions.OrdersRead}
-        scope="COMPANY"
+        endpoint={endpointAccessMap.ordersRead}
         className="table-text link"
         to={`/organization/${orgId}/orders/${record?.orderId}`}
       >
@@ -52,8 +50,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     key: "productName",
     render: (_, record) => (
       <PermissionLink
-        permission={Permissions.ProductsRead}
-        scope="COMPANY"
+        endpoint={endpointAccessMap.productsRead}
         className="table-text link"
         to={`/organization/${orgId}/products/${record?.productId}`}
         style={{

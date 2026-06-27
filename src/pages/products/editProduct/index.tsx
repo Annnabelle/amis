@@ -13,13 +13,13 @@ import FormComponent from 'shared/ui/formComponent';
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const ProductsEdit = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
-    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
+    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const productById = useAppSelector((state) => state.products.productById)
     const navigateBack = useNavigationBack();
     const productGroupReferences =

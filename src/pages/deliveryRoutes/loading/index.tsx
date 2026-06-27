@@ -22,7 +22,7 @@ import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { completeDeliveryRouteLoading } from 'entities/deliveryRoutes/model';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const SCAN_CACHE_PREFIX = 'loading-scans';
 const SCAN_RESULT_TOAST_ID = 'loading-scan-result';
@@ -52,11 +52,11 @@ const DeliveryRoutesLoading = () => {
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const isClosingSession = false;
-  const canCreateScanSession = useCan(Permissions.ScanSessionsCreate, 'COMPANY');
-  const canScan = useCan(Permissions.ScanSessionsScan, 'COMPANY');
-  const canCancelScan = useCan(Permissions.ScanSessionsCancelScan, 'COMPANY');
-  const canCompleteScanSession = useCan(Permissions.ScanSessionsComplete, 'COMPANY');
-  const canCompleteLoading = useCan(Permissions.DeliveryRoutesCompleteLoading, 'COMPANY');
+  const canCreateScanSession = useCan(endpointAccessMap.scanSessionsCreate);
+  const canScan = useCan(endpointAccessMap.scanSessionsScan);
+  const canCancelScan = useCan(endpointAccessMap.scanSessionsCancelScan);
+  const canCompleteScanSession = useCan(endpointAccessMap.scanSessionsComplete);
+  const canCompleteLoading = useCan(endpointAccessMap.deliveryRoutesCompleteLoading);
   const canCompleteOperation =
     canCompleteLoading &&
     (scanSession?.status !== 'active' || canCompleteScanSession);

@@ -1,32 +1,26 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useEffect } from 'react';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import ComponentTable from 'shared/ui/table';
-import ModalWindow from 'shared/ui/modalWindow';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { deleteSalesOrder, getSalesOrders } from 'entities/salesOrders/model';
+import { getSalesOrders } from 'entities/salesOrders/model';
 import { SalesOrdersTableColumns } from 'entities/salesOrders/ui/tableData/salesOrders';
 import type { SalesOrdersTableDataType } from 'entities/salesOrders/ui/tableData/salesOrders/types';
-import { toast } from 'react-toastify';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const SalesOrdersList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const canCreateSalesOrder = useCan(
-    Permissions.SalesOrdersCreate,
-    'COMPANY'
+  const canCreateSalesOrder = useCan(endpointAccessMap.salesOrdersCreate
   );
-  const canReadSalesOrder = useCan(
-    Permissions.SalesOrdersRead,
-    'COMPANY'
+  const canReadSalesOrder = useCan(endpointAccessMap.salesOrdersRead
   );
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const dataLimit = useAppSelector((state) => state.salesOrders.limit);
@@ -64,32 +58,6 @@ const SalesOrdersList = () => {
     }));
   }, [orders, t]);
   
-  const [modalState, setModalState] = useState<{
-    deleteOrder: boolean;
-    orderData: SalesOrdersTableDataType | null;
-  }>({
-    deleteOrder: false,
-    orderData: null,
-  });
-
-  const confirmDelete = async () => {
-    if (!modalState.orderData) return;
-    try {
-      await dispatch(deleteSalesOrder({ id: modalState.orderData.key })).unwrap();
-      toast.success(t('salesOrders.messages.success.delete'));
-      setModalState({ deleteOrder: false, orderData: null });
-      dispatch(
-        getSalesOrders({
-          page: dataPage || 1,
-          limit: dataLimit || 10,
-          sortOrder: 'desc',
-        })
-      );
-    } catch (err) {
-      toast.error(t('salesOrders.messages.error.delete'));
-    }
-  };
-
   return (
     <MainLayout>
       <Heading title={t('salesOrders.title')} subtitle={t('common.total')} totalAmount={`${dataTotal}`}>
@@ -139,31 +107,6 @@ const SalesOrdersList = () => {
           </div>
         </div>
       </div>
-      <ModalWindow
-        titleAction={t('salesOrders.modalWindow.deletion')}
-        title={t('salesOrders.modalWindow.order')}
-        openModal={modalState.deleteOrder}
-        closeModal={() => setModalState({ deleteOrder: false, orderData: null })}
-        classDangerName="danger-title"
-      >
-        <div className="delete-modal">
-          <div className="delete-modal-title">
-            <p className="title">{t('salesOrders.deleteQuestion')}: </p>
-            <p className="subtitle">{modalState.orderData?.orderNumber} ?</p>
-          </div>
-          <div className="delete-modal-btns">
-            <CustomButton className="danger" onClick={confirmDelete}>
-              {t('btn.delete')}
-            </CustomButton>
-            <CustomButton
-              onClick={() => setModalState({ deleteOrder: false, orderData: null })}
-              className="outline"
-            >
-              {t('btn.cancel')}
-            </CustomButton>
-          </div>
-        </div>
-      </ModalWindow>
     </MainLayout>
   );
 };

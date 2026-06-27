@@ -1,38 +1,34 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Link, type LinkProps } from 'react-router-dom';
-import { useCan, type PermissionScope } from 'entities/access/lib';
-import type { Permission } from 'entities/access/types';
+import { useCan } from 'entities/access/lib';
+import type { StaticEndpointAccess } from 'shared/config/endpointAccessMap';
 
 type CanProps = {
-  permission: Permission;
-  scope: PermissionScope;
+  endpoint: StaticEndpointAccess;
   children: ReactNode;
   fallback?: ReactNode;
 };
 
 export const Can = ({
-  permission,
-  scope,
+  endpoint,
   children,
   fallback = null,
 }: CanProps) =>
-  useCan(permission, scope) ? children : fallback;
+  useCan(endpoint) ? children : fallback;
 
 type PermissionLinkProps = Omit<LinkProps, 'children'> & {
-  permission: Permission;
-  scope: PermissionScope;
+  endpoint: StaticEndpointAccess;
   children: ReactNode;
   fallbackStyle?: CSSProperties;
 };
 
 export const PermissionLink = ({
-  permission,
-  scope,
+  endpoint,
   children,
   fallbackStyle,
   ...linkProps
 }: PermissionLinkProps) => {
-  const allowed = useCan(permission, scope);
+  const allowed = useCan(endpoint);
 
   if (!allowed) {
     return <span style={fallbackStyle}>{children}</span>;

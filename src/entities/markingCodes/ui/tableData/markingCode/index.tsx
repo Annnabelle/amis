@@ -3,7 +3,7 @@ import type { TFunction } from 'i18next';
 import type { BatchTableDataType } from '../markingCodes/types';
 import {statusColors} from "shared/ui/statuses.tsx";
 import { PermissionLink } from "entities/access/ui";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined) : TableProps<BatchTableDataType>["columns"] => [
   {
@@ -12,8 +12,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
     key: "batchNumber",
     render: (_, record) => (
       <PermissionLink
-        permission={Permissions.OrdersRead}
-        scope="COMPANY"
+        endpoint={endpointAccessMap.ordersRead}
         className="table-text link"
         // to=""
         to={`/organization/${orgId}/orderId/${record?.id}/batchId/${record?.batchId}`}
@@ -28,8 +27,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
     key: "productName",
     render: (_, record) => (
       <PermissionLink
-        permission={Permissions.ProductsRead}
-        scope="COMPANY"
+        endpoint={endpointAccessMap.productsRead}
         className="table-text link"
         to={`/organization/${orgId}/products/${record?.productId}`}
       >

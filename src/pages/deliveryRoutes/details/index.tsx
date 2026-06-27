@@ -20,7 +20,7 @@ import { useIsMobile } from 'shared/lib';
 import { toast } from 'react-toastify';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
@@ -37,11 +37,11 @@ const DeliveryRoutesDetails = () => {
   const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
   const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
-  const canStartLoading = useCan(Permissions.DeliveryRoutesStartLoading, 'COMPANY');
-  const canStartTransitPermission = useCan(Permissions.DeliveryRoutesStartTransit, 'COMPANY');
-  const canStartReturn = useCan(Permissions.DeliveryRoutesStartReturn, 'COMPANY');
-  const canStartHandover = useCan(Permissions.DeliveryTasksStartHandover, 'COMPANY');
-  const canListTasks = useCan(Permissions.DeliveryTasksList, 'COMPANY');
+  const canStartLoading = useCan(endpointAccessMap.deliveryRoutesStartLoading);
+  const canStartTransitPermission = useCan(endpointAccessMap.deliveryRoutesStartTransit);
+  const canStartReturn = useCan(endpointAccessMap.deliveryRoutesStartReturn);
+  const canStartHandover = useCan(endpointAccessMap.deliveryTasksStartHandover);
+  const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
   const canOpenLoading = Boolean(
     canStartLoading &&
       route?.status &&

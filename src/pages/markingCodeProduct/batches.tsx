@@ -10,7 +10,7 @@ import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard'
 import "./styles.sass"
 import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -44,8 +44,7 @@ const MarkingCodeProductBatches = () => {
                     {orderProductBatch?.productName && (
                         <div className="product-title">
                             <PermissionLink
-                                permission={Permissions.ProductsRead}
-                                scope="COMPANY"
+                                endpoint={endpointAccessMap.productsRead}
                                 to={
                                     orgId
                                         ? `/organization/${orgId}/products/${orderProductBatch.productId}`
@@ -85,8 +84,7 @@ const MarkingCodeProductBatches = () => {
                     <div className="grid">
                         <BatchItem label={t('markingCodes.batches.batchData.orderNumber')}>
                             <PermissionLink
-                                permission={Permissions.OrdersRead}
-                                scope="COMPANY"
+                                endpoint={endpointAccessMap.ordersRead}
                                 to={
                                     orgId
                                         ? `/organization/${orgId}/orders/${orderProductBatch?.order.id}`

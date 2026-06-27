@@ -24,18 +24,18 @@ import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const orgId = id
     const dispatch = useAppDispatch()
-    const canCreateOrder = useCan(Permissions.OrdersCreate, 'COMPANY');
-    const canCreateUtilization = useCan(Permissions.ReportsCreateUtilization, 'COMPANY');
-    const canListUsers = useCan(Permissions.UsersList, 'GLOBAL');
-    const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
-    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
+    const canCreateOrder = useCan(endpointAccessMap.ordersCreate);
+    const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
+    const canListUsers = useCan(endpointAccessMap.usersList);
+    const canListProducts = useCan(endpointAccessMap.productsList);
+    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)

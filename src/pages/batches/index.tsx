@@ -15,13 +15,13 @@ import {createUtilizationReport} from "entities/utilization/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Batches = () => {
     const navigate = useNavigate()
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
-    const canCreateUtilization = useCan(Permissions.ReportsCreateUtilization, 'COMPANY');
+    const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
     const { orgId, orderId } = useParams<{
         orgId: string;
         orderId: string;

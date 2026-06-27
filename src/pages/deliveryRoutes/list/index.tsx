@@ -12,7 +12,7 @@ import { DeliveryRoutesTableColumns } from 'entities/deliveryRoutes/ui/tableData
 import type { DeliveryRoutesTableDataType } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes/types';
 import { useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const DeliveryRoutesList = () => {
   const navigate = useNavigate();
@@ -20,8 +20,8 @@ const DeliveryRoutesList = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  const canCreateRoute = useCan(Permissions.DeliveryRoutesCreate, 'COMPANY');
-  const canReadRoute = useCan(Permissions.DeliveryRoutesRead, 'COMPANY');
+  const canCreateRoute = useCan(endpointAccessMap.deliveryRoutesCreate);
+  const canReadRoute = useCan(endpointAccessMap.deliveryRoutesRead);
 
   const routes = useAppSelector((state) => state.deliveryRoutes.routes);
   const dataTotal = useAppSelector((state) => state.deliveryRoutes.total);

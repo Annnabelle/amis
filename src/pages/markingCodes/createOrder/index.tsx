@@ -14,7 +14,7 @@ import { fetchReferencesByType } from "entities/references/model";
 import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 type OrderFormValues = {
   items: {
@@ -37,9 +37,9 @@ const OrderForm = () => {
   const { id } = useParams<{ id: string }>();
   const orgId = id;
   const dispatch = useAppDispatch();
-  const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
-  const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
-  const canReadProduct = useCan(Permissions.ProductsRead, 'COMPANY');
+  const canReadReferences = useCan(endpointAccessMap.referencesRead);
+  const canListProducts = useCan(endpointAccessMap.productsList);
+  const canReadProduct = useCan(endpointAccessMap.productsRead);
 
   const generateOptions = [
     { value: "self", label: t("markingCodes.independently") },

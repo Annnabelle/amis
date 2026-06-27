@@ -26,18 +26,18 @@ import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Organizations = () => {
     const navigate = useNavigate()
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
-    const canReadCompany = useCan(Permissions.CompaniesRead, 'GLOBAL');
-    const canCreateCompany = useCan(Permissions.CompaniesCreate, 'GLOBAL');
-    const canValidateXTrace = useCan(Permissions.CompaniesValidateXTraceToken, 'GLOBAL');
-    const canDeleteCompany = useCan(Permissions.CompaniesDelete, 'GLOBAL');
-    const canReadAudit = useCan(Permissions.AuditList, 'GLOBAL');
-    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
+    const canReadCompany = useCan(endpointAccessMap.companiesRead);
+    const canCreateCompany = useCan(endpointAccessMap.companiesCreate);
+    const canValidateXTrace = useCan(endpointAccessMap.companiesValidateXTrace);
+    const canDeleteCompany = useCan(endpointAccessMap.companiesDelete);
+    const canReadAudit = useCan(endpointAccessMap.auditList);
+    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const organizations = useAppSelector((state) => state.organizations.organizations)
     const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations)
     const dataLimit = useAppSelector((state) => state.organizations.limit)

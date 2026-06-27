@@ -10,14 +10,14 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const InvoicesList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const canReadInvoice = useCan(Permissions.InvoicesRead, 'COMPANY');
+  const canReadInvoice = useCan(endpointAccessMap.invoicesRead);
 
   const invoices = useAppSelector((state) => state.invoices.invoices);
   const dataLimit = useAppSelector((state) => state.invoices.limit);

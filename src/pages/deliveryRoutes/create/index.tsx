@@ -19,8 +19,8 @@ import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
 import { PermissionLink } from 'entities/access/ui';
-import { Permissions } from 'entities/access/types';
 import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const getPriorityColor = (priority?: string) => {
   if (!priority) return 'default';
@@ -44,8 +44,8 @@ const DeliveryRoutesCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const canListSalesOrders = useCan(Permissions.SalesOrdersList, 'COMPANY');
-  const canListUsers = useCan(Permissions.UsersList, 'GLOBAL');
+  const canListSalesOrders = useCan(endpointAccessMap.salesOrdersList);
+  const canListUsers = useCan(endpointAccessMap.usersList);
   const organizations = useAppSelector((state) => state.organizations.organizations);
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const isOrdersLoading = useAppSelector((state) => state.salesOrders.isLoading);
@@ -297,8 +297,7 @@ const DeliveryRoutesCreate = () => {
         flex: 1,
         render: (_, record) => (
           <PermissionLink
-            permission={Permissions.SalesOrdersRead}
-            scope="COMPANY"
+            endpoint={endpointAccessMap.salesOrdersRead}
             className="table-text link"
             to={
               orgId

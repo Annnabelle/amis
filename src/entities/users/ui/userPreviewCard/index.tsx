@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from 'app/store';
 import { getUserPreview } from 'entities/users/model';
 import type { UserPreview } from 'entities/users/types';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const { Text } = Typography;
 
@@ -24,7 +24,7 @@ const statusColorMap: Record<string, string> = {
 
 const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
   const { t } = useTranslation();
-  const canReadUser = useCan(Permissions.UsersRead, 'GLOBAL');
+  const canReadUser = useCan(endpointAccessMap.usersRead);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || '-';
   const phoneDisplay = user.phone ? (user.phone.startsWith('+') ? user.phone : `+${user.phone}`) : '-';
   const iconChipStyle = {
@@ -169,7 +169,7 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
 export const UserPreviewCardById = ({ userId, compact = false }: { userId: string; compact?: boolean }) => {
   const dispatch = useAppDispatch();
   const preview = useAppSelector((state) => state.users.userPreviewById[userId]);
-  const canPreviewUser = useCan(Permissions.UsersPreview, 'ANY');
+  const canPreviewUser = useCan(endpointAccessMap.usersPreview);
 
   useEffect(() => {
     if (!userId || preview || !canPreviewUser) {

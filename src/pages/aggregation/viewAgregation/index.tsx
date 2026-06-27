@@ -18,7 +18,7 @@ import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
 import {Pagination, Select} from "antd";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 type ExportLoadingState = {
     type: "group" | "unit";
@@ -38,7 +38,7 @@ const AggregationReportPage: React.FC = () => {
 
     const exportError = useAppSelector(state => state.export.error);
     const dispatch = useAppDispatch();
-    const canExportAggregation = useCan(Permissions.ReportsExportAggregation, 'COMPANY');
+    const canExportAggregation = useCan(endpointAccessMap.aggregationReportsExport);
 
     const units = useAppSelector((state) => state.aggregations.units)
     const unitsData = id ? (units[id]?.data ?? []) : [];

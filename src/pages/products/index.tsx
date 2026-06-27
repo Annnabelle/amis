@@ -24,20 +24,20 @@ import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const canReadProduct = useCan(Permissions.ProductsRead, 'COMPANY');
-    const canCreateProduct = useCan(Permissions.ProductsCreate, 'COMPANY');
-    const canUpdateProduct = useCan(Permissions.ProductsUpdate, 'COMPANY');
-    const canDeleteProduct = useCan(Permissions.ProductsDelete, 'COMPANY');
-    const canReadAudit = useCan(Permissions.AuditList, 'GLOBAL');
-    const canReadCompany = useCan(Permissions.CompaniesRead, 'GLOBAL');
-    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
+    const canReadProduct = useCan(endpointAccessMap.productsRead);
+    const canCreateProduct = useCan(endpointAccessMap.productsCreate);
+    const canUpdateProduct = useCan(endpointAccessMap.productsUpdate);
+    const canDeleteProduct = useCan(endpointAccessMap.productsDelete);
+    const canReadAudit = useCan(endpointAccessMap.auditList);
+    const canReadCompany = useCan(endpointAccessMap.companiesRead);
+    const canReadReferences = useCan(endpointAccessMap.referencesRead);
     const products = useAppSelector((state) => state.products.products)
     const dataLimit = useAppSelector((state) => state.products.limit)
     const dataPage = useAppSelector((state) => state.products.page)

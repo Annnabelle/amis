@@ -6,19 +6,10 @@ import {
   isAuthErrorResponse,
 } from './authSession';
 import { getRuntimeCompanyId } from './companyContext';
-
-const COMPANY_SCOPED_PATHS = [
-  /^\/products(?:\/|$)/,
-  /^\/orders(?:\/|$)/,
-  /^\/codes\/batches(?:\/|$)/,
-  /^\/sales-orders(?:\/|$)/,
-  /^\/companies\/by-tin(?:\/|$)/,
-  /^\/delivery-routes(?:\/|$)/,
-  /^\/delivery-tasks(?:\/|$)/,
-  /^\/scan-sessions(?:\/|$)/,
-  /^\/invoices(?:\/|$)/,
-  /^\/reports(?:\/|$)/,
-];
+import {
+  EndpointScopes,
+  resolveEndpointAccess,
+} from 'shared/config/endpointAccessMap';
 
 const getRequestPathname = (url?: string) => {
   if (!url) return '';
@@ -28,16 +19,6 @@ const getRequestPathname = (url?: string) => {
   } catch {
     return url.split('?')[0];
   }
-};
-
-const isCompanyScopedRequest = (url?: string) => {
-  const pathname = getRequestPathname(url);
-
-  if (/^\/references\/roles\/company(?:\/assignable)?\/?$/.test(pathname)) {
-    return true;
-  }
-
-  return COMPANY_SCOPED_PATHS.some((pattern) => pattern.test(pathname));
 };
 
 const getCompanyIdFromLocation = () =>
@@ -58,8 +39,15 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
 
-  if (isCompanyScopedRequest(config.url)) {
-    const companyId = getCompanyIdFromLocation() ?? getRuntimeCompanyId();
+  const endpointAccess = resolveEndpointAccess(
+    config.method,
+    getRequestPathname(config.url)
+  );
+  const companyId = getCompanyIdFromLocation() ?? getRuntimeCompanyId();
+  const requiresCompanyId = endpointAccess?.scope === EndpointScopes.Company;
+  const acceptsCompanyId = endpointAccess?.scope === EndpointScopes.Any;
+
+  if (requiresCompanyId || (acceptsCompanyId && companyId)) {
 
     if (!companyId) {
       return Promise.reject(

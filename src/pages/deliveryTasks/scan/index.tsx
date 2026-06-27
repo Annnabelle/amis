@@ -25,7 +25,7 @@ import {
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const SCAN_CACHE_PREFIX = 'delivery-task-scans';
 const SCAN_RESULT_TOAST_ID = 'delivery-task-scan-result';
@@ -56,11 +56,11 @@ const DeliveryTasksScan = () => {
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
   const [isClosingSession, setIsClosingSession] = useState(false);
 
-  const canCreateScanSession = useCan(Permissions.ScanSessionsCreate, 'COMPANY');
-  const canScan = useCan(Permissions.ScanSessionsScan, 'COMPANY');
-  const canCancelScan = useCan(Permissions.ScanSessionsCancelScan, 'COMPANY');
-  const canCompleteScanSession = useCan(Permissions.ScanSessionsComplete, 'COMPANY');
-  const canCompleteHandover = useCan(Permissions.DeliveryTasksCompleteHandover, 'COMPANY');
+  const canCreateScanSession = useCan(endpointAccessMap.scanSessionsCreate);
+  const canScan = useCan(endpointAccessMap.scanSessionsScan);
+  const canCancelScan = useCan(endpointAccessMap.scanSessionsCancelScan);
+  const canCompleteScanSession = useCan(endpointAccessMap.scanSessionsComplete);
+  const canCompleteHandover = useCan(endpointAccessMap.deliveryTasksCompleteHandover);
   const canCompleteOperation =
     canCompleteHandover &&
     (scanSession?.status !== 'active' || canCompleteScanSession);

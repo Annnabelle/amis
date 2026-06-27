@@ -33,24 +33,26 @@ import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
-import { Permissions, type Permission } from "entities/access/types";
-import type { PermissionScope } from "entities/access/lib";
+import {
+  endpointAccessMap,
+  type StaticEndpointAccess,
+} from "shared/config/endpointAccessMap";
 
 const { Panel } = Collapse;
 
 const getTargetAccess = (
   targetEntity: string
-): { permission: Permission; scope: PermissionScope } | null => {
+): StaticEndpointAccess | null => {
   switch (targetEntity) {
     case "user":
-      return { permission: Permissions.UsersRead, scope: "GLOBAL" };
+      return endpointAccessMap.usersRead;
     case "company":
-      return { permission: Permissions.CompaniesRead, scope: "GLOBAL" };
+      return endpointAccessMap.companiesRead;
     case "product":
-      return { permission: Permissions.ProductsRead, scope: "COMPANY" };
+      return endpointAccessMap.productsRead;
     case "markingCodeOrder":
     case "order":
-      return { permission: Permissions.OrdersRead, scope: "COMPANY" };
+      return endpointAccessMap.ordersRead;
     default:
       return null;
   }
@@ -217,8 +219,7 @@ const AuditLogsPage: React.FC = () => {
             <div className="content-items-item-description">
               <h5 className="description">
                 <PermissionLink
-                    permission={Permissions.OrdersRead}
-                    scope="COMPANY"
+                    endpoint={endpointAccessMap.ordersRead}
                     to={`/organization/${orgId}/orderId/${orderId}/batchId/${target.batches?.[0]?.id || ""}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
@@ -239,8 +240,7 @@ const AuditLogsPage: React.FC = () => {
             <div className="content-items-item-description">
               <h5 className="description">
                 <PermissionLink
-                    permission={Permissions.OrdersRead}
-                    scope="COMPANY"
+                    endpoint={endpointAccessMap.ordersRead}
                     to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
@@ -329,8 +329,7 @@ const AuditLogsPage: React.FC = () => {
             if (path && targetAccess) {
               formattedValue = (
                   <PermissionLink
-                    permission={targetAccess.permission}
-                    scope={targetAccess.scope}
+                    endpoint={targetAccess}
                     to={path}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
@@ -424,8 +423,7 @@ const AuditLogsPage: React.FC = () => {
                     label:`${t('users.addUserForm.label.firstName')}`,
                     value: (
                       <PermissionLink
-                        permission={Permissions.UsersRead}
-                        scope="GLOBAL"
+                        endpoint={endpointAccessMap.usersRead}
                         to={`/users/${item.actorId}`}
                         style={{ color: "inherit" }}
                         className="actor-link-hover"
@@ -533,8 +531,7 @@ const AuditLogsPage: React.FC = () => {
                                             {" "}<FaArrowRightLong/>{" "}
                                             {targetInfo.path && getTargetAccess(item.targetEntity) ? (
                                               <PermissionLink
-                                                permission={getTargetAccess(item.targetEntity)!.permission}
-                                                scope={getTargetAccess(item.targetEntity)!.scope}
+                                                endpoint={getTargetAccess(item.targetEntity)!}
                                                 to={targetInfo.path}
                                                 className="actor-link-hover"
                                               >

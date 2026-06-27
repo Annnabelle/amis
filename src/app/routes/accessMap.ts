@@ -1,44 +1,43 @@
-import { Permissions, type Permission } from 'entities/access/types';
-import type { PermissionScope } from 'entities/access/lib';
+import {
+  endpointAccessMap,
+  type StaticEndpointAccess,
+} from 'shared/config/endpointAccessMap';
 
-export type RouteAccess = {
-  permission: Permission;
-  scope: PermissionScope;
-};
+export type RouteAccess = StaticEndpointAccess;
 
 export const routeAccess = {
-  usersList: { permission: Permissions.UsersList, scope: 'GLOBAL' },
-  usersRead: { permission: Permissions.UsersRead, scope: 'GLOBAL' },
-  usersUpdate: { permission: Permissions.UsersUpdate, scope: 'GLOBAL' },
+  usersList: endpointAccessMap.usersList,
+  usersRead: endpointAccessMap.usersRead,
+  usersUpdate: endpointAccessMap.usersUpdate,
 
-  companiesList: { permission: Permissions.CompaniesList, scope: 'GLOBAL' },
-  companiesRead: { permission: Permissions.CompaniesRead, scope: 'GLOBAL' },
-  companiesUpdate: { permission: Permissions.CompaniesUpdate, scope: 'GLOBAL' },
+  companiesList: endpointAccessMap.companiesList,
+  companiesRead: endpointAccessMap.companiesRead,
+  companiesUpdate: endpointAccessMap.companiesUpdate,
 
-  auditList: { permission: Permissions.AuditList, scope: 'GLOBAL' },
+  auditList: endpointAccessMap.auditList,
 
-  productsList: { permission: Permissions.ProductsList, scope: 'COMPANY' },
-  productsRead: { permission: Permissions.ProductsRead, scope: 'COMPANY' },
-  productsUpdate: { permission: Permissions.ProductsUpdate, scope: 'COMPANY' },
+  productsList: endpointAccessMap.productsList,
+  productsRead: endpointAccessMap.productsRead,
+  productsUpdate: endpointAccessMap.productsUpdate,
 
-  ordersList: { permission: Permissions.OrdersList, scope: 'COMPANY' },
-  ordersRead: { permission: Permissions.OrdersRead, scope: 'COMPANY' },
+  ordersList: endpointAccessMap.ordersList,
+  ordersRead: endpointAccessMap.ordersRead,
 
-  reportsList: { permission: Permissions.ReportsList, scope: 'COMPANY' },
-  reportsRead: { permission: Permissions.ReportsRead, scope: 'COMPANY' },
+  reportsList: endpointAccessMap.aggregationReportsList,
+  reportsRead: endpointAccessMap.aggregationReportsRead,
 
-  salesOrdersList: { permission: Permissions.SalesOrdersList, scope: 'COMPANY' },
-  salesOrdersCreate: { permission: Permissions.SalesOrdersCreate, scope: 'COMPANY' },
-  salesOrdersRead: { permission: Permissions.SalesOrdersRead, scope: 'COMPANY' },
+  salesOrdersList: endpointAccessMap.salesOrdersList,
+  salesOrdersCreate: endpointAccessMap.salesOrdersCreate,
+  salesOrdersRead: endpointAccessMap.salesOrdersRead,
 
-  deliveryRoutesList: { permission: Permissions.DeliveryRoutesList, scope: 'COMPANY' },
-  deliveryRoutesCreate: { permission: Permissions.DeliveryRoutesCreate, scope: 'COMPANY' },
-  deliveryRoutesRead: { permission: Permissions.DeliveryRoutesRead, scope: 'COMPANY' },
+  deliveryRoutesList: endpointAccessMap.deliveryRoutesList,
+  deliveryRoutesCreate: endpointAccessMap.deliveryRoutesCreate,
+  deliveryRoutesRead: endpointAccessMap.deliveryRoutesRead,
 
-  deliveryTasksList: { permission: Permissions.DeliveryTasksList, scope: 'COMPANY' },
-  deliveryTasksRead: { permission: Permissions.DeliveryTasksRead, scope: 'COMPANY' },
+  deliveryTasksList: endpointAccessMap.deliveryRouteTasksList,
+  deliveryTasksRead: endpointAccessMap.deliveryTasksRead,
 
-  invoicesList: { permission: Permissions.InvoicesList, scope: 'COMPANY' },
-  invoicesRead: { permission: Permissions.InvoicesRead, scope: 'COMPANY' },
+  invoicesList: endpointAccessMap.invoicesList,
+  invoicesRead: endpointAccessMap.invoicesRead,
 } as const satisfies Record<string, RouteAccess>;
 

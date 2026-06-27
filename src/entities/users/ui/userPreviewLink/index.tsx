@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getUserPreview } from 'entities/users/model';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 interface UserPreviewLinkProps {
   userId: string;
@@ -12,8 +12,8 @@ interface UserPreviewLinkProps {
 const UserPreviewLink = ({ userId }: UserPreviewLinkProps) => {
   const dispatch = useAppDispatch();
   const preview = useAppSelector((state) => state.users.userPreviewById[userId]);
-  const canReadUser = useCan(Permissions.UsersRead, 'GLOBAL');
-  const canPreviewUser = useCan(Permissions.UsersPreview, 'ANY');
+  const canReadUser = useCan(endpointAccessMap.usersRead);
+  const canPreviewUser = useCan(endpointAccessMap.usersPreview);
 
   useEffect(() => {
     if (!userId || !canPreviewUser) {

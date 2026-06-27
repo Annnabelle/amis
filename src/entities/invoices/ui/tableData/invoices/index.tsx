@@ -5,7 +5,7 @@ import { statusColors } from "shared/ui/statuses.tsx";
 import type { AdaptiveColumn } from "shared/ui/table/types.ts";
 import type { InvoicesTableDataType } from "./types";
 import { PermissionLink } from "entities/access/ui";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const renderText = (text: string | number) => (
   <p className="table-text" title={String(text)}>
@@ -53,8 +53,7 @@ export const InvoicesTableColumns = (
     flex: 1.8,
     render: (_, record) => (
       <PermissionLink
-        permission={Permissions.InvoicesRead}
-        scope="COMPANY"
+        endpoint={endpointAccessMap.invoicesRead}
         className="table-text link"
         title={record.invoiceNumber}
         to={

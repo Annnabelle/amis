@@ -7,7 +7,7 @@ import "../../markingCodeProduct/styles.sass"
 import { Tag } from "antd";
 import { statusColors } from "shared/ui/statuses.tsx";
 import { PermissionLink } from "entities/access/ui";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -34,8 +34,7 @@ const AgregationReport: React.FC = () => {
                     {reportData?.product.name && (
                         <div className="product-title">
                             <PermissionLink
-                                permission={Permissions.ProductsRead}
-                                scope="COMPANY"
+                                endpoint={endpointAccessMap.productsRead}
                                 to={`/organization/${orgId}/products/${reportData?.product.id}`}
                             >
                                 {reportData?.product.name}

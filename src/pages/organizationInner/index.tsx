@@ -12,8 +12,9 @@ import {type LanguageKey, useIsMobile, useNavigationBack} from 'shared/lib'
 import dayjs from "dayjs";
 import {fetchReferencesByType} from "entities/references/model";
 import { setCurrentCompanyId } from "entities/access/model";
-import { AccessModules, Permissions, type AccessModule } from "entities/access/types";
+import { AccessModules, type AccessModule } from "entities/access/types";
 import { useCan } from "entities/access/lib";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
@@ -24,7 +25,7 @@ const OrganizationsInner = () => {
     const isMobile = useIsMobile();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? [])
-    const canReadReferences = useCan(Permissions.ReferencesRead, 'ANY');
+    const canReadReferences = useCan(endpointAccessMap.referencesRead);
 
     const [form] = Form.useForm()
 

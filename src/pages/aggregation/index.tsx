@@ -22,16 +22,16 @@ import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Aggregations = () => {
     const { t } = useTranslation();
     const params = useParams();
     const orgId = params.id;
     const dispatch = useAppDispatch()
-    const canCreateAggregation = useCan(Permissions.ReportsCreateAggregation, 'COMPANY');
-    const canListOrders = useCan(Permissions.OrdersList, 'COMPANY');
-    const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
+    const canCreateAggregation = useCan(endpointAccessMap.aggregationReportsCreate);
+    const canListOrders = useCan(endpointAccessMap.ordersList);
+    const canListProducts = useCan(endpointAccessMap.productsList);
     const aggregations = useAppSelector((state) => state.aggregations.aggregations)
     const dataLimit = useAppSelector((state) => state.aggregations.limit)
     const dataPage = useAppSelector((state) => state.aggregations.page)

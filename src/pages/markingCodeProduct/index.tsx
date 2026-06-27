@@ -10,12 +10,12 @@ import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orde
 import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/orderProduct";
 import MarkingCodeProductBatches from "./batches.tsx";
 import { useCan } from "entities/access/lib";
-import { Permissions } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const MarkingCodeProduct = () => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
-    const canReadCodes = useCan(Permissions.CodesRead, 'COMPANY');
+    const canReadCodes = useCan(endpointAccessMap.codesRead);
     const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
     const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
     const [page, setPage] = useState(1);

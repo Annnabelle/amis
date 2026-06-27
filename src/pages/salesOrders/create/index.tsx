@@ -16,7 +16,7 @@ import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { SalesOrderPriorities } from 'shared/types/dtos';
 import { useCan } from 'entities/access/lib';
-import { Permissions } from 'entities/access/types';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const TIN_LENGTH = 9;
 
@@ -25,8 +25,8 @@ const SalesOrdersCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const canReadCompanyLegalInfo = useCan(Permissions.CompaniesLegalInfoRead, 'COMPANY');
-  const canListProducts = useCan(Permissions.ProductsList, 'COMPANY');
+  const canReadCompanyLegalInfo = useCan(endpointAccessMap.companiesByTin);
+  const canListProducts = useCan(endpointAccessMap.productsList);
   const products = useAppSelector((state) => state.products.products);
   const [form] = Form.useForm<SalesOrderFormValues>();
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
