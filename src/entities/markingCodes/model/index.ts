@@ -68,7 +68,6 @@ export type OrderListQueryParams = {
   userId?: string;
   productId?: string;
   packageType?: string;
-  companyId?: string;
   status?: OrderStatus;
 };
 

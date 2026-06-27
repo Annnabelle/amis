@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "check:endpoints": "node scripts/check-endpoints.mjs",
+    "build": "npm run check:endpoints && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

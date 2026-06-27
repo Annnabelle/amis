@@ -10,7 +10,6 @@ import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
 import {Form, Input} from "antd";
 import {type LanguageKey, useNavigationBack} from "shared/lib";
-import {fetchReferencesByType} from "entities/references/model";
 
 const OrganizationsEdit = () => {
     const { t, i18n } = useTranslation();
@@ -23,10 +22,6 @@ const OrganizationsEdit = () => {
     // const productGroupReferences = useAppSelector(
     //     (state) => state.references.references.productGroup
     // ) ?? [];
-
-    useEffect(() => {
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
 
     useEffect(() => {
         if (organizationById) {

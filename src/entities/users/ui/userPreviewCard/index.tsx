@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getUserPreview } from 'entities/users/model';
 import type { UserPreview } from 'entities/users/types';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const { Text } = Typography;
 
@@ -22,6 +24,7 @@ const statusColorMap: Record<string, string> = {
 
 const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
   const { t } = useTranslation();
+  const canReadUser = useCan(endpointAccessMap.usersRead);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || '-';
   const phoneDisplay = user.phone ? (user.phone.startsWith('+') ? user.phone : `+${user.phone}`) : '-';
   const iconChipStyle = {
@@ -104,9 +107,27 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
         </span>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
-          <Link
-            to={`/users/${user.id}`}
-            style={{
+          {canReadUser ? (
+            <Link
+              to={`/users/${user.id}`}
+              style={{
+                color: '#101828',
+                fontWeight: compact ? 400 : 600,
+                fontSize: 14,
+                lineHeight: '17px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: 0,
+                maxWidth: compact ? 300 : 180,
+              }}
+              title={fullName}
+            >
+              {fullName}
+            </Link>
+          ) : (
+            <span
+              style={{
               color: '#101828',
               fontWeight: compact ? 400 : 600,
               fontSize: 14,
@@ -116,11 +137,12 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
               whiteSpace: 'nowrap',
               minWidth: 0,
               maxWidth: compact ? 300 : 180,
-            }}
-            title={fullName}
-          >
-            {fullName}
-          </Link>
+              }}
+              title={fullName}
+            >
+              {fullName}
+            </span>
+          )}
 
           {user.email ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', minWidth: 0, color: '#4B5B73' }}>
@@ -147,17 +169,22 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
 export const UserPreviewCardById = ({ userId, compact = false }: { userId: string; compact?: boolean }) => {
   const dispatch = useAppDispatch();
   const preview = useAppSelector((state) => state.users.userPreviewById[userId]);
+  const canPreviewUser = useCan(endpointAccessMap.usersPreview);
 
   useEffect(() => {
-    if (!userId || preview) {
+    if (!userId || preview || !canPreviewUser) {
       return;
     }
 
     void dispatch(getUserPreview({ id: userId }));
-  }, [dispatch, preview, userId]);
+  }, [canPreviewUser, dispatch, preview, userId]);
 
   if (!userId) {
     return null;
+  }
+
+  if (!canPreviewUser) {
+    return <span>{userId}</span>;
   }
 
   if (!preview) {

@@ -10,10 +10,10 @@ const DeliveryTasksDetails = () => {
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const taskId = id ?? '1';
   const { t } = useTranslation();
-  const backPath = orgId ? `/organization/${orgId}/delivery-tasks` : '/delivery-tasks';
+  const backPath = orgId ? `/organization/${orgId}/delivery-tasks` : '/organization';
   const scanPath = orgId
     ? `/organization/${orgId}/delivery-tasks/${taskId}/scan`
-    : `/delivery-tasks/${taskId}/scan`;
+    : '/organization';
 
   return (
     <MainLayout>

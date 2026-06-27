@@ -12,11 +12,22 @@ import { useNavigationBack } from 'shared/lib';
 import FormComponent from 'shared/ui/formComponent';
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const ProductsEdit = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
+    const referencesError = useAppSelector((state) => state.references.error);
+    const productError = useAppSelector((state) => state.products.error);
+    const referencesLoading = useAppSelector((state) => state.references.loading);
+    const productLoading = useAppSelector((state) => state.products.isLoading);
+    const requiredDataUnavailable =
+        referencesLoading ||
+        productLoading ||
+        Boolean(referencesError) ||
+        Boolean(productError);
     const productById = useAppSelector((state) => state.products.productById)
     const navigateBack = useNavigationBack();
     const productGroupReferences =
@@ -89,7 +100,14 @@ const ProductsEdit = () => {
     };
 
   return (
-    <MainLayout>
+      <MainLayout>
+        <RequiredDataAlert
+            endpoints={[
+                endpointAccessMap.productsRead,
+                endpointAccessMap.referencesRead,
+            ]}
+            errors={[productError, referencesError]}
+        />
         <FormComponent
             form={form}
             onFinish={(values) => {
@@ -98,7 +116,7 @@ const ProductsEdit = () => {
         >
             <Heading title={t('products.edit')} subtitle={t('users.subtitle')}>
                 <div className="btns-group">
-                    <CustomButton type="submit">{t('btn.save')} </CustomButton>
+                    <CustomButton type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
                    <CustomButton onClick={() => navigateBack(`/organization/${id}/products`)}>{t('btn.back')}</CustomButton>
                 </div>
             </Heading>
@@ -320,7 +338,7 @@ const ProductsEdit = () => {
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.price')}  />
                                 </Form.Item>
                             </div>
-                            <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
+                            <CustomButton className="outline" type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
                         </>
                     )}
                 </div>

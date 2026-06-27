@@ -5,8 +5,6 @@ import type { ErrorDto } from "shared/types/dtos";
 import type {
   CreateSalesOrderDto,
   CreateSalesOrderResponseDto,
-  DeleteSalesOrderDto,
-  DeleteSalesOrderResponseDto,
   GetSalesOrderDto,
   GetSalesOrderResponseDto,
   GetSalesOrdersDto,
@@ -129,31 +127,6 @@ export const createSalesOrder = createAsyncThunk<
   }
 });
 
-function isDeleteSalesOrderSuccess(
-  res: DeleteSalesOrderResponseDto
-): res is { success: boolean } {
-  return "success" in res && res.success === true;
-}
-
-export const deleteSalesOrder = createAsyncThunk(
-  "salesOrders/deleteSalesOrder",
-  async ({ id }: DeleteSalesOrderDto, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.delete<DeleteSalesOrderResponseDto>(
-        `${BASE_URL}/sales-orders/${id}`
-      );
-
-      if (isDeleteSalesOrderSuccess(response.data)) {
-        return { id };
-      }
-
-      return rejectWithValue("Ошибка удаления заказа");
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
-    }
-  }
-);
-
 export const salesOrdersSlice = createSlice({
   name: "salesOrders",
   initialState,
@@ -218,22 +191,6 @@ export const salesOrdersSlice = createSlice({
           action.payload,
           "Ошибка создания заказа"
         );
-      })
-      .addCase(deleteSalesOrder.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(
-        deleteSalesOrder.fulfilled,
-        (state, action: PayloadAction<{ id: string }>) => {
-          state.isLoading = false;
-          state.orders = state.orders.filter((order) => order.id !== action.payload.id);
-          state.total = Math.max(0, state.total - 1);
-        }
-      )
-      .addCase(deleteSalesOrder.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
       });
   },
 });

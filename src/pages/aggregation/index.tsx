@@ -21,17 +21,24 @@ import { searchProducts} from "entities/products/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import { useCan } from "entities/access/lib";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const Aggregations = () => {
     const { t } = useTranslation();
     const params = useParams();
     const orgId = params.id;
     const dispatch = useAppDispatch()
+    const canCreateAggregation = useCan(endpointAccessMap.aggregationReportsCreate);
+    const canListProducts = useCan(endpointAccessMap.productsList);
     const aggregations = useAppSelector((state) => state.aggregations.aggregations)
     const dataLimit = useAppSelector((state) => state.aggregations.limit)
     const dataPage = useAppSelector((state) => state.aggregations.page)
     const dataTotal = useAppSelector((state) => state.aggregations.total)
     const orders = useAppSelector(state => state.markingCodes.data);
+    const ordersError = useAppSelector(state => state.markingCodes.error);
+    const ordersLoading = useAppSelector(state => state.markingCodes.loading);
     const error = useAppSelector(state => state.aggregations.error);
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
@@ -58,7 +65,6 @@ const Aggregations = () => {
             fetchAggregations({
                 page: dataPage || 1,
                 limit: dataLimit || 10,
-                companyId: orgId,
                 status: filters.status,
                 dateFrom: filters.dateFrom,
                 dateTo: filters.dateTo,
@@ -80,7 +86,6 @@ const Aggregations = () => {
                 fetchMarkingCodes({
                     page: 1,
                     limit: 20,
-                    companyId: orgId,
                     status: "codes_utilized",
                 })
             );
@@ -170,7 +175,7 @@ const Aggregations = () => {
             .then(() => {
                 toast.success(t("aggregations.messages.createSuccess"));
                 handleModal("addAggregation", false);
-                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10, companyId: orgId! }));
+                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
             })
             .catch((err: ApiErrorResponse) => {
                 toast.error(
@@ -186,7 +191,6 @@ const Aggregations = () => {
             query: value,
             page: 1,
             limit: 10,
-            companyId: orgId
         }));
     };
 
@@ -216,13 +220,16 @@ const Aggregations = () => {
                 title={`${t('aggregations.title')}`}
                 subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}
             >
-                <CustomButton onClick={() => handleModal('addAggregation', true)}>{t('aggregations.btnAdd')}</CustomButton>
+                {canCreateAggregation && (
+                    <CustomButton onClick={() => handleModal('addAggregation', true)}>{t('aggregations.btnAdd')}</CustomButton>
+                )}
             </Heading>
             <div className="box">
                 <div className="box-container">
                     <div className="box-container-items">
                         <div className="box-container-items-item">
                             <FilterBar className="filters-large filters-large-inputs">
+                                {canListProducts && (
                                 <FilterBarItem>
                                     <Form.Item name="status" className="input">
                                         <Select
@@ -251,6 +258,7 @@ const Aggregations = () => {
                                         />
                                     </Form.Item>
                                 </FilterBarItem>
+                                )}
                                 <FilterBarItem>
                                     <Form.Item name="dateRange" className="input">
                                         <DatePicker.RangePicker
@@ -320,7 +328,6 @@ const Aggregations = () => {
                                         fetchAggregations({
                                             page,
                                             limit: pageSize || dataLimit || 10,
-                                            companyId: orgId,
                                             status: filters.status,
                                             dateFrom: filters.dateFrom,
                                             dateTo: filters.dateTo,
@@ -338,6 +345,10 @@ const Aggregations = () => {
                     closeModal={() => handleModal('addAggregation', false)}
                     className="modal-large"
                 >
+                    <RequiredDataAlert
+                        endpoints={[endpointAccessMap.ordersList]}
+                        errors={[ordersError]}
+                    />
                     <FormComponent onFinish={handleCreateAggregation}>
                         <div className="form-inputs">
                             <Form.Item
@@ -388,7 +399,10 @@ const Aggregations = () => {
 
 
 
-                        <CustomButton type="submit">
+                        <CustomButton
+                            type="submit"
+                            disabled={ordersLoading || Boolean(ordersError)}
+                        >
                             {t('btn.create')}
                         </CustomButton>
                     </FormComponent>

@@ -22,10 +22,16 @@ import { getAllOrganizations } from 'entities/organization/model'
 import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Users = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
+    const canReadUser = useCan(endpointAccessMap.usersRead);
+    const canUpdateUser = useCan(endpointAccessMap.usersUpdate);
+    const canDeleteUser = useCan(endpointAccessMap.usersDelete);
+    const canReadAudit = useCan(endpointAccessMap.auditList);
     const navigate = useNavigate();
     const users = useAppSelector((state) => state.users.users)
     const dataLimit = useAppSelector((state) => state.users.limit)
@@ -189,7 +195,9 @@ const Users = () => {
     <MainLayout>
         <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
-                <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                {canReadAudit && (
+                    <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                )}
                 <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton>
             </div>
         </Heading>
@@ -215,9 +223,16 @@ const Users = () => {
                 </div>
                 <div className="box-container-items">
                     <ComponentTable<UserTableDataType>
-                        columns={UsersTableColumns(t, handleRowClick)}
+                        columns={UsersTableColumns(t, handleRowClick, {
+                            canUpdate: canUpdateUser,
+                            canDelete: canDeleteUser,
+                        })}
                         data={UsersData}
-                        onRowClick={(record) => handleRowClick("User", "retrieve", record)}
+                        onRowClick={
+                            canReadUser
+                                ? (record) => handleRowClick("User", "retrieve", record)
+                                : undefined
+                        }
                         pagination={{
                             current: dataPage || 1,
                             pageSize: dataLimit || 10,

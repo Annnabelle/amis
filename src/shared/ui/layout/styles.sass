@@ -139,6 +139,31 @@
                         .ant-menu-title-content
                             color: map.get(vars.$basic, 'black') !important
                             display: block
+                .layout-company-selector
+                    padding: 12px 4px 8px
+                    border-top: 1px solid map.get(vars.$main, 'box-shadow')
+                    &-control
+                        width: 100%
+                        .ant-select-selector
+                            min-height: 42px
+                            padding: 5px 14px !important
+                            background: map.get(vars.$main, 'main-more-lighter') !important
+                            border: 1px solid map.get(vars.$main, 'main') !important
+                            border-radius: 10px !important
+                            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.14) !important
+                        .ant-select-selection-item
+                            +mix.typography(15px, 600, map.get(vars.$main, 'main'))
+                            line-height: 30px !important
+                        .ant-select-arrow
+                            color: map.get(vars.$main, 'main')
+                        &:hover
+                            .ant-select-selector
+                                background: map.get(vars.$main, 'main-light') !important
+                        &.ant-select-focused
+                            .ant-select-selector
+                                box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.16) !important
+                .layout-company-menu
+                    padding-top: 4px
                 &-trigger
                     width: 100%
                     z-index: 1
@@ -235,6 +260,36 @@
                                         width: 100%
 .ant-dropdown-placement-bottomRight
     z-index: 1 !important
+
+.mobile-company-selector
+    width: 100%
+    margin-bottom: 12px
+    &-control
+        width: 100%
+        .ant-select-selector
+            min-height: 44px
+            padding: 6px 14px !important
+            background: map.get(vars.$main, 'main-more-lighter') !important
+            border: 1px solid map.get(vars.$main, 'main') !important
+            border-radius: 12px !important
+            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.14) !important
+        .ant-select-selection-item
+            +mix.typography(15px, 600, map.get(vars.$main, 'main'))
+            line-height: 30px !important
+        .ant-select-arrow
+            color: map.get(vars.$main, 'main')
+
+.company-selector-popup
+    padding: 6px
+    border: 1px solid map.get(vars.$main, 'main-light')
+    border-radius: 12px
+    box-shadow: 0 10px 28px rgba(30, 144, 255, 0.18)
+    .ant-select-item
+        border-radius: 8px
+    .ant-select-item-option-selected
+        background: map.get(vars.$main, 'main-more-lighter') !important
+        color: map.get(vars.$main, 'main')
+        font-weight: 600
 
 .ant-tag
     width: 100%

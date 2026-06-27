@@ -1,9 +1,10 @@
 import { Tag } from "antd";
-import { Link } from "react-router-dom";
 import type { TFunction } from "i18next";
 import { statusColors } from "shared/ui/statuses.tsx";
 import type { AdaptiveColumn } from "shared/ui/table/types.ts";
 import type { SalesOrdersTableDataType } from "./types";
+import { PermissionLink } from "entities/access/ui";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const getPriorityColor = (priority?: string) => {
   if (!priority) return "default";
@@ -32,16 +33,17 @@ export const SalesOrdersTableColumns = (
     key: "orderNumber",
     flex: 1.5,
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        endpoint={endpointAccessMap.salesOrdersRead}
         className="table-text link"
         to={
           orgId
             ? `/organization/${orgId}/sales-orders/${record.key}`
-            : `/sales-orders/${record.key}`
+            : '/organization'
         }
       >
         {record.orderNumber}
-      </Link>
+      </PermissionLink>
     ),
   },
   {
@@ -140,43 +142,4 @@ export const SalesOrdersTableColumns = (
       );
     },
   },
-  // {
-  //   title: "",
-  //   key: "action",
-  //   flex: 1,
-  //   render: (_, record) => (
-  //     <Dropdown
-  //       overlay={
-  //         <Menu
-  //           items={[
-  //             {
-  //               key: "delete",
-  //               label: (
-  //                 <CustomButton
-  //                   type="button"
-  //                   className="danger"
-  //                   onClick={(e) => {
-  //                     e.stopPropagation();
-  //                     onDelete?.(record);
-  //                   }}
-  //                 >
-  //                   {t("btn.delete")}
-  //                 </CustomButton>
-  //               ),
-  //             },
-  //           ]}
-  //         />
-  //       }
-  //       trigger={["click"]}
-  //       placement="bottomRight"
-  //     >
-  //       <Button
-  //         onClick={(e) => e.stopPropagation()}
-  //         type="text"
-  //         icon={<HiDotsHorizontal />}
-  //         style={{ width: "100%", display: "flex", justifyContent: "center" }}
-  //       />
-  //     </Dropdown>
-  //   ),
-  // },
 ];

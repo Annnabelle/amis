@@ -9,7 +9,6 @@
 export type GetAggregationReportsParamsDto = {
     page: number;
     limit: number;
-    companyId: HexString;
     status?: AggregationReportStatus;
     productId?: string;
     dateFrom?: Date;

@@ -21,7 +21,7 @@ const SalesOrdersDetails = () => {
   const empty = '';
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
-    : '/sales-orders';
+    : '/organization';
   useEffect(() => {
     if (!id) return;
     dispatch(getSalesOrderById({ id }));

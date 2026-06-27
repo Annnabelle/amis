@@ -9,10 +9,13 @@ import ComponentTable from "shared/ui/table";
 import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orderProduct/types.ts";
 import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/orderProduct";
 import MarkingCodeProductBatches from "./batches.tsx";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const MarkingCodeProduct = () => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch()
+    const requestError = useAppSelector((state) => state.markingCodes.error)
     const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
     const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
     const [page, setPage] = useState(1);
@@ -31,7 +34,7 @@ const MarkingCodeProduct = () => {
     useEffect(() => {
         if (!orderId || !batchId) return;
         dispatch(getBatch({orderId: orderId, batchId: batchId}))
-    }, [dispatch]);
+    }, [batchId, dispatch, orderId]);
 
     const OrderProductData = useMemo(() => {
         if (!orderProduct || !orderProduct.success || !('data' in orderProduct)) {
@@ -54,6 +57,10 @@ const MarkingCodeProduct = () => {
 
     return (
     <MainLayout>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.codesRead, endpointAccessMap.ordersRead]}
+            errors={[requestError]}
+        />
         <Heading 
             title={`${t('markingCodes.tableTitles.batchNumber')}: ${orderProductBatch?.batchNumber}`}
         />

@@ -11,6 +11,8 @@ import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
 import { DeliveryRoutesTableColumns } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes';
 import type { DeliveryRoutesTableDataType } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes/types';
 import { useIsMobile } from 'shared/lib';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const DeliveryRoutesList = () => {
   const navigate = useNavigate();
@@ -18,6 +20,8 @@ const DeliveryRoutesList = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const canCreateRoute = useCan(endpointAccessMap.deliveryRoutesCreate);
+  const canReadRoute = useCan(endpointAccessMap.deliveryRoutesRead);
 
   const routes = useAppSelector((state) => state.deliveryRoutes.routes);
   const dataTotal = useAppSelector((state) => state.deliveryRoutes.total);
@@ -25,14 +29,10 @@ const DeliveryRoutesList = () => {
 
   const createPath = orgId
     ? `/organization/${orgId}/delivery-routes/create`
-    : '/delivery-routes/create';
+    : '/organization';
 
   useEffect(() => {
-    dispatch(
-      getDeliveryRoutes({
-        companyId: orgId,
-      })
-    );
+    dispatch(getDeliveryRoutes({}));
   }, [dispatch, orgId]);
 
   const deliveryRoutesData = useMemo<DeliveryRoutesTableDataType[]>(() => {
@@ -59,9 +59,11 @@ const DeliveryRoutesList = () => {
       {!isMobile && (
       <>
       <Heading title={t('deliveryRoutes.title')} subtitle={t('common.total')} totalAmount={`${dataTotal}`}>
-        <div className="btns-group">
-          <CustomButton onClick={() => navigate(createPath)}>{t('deliveryRoutes.actions.create')}</CustomButton>
-        </div>
+        {canCreateRoute && (
+          <div className="btns-group">
+            <CustomButton onClick={() => navigate(createPath)}>{t('deliveryRoutes.actions.create')}</CustomButton>
+          </div>
+        )}
       </Heading>
       <div className="box">
         <div className="box-container">
@@ -70,12 +72,15 @@ const DeliveryRoutesList = () => {
               columns={DeliveryRoutesTableColumns(t)}
               data={deliveryRoutesData}
               loading={isLoading}
-              onRowClick={(record) =>
-                navigate(
-                  orgId
-                    ? `/organization/${orgId}/delivery-routes/${record.key}`
-                    : `/delivery-routes/${record.key}`
-                )
+              onRowClick={
+                canReadRoute
+                  ? (record) =>
+                      navigate(
+                        orgId
+                          ? `/organization/${orgId}/delivery-routes/${record.key}`
+                          : '/organization'
+                      )
+                  : undefined
               }
               pagination={{
                 pageSize: 10,

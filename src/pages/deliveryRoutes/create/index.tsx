@@ -5,7 +5,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
@@ -18,6 +18,8 @@ import { searchUsers } from 'entities/users/model';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
+import { PermissionLink, RequiredDataAlert } from 'entities/access/ui';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const getPriorityColor = (priority?: string) => {
   if (!priority) return 'default';
@@ -44,7 +46,9 @@ const DeliveryRoutesCreate = () => {
   const organizations = useAppSelector((state) => state.organizations.organizations);
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const isOrdersLoading = useAppSelector((state) => state.salesOrders.isLoading);
+  const ordersError = useAppSelector((state) => state.salesOrders.error);
   const searchedUsers = useAppSelector((state) => state.users.searchedUsers);
+  const usersError = useAppSelector((state) => state.users.error);
   const [form] = Form.useForm<DeliveryRouteFormValues>();
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
@@ -52,7 +56,7 @@ const DeliveryRoutesCreate = () => {
   const isSelectingDriverRef = useRef(false);
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
-  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
   const initialValues = useMemo(
     () => ({
       schedule: {
@@ -113,7 +117,6 @@ const DeliveryRoutesCreate = () => {
         page: 1,
         limit: 50,
         sortOrder: 'asc',
-        companyId,
       })
     );
   }, [dispatch, companyId]);
@@ -292,16 +295,17 @@ const DeliveryRoutesCreate = () => {
         key: "salesOrderNumber",
         flex: 1,
         render: (_, record) => (
-          <Link
+          <PermissionLink
+            endpoint={endpointAccessMap.salesOrdersRead}
             className="table-text link"
             to={
               orgId
                 ? `/organization/${orgId}/sales-orders/${record.key}`
-                : `/sales-orders/${record.key}`
+                : '/organization'
             }
           >
             {record.salesOrderNumber}
-          </Link>
+          </PermissionLink>
         ),
       },
       {
@@ -384,6 +388,13 @@ const DeliveryRoutesCreate = () => {
   return (
     <MainLayout>
       <Heading title={t('deliveryRoutes.title')} subtitle={t('common.create')} />
+      <RequiredDataAlert
+        endpoints={[
+          endpointAccessMap.salesOrdersList,
+          endpointAccessMap.usersList,
+        ]}
+        errors={[ordersError, usersError]}
+      />
       <div className="box">
         <div className="box-container">
           <div className="box-container-items delivery-route-create-form">
@@ -717,12 +728,18 @@ const DeliveryRoutesCreate = () => {
                   </div>
                 // {/* </div> */}
               )}
-
               <div className="form-btns-group">
                 <CustomButton className="outline" onClick={() => navigate(listPath)}>
                   {t('btn.cancel')}
                 </CustomButton>
-                <CustomButton type="submit">{t('deliveryRoutes.actions.create')}</CustomButton>
+                <CustomButton
+                  type="submit"
+                  disabled={
+                    isOrdersLoading || Boolean(ordersError) || Boolean(usersError)
+                  }
+                >
+                  {t('deliveryRoutes.actions.create')}
+                </CustomButton>
               </div>
             </FormComponent>
           </div>

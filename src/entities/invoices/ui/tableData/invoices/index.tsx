@@ -1,10 +1,11 @@
 import { Tag } from "antd";
-import { Link } from "react-router-dom";
 import type { TFunction } from "i18next";
 import { getInvoiceStatusKey } from "entities/invoices/lib/status";
 import { statusColors } from "shared/ui/statuses.tsx";
 import type { AdaptiveColumn } from "shared/ui/table/types.ts";
 import type { InvoicesTableDataType } from "./types";
+import { PermissionLink } from "entities/access/ui";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const renderText = (text: string | number) => (
   <p className="table-text" title={String(text)}>
@@ -51,17 +52,18 @@ export const InvoicesTableColumns = (
     key: "invoiceNumber",
     flex: 1.8,
     render: (_, record) => (
-      <Link
+      <PermissionLink
+        endpoint={endpointAccessMap.invoicesRead}
         className="table-text link"
         title={record.invoiceNumber}
         to={
           orgId
             ? `/organization/${orgId}/invoices/${record.key}`
-            : `/invoices/${record.key}`
+            : '/organization'
         }
       >
         {shortenMiddle(record.invoiceNumber)}
-      </Link>
+      </PermissionLink>
     ),
   },
   {

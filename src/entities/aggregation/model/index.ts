@@ -181,7 +181,7 @@ export function isGetAggregationReportsSuccess(
 }
 
 export const fetchAggregations = createAsyncThunk<
-    { data: GetAggregationReportsResponseTypes[]; total: number; page: number; limit: number, companyId: string },
+    { data: GetAggregationReportsResponseTypes[]; total: number; page: number; limit: number },
     GetAggregationReportsParamsDto,
     { rejectValue: ApiErrorResponse }
 >(
@@ -202,7 +202,6 @@ export const fetchAggregations = createAsyncThunk<
                     total: response.data.total,
                     page: response.data.page,
                     limit: response.data.limit,
-                    companyId: params.companyId,
                 };
             }
 

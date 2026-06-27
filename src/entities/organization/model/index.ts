@@ -8,6 +8,7 @@ import type {
     CreateCompanyDto,
     DeleteCompanyDto,
     DeleteCompanyResponseDto,
+    GetCompanyByTinResponseDto,
     GetCompaniesDto,
     GetCompaniesResponseDto,
     GetCompanyDto,
@@ -175,6 +176,25 @@ export const searchOrganizations = createAsyncThunk(
       params: { query, page, limit, sortOrder }
     });
     return response.data;
+  }
+);
+
+export const getCompanyByTin = createAsyncThunk(
+  'organizations/getCompanyByTin',
+  async (tin: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get<GetCompanyByTinResponseDto>(
+        `/companies/by-tin/${encodeURIComponent(tin)}`
+      );
+
+      if ("errorCode" in response.data) {
+        return rejectWithValue(response.data);
+      }
+
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data ?? err.message ?? "Ошибка загрузки компании по ИНН");
+    }
   }
 );
 

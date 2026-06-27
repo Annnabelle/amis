@@ -5,6 +5,26 @@ import {
   emitAuthSessionExpired,
   isAuthErrorResponse,
 } from './authSession';
+import { getRuntimeCompanyId } from './companyContext';
+import {
+  EndpointScopes,
+  resolveEndpointAccess,
+} from 'shared/config/endpointAccessMap';
+
+const getRequestPathname = (url?: string) => {
+  if (!url) return '';
+
+  try {
+    return new URL(url, BASE_URL).pathname;
+  } catch {
+    return url.split('?')[0];
+  }
+};
+
+const getCompanyIdFromLocation = () =>
+  window.location.pathname.match(
+    /^\/organization\/([^/]+)(?:\/|$)/
+  )?.[1] ?? null;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -18,6 +38,39 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
+
+  const endpointAccess = resolveEndpointAccess(
+    config.method,
+    getRequestPathname(config.url)
+  );
+  if (!endpointAccess) {
+    const method = config.method?.toUpperCase() ?? 'UNKNOWN';
+    const pathname = getRequestPathname(config.url) || config.url || 'UNKNOWN';
+
+    return Promise.reject(
+      new Error(
+        `[EndpointAccessMap] ${method} ${pathname} is not registered`
+      )
+    );
+  }
+
+  const companyId = getCompanyIdFromLocation() ?? getRuntimeCompanyId();
+  const requiresCompanyId = endpointAccess?.scope === EndpointScopes.Company;
+  const acceptsCompanyId = endpointAccess?.scope === EndpointScopes.Any;
+
+  if (requiresCompanyId || (acceptsCompanyId && companyId)) {
+
+    if (!companyId) {
+      return Promise.reject(
+        new Error(`Company context is required for ${config.url ?? 'request'}`)
+      );
+    }
+
+    config.headers['x-company-id'] = companyId;
+  } else {
+    delete config.headers['x-company-id'];
+  }
+
   return config;
 }, (error) => {
   return Promise.reject(error);

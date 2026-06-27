@@ -19,7 +19,8 @@ import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
 import { toast } from 'react-toastify';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
-import { isAgentRole, isWarehouseRole } from 'shared/lib/userRoles';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
@@ -35,23 +36,31 @@ const DeliveryRoutesDetails = () => {
   const isLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
   const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
   const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
-  const currentUser = useAppSelector((state) => state.users.currentUser);
-  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
-  const isWarehouseUser = isWarehouseRole(currentUser);
-  const isAgentUser = isAgentRole(currentUser);
-  console.log(route?.status)
+  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
+  const canStartLoading = useCan(endpointAccessMap.deliveryRoutesStartLoading);
+  const canStartTransitPermission = useCan(endpointAccessMap.deliveryRoutesStartTransit);
+  const canStartReturn = useCan(endpointAccessMap.deliveryRoutesStartReturn);
+  const canStartHandover = useCan(endpointAccessMap.deliveryTasksStartHandover);
+  const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
   const canOpenLoading = Boolean(
-    isWarehouseUser &&
+    canStartLoading &&
       route?.status &&
       ['assigned_to_warehouse', 'ready_for_loading', 'loading', 'loaded'].includes(route.status)
   );
-  const canStartTransit = Boolean((isAgentUser || isWarehouseUser) && route?.status === 'loaded' && !transitStarted);
-  const canStartDelivery = Boolean(isAgentUser && route?.status === 'in_transit');
+  const canStartTransit = Boolean(
+    canStartTransitPermission &&
+      route?.status === 'loaded' &&
+      !transitStarted
+  );
+  const canStartDelivery = Boolean(
+    canStartHandover &&
+      route?.status === 'in_transit'
+  );
   const transitButtonLabel = t('deliveryRoutes.actions.startTransit', {
-    defaultValue: isAgentUser ? 'Начать поездку' : 'Отправить машину',
+    defaultValue: 'Начать перевозку',
   });
   const canOpenReturn = Boolean(
-    isWarehouseUser &&
+    canStartReturn &&
       route?.status &&
       ['in_transit', 'returning'].includes(route.status)
   );
@@ -62,7 +71,7 @@ const DeliveryRoutesDetails = () => {
     ? 'Начать возврат'
     : t('deliveryRoutes.actions.openReturn');
   const taskScanPath = (taskId: string) =>
-    orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : `/delivery-tasks/${taskId}/scan`;
+    orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : '/organization';
   useEffect(() => {
     let isMounted = true;
 
@@ -75,10 +84,15 @@ const DeliveryRoutesDetails = () => {
 
     setIsBootstrapping(true);
 
-    Promise.allSettled([
+    const requests: Promise<unknown>[] = [
       dispatch(getDeliveryRouteById(id)).unwrap(),
-      dispatch(getDeliveryTasks({ routeId: id })).unwrap(),
-    ]).finally(() => {
+    ];
+
+    if (canListTasks) {
+      requests.push(dispatch(getDeliveryTasks({ routeId: id })).unwrap());
+    }
+
+    Promise.allSettled(requests).finally(() => {
       if (isMounted) {
         setIsBootstrapping(false);
       }
@@ -87,7 +101,7 @@ const DeliveryRoutesDetails = () => {
     return () => {
       isMounted = false;
     };
-  }, [dispatch, id]);
+  }, [canListTasks, dispatch, id]);
 
   useEffect(() => {
     if (route?.status && route.status !== 'loaded') {
@@ -299,7 +313,7 @@ const DeliveryRoutesDetails = () => {
             </CustomButton>
           </div>
           <div className="mobile-route-toolbar-actions">
-            {isWarehouseUser && (
+            {canStartLoading && (
               <CustomButton
                 className="primary"
                 onClick={() => void handleOpenLoading()}
@@ -333,7 +347,7 @@ const DeliveryRoutesDetails = () => {
           subtitle={headingSubtitle}
         >
           <div className={`btns-group ${isMobile ? 'mobile-route-actions is-hidden-mobile' : ''}`}>
-            {isWarehouseUser && (
+            {canStartLoading && (
               <CustomButton
                 className="primary"
                 onClick={() => void handleOpenLoading()}
@@ -481,6 +495,7 @@ const DeliveryRoutesDetails = () => {
                 </div>
               </div>
             )}
+            {canListTasks && (
             <div className="detail-grid detail-grid-single">
               <div className="detail-card detail-card-full">
                 <div className="detail-card-header detail-card-header-with-actions">
@@ -657,6 +672,7 @@ const DeliveryRoutesDetails = () => {
                 )}
               </div>
             </div>
+            )}
 
             <div className="btns-group">
               <CustomButton className="outline" onClick={() => navigate(backPath)}>
