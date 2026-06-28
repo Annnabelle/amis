@@ -98,7 +98,7 @@ const CompanyRouteSync = () => {
   useEffect(() => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const companyId =
-      pathSegments[0] === 'organization' && pathSegments.length > 2
+      pathSegments[0] === 'organization' && pathSegments.length > 1
         ? pathSegments[1]
         : null;
 

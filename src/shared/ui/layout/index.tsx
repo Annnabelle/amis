@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useState,
   type ReactNode,
   useEffect,
@@ -71,12 +72,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const access = useAppSelector((state) => state.access.data);
   const storedCompanyId = useAppSelector((state) => state.access.currentCompanyId);
   const routes = useAppSelector((state) => state.deliveryRoutes.routes);
+  const organizations = useAppSelector(
+    (state) => state.organizations.organizations
+  );
   const organizationById = useAppSelector(
     (state) => state.organizations.organizationById
   );
 
-  const systemModules = access?.system.modules ?? [];
-  const companies = access?.companies ?? [];
+  const systemModules = useMemo(
+    () => access?.system.modules ?? [],
+    [access?.system.modules]
+  );
+  const companies = useMemo(
+    () => access?.companies ?? [],
+    [access?.companies]
+  );
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
   const section = pathSegments[2];
@@ -84,7 +94,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isOrganizationRoot = location.pathname === '/organization';
   const isOrganizationScreen = pathSegments[0] === 'organization' && Boolean(orgId) && !section;
   const isRoutesScreen = pathSegments[0] === 'organization' && Boolean(orgId) && section === 'delivery-routes' && !routeId;
-  const routeCompanyId = section ? orgId : undefined;
+  const routeCompanyId = orgId;
   const selectedCompanyId = routeCompanyId ?? storedCompanyId ?? companies[0]?.companyId;
   const membershipCompany = companies.find(
     (company) => company.companyId === selectedCompanyId
@@ -108,6 +118,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const selectableCompanies = systemCompany
     ? [...companies, systemCompany]
     : companies;
+  const mobileSelectableCompanies = useMemo(() => {
+    const result = [...companies];
+
+    organizations.forEach((organization) => {
+      if (result.some((company) => company.companyId === String(organization.id))) {
+        return;
+      }
+
+      result.push({
+        companyId: String(organization.id),
+        name: organization.displayName,
+        roles: [],
+        permissions: access?.system.permissions ?? [],
+        modules: systemModules,
+      });
+    });
+
+    return result;
+  }, [access?.system.permissions, companies, organizations, systemModules]);
 
   useEffect(() => {
     if (
@@ -284,6 +313,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     navigate(firstModule?.path ?? `/organization/${companyId}`);
   };
 
+  const handleMobileCompanySelect = useCallback((companyId: string) => {
+    dispatch(setCurrentCompanyId(companyId));
+    navigate(`/organization/${companyId}`);
+  }, [dispatch, navigate]);
+
   const mobileNav = useMemo<MobileNavConfig | null>(() => {
     if (!isMobile) {
       return null;
@@ -291,30 +325,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
     if (isOrganizationRoot) {
       return {
-        title: selectedCompany?.name ?? t('navigation.myOrganizations'),
+        title: t('navigation.myOrganizations'),
         subtitle: '',
         backPath: null as string | null,
-        items: [
-          ...selectedCompanyModuleItems.map((item) => ({
-          key: item.path,
-          label: item.label,
+        items: mobileSelectableCompanies.map((company) => ({
+          key: company.companyId,
+          label: company.name,
           meta: '',
-          isActive: location.pathname === item.path,
-          onClick: () => navigate(item.path),
-          })),
-          ...(isSystemCompanyContext
-            ? [{
-                key: 'exit-company',
-                label: t('navigation.exitCompany'),
-                meta: '',
-                isActive: false,
-                onClick: () => {
-                  dispatch(setCurrentCompanyId(null));
-                  navigate('/organization');
-                },
-              }]
-            : []),
-        ],
+          isActive: false,
+          onClick: () => handleMobileCompanySelect(company.companyId),
+        })),
       };
     }
 
@@ -358,11 +378,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     location.pathname,
     navigate,
     orgId,
+    routeId,
     routes,
     selectedCompany?.name,
     selectedCompanyModuleItems,
-    isSystemCompanyContext,
-    dispatch,
+    mobileSelectableCompanies,
+    handleMobileCompanySelect,
     t,
   ]);
 
@@ -468,21 +489,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           )}
 
           <Content className={`layout-content-container ${isMobile ? 'layout-content-container-mobile' : ''}`}>
-            {isMobile && selectableCompanies.length > 0 && (
-              <div className="mobile-company-selector">
-                <Select
-                  value={selectedCompanyId}
-                  options={selectableCompanies.map((company) => ({
-                    value: company.companyId,
-                    label: company.name,
-                  }))}
-                  onChange={handleCompanyChange}
-                  className="mobile-company-selector-control"
-                  popupClassName="company-selector-popup"
-                />
-              </div>
-            )}
-
             {mobileNav && (
               <div className="mobile-sider">
                 <div className="mobile-sider-header">

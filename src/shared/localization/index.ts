@@ -410,10 +410,12 @@
                 messages: {
                     success: {
                         create: "Delivery route created successfully",
+                        close: "Delivery route closed successfully",
                         scanCode: "Code {{code}} scanned successfully"
                     },
                     error: {
                         create: "Error creating delivery route",
+                        close: "Failed to close delivery route",
                         createScanSession: "Error starting scan session",
                         completeScanSession: "Error completing scan session",
                         scanSessionRequired: "Start a scan session first",
@@ -458,7 +460,8 @@
                     openLoading: "Open loading screen",
                     openReturn: "Open return screen",
                     completeLoading: "Complete loading",
-                    completeReturn: "Complete return"
+                    completeReturn: "Complete return",
+                    close: "Close route"
                 },
                 details: {
                     summaryEmpty: "Total tasks, customers, ordered/loaded/delivered/returned",
@@ -1684,10 +1687,12 @@
                   messages: {
                       success: {
                           create: "Рейс успешно создан",
+                          close: "Рейс успешно завершён",
                           scanCode: "Код {{code}} успешно принят"
                       },
                       error: {
                           create: "Ошибка при создании рейса",
+                          close: "Не удалось завершить рейс",
                           createScanSession: "Не удалось начать сессию сканирования",
                           completeScanSession: "Не удалось завершить сессию сканирования",
                           scanSessionRequired: "Сначала начните сессию сканирования",
@@ -1732,7 +1737,8 @@
                     openLoading: "Открыть экран погрузки",
                     openReturn: "Открыть экран возврата",
                     completeLoading: "Завершить погрузку",
-                    completeReturn: "Завершить возврат"
+                    completeReturn: "Завершить возврат",
+                    close: "Завершить рейс"
                 },
                 details: {
                     summaryEmpty: "Всего задач, клиентов, заказано/погружено/доставлено/возвращено",
@@ -2943,10 +2949,12 @@
                   messages: {
                       success: {
                           create: "Reys muvaffaqiyatli yaratildi",
+                          close: "Reys muvaffaqiyatli yakunlandi",
                           scanCode: "{{code}} kodi muvaffaqiyatli qabul qilindi"
                       },
                       error: {
                           create: "Reys yaratishda xatolik",
+                          close: "Reysni yakunlab bo'lmadi",
                           createScanSession: "Skan sessiyasini boshlashda xatolik",
                           completeScanSession: "Skan sessiyasini yakunlashda xatolik",
                           scanSessionRequired: "Avval skan sessiyasini boshlang",
@@ -2969,7 +2977,8 @@
                     openLoading: "Yuklash ekranini ochish",
                     openReturn: "Qaytarish ekranini ochish",
                     completeLoading: "Yuklashni yakunlash",
-                    completeReturn: "Qaytarishni yakunlash"
+                    completeReturn: "Qaytarishni yakunlash",
+                    close: "Reysni yakunlash"
                 },
                 details: {
                     summaryEmpty: "Jami vazifalar, mijozlar, yuklangan/etkazilgan/qaytarilgan",

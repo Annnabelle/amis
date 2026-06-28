@@ -9,6 +9,7 @@ import {
 import GlobalLoader from 'shared/ui/loader';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import type { RouteAccess } from './accessMap';
+import { useIsMobile } from 'shared/lib';
 
 const getCompanyIdFromPath = (pathname: string) => {
   const segments = pathname.split('/').filter(Boolean);
@@ -74,6 +75,7 @@ export const PermissionRoute = ({
   const userAccess = useAppSelector((state) => state.access.data);
   const loading = useAppSelector((state) => state.access.loading);
   const error = useAppSelector((state) => state.access.error);
+  const isMobile = useIsMobile();
   const companyId = getCompanyIdFromPath(location.pathname);
 
   if (loading || (!userAccess && !error)) {
@@ -90,7 +92,19 @@ export const PermissionRoute = ({
     companyId,
   });
 
-  if (allowed) {
+  const segments = location.pathname.split('/').filter(Boolean);
+  const isMobileCompanySelection =
+    isMobile &&
+    segments.length === 1 &&
+    segments[0] === 'organization' &&
+    userAccess.companies.length > 0;
+  const isMobileCompanyModules =
+    isMobile &&
+    segments.length === 2 &&
+    segments[0] === 'organization' &&
+    userAccess.companies.some((company) => company.companyId === segments[1]);
+
+  if (allowed || isMobileCompanySelection || isMobileCompanyModules) {
     return children;
   }
 
