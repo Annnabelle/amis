@@ -3,6 +3,7 @@ import type {
   HexString,
   PaginatedDto,
   PaginatedResponseDto,
+  SalesOrderPaymentMethod,
   SalesOrderPriority,
   SalesOrderStatus,
 } from "shared/types/dtos";
@@ -72,6 +73,7 @@ export type CreateSalesOrderDto = {
   fulfillment: {
     dueDate: string;
     priority: SalesOrderPriority;
+    paymentMethod: SalesOrderPaymentMethod;
   };
   items: {
     productId: HexString;

@@ -13,7 +13,7 @@ import { useIsMobile } from 'shared/lib';
 
 const getCompanyIdFromPath = (pathname: string) => {
   const segments = pathname.split('/').filter(Boolean);
-  return segments[0] === 'organization' && segments.length > 2
+  return segments[0] === 'organization' && segments.length > 1
     ? segments[1]
     : null;
 };
@@ -93,19 +93,22 @@ export const PermissionRoute = ({
   });
 
   const segments = location.pathname.split('/').filter(Boolean);
-  const isMobileCompanySelection =
+  const isMobileCompanyNavigation =
     isMobile &&
-    segments.length === 1 &&
     segments[0] === 'organization' &&
-    userAccess.companies.length > 0;
-  const isMobileCompanyModules =
-    isMobile &&
-    segments.length === 2 &&
-    segments[0] === 'organization' &&
-    userAccess.companies.some((company) => company.companyId === segments[1]);
+    (segments.length === 1 || segments.length === 2);
 
-  if (allowed || isMobileCompanySelection || isMobileCompanyModules) {
+  if (allowed || isMobileCompanyNavigation) {
     return children;
+  }
+
+  if (isMobile) {
+    return (
+      <Navigate
+        to={companyId ? `/organization/${companyId}` : '/organization'}
+        replace
+      />
+    );
   }
 
   return <Navigate to={resolveFallbackPath(userAccess)} replace />;

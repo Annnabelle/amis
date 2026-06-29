@@ -6,7 +6,7 @@ import type {
 } from "entities/salesOrders/dtos";
 import type { ErrorDto } from "shared/types/dtos";
 import type { SalesOrderResponse } from "entities/salesOrders/types";
-import type { SalesOrderPriority } from "shared/types/dtos";
+import type { SalesOrderPaymentMethod, SalesOrderPriority } from "shared/types/dtos";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -121,6 +121,7 @@ export type SalesOrderFormValues = {
   fulfillment: {
     dueDate: string | Date | Dayjs;
     priority: SalesOrderPriority;
+    paymentMethod: SalesOrderPaymentMethod;
   };
   items: {
     productId: string;
@@ -156,6 +157,7 @@ export const mapSalesOrderFormToCreateDto = (
     fulfillment: {
       dueDate: dueDate ?? new Date().toISOString(),
       priority: values.fulfillment.priority,
+      paymentMethod: values.fulfillment.paymentMethod,
     },
     items: values.items.map((item) => ({
       productId: item.productId,
