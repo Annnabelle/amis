@@ -130,7 +130,7 @@ const Batches = () => {
                             pageSize: tablePageSize,
                             total: MarkingCodeData?.length || 0,
                             showSizeChanger: { showSearch: false },
-                            pageSizeOptions: ['10', '15', '20', '25'],
+                            pageSizeOptions: ['10', '20', '30', '40', '50'],
                             locale: { items_per_page: '' },
                             onChange: (page, pageSize) => {
                                 const newLimit = pageSize || tablePageSize;

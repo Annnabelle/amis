@@ -556,7 +556,7 @@ const AuditLogsPage: React.FC = () => {
                   total={dataTotal || 0}
                   pageSize={dataLimit || 10}
                   showSizeChanger={{ showSearch: false }}
-                  pageSizeOptions={['10', '15', '20', '25']}
+                  pageSizeOptions={['10', '20', '30', '40', '50']}
                   locale={{ items_per_page: '' }}
                   onChange={(p, pageSize) =>
                     dispatch(
