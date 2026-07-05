@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
@@ -12,6 +12,15 @@ import './styles/App.sass';
 
 const THEME_STORAGE_KEY = 'amis-theme-mode';
 const THEME_TRANSITION_CLASS = 'theme-transition';
+
+const getCssVariable = (name: string) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const getAntdThemeTokens = () => ({
+  colorPrimary: getCssVariable('--main-primary'),
+  colorBgBase: getCssVariable('--main-bg'),
+  colorTextBase: getCssVariable('--basic-black'),
+});
 
 const getInitialTheme = (): ThemeMode => {
   const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -73,13 +82,15 @@ function App() {
   const { darkAlgorithm, defaultAlgorithm } = theme;
   const loading = useAppSelector((state) => state.loader.loading);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
+  const [antdThemeTokens, setAntdThemeTokens] = useState(getAntdThemeTokens);
   const isDarkTheme = themeMode === 'dark';
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.add(THEME_TRANSITION_CLASS);
     root.setAttribute('data-theme', themeMode);
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+    setAntdThemeTokens(getAntdThemeTokens());
 
     const timeoutId = window.setTimeout(() => {
       root.classList.remove(THEME_TRANSITION_CLASS);
@@ -108,11 +119,7 @@ function App() {
       <ConfigProvider
         theme={{
           algorithm: isDarkTheme ? darkAlgorithm : defaultAlgorithm,
-          token: {
-            colorPrimary: '#1E90FF',
-            colorBgBase: isDarkTheme ? '#090A0C' : '#FAFAFA',
-            colorTextBase: isDarkTheme ? '#EAEAEA' : '#1E1E1E',
-          },
+          token: antdThemeTokens,
         }}
       >
         <GlobalLoader loading={loading} />
