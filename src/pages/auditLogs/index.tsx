@@ -29,7 +29,6 @@ import { Link } from "react-router-dom";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { useTheme } from "app/themeContext";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
@@ -38,7 +37,6 @@ const { Panel } = Collapse;
 
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { isDarkTheme } = useTheme();
   const dispatch = useAppDispatch();
   const { data, loading } = useAppSelector(
     (state) => state.auditLogs
@@ -96,34 +94,24 @@ const AuditLogsPage: React.FC = () => {
   });
 }, [data, i18n.language]);
 
-  const categoryPalette: Record<string, { bg: string; color: string; border: string }> = isDarkTheme
-    ? {
-        all: { bg: "#1B2A1E", color: "#73D13D", border: "#389E0D" },
-        auth: { bg: "#103C43", color: "#2FC5B6", border: "#2FC5B6" },
-        user: { bg: "#3B2A1A", color: "#FFB74D", border: "#FFB74D" },
-        "-": { bg: "#2A2A2A", color: "#BFBFBF", border: "#757575" },
-        company: { bg: "#2E1A35", color: "#BA68C8", border: "#BA68C8" },
-        product: { bg: "#3A3620", color: "#FDD835", border: "#FDD835" },
-        order: { bg: "#3B1A1A", color: "#E57373", border: "#E57373" },
-      }
-    : {
-        all: { bg: "#F6FFED", color: "#389E0D", border: "#B7EB8F" },
-        auth: { bg: "#E6FFFB", color: "#08979C", border: "#87E8DE" },
-        user: { bg: "#FFF7E6", color: "#D48806", border: "#FFD591" },
-        "-": { bg: "#FAFAFA", color: "#595959", border: "#D9D9D9" },
-        company: { bg: "#F9F0FF", color: "#722ED1", border: "#D3ADF7" },
-        product: { bg: "#FEFFE6", color: "#D4B106", border: "#FFFB8F" },
-        order: { bg: "#FFF1F0", color: "#CF1322", border: "#FFA39E" },
-      };
+  const categoryPalette: Record<string, { bg: string; color: string; border: string }> = {
+    all: { bg: "var(--status-success-bg)", color: "var(--status-success-color)", border: "var(--status-success-border)" },
+    auth: { bg: "var(--status-cyan-bg)", color: "var(--status-cyan-color)", border: "var(--status-cyan-border)" },
+    user: { bg: "var(--status-orange-bg)", color: "var(--status-orange-color)", border: "var(--status-orange-border)" },
+    "-": { bg: "var(--status-neutral-bg)", color: "var(--status-neutral-color)", border: "var(--status-neutral-border)" },
+    company: { bg: "var(--status-purple-bg)", color: "var(--status-purple-color)", border: "var(--status-purple-border)" },
+    product: { bg: "var(--status-warning-bg)", color: "var(--status-warning-color)", border: "var(--status-warning-border)" },
+    order: { bg: "var(--status-danger-bg)", color: "var(--status-danger-color)", border: "var(--status-danger-border)" },
+  };
 
   const targetFieldMap: Record<string, { label: string; icon: JSX.Element }> = {
     // User
-    fullName: { label: t('users.addUserForm.label.firstName'), icon: <UserOutlined style={{ color: "#1890ff" }} /> },
-    lastName: { label: t('users.addUserForm.label.lastName'), icon: <UserOutlined style={{ color: "#1890ff" }} /> },
-    email: { label: t('users.addUserForm.label.email'), icon: <MailOutlined style={{ color: "#13c2c2" }} /> },
-    phone: { label: t('users.addUserForm.label.phone'), icon: <PhoneOutlined style={{ color: "#52c41a" }} /> },
-    lastLoggedInAt: { label: t('users.addUserForm.label.lastLoggedInAt'), icon: <ClockCircleOutlined style={{ color: "#faad14" }} /> },
-    // status: { label: "Статус", icon: <TagOutlined style={{ color: "#2f54eb" }} /> },
+    fullName: { label: t('users.addUserForm.label.firstName'), icon: <UserOutlined style={{ color: "var(--main-primary)" }} /> },
+    lastName: { label: t('users.addUserForm.label.lastName'), icon: <UserOutlined style={{ color: "var(--main-primary)" }} /> },
+    email: { label: t('users.addUserForm.label.email'), icon: <MailOutlined style={{ color: "var(--status-cyan-color)" }} /> },
+    phone: { label: t('users.addUserForm.label.phone'), icon: <PhoneOutlined style={{ color: "var(--status-success-color)" }} /> },
+    lastLoggedInAt: { label: t('users.addUserForm.label.lastLoggedInAt'), icon: <ClockCircleOutlined style={{ color: "var(--status-warning-color)" }} /> },
+    // status: { label: "Статус", icon: <TagOutlined style={{ color: "var(--main-primary)" }} /> },
 
     // Company
     displayName: { label: t('organizations.addUserForm.label.displayName'), icon: <TagOutlined /> },
@@ -148,8 +136,8 @@ const AuditLogsPage: React.FC = () => {
     "bankDetails.mfo": { label: t('organizations.addUserForm.label.mfo'), icon: <TagOutlined /> },
 
     // Contacts
-    "contacts.phone": { label: t('organizations.addUserForm.label.phone'), icon: <PhoneOutlined style={{ color: "#52c41a" }} /> },
-    "contacts.email": { label: t('organizations.addUserForm.label.email'), icon: <MailOutlined style={{ color: "#13c2c2" }} /> },
+    "contacts.phone": { label: t('organizations.addUserForm.label.phone'), icon: <PhoneOutlined style={{ color: "var(--status-success-color)" }} /> },
+    "contacts.email": { label: t('organizations.addUserForm.label.email'), icon: <MailOutlined style={{ color: "var(--status-cyan-color)" }} /> },
     "contacts.url": { label: t('organizations.addUserForm.label.url'), icon: <GlobalOutlined /> },
     "contacts.person": { label: t('organizations.addUserForm.label.person'), icon: <UserOutlined /> },
 
@@ -191,7 +179,7 @@ const AuditLogsPage: React.FC = () => {
       const orderNumberItem = target.orderNumber ? (
           <div className="content-items" key="orderNumber">
             <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <TagOutlined style={{ color: "#999" }} />
+              <TagOutlined style={{ color: "var(--text-muted)" }} />
               <h5 className="title">{t("orders.orderNumber")}:</h5>
             </div>
             <div className="content-items-item-description">
@@ -211,7 +199,7 @@ const AuditLogsPage: React.FC = () => {
       const batchesItems = target.batches?.map((batch: any, index: number) => (
           <div className="content-items" key={`batch-${index}`}>
             <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <TagOutlined style={{ color: "#999" }} />
+              <TagOutlined style={{ color: "var(--text-muted)" }} />
               <h5 className="title">{t("markingCodes.tableTitles.batchNumber")} {index + 1}:</h5>
             </div>
             <div className="content-items-item-description">
@@ -280,7 +268,7 @@ const AuditLogsPage: React.FC = () => {
           const baseKey = key.split(".").pop() || key;
           const config = targetFieldMap[key] || targetFieldMap[baseKey] || {
             label: baseKey,
-            icon: <TagOutlined style={{ color: "#999" }} />,
+            icon: <TagOutlined style={{ color: "var(--text-muted)" }} />,
           };
 
           let formattedValue: React.ReactNode = formatValueByKey(baseKey, value);
@@ -394,37 +382,37 @@ const AuditLogsPage: React.FC = () => {
                         {item.firstName} {item.lastName}
                       </Link>
                     ),
-                    icon: <UserOutlined style={{ color: "#1890ff" }} />,
+                    icon: <UserOutlined style={{ color: "var(--main-primary)" }} />,
                   },
                   {
                     label: `${t('users.addUserForm.label.email')}`,
                     value: item.email,
-                    icon: <GlobalOutlined style={{ color: "#13c2c2" }} />,
+                    icon: <GlobalOutlined style={{ color: "var(--status-cyan-color)" }} />,
                   },
                   {
                     label: `${t('users.addUserForm.label.lastLoggedInAt')}`,
                     value: item.lastLoggedInAt,
-                    icon: <ClockCircleOutlined style={{ color: "#faad14" }} />,
+                    icon: <ClockCircleOutlined style={{ color: "var(--status-warning-color)" }} />,
                   },
                   {
                     label: `${t('users.addUserForm.label.phone')}`,
                     value: FormatUzbekPhoneNumber(item.phone),
-                    icon: <UserOutlined style={{ color: "#52c41a" }} />,
+                    icon: <UserOutlined style={{ color: "var(--status-success-color)" }} />,
                   },
                   {
                     label: `${t('auditLog.ip')}`,
                     value: item.location,
-                    icon: <GlobalOutlined style={{ color: "#722ed1" }} />,
+                    icon: <GlobalOutlined style={{ color: "var(--status-purple-color)" }} />,
                   },
                   {
                     label: `${t('auditLog.id')}`,
                     value: item.requestId,
-                    icon: <TagOutlined style={{ color: "#13c2c2" }} />,
+                    icon: <TagOutlined style={{ color: "var(--status-cyan-color)" }} />,
                   },
                   {
                     label:`${t('auditLog.session')}`,
                       value: item.correlationId ? item.correlationId.slice(-50) : "",
-                    icon: <TagOutlined style={{ color: "#fa541c" }} />,
+                    icon: <TagOutlined style={{ color: "var(--status-orange-color)" }} />,
                   },
                 ];
                 return (
@@ -435,9 +423,9 @@ const AuditLogsPage: React.FC = () => {
                       className="audit-logs-card-collapse"
                       expandIcon={({ isActive }) =>
                         isActive ? (
-                          <MinusOutlined style={{ color: "green" }} />
+                          <MinusOutlined style={{ color: "var(--event-green)" }} />
                         ) : (
-                          <PlusOutlined style={{ color: "green" }} />
+                          <PlusOutlined style={{ color: "var(--event-green)" }} />
                         )
                       }
                       style={{ background: "transparent" }}

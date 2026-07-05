@@ -94,14 +94,14 @@
                 overflow: hidden
                 text-overflow: ellipsis
                 white-space: nowrap
-                color: rgba(30, 30, 30, 0.58)
+                color: rgba(var(--text-primary-rgb), 0.58)
                 font-size: 12px
         .ant-table-selection-column
             overflow: visible !important
     .clickable-row
         cursor: pointer
     .disabled-row
-        background: #e8e8e8 !important
+        background: map.get(vars.$surface, 'border') !important
         .ant-table-cell
             color: map.get(vars.$basic, 'black') !important
 :where(.css-dev-only-do-not-override-1kl99jq).ant-dropdown .ant-dropdown-menu
