@@ -1,12 +1,15 @@
+@use "sass:map"
+@use "../../styles/variables" as vars
+
 .dm-scanner
   display: flex
   flex-direction: column
   gap: 20px
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 252, 0.88) 100%)
-  border: 1px solid rgba(148, 163, 184, 0.18)
+  background: linear-gradient(180deg, rgba(var(--white-rgb), 1) 0%, rgba(var(--surface-soft-rgb), 0.88) 100%)
+  border: 1px solid rgba(var(--scanner-border-rgb), 0.18)
   border-radius: 20px
   padding: 26px
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06)
+  box-shadow: 0 18px 42px map.get(vars.$shadow, 'card-soft')
 
 .dm-scanner-header
   display: flex
@@ -23,7 +26,7 @@
 .dm-scanner-subtitle
   margin: 8px 0 0
   font-size: 15px
-  color: #6b7280
+  color: map.get(vars.$text, 'secondary')
 
 .dm-scanner-counters
   display: flex
@@ -38,8 +41,8 @@
   min-width: 108px
   padding: 10px 14px
   border-radius: 16px
-  background: rgba(255, 255, 255, 0.92)
-  border: 1px solid rgba(148, 163, 184, 0.2)
+  background: rgba(var(--white-rgb), 0.92)
+  border: 1px solid rgba(var(--scanner-border-rgb), 0.2)
   font-size: 12px
 
 .dm-scanner-counter-value
@@ -47,16 +50,16 @@
   font-weight: 700
 
 .dm-scanner-counter-value.accepted
-  color: #16a34a
+  color: map.get(vars.$scanner, 'success')
 
 .dm-scanner-counter-value.rejected
-  color: #dc2626
+  color: map.get(vars.$scanner, 'danger')
 
 .dm-scanner-helper
   margin: 0
   font-size: 15px
   line-height: 1.45
-  color: #6b7280
+  color: map.get(vars.$text, 'secondary')
 
 .dm-scanner-status
   display: inline-flex
@@ -77,45 +80,45 @@
   flex: 0 0 auto
 
 .dm-scanner-status-idle
-  background: rgba(148, 163, 184, 0.12)
-  color: #64748b
-  border-color: rgba(148, 163, 184, 0.18)
+  background: rgba(var(--scanner-border-rgb), 0.12)
+  color: map.get(vars.$text, 'secondary')
+  border-color: rgba(var(--scanner-border-rgb), 0.18)
 
   .dm-scanner-status-dot
-    background: #94a3b8
+    background: map.get(vars.$scanner, 'border')
 
 .dm-scanner-status-active
-  background: rgba(37, 99, 235, 0.1)
-  color: #2563eb
-  border-color: rgba(37, 99, 235, 0.16)
+  background: rgba(var(--scanner-blue-rgb), 0.1)
+  color: map.get(vars.$scanner, 'blue')
+  border-color: rgba(var(--scanner-blue-rgb), 0.16)
 
   .dm-scanner-status-dot
-    background: #2563eb
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14)
+    background: map.get(vars.$scanner, 'blue')
+    box-shadow: 0 0 0 4px rgba(var(--scanner-blue-rgb), 0.14)
 
 .dm-scanner-status-detected
-  background: rgba(245, 158, 11, 0.12)
-  color: #b45309
-  border-color: rgba(245, 158, 11, 0.18)
+  background: rgba(var(--scanner-warning-rgb), 0.12)
+  color: map.get(vars.$scanner, 'warning')
+  border-color: rgba(var(--scanner-warning-rgb), 0.18)
 
   .dm-scanner-status-dot
-    background: #f59e0b
+    background: map.get(vars.$scanner, 'warning-soft')
 
 .dm-scanner-status-processing
-  background: rgba(30, 144, 255, 0.1)
-  color: #1d4ed8
-  border-color: rgba(30, 144, 255, 0.18)
+  background: rgba(var(--main-primary-rgb), 0.1)
+  color: map.get(vars.$scanner, 'blue-dark')
+  border-color: rgba(var(--main-primary-rgb), 0.18)
 
   .dm-scanner-status-dot
-    background: #1e90ff
+    background: map.get(vars.$main, 'main')
 
 .dm-scanner-status-error
-  background: rgba(239, 68, 68, 0.12)
-  color: #dc2626
-  border-color: rgba(239, 68, 68, 0.18)
+  background: rgba(var(--scanner-danger-rgb), 0.12)
+  color: map.get(vars.$scanner, 'danger')
+  border-color: rgba(var(--scanner-danger-rgb), 0.18)
 
   .dm-scanner-status-dot
-    background: #ef4444
+    background: map.get(vars.$scanner, 'danger-soft')
 
 .dm-scanner-input
   display: grid
@@ -149,9 +152,9 @@
   padding-top: 4px
 
 .dm-scanner-session-close
-  border: 1px solid rgba(148, 163, 184, 0.42)
-  background: rgba(255, 255, 255, 0.92)
-  color: #0f172a
+  border: 1px solid rgba(var(--scanner-border-rgb), 0.42)
+  background: rgba(var(--white-rgb), 0.92)
+  color: map.get(vars.$text, 'primary')
   border-radius: 999px
   padding: 11px 18px
   font-size: 14px
@@ -172,8 +175,8 @@
   overflow: hidden
   min-height: 280px
   border-radius: 12px
-  border: 1px solid #d1d5db
-  background: linear-gradient(145deg, #111827 0%, #1f2937 100%)
+  border: 1px solid map.get(vars.$surface, 'border')
+  background: linear-gradient(145deg, map.get(vars.$scanner, 'camera-bg') 0%, map.get(vars.$scanner, 'camera-bg-soft') 100%)
 
   video
     width: 100%
@@ -183,7 +186,7 @@
     display: block
 
 .dm-scanner-camera-preview.active
-  border-color: #1e90ff
+  border-color: map.get(vars.$main, 'main')
 
 .dm-scanner-camera-target
   position: absolute
@@ -197,9 +200,9 @@
 .dm-scanner-camera-target-frame
   width: min(72vw, 280px)
   height: min(72vw, 280px)
-  border: 2px solid rgba(255, 255, 255, 0.96)
+  border: 2px solid rgba(var(--white-rgb), 0.96)
   border-radius: 20px
-  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.28), 0 0 0 8px rgba(59, 130, 246, 0.12)
+  box-shadow: 0 0 0 9999px rgba(var(--slate-rgb), 0.28), 0 0 0 8px rgba(var(--scanner-blue-rgb), 0.12)
   backdrop-filter: blur(1px)
 
 .dm-scanner-camera-placeholder
@@ -209,7 +212,7 @@
   align-items: center
   justify-content: center
   padding: 16px
-  color: #e5e7eb
+  color: map.get(vars.$surface, 'border')
   text-align: center
   font-size: 14px
 
@@ -223,28 +226,28 @@
 
 .dm-scanner-empty
   padding: 14px 16px
-  color: #9ca3af
-  border: 1px dashed #d1d5db
+  color: map.get(vars.$text, 'muted')
+  border: 1px dashed map.get(vars.$surface, 'border')
   border-radius: 12px
-  background: rgba(255, 255, 255, 0.6)
+  background: rgba(var(--white-rgb), 0.6)
 
 .dm-scanner-item
   display: flex
   flex-direction: column
   align-items: stretch
   padding: 12px 14px
-  border: 1px solid #e5e7eb
+  border: 1px solid map.get(vars.$surface, 'border')
   border-radius: 14px
   margin-bottom: 10px
   gap: 8px
   box-shadow: none
-  background: #ffffff
+  background: map.get(vars.$surface, 'base')
 
 .dm-scanner-item.accepted
-  border-left: 4px solid #22c55e
+  border-left: 4px solid map.get(vars.$scanner, 'success-soft')
 
 .dm-scanner-item.rejected
-  border-left: 4px solid #ef4444
+  border-left: 4px solid map.get(vars.$scanner, 'danger-soft')
 
 .dm-scanner-item-top
   display: flex
@@ -255,12 +258,12 @@
 .dm-scanner-item-code
   padding: 10px 12px
   border-radius: 10px
-  background: #f8fafc
-  border: 1px solid #e2e8f0
+  background: map.get(vars.$surface, 'soft')
+  border: 1px solid map.get(vars.$surface, 'border-soft')
   font-weight: 600
   font-size: 13px
   line-height: 1.45
-  color: #0f172a
+  color: map.get(vars.$text, 'primary')
   white-space: normal
   word-break: break-all
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace
@@ -275,14 +278,14 @@
     font-weight: 600
 
 .dm-scanner-item-reason
-  color: #475569
+  color: map.get(vars.$text, 'slate')
   font-size: 12px
   line-height: 1.35
   word-break: break-word
   padding-inline: 2px
 
 .dm-scanner-item-reason-muted
-  color: #64748b
+  color: map.get(vars.$text, 'secondary')
 
 .dm-scanner-mobile-camera
   display: none
@@ -386,8 +389,8 @@
   justify-content: space-between
   gap: 12px
   padding: 18px 16px 12px
-  color: #f8fafc
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.72) 0%, rgba(2, 6, 23, 0.18) 72%, rgba(2, 6, 23, 0) 100%)
+  color: map.get(vars.$text, 'inverse')
+  background: linear-gradient(180deg, rgba(var(--scanner-dark-rgb), 0.72) 0%, rgba(var(--scanner-dark-rgb), 0.18) 72%, rgba(var(--scanner-dark-rgb), 0) 100%)
 
 .dm-scanner-mobile-camera-title
   display: flex
@@ -403,21 +406,21 @@
   small
     font-size: 13px
     line-height: 1.35
-    color: rgba(226, 232, 240, 0.88)
+    color: rgba(var(--white-rgb), 0.88)
 
 .dm-scanner-mobile-camera-close
-  border: 1px solid rgba(148, 163, 184, 0.38)
-  background: rgba(15, 23, 42, 0.48)
-  color: #f8fafc
+  border: 1px solid rgba(var(--scanner-border-rgb), 0.38)
+  background: rgba(var(--slate-rgb), 0.48)
+  color: map.get(vars.$text, 'inverse')
   border-radius: 999px
   padding: 10px 14px
   font-size: 13px
   font-weight: 600
 
 .dm-scanner-mobile-camera-primary
-  border: 1px solid #2563eb
-  background: #2563eb
-  color: #f8fafc
+  border: 1px solid map.get(vars.$scanner, 'blue')
+  background: map.get(vars.$scanner, 'blue')
+  color: map.get(vars.$text, 'inverse')
   border-radius: 999px
   padding: 10px 14px
   font-size: 13px
@@ -435,7 +438,7 @@
   align-items: center
   gap: 10px
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom))
-  background: linear-gradient(0deg, rgba(2, 6, 23, 0.78) 0%, rgba(2, 6, 23, 0.18) 72%, rgba(2, 6, 23, 0) 100%)
+  background: linear-gradient(0deg, rgba(var(--scanner-dark-rgb), 0.78) 0%, rgba(var(--scanner-dark-rgb), 0.18) 72%, rgba(var(--scanner-dark-rgb), 0) 100%)
 
   .dm-scanner-mobile-camera-primary,
   .dm-scanner-mobile-camera-close
@@ -443,9 +446,9 @@
     padding: 12px 18px
 
   .dm-scanner-mobile-camera-primary
-    background: #2563eb
-    border-color: #2563eb
+    background: map.get(vars.$scanner, 'blue')
+    border-color: map.get(vars.$scanner, 'blue')
 
   .dm-scanner-mobile-camera-close
-    background: rgba(15, 23, 42, 0.8)
-    border-color: rgba(148, 163, 184, 0.42)
+    background: rgba(var(--slate-rgb), 0.8)
+    border-color: rgba(var(--scanner-border-rgb), 0.42)

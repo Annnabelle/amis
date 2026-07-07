@@ -137,7 +137,7 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
 
     return (
         <>
-            {xData?.isTest && <Tag className="tag-organization-test" color="#1890ff">{t("organizations.testFlag")}</Tag>}
+            {xData?.isTest && <Tag className="tag-organization-test" color="var(--main-primary)">{t("organizations.testFlag")}</Tag>}
 
             {/* Первые два поля */}
             <div className="form-inputs form-inputs-row">

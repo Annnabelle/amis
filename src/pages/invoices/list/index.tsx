@@ -78,7 +78,7 @@ const InvoicesList = () => {
                 pageSize: dataLimit || 10,
                 total: dataTotal || 0,
                 showSizeChanger: { showSearch: false },
-                pageSizeOptions: ['10', '15', '20', '25'],
+                pageSizeOptions: ['10', '20', '30', '40', '50'],
                 locale: { items_per_page: '' },
                 onChange: (newPage, newLimit) => {
                   dispatch(

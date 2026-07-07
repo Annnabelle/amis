@@ -260,7 +260,7 @@ const MarkingCodes = () => {
                             pageSize: queryParams.limit,
                             total: dataTotal,
                             showSizeChanger: { showSearch: false },
-                            pageSizeOptions: ['10', '15', '20', '25'],
+                            pageSizeOptions: ['10', '20', '30', '40', '50'],
                             locale: { items_per_page: '' },
                             onChange: (page, limit) => {
                                 setQueryParams(prev => ({

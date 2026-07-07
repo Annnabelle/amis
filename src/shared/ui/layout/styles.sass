@@ -90,7 +90,7 @@
                             left: -28px // ← бейдж ВНЕ layout
                             top: 50%
                             transform: translateY(-50%)
-                            background: #1668dc
+                            background: map.get(vars.$main, 'main-active')
                             padding: 4px 8px
                             border-radius: 4px
                             +mix.typography(10px, 600, map.get(vars.$main, "secondary-white"))
@@ -342,7 +342,7 @@
 
 .test-flag
     max-width: 50px
-    background: #1668dc
+    background: map.get(vars.$main, 'main-active')
     padding: 4px 8px
     border-radius: 4px
     +mix.typography(12px, 600, map.get(vars.$basic, "black"))
