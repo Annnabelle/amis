@@ -162,6 +162,54 @@
                         &.ant-select-focused
                             .ant-select-selector
                                 box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.16) !important
+                .layout-sider-invitations
+                    display: flex
+                    flex-direction: column
+                    gap: 10px
+                    margin-bottom: 12px
+                .layout-sider-invitation
+                    display: flex
+                    flex-direction: column
+                    gap: 10px
+                    padding: 12px
+                    border: 1px solid map.get(vars.$main, 'main')
+                    border-radius: 10px
+                    background: map.get(vars.$main, 'main-more-lighter')
+                    &-title
+                        +mix.typography(13px, 700, map.get(vars.$basic, 'black'))
+                        line-height: 1.3
+                        margin-bottom: 4px
+                    &-subtitle
+                        +mix.typography(12px, 500, map.get(vars.$basic, 'black'))
+                        line-height: 1.35
+                        margin-bottom: 8px
+                    &-roles
+                        display: flex
+                        flex-wrap: wrap
+                        gap: 0
+                        .ant-tag
+                            font-size: 11px
+                            line-height: 1.1
+                            padding: 3px 6px
+                    &-actions
+                        display: grid
+                        grid-template-columns: repeat(2, minmax(0, 1fr))
+                        gap: 8px
+                        .ant-btn
+                            min-height: 34px
+                            height: 34px
+                            border-radius: 8px
+                            padding-inline: 10px
+                            font-size: 13px
+                            font-weight: 600
+                    &-decline
+                        background: map.get(vars.$events, 'danger')
+                        border-color: map.get(vars.$events, 'danger')
+                        color: map.get(vars.$static, 'white')
+                        &:hover
+                            background: map.get(vars.$events, 'red') !important
+                            border-color: map.get(vars.$events, 'red') !important
+                            color: map.get(vars.$static, 'white') !important
                 .layout-company-menu
                     padding-top: 4px
                 &-trigger

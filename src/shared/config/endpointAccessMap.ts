@@ -44,6 +44,7 @@ export const endpointAccessMap = {
   usersHealth: endpoint({ method: "GET", path: "/users/health", permission: null, scope: EndpointScopes.Public }),
   usersLogin: endpoint({ method: "POST", path: "/users/login", permission: null, scope: EndpointScopes.Public }),
   currentAccess: endpoint({ method: "GET", path: "/users/me/access", permission: null, scope: EndpointScopes.Authenticated }),
+  decideSystemAccessInvitation: endpoint({ method: "PATCH", path: "/users/me/system-access/invitations/:id", permission: null, scope: EndpointScopes.Authenticated }),
   usersCreate: endpoint({ method: "POST", path: "/users/register", permission: Permissions.UsersCreate, scope: EndpointScopes.Global }),
   usersResetPassword: endpoint({ method: "PATCH", path: "/users/:id/change-password", permission: Permissions.UsersResetPassword, scope: EndpointScopes.Global }),
   usersSearch: endpoint({ method: "GET", path: "/users/search", permission: Permissions.UsersList, scope: EndpointScopes.Global }),

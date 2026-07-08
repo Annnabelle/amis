@@ -5,7 +5,7 @@ import React, {
   useMemo,
 } from 'react';
 import { type MenuProps } from 'antd';
-import { Button, Layout, Menu, Select, Switch } from 'antd';
+import { Button, Layout, Menu, Select, Switch, Tag } from 'antd';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -20,6 +20,7 @@ import {
   LogoutOutlined,
   SunOutlined,
   MoonOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
@@ -32,7 +33,11 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
 import { getOrganizationById } from 'entities/organization/model';
-import { setCurrentCompanyId } from 'entities/access/model';
+import {
+  acceptSystemAccessInvitation,
+  declineSystemAccessInvitation,
+  setCurrentCompanyId,
+} from 'entities/access/model';
 import { AccessModules, type AccessModule } from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
@@ -76,6 +81,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   );
 
   const systemModules = access?.system.modules ?? [];
+  const pendingSystemInvitations = access?.invitations.systemAccess.filter(
+    (invitation) => invitation.state === 'invited'
+  ) ?? [];
   const companies = access?.companies ?? [];
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
@@ -203,6 +211,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: (
         <Link to="/users">
           {t('navigation.users') || 'Пользователи'}
+        </Link>
+      ),
+    });
+  }
+
+  if (systemModules.includes(AccessModules.Employees)) {
+    systemMenuItems.push({
+      key: '/system-employees',
+      icon: <TeamOutlined />,
+      label: (
+        <Link to="/system-employees">
+          {t('navigation.systemEmployees')}
         </Link>
       ),
     });
@@ -425,6 +445,50 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   onClick={() => setCollapsed(!collapsed)}
                 />
               </div>
+
+              {!collapsed && pendingSystemInvitations.length > 0 && (
+                <div className="layout-sider-invitations">
+                  {pendingSystemInvitations.map((invitation) => (
+                    <div className="layout-sider-invitation" key={invitation.id}>
+                      <div className="layout-sider-invitation-copy">
+                        <p className="layout-sider-invitation-title">
+                          {t('systemEmployees.invitations.title')}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {t('systemEmployees.invitations.rolesPrefix')}
+                        </p>
+                        <div className="layout-sider-invitation-roles">
+                          {invitation.roles.map((role) => (
+                            <Tag key={role} style={{ width: 'auto' }}>
+                              {t(`systemEmployees.roles.${role}`)}
+                            </Tag>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="layout-sider-invitation-actions">
+                        <Button
+                          type="primary"
+                          className="layout-sider-invitation-accept"
+                          onClick={() => {
+                            void dispatch(acceptSystemAccessInvitation({ id: invitation.id }));
+                          }}
+                        >
+                          {t('systemEmployees.actions.accept')}
+                        </Button>
+                        <Button
+                          danger
+                          className="layout-sider-invitation-decline"
+                          onClick={() => {
+                            void dispatch(declineSystemAccessInvitation({ id: invitation.id }));
+                          }}
+                        >
+                          {t('systemEmployees.actions.decline')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <Menu
                 key={`menu-${collapsed ? 'collapsed' : 'open'}`}

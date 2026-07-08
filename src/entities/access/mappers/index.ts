@@ -16,4 +16,7 @@ export const mapCurrentUserAccessDtoToEntity = (
     permissions: company.permissions,
     modules: company.modules,
   })),
+  invitations: {
+    systemAccess: dto.invitations?.systemAccess ?? [],
+  },
 });
