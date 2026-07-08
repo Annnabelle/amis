@@ -723,18 +723,19 @@ input:-webkit-autofill:active
 
 :root[data-theme='dark']
   .route-overview-card
-    background: linear-gradient(135deg, rgba(var(--main-primary-rgb), 0.16) 0%, rgba(var(--surface-soft-rgb), 0.96) 100%)
+    background: linear-gradient(135deg, rgba(var(--main-primary-rgb), 0.14) 0%, rgba(var(--surface-soft-rgb), 0.96) 55%, rgba(var(--black-rgb), 0.12) 100%)
     border-color: rgba(var(--main-primary-soft-rgb), 0.25)
+    box-shadow: 0 14px 30px rgba(var(--black-rgb), 0.22)
 
   .route-overview-title h2
-    color: map.get(vars.$text, 'inverse')
+    color: map.get(vars.$text, 'primary')
 
   .route-meta-chip
     background: rgba(var(--surface-soft-rgb), 0.72)
     border-color: rgba(var(--main-primary-soft-rgb), 0.16)
 
     .value
-      color: map.get(vars.$text, 'inverse')
+      color: map.get(vars.$text, 'primary')
 
   .detail-card
     background: map.get(vars.$surface, 'muted')
@@ -752,7 +753,7 @@ input:-webkit-autofill:active
       color: map.get(vars.$text, 'secondary')
 
     .value
-      color: map.get(vars.$basic, 'black')
+      color: map.get(vars.$text, 'primary')
 
   .detail-stat
     background: linear-gradient(180deg, rgba(var(--main-primary-soft-rgb), 0.12) 0%, rgba(var(--main-primary-soft-rgb), 0.04) 100%)
@@ -767,7 +768,7 @@ input:-webkit-autofill:active
 
   .invoice-item-product strong,
   .invoice-item-chip .value
-    color: map.get(vars.$text, 'inverse')
+    color: map.get(vars.$text, 'primary')
 
   .invoice-item-amount strong
     color: map.get(vars.$main, 'main-hover')
@@ -784,14 +785,14 @@ input:-webkit-autofill:active
     color: map.get(vars.$text, 'secondary') !important
 
   .detail-text-block
-    color: map.get(vars.$basic, 'black')
+    color: map.get(vars.$text, 'primary')
 
   .delivery-task-item-card
     background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.10) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
     border-color: rgba(var(--main-primary-soft-rgb), 0.18)
 
   .delivery-task-item-title h5
-    color: map.get(vars.$text, 'inverse')
+    color: map.get(vars.$text, 'primary')
 
   .route-task-control-btn
     background: rgba(var(--main-primary-soft-rgb), 0.08)
@@ -806,10 +807,10 @@ input:-webkit-autofill:active
   .route-task-item-name,
   .route-task-metric-value,
   .route-task-expanded-value
-    color: map.get(vars.$text, 'inverse')
+    color: map.get(vars.$text, 'primary')
 
   .route-task-customer-name
-    color: map.get(vars.$basic, 'black')
+    color: map.get(vars.$text, 'primary')
 
   .route-task-customer-meta,
   .route-task-invoice,
@@ -1080,6 +1081,15 @@ input:-webkit-autofill:active
 
 :root[data-theme='dark']
   @media (max-width: 900px)
+    .route-overview-card
+      background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.14) 0%, rgba(var(--surface-soft-rgb), 0.96) 100%)
+      border-color: rgba(var(--main-primary-soft-rgb), 0.22)
+      box-shadow: 0 12px 28px rgba(var(--black-rgb), 0.24)
+
+    .route-overview-inline h2,
+    .route-meta-chip .value
+      color: map.get(vars.$text, 'primary')
+
     .route-task-expanded-item,
     .route-task-item-row
       background: rgba(var(--white-rgb), 0.03)
@@ -1090,7 +1100,7 @@ input:-webkit-autofill:active
 
     .route-task-item-cell
       > span:last-child
-        color: map.get(vars.$text, 'inverse')
+        color: map.get(vars.$text, 'primary')
 
 .detail-card button:not(.route-task-control-btn)
   width: 100%
