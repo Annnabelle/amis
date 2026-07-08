@@ -201,6 +201,7 @@
                     customer: "Customer",
                     contract: "Contract",
                     fulfillment: "Fulfillment",
+                    paymentMethod: "Payment method",
                     items: "Items",
                     comment: "Comment",
                     header: "Header",
@@ -272,6 +273,7 @@
                     customerNameRequired: "Name is required",
                     dueDateRequired: "Due date is required",
                     priorityRequired: "Priority is required",
+                    paymentMethodRequired: "Select a payment method",
                     contractNumberRequired: "Contract number is required",
                     contractDateRequired: "Contract date is required",
                     itemProductRequired: "Product is required",
@@ -294,6 +296,10 @@
                     normal: "Normal",
                     high: "High",
                     urgent: "Urgent"
+                },
+                paymentMethods: {
+                    cash: "Cash",
+                    transfer: "Bank transfer"
                 },
                 statuses: {
                     draft: "Draft",
@@ -1471,6 +1477,7 @@
                     customer: "Клиент",
                     contract: "Договор",
                     fulfillment: "Исполнение",
+                    paymentMethod: "Способ оплаты",
                     items: "Товары",
                     comment: "Комментарий",
                     header: "Шапка",
@@ -1542,6 +1549,7 @@
                     customerNameRequired: "Имя обязательно",
                     dueDateRequired: "Срок обязателен",
                     priorityRequired: "Приоритет обязателен",
+                    paymentMethodRequired: "Выберите метод оплаты",
                     contractNumberRequired: "Номер договора обязателен",
                     contractDateRequired: "Дата договора обязательна",
                     itemProductRequired: "Товар обязателен",
@@ -1564,6 +1572,10 @@
                     normal: "Обычный",
                     high: "Высокий",
                     urgent: "Срочный"
+                },
+                paymentMethods: {
+                    cash: "Наличные",
+                    transfer: "Перечисление"
                 },
                 statuses: {
                     draft: "Черновик",
@@ -2733,6 +2745,7 @@
                     customer: "Mijoz",
                     contract: "Shartnoma",
                     fulfillment: "Bajarish",
+                    paymentMethod: "To'lov usuli",
                     items: "Tovarlar",
                     comment: "Izoh",
                     header: "Sarlavha",
@@ -2804,6 +2817,7 @@
                     customerNameRequired: "Ism majburiy",
                     dueDateRequired: "Muddat majburiy",
                     priorityRequired: "Ustuvorlik majburiy",
+                    paymentMethodRequired: "To'lov usulini tanlang",
                     contractNumberRequired: "Shartnoma raqami majburiy",
                     contractDateRequired: "Shartnoma sanasi majburiy",
                     itemProductRequired: "Mahsulot majburiy",
@@ -2826,6 +2840,10 @@
                     normal: "Oddiy",
                     high: "Yuqori",
                     urgent: "Shoshilinch"
+                },
+                paymentMethods: {
+                    cash: "Naqd",
+                    transfer: "Pul o'tkazish"
                 },
                 statuses: {
                     draft: "Qoralama",

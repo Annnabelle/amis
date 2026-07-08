@@ -1,4 +1,9 @@
-import type { HexString, SalesOrderPriority, SalesOrderStatus } from "shared/types/dtos";
+import type {
+  HexString,
+  SalesOrderPaymentMethod,
+  SalesOrderPriority,
+  SalesOrderStatus,
+} from "shared/types/dtos";
 
 export type SalesOrderResponse = {
   id: string;
@@ -72,6 +77,7 @@ export type CreateSalesOrderPayload = {
   fulfillment: {
     dueDate: string;
     priority: SalesOrderPriority;
+    paymentMethod: SalesOrderPaymentMethod;
   };
   items: CreateSalesOrderItem[];
   comment?: string;
