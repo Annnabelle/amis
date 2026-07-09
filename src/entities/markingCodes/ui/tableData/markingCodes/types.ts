@@ -9,6 +9,7 @@ export interface MarkingCodesTableDataType {
     orderNumber: string;
     isPaid: boolean;
     productName: string;
+    gtin?: string;
     totalQuantity: number;
     orderedQuantity: number;
     remainderQuantity: number;
