@@ -68,6 +68,7 @@ export type OrderBatchPopulatedResponseDto = {
     batchNumber: string;
     productId: HexString;
     productName: string;
+    gtin?: string;
     totalQuantity: number;
     orderedQuantity: number;
     remainderQuantity: number;

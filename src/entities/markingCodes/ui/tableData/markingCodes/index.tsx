@@ -40,7 +40,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       </Link>
     ),
   },
-   {
+  {
     title: t("markingCodes.tableTitles.products"),
     dataIndex: "productName",
        flex: 2,
@@ -59,6 +59,14 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
         {record.productName}
       </Link>
     ),
+  },
+  {
+    title: t("markingCodes.tableTitles.gtin"),
+    dataIndex: "gtin",
+    ellipsis: true,
+    flex: 1,
+    key: "gtin",
+    render: (text?: string) => <p className="table-text">{text || "-"}</p>,
   },
   {
     title: t("markingCodes.tableTitles.totalQuantity"),
