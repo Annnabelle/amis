@@ -1177,6 +1177,7 @@
                     submitOrder: "Submit Order",
                     orderHasBeenSuccessfullyCreated: "Order has been successfully created",
                     failedToCreateOrder: "Failed to create order",
+                    differentProductsWarning: "Please note, you selected different product names",
                 },
                 label:{
                     chooseProduct: "Choose product",
@@ -2455,6 +2456,7 @@
                     submitOrder: "Отправить заказ",
                     orderHasBeenSuccessfullyCreated: "Заказ успешно создан",
                     failedToCreateOrder: "Не удалось создать заказ",
+                    differentProductsWarning: "Обратите внимание, вы выбрали разные наименования товара",
                 },
                 label:{
                     chooseProduct: "Выберите продукцию",
@@ -3693,6 +3695,7 @@
                     submitOrder: "Buyurtmani yuborish",
                     orderHasBeenSuccessfullyCreated: "Buyurtma muvaffaqiyatli yaratildi",
                     failedToCreateOrder: "Buyurtma yaratishda xatolik",
+                    differentProductsWarning: "E’tibor bering, siz turli mahsulot nomlarini tanladingiz",
                 },
                 label:{
                     chooseProduct: "Mahsulotni tanlang",
