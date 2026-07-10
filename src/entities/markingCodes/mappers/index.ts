@@ -19,6 +19,7 @@ export function mapMarkingCodesDtoToEntity(dto: OrderBatchPopulatedResponseDto):
         batchNumber: dto.batchNumber,
         productId: dto.productId,
         productName: dto.productName,
+        gtin: dto.gtin,
         totalQuantity: dto.totalQuantity,
         orderedQuantity: dto.orderedQuantity,
         remainderQuantity: dto.remainderQuantity,

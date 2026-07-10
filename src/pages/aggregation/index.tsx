@@ -128,13 +128,23 @@ const Aggregations = () => {
         if (!chosenParentOrderId || !chosenParentBatchId) return [];
 
         return orders
+            .map((item, index) => ({ item, index }))
             .filter(
-                item =>
+                ({ item }) =>
                     item.status === 'codes_utilized' &&
-                    item.orderId === chosenParentOrderId &&
                     item.batchId !== chosenParentBatchId
             )
-            .map(item => ({
+            .sort((a, b) => {
+                const aMatchesParentOrder = a.item.orderId === chosenParentOrderId;
+                const bMatchesParentOrder = b.item.orderId === chosenParentOrderId;
+
+                if (aMatchesParentOrder !== bMatchesParentOrder) {
+                    return aMatchesParentOrder ? -1 : 1;
+                }
+
+                return a.index - b.index;
+            })
+            .map(({ item }) => ({
                 value: `${item.orderId}|${item.batchId}`,
                 label: (
                     <div className="select-option">

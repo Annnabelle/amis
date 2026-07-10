@@ -79,6 +79,7 @@ const MarkingCodes = () => {
             orderNumber: markingCode.orderNumber,
             isPaid: markingCode.isPaid,
             productName: markingCode.productName,
+            gtin: markingCode.gtin,
             totalQuantity: markingCode.totalQuantity,
             orderedQuantity: markingCode.orderedQuantity,
             remainderQuantity: markingCode.remainderQuantity,
@@ -154,7 +155,7 @@ const MarkingCodes = () => {
             ).unwrap();
 
             toast.success(`Созданы отчеты о нанесении: номер ${result[0].reportNumber}`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error(
                 getBackendErrorMessage(error, t('common.error'))
             );

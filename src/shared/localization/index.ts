@@ -1323,12 +1323,14 @@
                     submitOrder: "Submit Order",
                     orderHasBeenSuccessfullyCreated: "Order has been successfully created",
                     failedToCreateOrder: "Failed to create order",
+                    differentProductsWarning: "Please note, you selected different product names",
                 },
                 label:{
                     chooseProduct: "Choose product",
                     choosePackageType: "Choose package type",
                     enterQuantity: "Enter quantity",
-                    chooseGenerationMethod: "Generation method"
+                    chooseGenerationMethod: "Generation method",
+                    duplicatePackageType: "This package type is already selected for this product"
                 },
                 markingCode: {
                     product: "Product",
@@ -2746,12 +2748,14 @@
                     submitOrder: "Отправить заказ",
                     orderHasBeenSuccessfullyCreated: "Заказ успешно создан",
                     failedToCreateOrder: "Не удалось создать заказ",
+                    differentProductsWarning: "Обратите внимание, вы выбрали разные наименования товара",
                 },
                 label:{
                     chooseProduct: "Выберите продукцию",
                     choosePackageType: "Выберите тип упаковки",
                     enterQuantity: "Введите количество",
-                    chooseGenerationMethod: "Метод генерации"
+                    chooseGenerationMethod: "Метод генерации",
+                    duplicatePackageType: "Этот тип упаковки уже выбран для этого товара"
                 },
                 markingCode: {
                     product: "Продукция",
@@ -4129,12 +4133,14 @@
                     submitOrder: "Buyurtmani yuborish",
                     orderHasBeenSuccessfullyCreated: "Buyurtma muvaffaqiyatli yaratildi",
                     failedToCreateOrder: "Buyurtma yaratishda xatolik",
+                    differentProductsWarning: "E’tibor bering, siz turli mahsulot nomlarini tanladingiz",
                 },
                 label:{
                     chooseProduct: "Mahsulotni tanlang",
                     choosePackageType: "Qadoq turini tanlang",
                     enterQuantity: "Miqdor kiriting",
-                    chooseGenerationMethod: "Generatsiya usuli"
+                    chooseGenerationMethod: "Generatsiya usuli",
+                    duplicatePackageType: "Bu qadoq turi ushbu mahsulot uchun allaqachon tanlangan"
                 },
                 markingCode: {
                     product: "Mahsulot",
