@@ -1,4 +1,4 @@
-import { Form, Select, InputNumber, Button, Tooltip } from "antd";
+import { Alert, Form, Select, InputNumber, Button, Tooltip } from "antd";
 import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -133,6 +133,17 @@ const OrderForm = () => {
         item?.product === productId &&
         item?.packType?.toLowerCase() === packageType.toLowerCase()
     );
+  };
+
+  const hasDifferentSelectedProducts = () => {
+    const items = form.getFieldValue("items") ?? [];
+    const selectedProductIds = new Set(
+        items
+            .map((item: OrderFormItem) => item?.product)
+            .filter(Boolean)
+    );
+
+    return selectedProductIds.size > 1;
   };
 
   const handleCreateMarkingCode = async (values: OrderFormValues) => {
@@ -328,6 +339,18 @@ const OrderForm = () => {
               </div>
           )}
         </Form.List>
+
+        <Form.Item noStyle shouldUpdate>
+          {() => (
+              hasDifferentSelectedProducts() && (
+                  <Alert
+                      type="info"
+                      showIcon
+                      message={t("markingCodes.orderCreation.differentProductsWarning")}
+                  />
+              )
+          )}
+        </Form.Item>
 
         <CustomButton disabled={isSubmitting} type="submit" className="outline full-width">
           {t("markingCodes.orderCreation.submitOrder")}
