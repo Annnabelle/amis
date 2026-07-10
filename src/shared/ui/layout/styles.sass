@@ -191,6 +191,16 @@
                             font-size: 11px
                             line-height: 1.1
                             padding: 3px 6px
+                    &-created-by
+                        display: flex
+                        flex-direction: column
+                        gap: 6px
+                        margin-top: 8px
+                        min-width: 0
+                        &-label
+                            +mix.typography(11px, 600, map.get(vars.$basic, 'black'))
+                            line-height: 1.2
+                            opacity: .72
                     &-actions
                         display: grid
                         grid-template-columns: repeat(2, minmax(0, 1fr))

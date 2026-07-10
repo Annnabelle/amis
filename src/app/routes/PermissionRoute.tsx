@@ -34,6 +34,7 @@ export const resolveFallbackPath = (access: UserAccess) => {
   }
 
   const companyCandidates = [
+    [AccessModules.CompanyMemberships, endpointAccessMap.companyMembershipsList, 'memberships'],
     [AccessModules.Products, endpointAccessMap.productsList, 'products'],
     [AccessModules.Orders, endpointAccessMap.ordersList, 'orders'],
     [AccessModules.Reports, endpointAccessMap.aggregationReportsList, 'agregations'],

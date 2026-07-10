@@ -26,6 +26,7 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
   const { t } = useTranslation();
   const canReadUser = useCan(endpointAccessMap.usersRead);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || '-';
+  const displayName = fullName !== '-' ? fullName : user.email || user.id;
   const phoneDisplay = user.phone ? (user.phone.startsWith('+') ? user.phone : `+${user.phone}`) : '-';
   const iconChipStyle = {
     width: compact ? 24 : 24,
@@ -44,8 +45,8 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
           <UserOutlined style={{ color: 'var(--main-primary)', fontSize: 15 }} />
         </span>
         <div style={{ minWidth: 0 }}>
-          <Text style={{ display: 'block', color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }} ellipsis={{ tooltip: fullName }}>
-            {fullName}
+          <Text style={{ display: 'block', color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }} ellipsis={{ tooltip: displayName }}>
+            {displayName}
           </Text>
           {user.status ? (
             <Tag
@@ -121,9 +122,9 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
               minWidth: 0,
               maxWidth: compact ? 300 : 180,
             }}
-            title={fullName}
+            title={displayName}
           >
-            {fullName}
+            {displayName}
           </Link>
 
             ) : (
@@ -136,9 +137,9 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
                   fontWeight: 400,
                   lineHeight: '16px',
                 }}
-                ellipsis={{ tooltip: user.email }}
+                ellipsis={{ tooltip: displayName }}
               >
-                {user.email}
+                {displayName}
               </Text>
             </span>
             )}

@@ -4,6 +4,11 @@ import type {
   SystemRole,
   UserSystemAccessState,
 } from "entities/systemEmployees/types";
+import type {
+  CompanyMembershipState,
+  CompanyRole,
+} from "entities/companyMemberships/types";
+import type { CompanyMembershipDto } from "entities/companyMemberships/dtos";
 
 export type AccessRoleAlias = string;
 
@@ -24,6 +29,7 @@ export type GetCurrentUserAccessSuccessResponseDto = {
   companies: CompanyAccessDto[];
   invitations?: {
     systemAccess: SystemAccessInvitationResponseDto[];
+    companyMemberships: CompanyMembershipInvitationResponseDto[];
   };
 };
 
@@ -31,7 +37,21 @@ export type SystemAccessInvitationResponseDto = {
   id: string;
   roles: SystemRole[];
   state: UserSystemAccessState;
-  createdBy?: string;
+  createdBy: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CompanyMembershipInvitationResponseDto = {
+  id: string;
+  company: {
+    id: string;
+    name: string;
+  };
+  roles: CompanyRole[];
+  state: CompanyMembershipState;
+  createdBy: string;
   updatedBy?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -45,6 +65,17 @@ export type SystemAccessInvitationActionResponseDto =
   | ErrorDto;
 
 export type SystemAccessInvitationDecisionDto = {
+  decision: "accept" | "decline";
+};
+
+export type CompanyMembershipInvitationActionResponseDto =
+  | {
+      success: true;
+      data: CompanyMembershipDto;
+    }
+  | ErrorDto;
+
+export type CompanyMembershipInvitationDecisionDto = {
   decision: "accept" | "decline";
 };
 
@@ -69,6 +100,11 @@ export type GetRoleReferencesQueryDto = {
 export const isSystemAccessInvitationActionSuccessResponse = (
   dto: SystemAccessInvitationActionResponseDto
 ): dto is Extract<SystemAccessInvitationActionResponseDto, { success: true }> =>
+  dto.success === true && "data" in dto;
+
+export const isCompanyMembershipInvitationActionSuccessResponse = (
+  dto: CompanyMembershipInvitationActionResponseDto
+): dto is Extract<CompanyMembershipInvitationActionResponseDto, { success: true }> =>
   dto.success === true && "data" in dto;
 
 export const isGetRoleReferencesSuccessResponse = (

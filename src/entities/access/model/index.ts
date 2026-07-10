@@ -1,15 +1,25 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
+  isCompanyMembershipInvitationActionSuccessResponse,
   isSystemAccessInvitationActionSuccessResponse,
   isGetCurrentUserAccessSuccessResponse,
   isGetRoleReferencesSuccessResponse,
+  type CompanyMembershipInvitationActionResponseDto,
+  type CompanyMembershipInvitationDecisionDto,
   type GetCurrentUserAccessResponseDto,
   type GetRoleReferencesResponseDto,
   type SystemAccessInvitationActionResponseDto,
   type SystemAccessInvitationDecisionDto,
 } from "entities/access/dtos";
 import { mapCurrentUserAccessDtoToEntity } from "entities/access/mappers";
-import type { AccessState, RoleReference, RoleReferenceScope, UserAccess } from "entities/access/types";
+import {
+  getRoleReferenceCacheKey,
+  type AccessState,
+  type RoleReference,
+  type RoleReferenceCacheKey,
+  type RoleReferenceScope,
+  type UserAccess,
+} from "entities/access/types";
 import axiosInstance from "shared/lib/axiosInstance";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 
@@ -66,19 +76,21 @@ export const fetchCurrentUserAccess = createAsyncThunk<
 );
 
 export const fetchAssignableRoles = createAsyncThunk<
-  { scope: RoleReferenceScope; roles: RoleReference[] },
-  { scope: RoleReferenceScope },
+  { key: RoleReferenceCacheKey; roles: RoleReference[] },
+  { scope: RoleReferenceScope; companyId?: string },
   { rejectValue: string }
 >(
   "access/fetchAssignableRoles",
-  async ({ scope }, { rejectWithValue }) => {
+  async ({ scope, companyId }, { rejectWithValue }) => {
+    const key = getRoleReferenceCacheKey(scope, companyId);
     try {
       const response = await axiosInstance.get<GetRoleReferencesResponseDto>(
-        `/references/roles/${scope}/assignable`
+        `/references/roles/${scope}/assignable`,
+        companyId ? { headers: { "x-company-id": companyId } } : undefined
       );
 
       if (isGetRoleReferencesSuccessResponse(response.data)) {
-        return { scope, roles: response.data.roles };
+        return { key, roles: response.data.roles };
       }
 
       return rejectWithValue(
@@ -97,19 +109,21 @@ export const fetchAssignableRoles = createAsyncThunk<
 );
 
 export const fetchRoleReferences = createAsyncThunk<
-  { scope: RoleReferenceScope; roles: RoleReference[] },
-  { scope: RoleReferenceScope },
+  { key: RoleReferenceCacheKey; roles: RoleReference[] },
+  { scope: RoleReferenceScope; companyId?: string },
   { rejectValue: string }
 >(
   "access/fetchRoleReferences",
-  async ({ scope }, { rejectWithValue }) => {
+  async ({ scope, companyId }, { rejectWithValue }) => {
+    const key = getRoleReferenceCacheKey(scope, companyId);
     try {
       const response = await axiosInstance.get<GetRoleReferencesResponseDto>(
-        `/references/roles/${scope}`
+        `/references/roles/${scope}`,
+        companyId ? { headers: { "x-company-id": companyId } } : undefined
       );
 
       if (isGetRoleReferencesSuccessResponse(response.data)) {
-        return { scope, roles: response.data.roles };
+        return { key, roles: response.data.roles };
       }
 
       return rejectWithValue(
@@ -197,6 +211,41 @@ export const declineSystemAccessInvitation = createAsyncThunk<
   }
 );
 
+export const respondCompanyMembershipInvitation = createAsyncThunk<
+  void,
+  { id: string; decision: CompanyMembershipInvitationDecisionDto["decision"] },
+  { rejectValue: string }
+>(
+  "access/respondCompanyMembershipInvitation",
+  async ({ id, decision }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch<
+        CompanyMembershipInvitationActionResponseDto
+      >(
+        `/users/me/company-membership/invitations/${id}`,
+        { decision } satisfies CompanyMembershipInvitationDecisionDto
+      );
+
+      if (isCompanyMembershipInvitationActionSuccessResponse(response.data)) {
+        await dispatch(fetchCurrentUserAccess());
+        return;
+      }
+
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Не удалось обработать приглашение")
+      );
+    } catch (error: unknown) {
+      const responseData = (
+        error as { response?: { data?: unknown } }
+      ).response?.data;
+
+      return rejectWithValue(
+        getBackendErrorMessage(responseData ?? error, "Не удалось обработать приглашение")
+      );
+    }
+  }
+);
+
 export const accessSlice = createSlice({
   name: "access",
   initialState,
@@ -247,35 +296,51 @@ export const accessSlice = createSlice({
           action.payload ?? "Не удалось загрузить права доступа пользователя";
       })
       .addCase(fetchRoleReferences.pending, (state, action) => {
-        state.roleReferencesLoading[action.meta.arg.scope] = true;
-        state.roleReferencesError[action.meta.arg.scope] = null;
+        const key = getRoleReferenceCacheKey(
+          action.meta.arg.scope,
+          action.meta.arg.companyId
+        );
+        state.roleReferencesLoading[key] = true;
+        state.roleReferencesError[key] = null;
       })
       .addCase(fetchRoleReferences.fulfilled, (state, action) => {
-        state.roleReferences[action.payload.scope] = action.payload.roles;
-        state.roleReferencesLoading[action.payload.scope] = false;
-        state.roleReferencesLoaded[action.payload.scope] = true;
-        state.roleReferencesError[action.payload.scope] = null;
+        state.roleReferences[action.payload.key] = action.payload.roles;
+        state.roleReferencesLoading[action.payload.key] = false;
+        state.roleReferencesLoaded[action.payload.key] = true;
+        state.roleReferencesError[action.payload.key] = null;
       })
       .addCase(fetchRoleReferences.rejected, (state, action) => {
-        state.roleReferencesLoading[action.meta.arg.scope] = false;
-        state.roleReferencesLoaded[action.meta.arg.scope] = true;
-        state.roleReferencesError[action.meta.arg.scope] =
+        const key = getRoleReferenceCacheKey(
+          action.meta.arg.scope,
+          action.meta.arg.companyId
+        );
+        state.roleReferencesLoading[key] = false;
+        state.roleReferencesLoaded[key] = true;
+        state.roleReferencesError[key] =
           action.payload ?? "Не удалось загрузить справочник ролей";
       })
       .addCase(fetchAssignableRoles.pending, (state, action) => {
-        state.assignableRolesLoading[action.meta.arg.scope] = true;
-        state.assignableRolesError[action.meta.arg.scope] = null;
+        const key = getRoleReferenceCacheKey(
+          action.meta.arg.scope,
+          action.meta.arg.companyId
+        );
+        state.assignableRolesLoading[key] = true;
+        state.assignableRolesError[key] = null;
       })
       .addCase(fetchAssignableRoles.fulfilled, (state, action) => {
-        state.assignableRoles[action.payload.scope] = action.payload.roles;
-        state.assignableRolesLoading[action.payload.scope] = false;
-        state.assignableRolesLoaded[action.payload.scope] = true;
-        state.assignableRolesError[action.payload.scope] = null;
+        state.assignableRoles[action.payload.key] = action.payload.roles;
+        state.assignableRolesLoading[action.payload.key] = false;
+        state.assignableRolesLoaded[action.payload.key] = true;
+        state.assignableRolesError[action.payload.key] = null;
       })
       .addCase(fetchAssignableRoles.rejected, (state, action) => {
-        state.assignableRolesLoading[action.meta.arg.scope] = false;
-        state.assignableRolesLoaded[action.meta.arg.scope] = true;
-        state.assignableRolesError[action.meta.arg.scope] =
+        const key = getRoleReferenceCacheKey(
+          action.meta.arg.scope,
+          action.meta.arg.companyId
+        );
+        state.assignableRolesLoading[key] = false;
+        state.assignableRolesLoaded[key] = true;
+        state.assignableRolesError[key] =
           action.payload ?? "Не удалось загрузить справочник ролей";
       });
   },

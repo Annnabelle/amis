@@ -1,17 +1,17 @@
-.system-employees-filters
+.company-memberships-filters
     justify-content: flex-start
     align-items: flex-start
     flex-wrap: wrap
 
     .form-inputs
-        flex: 0 0 var(--system-employees-filter-width)
-        width: var(--system-employees-filter-width)
+        flex: 0 0 var(--company-memberships-filter-width)
+        width: var(--company-memberships-filter-width)
         max-width: 100%
 
         .ant-select
             width: 100%
 
-.system-employees-table-actions
+.company-memberships-table-actions
     display: flex
     align-items: center
     justify-content: flex-end
@@ -25,8 +25,8 @@
         font-size: 12px
         white-space: nowrap
 
-.system-employees-invite-modal,
-.system-employees-roles-modal
+.company-memberships-invite-modal,
+.company-memberships-roles-modal
     .ant-modal-body
         .form
             width: 100%
@@ -43,21 +43,51 @@
             .ant-select-selection-overflow
                 gap: 4px
 
-.system-employees-role-tag
+.company-memberships-invite-modal
+    .company-memberships-email-input
+        font-family: "Montserrat", sans-serif
+        font-size: 14px
+
+        &::placeholder
+            color: rgba(var(--black-rgb), .25) !important
+            font-family: "Montserrat", sans-serif
+            font-size: 14px
+            font-weight: 400
+            opacity: 1
+
+        &::-webkit-input-placeholder
+            color: rgba(var(--black-rgb), .25) !important
+            font-family: "Montserrat", sans-serif
+            font-size: 14px
+            font-weight: 400
+
+        &::-moz-placeholder
+            color: rgba(var(--black-rgb), .25) !important
+            font-family: "Montserrat", sans-serif
+            font-size: 14px
+            font-weight: 400
+            opacity: 1
+
+.company-memberships-invite-user
+    display: flex
+    min-width: 0
+    margin-top: -2px
+
+.company-memberships-role-tag
     width: auto
     margin: 2px 4px 2px 0
     display: inline-flex
     align-items: center
     gap: 4px
 
-.system-employees-role-option
+.company-memberships-role-option
     width: 100%
 
-.system-employees-details-modal
+.company-memberships-details-modal
     .ant-modal-body
         padding-top: 8px
 
-.system-employees-details
+.company-memberships-details
     display: flex
     flex-direction: column
     gap: 18px

@@ -27,6 +27,7 @@ import {
 import type { SystemEmployeeTableDataType } from "entities/systemEmployees/ui/tableData/systemEmployees/types";
 import { searchUsers } from "entities/users/model";
 import type { UserResponse } from "entities/users/types";
+import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
 import FilterBar from "shared/ui/filterBar/filterBar";
@@ -497,6 +498,10 @@ const SystemEmployees = () => {
               <div className="system-employees-details-item">
                 <span className="system-employees-details-label">{t("systemEmployees.fields.updatedAt")}</span>
                 <span className="system-employees-details-value">{dayjs(visibleDetails.updatedAt).format("DD.MM.YYYY HH:mm")}</span>
+              </div>
+              <div className="system-employees-details-item system-employees-details-preview">
+                <span className="system-employees-details-label">{t("systemEmployees.fields.invitedBy")}</span>
+                <UserPreviewCardById userId={visibleDetails.createdBy} compact />
               </div>
             </div>
 

@@ -3,17 +3,23 @@ import type {
   CreateSystemEmployeeDto,
   DeleteSystemEmployeeResponseDto,
   GetSystemEmployeesQueryDto,
+  SystemEmployeeAccessResponseDto,
   SystemEmployeeSingleResponseDto,
   SystemEmployeesResponseDto,
   UpdateSystemEmployeeDto,
 } from "entities/systemEmployees/dtos";
 import {
+  isSystemEmployeeAccessResponseSuccess,
   isSystemEmployeeSingleResponseSuccess,
   isSystemEmployeesResponseSuccess,
 } from "entities/systemEmployees/dtos";
-import { mapSystemEmployeeDtoToEntity } from "entities/systemEmployees/mappers";
+import {
+  mapSystemEmployeeAccessDtoToEntity,
+  mapSystemEmployeeDtoToEntity,
+} from "entities/systemEmployees/mappers";
 import type {
   SystemEmployee,
+  SystemEmployeeAccess,
   SystemEmployeeListQuery,
   SystemEmployeesState,
 } from "entities/systemEmployees/types";
@@ -87,18 +93,18 @@ export const getSystemEmployeeById = createAsyncThunk<
 });
 
 export const createSystemEmployeeInvitation = createAsyncThunk<
-  SystemEmployee,
+  SystemEmployeeAccess,
   CreateSystemEmployeeDto,
   { rejectValue: string }
 >("systemEmployees/createInvitation", async (payload, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post<SystemEmployeeSingleResponseDto>(
+    const response = await axiosInstance.post<SystemEmployeeAccessResponseDto>(
       "/system/employees",
       payload
     );
 
-    if (isSystemEmployeeSingleResponseSuccess(response.data)) {
-      return mapSystemEmployeeDtoToEntity(response.data.data);
+    if (isSystemEmployeeAccessResponseSuccess(response.data)) {
+      return mapSystemEmployeeAccessDtoToEntity(response.data.data);
     }
 
     return rejectWithValue(
@@ -113,18 +119,18 @@ export const createSystemEmployeeInvitation = createAsyncThunk<
 });
 
 export const updateSystemEmployeeRoles = createAsyncThunk<
-  SystemEmployee,
+  SystemEmployeeAccess,
   { id: string; data: UpdateSystemEmployeeDto },
   { rejectValue: string }
 >("systemEmployees/updateRoles", async ({ id, data }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.patch<SystemEmployeeSingleResponseDto>(
+    const response = await axiosInstance.patch<SystemEmployeeAccessResponseDto>(
       `/system/employees/${id}`,
       data
     );
 
-    if (isSystemEmployeeSingleResponseSuccess(response.data)) {
-      return mapSystemEmployeeDtoToEntity(response.data.data);
+    if (isSystemEmployeeAccessResponseSuccess(response.data)) {
+      return mapSystemEmployeeAccessDtoToEntity(response.data.data);
     }
 
     return rejectWithValue(
@@ -191,20 +197,38 @@ export const systemEmployeesSlice = createSlice({
       .addCase(getSystemEmployeeById.fulfilled, (state, action) => {
         state.employeeById = action.payload;
       })
-      .addCase(createSystemEmployeeInvitation.fulfilled, (state, action: PayloadAction<SystemEmployee>) => {
+      .addCase(createSystemEmployeeInvitation.fulfilled, (state, action: PayloadAction<SystemEmployeeAccess>) => {
         const index = state.employees.findIndex((item) => item.id === action.payload.id);
         if (index >= 0) {
-          state.employees[index] = action.payload;
-          return;
+          state.employees[index] = {
+            ...state.employees[index],
+            roles: action.payload.roles,
+            state: action.payload.state,
+            createdBy: action.payload.createdBy,
+            updatedBy: action.payload.updatedBy,
+            createdAt: action.payload.createdAt ?? state.employees[index].createdAt,
+            updatedAt: action.payload.updatedAt ?? state.employees[index].updatedAt,
+          };
         }
-        state.employees.unshift(action.payload);
-        state.total += 1;
       })
       .addCase(updateSystemEmployeeRoles.fulfilled, (state, action) => {
-        state.employeeById = action.payload;
-        state.employees = state.employees.map((item) =>
-          item.id === action.payload.id ? action.payload : item
-        );
+        const applyAccess = (item: SystemEmployee): SystemEmployee =>
+          item.id === action.payload.id
+            ? {
+                ...item,
+                roles: action.payload.roles,
+                state: action.payload.state,
+                createdBy: action.payload.createdBy,
+                updatedBy: action.payload.updatedBy,
+                createdAt: action.payload.createdAt ?? item.createdAt,
+                updatedAt: action.payload.updatedAt ?? item.updatedAt,
+              }
+            : item;
+
+        state.employees = state.employees.map(applyAccess);
+        if (state.employeeById?.id === action.payload.id) {
+          state.employeeById = applyAccess(state.employeeById);
+        }
       })
       .addCase(deleteSystemEmployee.fulfilled, (state, action) => {
         state.employees = state.employees.map((item) =>

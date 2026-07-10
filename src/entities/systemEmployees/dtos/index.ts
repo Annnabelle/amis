@@ -23,7 +23,7 @@ export type GetSystemEmployeesQueryDto = {
   query?: string;
 };
 
-export type SystemEmployeeResponseDto = {
+export type SystemEmployeeDto = {
   id: string;
   user: {
     id: string;
@@ -37,14 +37,29 @@ export type SystemEmployeeResponseDto = {
   };
   roles: SystemRole[];
   state: UserSystemAccessState;
+  createdBy: string;
+  updatedBy?: string;
   createdAt: string;
   updatedAt: string;
 };
 
+export type SystemEmployeeAccessDto = {
+  id: string;
+  userId: string;
+  roles: SystemRole[];
+  state: UserSystemAccessState;
+  createdBy: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type SystemEmployeeResponseDto = SystemEmployeeDto;
+
 export type SystemEmployeesResponseDto =
   | {
       success: true;
-      data: SystemEmployeeResponseDto[];
+      data: SystemEmployeeDto[];
       page: number;
       limit: number;
       total: number;
@@ -58,6 +73,13 @@ export type SystemEmployeeSingleResponseDto =
     }
   | ErrorDto;
 
+export type SystemEmployeeAccessResponseDto =
+  | {
+      success: true;
+      data: SystemEmployeeAccessDto;
+    }
+  | ErrorDto;
+
 export type DeleteSystemEmployeeResponseDto =
   | {
       success: true;
@@ -66,10 +88,15 @@ export type DeleteSystemEmployeeResponseDto =
 
 export const isSystemEmployeesResponseSuccess = (
   dto: SystemEmployeesResponseDto
-): dto is Extract<SystemEmployeesResponseDto, { success: true; data: SystemEmployeeResponseDto[] }> =>
+): dto is Extract<SystemEmployeesResponseDto, { success: true; data: SystemEmployeeDto[] }> =>
   dto.success === true && "data" in dto;
 
 export const isSystemEmployeeSingleResponseSuccess = (
   dto: SystemEmployeeSingleResponseDto
 ): dto is Extract<SystemEmployeeSingleResponseDto, { success: true; data: SystemEmployeeResponseDto }> =>
+  dto.success === true && "data" in dto;
+
+export const isSystemEmployeeAccessResponseSuccess = (
+  dto: SystemEmployeeAccessResponseDto
+): dto is Extract<SystemEmployeeAccessResponseDto, { success: true; data: SystemEmployeeAccessDto }> =>
   dto.success === true && "data" in dto;

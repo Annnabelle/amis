@@ -27,6 +27,7 @@ import { IoClose } from 'react-icons/io5';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
 import Session from 'widgets/session';
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
@@ -36,11 +37,19 @@ import { getOrganizationById } from 'entities/organization/model';
 import {
   acceptSystemAccessInvitation,
   declineSystemAccessInvitation,
+  fetchRoleReferences,
+  respondCompanyMembershipInvitation,
   setCurrentCompanyId,
 } from 'entities/access/model';
-import { AccessModules, type AccessModule } from 'entities/access/types';
+import {
+  AccessModules,
+  getRoleReferenceCacheKey,
+  RoleReferenceScope,
+  type AccessModule,
+} from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
+import { isLanguage, type Language } from 'shared/types/dtos';
 
 const { Header, Content, Sider } = Layout;
 
@@ -64,13 +73,18 @@ type MobileNavConfig = {
   items: MobileNavItem[];
 };
 
+const getLocalizedText = (
+  value: Record<Language, string>,
+  language: Language
+) => value[language] || value.ru || value.en || value.uz;
+
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { isDarkTheme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
 
   const access = useAppSelector((state) => state.access.data);
@@ -84,6 +98,50 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const pendingSystemInvitations = access?.invitations.systemAccess.filter(
     (invitation) => invitation.state === 'invited'
   ) ?? [];
+  const pendingCompanyInvitations = access?.invitations.companyMemberships.filter(
+    (invitation) => invitation.state === 'invited'
+  ) ?? [];
+  const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
+  const systemRoleReferences = useAppSelector(
+    (state) => state.access.roleReferences[RoleReferenceScope.System] ?? []
+  );
+  const roleReferences = useAppSelector((state) => state.access.roleReferences);
+  const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
+  const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
+  const areSystemRoleReferencesLoaded = useAppSelector((state) =>
+    Boolean(state.access.roleReferencesLoaded[RoleReferenceScope.System])
+  );
+  const areSystemRoleReferencesLoading = useAppSelector((state) =>
+    Boolean(state.access.roleReferencesLoading[RoleReferenceScope.System])
+  );
+  const systemRoleLabels = useMemo(
+    () =>
+      systemRoleReferences.reduce<Record<string, string>>((acc, role) => {
+        acc[role.alias] = getLocalizedText(role.name, currentLanguage);
+        return acc;
+      }, {}),
+    [currentLanguage, systemRoleReferences]
+  );
+  const companyRoleLabelsByCompany = useMemo(
+    () =>
+      pendingCompanyInvitations.reduce<Record<string, Record<string, string>>>(
+        (acc, invitation) => {
+          const key = getRoleReferenceCacheKey(
+            RoleReferenceScope.Company,
+            invitation.company.id
+          );
+          acc[invitation.company.id] = (roleReferences[key] ?? []).reduce<
+            Record<string, string>
+          >((roleAcc, role) => {
+            roleAcc[role.alias] = getLocalizedText(role.name, currentLanguage);
+            return roleAcc;
+          }, {});
+          return acc;
+        },
+        {}
+      ),
+    [currentLanguage, pendingCompanyInvitations, roleReferences]
+  );
   const companies = access?.companies ?? [];
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
@@ -116,6 +174,46 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const selectableCompanies = systemCompany
     ? [...companies, systemCompany]
     : companies;
+
+  useEffect(() => {
+    if (
+      !access ||
+      areSystemRoleReferencesLoaded ||
+      areSystemRoleReferencesLoading
+    ) {
+      return;
+    }
+
+    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+  }, [
+    areSystemRoleReferencesLoaded,
+    areSystemRoleReferencesLoading,
+    access,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    pendingCompanyInvitations.forEach((invitation) => {
+      const key = getRoleReferenceCacheKey(
+        RoleReferenceScope.Company,
+        invitation.company.id
+      );
+
+      if (roleReferencesLoaded[key] || roleReferencesLoading[key]) {
+        return;
+      }
+
+      void dispatch(fetchRoleReferences({
+        scope: RoleReferenceScope.Company,
+        companyId: invitation.company.id,
+      }));
+    });
+  }, [
+    dispatch,
+    pendingCompanyInvitations,
+    roleReferencesLoaded,
+    roleReferencesLoading,
+  ]);
 
   useEffect(() => {
     if (
@@ -155,6 +253,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     modules: AccessModule[]
   ): CompanyModuleMenuItem[] => {
     const frontendModuleOrder: CompanyModuleMenuItem[] = [
+      {
+        module: AccessModules.CompanyMemberships,
+        key: 'memberships',
+        icon: <TeamOutlined />,
+        path: `/organization/${companyId}/memberships`,
+        label: t('navigation.companyMemberships'),
+      },
       {
         module: AccessModules.Products,
         key: 'products',
@@ -446,7 +551,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 />
               </div>
 
-              {!collapsed && pendingSystemInvitations.length > 0 && (
+              {!collapsed && (pendingSystemInvitations.length > 0 || pendingCompanyInvitations.length > 0) && (
                 <div className="layout-sider-invitations">
                   {pendingSystemInvitations.map((invitation) => (
                     <div className="layout-sider-invitation" key={invitation.id}>
@@ -460,9 +565,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         <div className="layout-sider-invitation-roles">
                           {invitation.roles.map((role) => (
                             <Tag key={role} style={{ width: 'auto' }}>
-                              {t(`systemEmployees.roles.${role}`)}
+                              {systemRoleLabels[role] ?? role}
                             </Tag>
                           ))}
+                        </div>
+                        <div className="layout-sider-invitation-created-by">
+                          <span className="layout-sider-invitation-created-by-label">
+                            {t('systemEmployees.fields.invitedBy')}
+                          </span>
+                          <UserPreviewCardById userId={invitation.createdBy} />
                         </div>
                       </div>
                       <div className="layout-sider-invitation-actions">
@@ -483,6 +594,60 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           }}
                         >
                           {t('systemEmployees.actions.decline')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingCompanyInvitations.map((invitation) => (
+                    <div className="layout-sider-invitation" key={invitation.id}>
+                      <div className="layout-sider-invitation-copy">
+                        <p className="layout-sider-invitation-title">
+                          {t('companyMemberships.invitations.title')}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {invitation.company.name}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {t('companyMemberships.invitations.rolesPrefix')}
+                        </p>
+                        <div className="layout-sider-invitation-roles">
+                          {invitation.roles.map((role) => (
+                            <Tag key={role} style={{ width: 'auto' }}>
+                              {companyRoleLabelsByCompany[invitation.company.id]?.[role] ?? role}
+                            </Tag>
+                          ))}
+                        </div>
+                        <div className="layout-sider-invitation-created-by">
+                          <span className="layout-sider-invitation-created-by-label">
+                            {t('companyMemberships.fields.invitedBy')}
+                          </span>
+                          <UserPreviewCardById userId={invitation.createdBy} />
+                        </div>
+                      </div>
+                      <div className="layout-sider-invitation-actions">
+                        <Button
+                          type="primary"
+                          className="layout-sider-invitation-accept"
+                          onClick={() => {
+                            void dispatch(respondCompanyMembershipInvitation({
+                              id: invitation.id,
+                              decision: 'accept',
+                            }));
+                          }}
+                        >
+                          {t('companyMemberships.actions.accept')}
+                        </Button>
+                        <Button
+                          danger
+                          className="layout-sider-invitation-decline"
+                          onClick={() => {
+                            void dispatch(respondCompanyMembershipInvitation({
+                              id: invitation.id,
+                              decision: 'decline',
+                            }));
+                          }}
+                        >
+                          {t('companyMemberships.actions.decline')}
                         </Button>
                       </div>
                     </div>

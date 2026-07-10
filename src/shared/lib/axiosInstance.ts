@@ -54,7 +54,10 @@ axiosInstance.interceptors.request.use((config) => {
     );
   }
 
-  const companyId = getCompanyIdFromLocation() ?? getRuntimeCompanyId();
+  const explicitCompanyId =
+    config.headers['x-company-id'] ??
+    config.headers['X-Company-Id'];
+  const companyId = explicitCompanyId ?? getCompanyIdFromLocation() ?? getRuntimeCompanyId();
   const requiresCompanyId = endpointAccess?.scope === EndpointScopes.Company;
   const acceptsCompanyId = endpointAccess?.scope === EndpointScopes.Any;
 

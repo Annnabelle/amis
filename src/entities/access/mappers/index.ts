@@ -18,5 +18,6 @@ export const mapCurrentUserAccessDtoToEntity = (
   })),
   invitations: {
     systemAccess: dto.invitations?.systemAccess ?? [],
+    companyMemberships: dto.invitations?.companyMemberships ?? [],
   },
 });

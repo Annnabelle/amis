@@ -1,5 +1,11 @@
-import type { SystemEmployeeResponseDto } from "entities/systemEmployees/dtos";
-import type { SystemEmployee } from "entities/systemEmployees/types";
+import type {
+  SystemEmployeeAccessDto,
+  SystemEmployeeResponseDto,
+} from "entities/systemEmployees/dtos";
+import type {
+  SystemEmployee,
+  SystemEmployeeAccess,
+} from "entities/systemEmployees/types";
 
 export const mapSystemEmployeeDtoToEntity = (
   dto: SystemEmployeeResponseDto
@@ -17,6 +23,21 @@ export const mapSystemEmployeeDtoToEntity = (
   },
   roles: dto.roles,
   state: dto.state,
+  createdBy: dto.createdBy,
+  updatedBy: dto.updatedBy,
+  createdAt: dto.createdAt,
+  updatedAt: dto.updatedAt,
+});
+
+export const mapSystemEmployeeAccessDtoToEntity = (
+  dto: SystemEmployeeAccessDto
+): SystemEmployeeAccess => ({
+  id: dto.id,
+  userId: dto.userId,
+  roles: dto.roles,
+  state: dto.state,
+  createdBy: dto.createdBy,
+  updatedBy: dto.updatedBy,
   createdAt: dto.createdAt,
   updatedAt: dto.updatedAt,
 });

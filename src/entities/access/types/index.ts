@@ -4,6 +4,10 @@ import type {
   SystemRole,
   UserSystemAccessState,
 } from "entities/systemEmployees/types";
+import type {
+  CompanyMembershipState,
+  CompanyRole,
+} from "entities/companyMemberships/types";
 
 export { Permissions } from "shared/config/permissions";
 export type { Permission } from "shared/config/permissions";
@@ -12,6 +16,7 @@ export const AccessModules = {
   Companies: "companies",
   Users: "users",
   Employees: "system-employees",
+  CompanyMemberships: "company-memberships",
   Products: "products",
   Orders: "orders",
   Codes: "codes",
@@ -43,6 +48,7 @@ export type UserAccess = {
   companies: CompanyAccess[];
   invitations: {
     systemAccess: SystemAccessInvitation[];
+    companyMemberships: CompanyMembershipInvitation[];
   };
 };
 
@@ -50,7 +56,21 @@ export type SystemAccessInvitation = {
   id: string;
   roles: SystemRole[];
   state: UserSystemAccessState;
-  createdBy?: string;
+  createdBy: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CompanyMembershipInvitation = {
+  id: string;
+  company: {
+    id: string;
+    name: string;
+  };
+  roles: CompanyRole[];
+  state: CompanyMembershipState;
+  createdBy: string;
   updatedBy?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -64,6 +84,16 @@ export const RoleReferenceScope = {
 export type RoleReferenceScope =
   (typeof RoleReferenceScope)[keyof typeof RoleReferenceScope];
 
+export type RoleReferenceCacheKey = string;
+
+export const getRoleReferenceCacheKey = (
+  scope: RoleReferenceScope,
+  companyId?: string
+): RoleReferenceCacheKey =>
+  scope === RoleReferenceScope.Company && companyId
+    ? `${scope}:${companyId}`
+    : scope;
+
 export type RoleReference<TAlias extends string = string> = {
   alias: TAlias;
   name: MultiLanguage;
@@ -73,14 +103,14 @@ export type RoleReference<TAlias extends string = string> = {
 export type AccessState = {
   data: UserAccess | null;
   currentCompanyId: string | null;
-  roleReferences: Partial<Record<RoleReferenceScope, RoleReference[]>>;
-  roleReferencesLoading: Partial<Record<RoleReferenceScope, boolean>>;
-  roleReferencesLoaded: Partial<Record<RoleReferenceScope, boolean>>;
-  roleReferencesError: Partial<Record<RoleReferenceScope, string | null>>;
-  assignableRoles: Partial<Record<RoleReferenceScope, RoleReference[]>>;
-  assignableRolesLoading: Partial<Record<RoleReferenceScope, boolean>>;
-  assignableRolesLoaded: Partial<Record<RoleReferenceScope, boolean>>;
-  assignableRolesError: Partial<Record<RoleReferenceScope, string | null>>;
+  roleReferences: Partial<Record<RoleReferenceCacheKey, RoleReference[]>>;
+  roleReferencesLoading: Partial<Record<RoleReferenceCacheKey, boolean>>;
+  roleReferencesLoaded: Partial<Record<RoleReferenceCacheKey, boolean>>;
+  roleReferencesError: Partial<Record<RoleReferenceCacheKey, string | null>>;
+  assignableRoles: Partial<Record<RoleReferenceCacheKey, RoleReference[]>>;
+  assignableRolesLoading: Partial<Record<RoleReferenceCacheKey, boolean>>;
+  assignableRolesLoaded: Partial<Record<RoleReferenceCacheKey, boolean>>;
+  assignableRolesError: Partial<Record<RoleReferenceCacheKey, string | null>>;
   loading: boolean;
   error: string | null;
 };

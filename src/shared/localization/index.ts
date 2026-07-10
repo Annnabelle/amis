@@ -171,7 +171,8 @@
                 salesOrders: "Sales Orders",
                 deliveryRoutes: "Delivery Routes",
                 deliveryTasks: "Delivery Tasks",
-                invoices: "Invoices"
+                invoices: "Invoices",
+                companyMemberships: "Employees"
             },
             scanner: {
                 accepted: "Accepted",
@@ -745,7 +746,8 @@
                     userStatus: "User status",
                     existingUser: "Existing user",
                     createdAt: "Created",
-                    updatedAt: "Updated"
+                    updatedAt: "Updated",
+                    invitedBy: "Invited by"
                 },
                 roles: {
                     system_owner: "Owner",
@@ -803,6 +805,72 @@
                     rolesPrefix: "with roles:"
                 },
                 revokeQuestion: "Revoke system access?"
+            },
+            companyMemberships: {
+                title: "Employees",
+                subtitle: "Company access and roles",
+                fields: {
+                    role: "Role",
+                    roles: "Roles",
+                    state: "State",
+                    userStatus: "User status",
+                    existingUser: "Existing user",
+                    createdAt: "Created",
+                    updatedAt: "Updated",
+                    invitedBy: "Invited by"
+                },
+                states: {
+                    active: "Active",
+                    invited: "Invited",
+                    declined: "Declined",
+                    disabled: "Disabled"
+                },
+                actions: {
+                    invite: "Invite",
+                    sendInvitation: "Send invitation",
+                    editRoles: "Edit",
+                    saveRoles: "Save roles",
+                    revoke: "Revoke",
+                    accept: "Accept",
+                    decline: "Decline"
+                },
+                placeholders: {
+                    searchUsers: "Search users",
+                    searchUserByEmail: "Enter full user email",
+                    selectRoles: "Select roles"
+                },
+                validation: {
+                    userRequired: "Select an existing user",
+                    emailRequired: "Enter user email",
+                    emailInvalid: "Enter a valid email",
+                    userNotFound: "User with this email was not found",
+                    rolesRequired: "Select at least one role"
+                },
+                messages: {
+                    success: {
+                        invite: "Invitation sent",
+                        update: "Roles updated",
+                        revoke: "Access revoked"
+                    },
+                    error: {
+                        invite: "Could not send invitation",
+                        update: "Could not update roles",
+                        revoke: "Could not revoke access"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Invite employee",
+                    detailsAction: "Company",
+                    editAction: "Edit",
+                    revokeAction: "Revoke",
+                    member: "employee",
+                    companyAccess: "company access"
+                },
+                invitations: {
+                    title: "You have been invited to a company",
+                    rolesPrefix: "with roles:"
+                },
+                revokeQuestion: "Revoke company access?"
             },
             organizations: {
                 companyTypeOption: {
@@ -1526,6 +1594,7 @@
                 deliveryRoutes: "Рейсы",
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
+                companyMemberships: "Сотрудники",
             },
             scanner: {
                 accepted: "Принято",
@@ -2099,7 +2168,8 @@
                     userStatus: "Статус пользователя",
                     existingUser: "Существующий пользователь",
                     createdAt: "Создано",
-                    updatedAt: "Обновлено"
+                    updatedAt: "Обновлено",
+                    invitedBy: "Пригласил"
                 },
                 roles: {
                     system_owner: "Владелец",
@@ -2157,6 +2227,72 @@
                     rolesPrefix: "с ролями:"
                 },
                 revokeQuestion: "Отозвать системный доступ?"
+            },
+            companyMemberships: {
+                title: "Сотрудники",
+                subtitle: "Доступы и роли в компании",
+                fields: {
+                    role: "Роль",
+                    roles: "Роли",
+                    state: "Статус доступа",
+                    userStatus: "Статус пользователя",
+                    existingUser: "Существующий пользователь",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено",
+                    invitedBy: "Пригласил"
+                },
+                states: {
+                    active: "Активен",
+                    invited: "Приглашен",
+                    declined: "Отклонен",
+                    disabled: "Отключен"
+                },
+                actions: {
+                    invite: "Пригласить",
+                    sendInvitation: "Отправить приглашение",
+                    editRoles: "Изменить",
+                    saveRoles: "Сохранить роли",
+                    revoke: "Отозвать",
+                    accept: "Принять",
+                    decline: "Отклонить"
+                },
+                placeholders: {
+                    searchUsers: "Найти пользователя",
+                    searchUserByEmail: "Введите полный email пользователя",
+                    selectRoles: "Выберите роли"
+                },
+                validation: {
+                    userRequired: "Выберите существующего пользователя",
+                    emailRequired: "Введите email пользователя",
+                    emailInvalid: "Введите корректный email",
+                    userNotFound: "Пользователь с таким email не найден",
+                    rolesRequired: "Выберите хотя бы одну роль"
+                },
+                messages: {
+                    success: {
+                        invite: "Приглашение отправлено",
+                        update: "Роли обновлены",
+                        revoke: "Доступ отозван"
+                    },
+                    error: {
+                        invite: "Не удалось отправить приглашение",
+                        update: "Не удалось обновить роли",
+                        revoke: "Не удалось отозвать доступ"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Пригласить сотрудника",
+                    detailsAction: "Сотрудник",
+                    editAction: "Редактирование",
+                    revokeAction: "Отзыв",
+                    member: "компании",
+                    companyAccess: "доступа к компании"
+                },
+                invitations: {
+                    title: "Вас пригласили в компанию",
+                    rolesPrefix: "с ролями:"
+                },
+                revokeQuestion: "Отозвать доступ к компании?"
             },
             organizations: {
                 companyTypeOption: {
@@ -2872,6 +3008,7 @@
                 deliveryRoutes: "Reyslar",
                 deliveryTasks: "Yetkazib berish vazifalari",
                 invoices: "Hisob-fakturalar",
+                companyMemberships: "Xodimlar",
             },
             scanner: {
                 accepted: "Qabul qilindi",
@@ -3416,7 +3553,8 @@
                     userStatus: "Foydalanuvchi holati",
                     existingUser: "Mavjud foydalanuvchi",
                     createdAt: "Yaratilgan",
-                    updatedAt: "Yangilangan"
+                    updatedAt: "Yangilangan",
+                    invitedBy: "Taklif qilgan"
                 },
                 roles: {
                     system_owner: "Egasi",
@@ -3474,6 +3612,72 @@
                     rolesPrefix: "quyidagi rollar bilan:"
                 },
                 revokeQuestion: "Tizim kirishini bekor qilasizmi?"
+            },
+            companyMemberships: {
+                title: "Xodimlar",
+                subtitle: "Kompaniya kirishlari va rollari",
+                fields: {
+                    role: "Rol",
+                    roles: "Rollar",
+                    state: "Kirish holati",
+                    userStatus: "Foydalanuvchi holati",
+                    existingUser: "Mavjud foydalanuvchi",
+                    createdAt: "Yaratilgan",
+                    updatedAt: "Yangilangan",
+                    invitedBy: "Taklif qilgan"
+                },
+                states: {
+                    active: "Faol",
+                    invited: "Taklif qilingan",
+                    declined: "Rad etilgan",
+                    disabled: "O‘chirilgan"
+                },
+                actions: {
+                    invite: "Taklif qilish",
+                    sendInvitation: "Taklif yuborish",
+                    editRoles: "Tahrirlash",
+                    saveRoles: "Rollarni saqlash",
+                    revoke: "Bekor qilish",
+                    accept: "Qabul qilish",
+                    decline: "Rad etish"
+                },
+                placeholders: {
+                    searchUsers: "Foydalanuvchilarni qidirish",
+                    searchUserByEmail: "Foydalanuvchining to'liq emailini kiriting",
+                    selectRoles: "Rollarni tanlang"
+                },
+                validation: {
+                    userRequired: "Mavjud foydalanuvchini tanlang",
+                    emailRequired: "Foydalanuvchi emailini kiriting",
+                    emailInvalid: "To'g'ri email kiriting",
+                    userNotFound: "Bu email bilan foydalanuvchi topilmadi",
+                    rolesRequired: "Kamida bitta rolni tanlang"
+                },
+                messages: {
+                    success: {
+                        invite: "Taklif yuborildi",
+                        update: "Rollar yangilandi",
+                        revoke: "Kirish bekor qilindi"
+                    },
+                    error: {
+                        invite: "Taklif yuborilmadi",
+                        update: "Rollarni yangilab bo‘lmadi",
+                        revoke: "Kirishni bekor qilib bo‘lmadi"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Xodimni taklif qilish",
+                    detailsAction: "Kompaniya",
+                    editAction: "Tahrirlash",
+                    revokeAction: "Bekor qilish",
+                    member: "xodim",
+                    companyAccess: "kompaniya kirishi"
+                },
+                invitations: {
+                    title: "Siz kompaniyaga taklif qilindingiz",
+                    rolesPrefix: "quyidagi rollar bilan:"
+                },
+                revokeQuestion: "Kompaniya kirishini bekor qilasizmi?"
             },
             organizations: {
                 companyTypeOption: {

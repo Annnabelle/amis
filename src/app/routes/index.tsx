@@ -8,6 +8,7 @@ const LoginPage = lazy(() => import("pages/login"));
 const WelcomePage = lazy(() => import("pages/welcome"));
 const Users = lazy(() => import("pages/users"));
 const SystemEmployees = lazy(() => import("pages/systemEmployees"));
+const CompanyMemberships = lazy(() => import("pages/companyMemberships"));
 const Products = lazy(() => import("pages/products"));
 const Organizations = lazy(() => import("pages/organizations"))
 const OrganizationsInner = lazy(() => import('pages/organizationInner'))
@@ -53,6 +54,7 @@ const Router: React.FC = () => {
         <Route path="/users/:id/edit" element={protectedPage(routeAccess.usersUpdate, <UsersEdit />)} />
         <Route path='/organization' element={protectedPage(routeAccess.companiesList, <Organizations/>)}/>
         <Route path='/organization/:id' element={protectedPage(routeAccess.companiesRead, <OrganizationsInner/>)}/>
+        <Route path='/organization/:orgId/memberships' element={protectedPage(routeAccess.companyMembershipsList, <CompanyMemberships/>)} />
         <Route path= '/organization/:id/products' element={protectedPage(routeAccess.productsList, <Products/>)}/>
         <Route path='/profile' element={<UserSettings/>}/>
         <Route path='/audit-logs' element={protectedPage(routeAccess.auditList, <AuditLogsPage/>)}/>

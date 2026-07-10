@@ -17,6 +17,7 @@ import { invoicesSlice } from "entities/invoices/model";
 import { scanSessionsSlice } from "entities/scanSessions/model";
 import { accessSlice } from "entities/access/model";
 import { systemEmployeesSlice } from "entities/systemEmployees/model";
+import { companyMembershipsSlice } from "entities/companyMemberships/model";
 import {loaderSlice} from "./loader";
 import { setRuntimeCompanyId } from "shared/lib/companyContext";
 
@@ -39,6 +40,7 @@ export const store = configureStore({
         scanSessions: scanSessionsSlice.reducer,
         access: accessSlice.reducer,
         systemEmployees: systemEmployeesSlice.reducer,
+        companyMemberships: companyMembershipsSlice.reducer,
         loader: loaderSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>

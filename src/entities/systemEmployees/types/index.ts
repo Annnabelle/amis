@@ -35,8 +35,21 @@ export type SystemEmployee = {
   user: SystemEmployeeUser;
   roles: SystemRole[];
   state: UserSystemAccessState;
+  createdBy: string;
+  updatedBy?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type SystemEmployeeAccess = {
+  id: string;
+  userId: string;
+  roles: SystemRole[];
+  state: UserSystemAccessState;
+  createdBy: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type SystemEmployeeListQuery = {

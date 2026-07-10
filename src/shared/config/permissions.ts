@@ -13,6 +13,12 @@ export const Permissions = {
   SystemEmployeesUpdate: "system-employees.update",
   SystemEmployeesDelete: "system-employees.delete",
 
+  CompanyMembershipsList: "company-memberships.list",
+  CompanyMembershipsRead: "company-memberships.read",
+  CompanyMembershipsCreate: "company-memberships.create",
+  CompanyMembershipsUpdate: "company-memberships.update",
+  CompanyMembershipsDelete: "company-memberships.delete",
+
   CompaniesList: "companies.list",
   CompaniesRead: "companies.read",
   CompaniesCreate: "companies.create",

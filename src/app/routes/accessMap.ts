@@ -10,6 +10,7 @@ export const routeAccess = {
   usersRead: endpointAccessMap.usersRead,
   usersUpdate: endpointAccessMap.usersUpdate,
   systemEmployeesList: endpointAccessMap.systemEmployeesList,
+  companyMembershipsList: endpointAccessMap.companyMembershipsList,
 
   companiesList: endpointAccessMap.companiesList,
   companiesRead: endpointAccessMap.companiesRead,
