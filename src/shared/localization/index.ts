@@ -1182,7 +1182,8 @@
                     chooseProduct: "Choose product",
                     choosePackageType: "Choose package type",
                     enterQuantity: "Enter quantity",
-                    chooseGenerationMethod: "Generation method"
+                    chooseGenerationMethod: "Generation method",
+                    duplicatePackageType: "This package type is already selected for this product"
                 },
                 markingCode: {
                     product: "Product",
@@ -2459,7 +2460,8 @@
                     chooseProduct: "Выберите продукцию",
                     choosePackageType: "Выберите тип упаковки",
                     enterQuantity: "Введите количество",
-                    chooseGenerationMethod: "Метод генерации"
+                    chooseGenerationMethod: "Метод генерации",
+                    duplicatePackageType: "Этот тип упаковки уже выбран для этого товара"
                 },
                 markingCode: {
                     product: "Продукция",
@@ -3696,7 +3698,8 @@
                     chooseProduct: "Mahsulotni tanlang",
                     choosePackageType: "Qadoq turini tanlang",
                     enterQuantity: "Miqdor kiriting",
-                    chooseGenerationMethod: "Generatsiya usuli"
+                    chooseGenerationMethod: "Generatsiya usuli",
+                    duplicatePackageType: "Bu qadoq turi ushbu mahsulot uchun allaqachon tanlangan"
                 },
                 markingCode: {
                     product: "Mahsulot",
