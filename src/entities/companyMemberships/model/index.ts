@@ -4,6 +4,7 @@ import type {
   CompanyMembershipsResponseDto,
   CreateCompanyMembershipDto,
   GetCompanyMembershipsQueryDto,
+  SearchCompanyMembershipsQueryDto,
   UpdateCompanyMembershipDto,
 } from "entities/companyMemberships/dtos";
 import {
@@ -15,12 +16,14 @@ import type {
   CompanyMembership,
   CompanyMembershipListQuery,
   CompanyMembershipsState,
+  SearchCompanyMembershipsQuery,
 } from "entities/companyMemberships/types";
 import axiosInstance from "shared/lib/axiosInstance";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 
 const initialState: CompanyMembershipsState = {
   memberships: [],
+  searchedMemberships: [],
   membershipById: null,
   total: 0,
   page: 1,
@@ -107,6 +110,35 @@ export const getCompanyMembershipById = createAsyncThunk<
     return rejectWithValue(
       getBackendErrorMessage(responseData ?? error, "Не удалось загрузить сотрудника компании")
     );
+  }
+});
+
+export const searchCompanyMemberships = createAsyncThunk<
+  { data: CompanyMembership[]; total: number; page: number; limit: number },
+  SearchCompanyMembershipsQuery,
+  { rejectValue: string }
+>("companyMemberships/search", async ({ companyId, query, page = 1, limit = 10, state, role }, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get<CompanyMembershipsResponseDto>(
+      "/company-memberships/search",
+      {
+        params: { query, page, limit, state, role } satisfies SearchCompanyMembershipsQueryDto,
+        headers: { "x-company-id": companyId },
+      }
+    );
+
+    if (isCompanyMembershipsResponseSuccess(response.data)) {
+      return {
+        data: response.data.data.map(mapCompanyMembershipDtoToEntity),
+        total: response.data.total,
+        page: response.data.page,
+        limit: response.data.limit,
+      };
+    }
+
+    return rejectWithValue(getBackendErrorMessage(response.data, "Не удалось найти сотрудников компании"));
+  } catch (error) {
+    return rejectWithValue(getBackendErrorMessage(error, "Не удалось найти сотрудников компании"));
   }
 });
 
@@ -219,6 +251,9 @@ export const companyMembershipsSlice = createSlice({
       })
       .addCase(getCompanyMembershipById.fulfilled, (state, action) => {
         state.membershipById = action.payload;
+      })
+      .addCase(searchCompanyMemberships.fulfilled, (state, action) => {
+        state.searchedMemberships = action.payload.data;
       })
       .addCase(createCompanyMembershipInvitation.fulfilled, (state, action: PayloadAction<CompanyMembership>) => {
         const index = state.memberships.findIndex((item) => item.id === action.payload.id);

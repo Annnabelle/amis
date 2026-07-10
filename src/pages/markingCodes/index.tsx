@@ -18,7 +18,7 @@ import { searchProducts } from 'entities/products/model'
 import {createUtilizationReport} from "entities/utilization/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import {searchUsers} from "entities/users/model";
+import {searchCompanyMemberships} from "entities/companyMemberships/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
@@ -34,7 +34,7 @@ const MarkingCodes = () => {
     const dispatch = useAppDispatch()
     const canCreateOrder = useCan(endpointAccessMap.ordersCreate);
     const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
-    const canListUsers = useCan(endpointAccessMap.usersList);
+    const canSearchCompanyMemberships = useCan(endpointAccessMap.companyMembershipsSearch);
     const canListProducts = useCan(endpointAccessMap.productsList);
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
@@ -44,8 +44,8 @@ const MarkingCodes = () => {
         useAppSelector(state => state.references.references.cisType) ?? [];
     const referencesError = useAppSelector((state) => state.references.error);
     const { products } = useAppSelector((state) => state.products);
-    const searchedUsers = useAppSelector(
-        state => state.users.searchedUsers
+    const searchedMemberships = useAppSelector(
+        state => state.companyMemberships.searchedMemberships
     );
     const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
         page: dataPage || 1,
@@ -180,7 +180,7 @@ const MarkingCodes = () => {
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         <FilterBar className="filters-large">
-                            {canListUsers && (
+                            {canSearchCompanyMemberships && (
                             <FilterBarItem>
                                 <Form.Item name="user" className="input">
                                         <Select
@@ -194,14 +194,14 @@ const MarkingCodes = () => {
                                             allowClear
                                             filterOption={false}
                                             onSearch={(value) => {
-                                                if (value.trim()) {
-                                                    dispatch(searchUsers({ query: value }));
+                                                if (value.trim() && orgId) {
+                                                    dispatch(searchCompanyMemberships({ companyId: orgId, query: value }));
                                                 }
                                             }}
                                             onChange={(value) => updateQueryParam('userId', value)}
-                                            options={searchedUsers.map(user => ({
-                                                value: user.id,
-                                                label: `${user.firstName} ${user.lastName}`,
+                                            options={searchedMemberships.map(membership => ({
+                                                value: membership.userId,
+                                                label: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
                                             }))}
                                         />
 
