@@ -12,7 +12,7 @@ export type UserResponseDto = {
   email: string,
   phone: string,
   status: string,
-  companyIds: HexString[],
+  companyIds?: HexString[],
   role?: {
     id: HexString,
     name: {
