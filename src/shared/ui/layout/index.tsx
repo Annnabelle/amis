@@ -150,6 +150,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isOrganizationRoot = location.pathname === '/organization';
   const isOrganizationScreen = pathSegments[0] === 'organization' && Boolean(orgId) && !section;
   const isRoutesScreen = pathSegments[0] === 'organization' && Boolean(orgId) && section === 'delivery-routes' && !routeId;
+  const isSystemScreen = [
+    '/users',
+    '/system-employees',
+    '/audit-logs',
+  ].some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
   const routeCompanyId = section ? orgId : undefined;
   const selectedCompanyId = routeCompanyId ?? storedCompanyId ?? companies[0]?.companyId;
   const membershipCompany = companies.find(
@@ -357,6 +362,47 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
+  const systemMobileNavItems = useMemo<MobileNavItem[]>(() => [
+    ...(systemModules.includes(AccessModules.Users)
+      ? [{
+          key: '/users',
+          label: t('navigation.users'),
+          meta: '',
+          isActive: location.pathname === '/users' || location.pathname.startsWith('/users/'),
+          onClick: () => navigate('/users'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Employees)
+      ? [{
+          key: '/system-employees',
+          label: t('navigation.systemEmployees'),
+          meta: '',
+          isActive:
+            location.pathname === '/system-employees' ||
+            location.pathname.startsWith('/system-employees/'),
+          onClick: () => navigate('/system-employees'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Companies)
+      ? [{
+          key: '/organization',
+          label: t('navigation.organizations'),
+          meta: '',
+          isActive: location.pathname === '/organization',
+          onClick: () => navigate('/organization'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Audit)
+      ? [{
+          key: '/audit-logs',
+          label: t('navigation.audit'),
+          meta: '',
+          isActive: location.pathname === '/audit-logs',
+          onClick: () => navigate('/audit-logs'),
+        }]
+      : []),
+  ], [location.pathname, navigate, systemModules, t]);
+
   const selectedCompanyModuleItems = selectedCompany
     ? getCompanyModuleItems(selectedCompany.companyId, selectedCompany.modules)
     : [];
@@ -412,6 +458,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const mobileNav = useMemo<MobileNavConfig | null>(() => {
     if (!isMobile) {
       return null;
+    }
+
+    if (isSystemScreen && systemMobileNavItems.length > 0) {
+      return {
+        title: t('navigation.management'),
+        subtitle: '',
+        backPath: null as string | null,
+        items: systemMobileNavItems,
+      };
     }
 
     if (isOrganizationRoot) {
@@ -477,15 +532,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return null;
   }, [
     isMobile,
+    isSystemScreen,
     isOrganizationRoot,
     isOrganizationScreen,
     isRoutesScreen,
     location.pathname,
     navigate,
     orgId,
+    routeId,
     routes,
     selectedCompany?.name,
     selectedCompanyModuleItems,
+    systemMobileNavItems,
     isSystemCompanyContext,
     dispatch,
     t,
