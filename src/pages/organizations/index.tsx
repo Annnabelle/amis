@@ -34,6 +34,7 @@ const Organizations = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch()
     const canReadCompany = useCan(endpointAccessMap.companiesRead);
+    const canListCompanies = useCan(endpointAccessMap.companiesList);
     const canCreateCompany = useCan(endpointAccessMap.companiesCreate);
     const canDeleteCompany = useCan(endpointAccessMap.companiesDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
@@ -57,8 +58,10 @@ const Organizations = () => {
     const xTraceLoading = useAppSelector((state) => state.xTrace.loading);
 
     useEffect(() => {
+        if (isMobile) return;
+
         dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+    }, [dispatch, isMobile]);
 
     useEffect(() => {
         if (!organizationById) return;
@@ -107,12 +110,14 @@ const Organizations = () => {
     }, [organizationById, form, i18n.language]);
 
     useEffect(() => {
+        if (isMobile && !canListCompanies) return;
+
         dispatch(getAllOrganizations({
             page: 1,
             limit: 10,
             sortOrder: 'asc',
         })) 
-    }, [dispatch])
+    }, [canListCompanies, dispatch, isMobile])
 
     const tableOrganizations = useMemo(() => {
         return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;

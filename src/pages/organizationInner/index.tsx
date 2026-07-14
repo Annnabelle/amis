@@ -35,8 +35,10 @@ const OrganizationsInner = () => {
     const referencesError = useAppSelector((state) => state.references.error);
 
     useEffect(() => {
+        if (isMobile) return;
+
         dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+    }, [dispatch, isMobile]);
 
     useEffect(() => {
         if (organizationById) {
@@ -91,10 +93,10 @@ const OrganizationsInner = () => {
     }, [organizationById, form])
 
     useEffect(() => {
-        if (id){
+        if (!isMobile && id){
             dispatch(getOrganizationById({id: id}))
         }
-    }, [dispatch, id])
+    }, [dispatch, id, isMobile])
 
     const getFirstCompanyModulePath = (
         companyId: string,
@@ -148,12 +150,12 @@ const OrganizationsInner = () => {
 
   return (
     <MainLayout>
+        {!isMobile && (
+        <>
         <RequiredDataAlert
             endpoints={[endpointAccessMap.referencesRead]}
             errors={[referencesError]}
         />
-        {!isMobile && (
-        <>
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')} totalAmount='100'>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>

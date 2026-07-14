@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import {
+  closeDeliveryRoute,
   getDeliveryRouteById,
   startDeliveryRouteLoading,
   startDeliveryRouteReturn,
@@ -30,6 +31,7 @@ const DeliveryRoutesDetails = () => {
   const isMobile = useIsMobile();
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
   const [transitStarted, setTransitStarted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const route = useAppSelector((state) => state.deliveryRoutes.routeById);
@@ -40,6 +42,7 @@ const DeliveryRoutesDetails = () => {
   const canStartLoading = useCan(endpointAccessMap.deliveryRoutesStartLoading);
   const canStartTransitPermission = useCan(endpointAccessMap.deliveryRoutesStartTransit);
   const canStartReturn = useCan(endpointAccessMap.deliveryRoutesStartReturn);
+  const canCloseRoute = useCan(endpointAccessMap.deliveryRoutesClose);
   const canStartHandover = useCan(endpointAccessMap.deliveryTasksStartHandover);
   const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
   const canOpenLoading = Boolean(
@@ -70,6 +73,10 @@ const DeliveryRoutesDetails = () => {
   const returnButtonLabel = isMobile
     ? 'Начать возврат'
     : t('deliveryRoutes.actions.openReturn');
+  const showCloseRoute = Boolean(
+    canCloseRoute && route?.status === 'delivered'
+  );
+  const closeRouteButtonLabel = t('deliveryRoutes.actions.close');
   const taskScanPath = (taskId: string) =>
     orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : '/organization';
   useEffect(() => {
@@ -190,6 +197,25 @@ const DeliveryRoutesDetails = () => {
           })
         )
       );
+    }
+  };
+
+  const handleCloseRoute = async () => {
+    if (!route?.id || isClosing) return;
+
+    try {
+      setIsClosing(true);
+      await dispatch(closeDeliveryRoute(route.id)).unwrap();
+      toast.success(t('deliveryRoutes.messages.success.close'));
+    } catch (error) {
+      toast.error(
+        getBackendErrorMessage(
+          error,
+          t('deliveryRoutes.messages.error.close')
+        )
+      );
+    } finally {
+      setIsClosing(false);
     }
   };
 
@@ -338,6 +364,15 @@ const DeliveryRoutesDetails = () => {
                 {transitButtonLabel}
               </CustomButton>
             )}
+            {showCloseRoute && (
+              <CustomButton
+                className="primary"
+                onClick={() => void handleCloseRoute()}
+                disabled={isClosing}
+              >
+                {closeRouteButtonLabel}
+              </CustomButton>
+            )}
           </div>
         </div>
       )}
@@ -370,6 +405,15 @@ const DeliveryRoutesDetails = () => {
                 onClick={() => void handleStartTransit()}
               >
                 {transitButtonLabel}
+              </CustomButton>
+            )}
+            {showCloseRoute && (
+              <CustomButton
+                className="primary"
+                onClick={() => void handleCloseRoute()}
+                disabled={isClosing}
+              >
+                {closeRouteButtonLabel}
               </CustomButton>
             )}
           </div>
