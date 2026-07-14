@@ -49,6 +49,14 @@ export type GetCompanyMembershipsQueryDto = {
   role?: CompanyRole;
 };
 
+export type SearchCompanyMembershipsQueryDto = {
+  query: string;
+  page?: number;
+  limit?: number;
+  state?: CompanyMembershipState;
+  role?: CompanyRole;
+};
+
 export type CompanyMembershipsResponseDto =
   | {
       success: true;

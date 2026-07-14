@@ -70,6 +70,7 @@ export const endpointAccessMap = {
   companiesDelete: endpoint({ method: "DELETE", path: "/companies/:id", permission: Permissions.CompaniesDelete, scope: EndpointScopes.Global }),
   companiesValidateXTrace: endpoint({ method: "GET", path: "/companies/x-trace/validate", permission: Permissions.CompaniesValidateXTraceToken, scope: EndpointScopes.Global }),
   companyMembershipsList: endpoint({ method: "GET", path: "/company-memberships", permission: Permissions.CompanyMembershipsList, scope: EndpointScopes.Company }),
+  companyMembershipsSearch: endpoint({ method: "GET", path: "/company-memberships/search", permission: Permissions.CompanyMembershipsList, scope: EndpointScopes.Company }),
   companyMembershipsRead: endpoint({ method: "GET", path: "/company-memberships/:id", permission: Permissions.CompanyMembershipsRead, scope: EndpointScopes.Company }),
   companyMembershipsCreate: endpoint({ method: "POST", path: "/company-memberships", permission: Permissions.CompanyMembershipsCreate, scope: EndpointScopes.Company }),
   companyMembershipsUpdate: endpoint({ method: "PATCH", path: "/company-memberships/:id", permission: Permissions.CompanyMembershipsUpdate, scope: EndpointScopes.Company }),

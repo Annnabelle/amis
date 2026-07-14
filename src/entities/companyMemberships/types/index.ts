@@ -11,9 +11,14 @@ export type CompanyMembershipState =
   (typeof CompanyMembershipState)[keyof typeof CompanyMembershipState];
 
 export const CompanyRole = {
+  Owner: "owner",
   Admin: "admin",
-  Manager: "manager",
-  Member: "member",
+  Operator: "operator",
+  Accountant: "accountant",
+  Logistician: "logistician",
+  WarehouseManager: "warehouse_manager",
+  DeliveryAgent: "delivery_agent",
+  Driver: "driver",
   Auditor: "auditor",
 } as const;
 
@@ -40,8 +45,18 @@ export type CompanyMembershipListQuery = {
   role?: CompanyRole;
 };
 
+export type SearchCompanyMembershipsQuery = {
+  companyId: string;
+  query: string;
+  page?: number;
+  limit?: number;
+  state?: CompanyMembershipState;
+  role?: CompanyRole;
+};
+
 export type CompanyMembershipsState = {
   memberships: CompanyMembership[];
+  searchedMemberships: CompanyMembership[];
   membershipById: CompanyMembership | null;
   total: number;
   page: number;

@@ -1,4 +1,4 @@
-import { Form, Select, InputNumber, Button } from "antd";
+import { Alert, Form, Select, InputNumber, Button, Tooltip } from "antd";
 import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -16,19 +16,22 @@ import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 
+type OrderFormItem = {
+  product?: string;
+  packType?: string;
+  quantity?: number;
+  generation?: string;
+};
+
 type OrderFormValues = {
-  items: {
-    product: string;
-    packType: string;
-    quantity: number;
-    generation: string;
-  }[];
+  items: OrderFormItem[];
 };
 
 type Product = {
   id: string;
   name: string;
   packageTypes?: string[];
+  aggregationQuantity?: number;
 };
 
 const OrderForm = () => {
@@ -56,28 +59,99 @@ const OrderForm = () => {
   const referencesLoading = useAppSelector((state) => state.references.loading);
   const referencesError = useAppSelector((state) => state.references.error);
 
-  // --- безопасный объект productById для TS ---
-  const productById: Record<string, Product> = rawProductById
-      ? { [rawProductById.id]: rawProductById }
-      : {};
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [productDetailsById, setProductDetailsById] = useState<Record<string, Product>>({});
 
-  // --- Загрузка справочников ---
+  const productById: Record<string, Product> = rawProductById
+      ? { ...productDetailsById, [rawProductById.id]: rawProductById }
+      : productDetailsById;
+
+  useEffect(() => {
+    if (!rawProductById) return;
+
+    setProductDetailsById((prev) => ({
+      ...prev,
+      [rawProductById.id]: rawProductById,
+    }));
+  }, [rawProductById]);
+
   useEffect(() => {
     dispatch(fetchReferencesByType("cisType"));
   }, [dispatch]);
 
-  // --- Начальный поиск продуктов ---
   useEffect(() => {
     dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc" }));
   }, [dispatch]);
 
-  // --- Поиск продуктов при вводе ---
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
       dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
     }
+  };
+
+  const getSuggestedQuantity = (rowIndex: number) => {
+    const items = form.getFieldValue("items") ?? [];
+    const currentItem = items[rowIndex];
+
+    if (!currentItem?.product || currentItem.packType?.toLowerCase() !== "unit") {
+      return null;
+    }
+
+    const selectedProduct = productById[currentItem.product];
+    const aggregationQuantity = selectedProduct?.aggregationQuantity;
+
+    if (!aggregationQuantity) {
+      return null;
+    }
+
+    const seniorItem =
+        items
+            .slice(0, rowIndex)
+            .reverse()
+            .find((item: OrderFormItem) =>
+                item?.product === currentItem.product &&
+                item?.packType &&
+                item.packType.toLowerCase() !== "unit" &&
+                Number(item.quantity) > 0
+            ) ??
+        items.find((item: OrderFormItem, index: number) =>
+            index !== rowIndex &&
+            item?.product === currentItem.product &&
+            item?.packType &&
+            item.packType.toLowerCase() !== "unit" &&
+            Number(item.quantity) > 0
+        );
+
+    if (!seniorItem) {
+      return null;
+    }
+
+    return Number(seniorItem.quantity) * aggregationQuantity;
+  };
+
+  const isPackageTypeSelectedForProduct = (
+      rowIndex: number,
+      productId: string,
+      packageType: string
+  ) => {
+    const items = form.getFieldValue("items") ?? [];
+
+    return items.some((item: OrderFormItem, index: number) =>
+        index !== rowIndex &&
+        item?.product === productId &&
+        item?.packType?.toLowerCase() === packageType.toLowerCase()
+    );
+  };
+
+  const hasDifferentSelectedProducts = () => {
+    const items = form.getFieldValue("items") ?? [];
+    const selectedProductIds = new Set(
+        items
+            .map((item: OrderFormItem) => item?.product)
+            .filter(Boolean)
+    );
+
+    return selectedProductIds.size > 1;
   };
 
   const handleCreateMarkingCode = async (values: OrderFormValues) => {
@@ -87,10 +161,10 @@ const OrderForm = () => {
     const payload: CreateOrderDto = {
       companyId: orgId!,
       products: values.items.map((item) => ({
-        id: item.product,
-        quantity: item.quantity,
-        packageType: item.packType,
-        serialNumberType: item.generation,
+        id: item.product!,
+        quantity: item.quantity!,
+        packageType: item.packType!,
+        serialNumberType: item.generation!,
       })),
     };
 
@@ -124,7 +198,6 @@ const OrderForm = () => {
                 {fields.map((field, index) => (
                     <div key={field.key} className="form-inputs create-order-items-item">
 
-                      {/* --- Product select --- */}
                       <Form.Item
                           className="input"
                           name={[field.name, "product"]}
@@ -150,11 +223,10 @@ const OrderForm = () => {
                         />
                       </Form.Item>
 
-                      {/* --- PackType select --- */}
                       <Form.Item
                           noStyle
                           shouldUpdate={(prev, cur) =>
-                              prev.items?.[field.name]?.product !== cur.items?.[field.name]?.product
+                              prev.items !== cur.items
                           }
                       >
                         {() => {
@@ -189,13 +261,29 @@ const OrderForm = () => {
                                     typeof ref.title === "string"
                                         ? ref.title
                                         : ref.title[i18n.language as keyof typeof ref.title] ?? ref.title.en,
+                                disabled: isPackageTypeSelectedForProduct(field.name, productId, ref.alias),
                               }));
 
                           return (
                               <Form.Item
                                   className="input"
                                   name={[field.name, "packType"]}
-                                  rules={[{ required: true, message: t("markingCodes.label.choosePackageType") }]}
+                                  rules={[
+                                    { required: true, message: t("markingCodes.label.choosePackageType") },
+                                    {
+                                      validator: (_, value) => {
+                                        if (!value || !productId) {
+                                          return Promise.resolve();
+                                        }
+
+                                        if (isPackageTypeSelectedForProduct(field.name, productId, value)) {
+                                          return Promise.reject(new Error(t("markingCodes.label.duplicatePackageType")));
+                                        }
+
+                                        return Promise.resolve();
+                                      },
+                                    },
+                                  ]}
                               >
                                 <Select
                                     size="large"
@@ -208,21 +296,43 @@ const OrderForm = () => {
                         }}
                       </Form.Item>
 
-                      {/* --- Quantity --- */}
                       <Form.Item
-                          className="input"
-                          name={[field.name, "quantity"]}
-                          rules={[{ required: true, message: t("markingCodes.label.enterQuantity") }]}
+                          noStyle
+                          shouldUpdate
                       >
-                        <InputNumber
-                            min={1}
-                            size="large"
-                            style={{ width: "100%", minWidth: 50 }}
-                            placeholder="0"
-                        />
+                        {() => {
+                          const suggestedQuantity = getSuggestedQuantity(index);
+                          const inputNumber = (
+                              <InputNumber
+                                  min={1}
+                                  size="large"
+                                  style={{ width: "100%", minWidth: 50 }}
+                                  placeholder="0"
+                              />
+                          );
+
+                          return (
+                              <Form.Item
+                                  className="input"
+                                  name={[field.name, "quantity"]}
+                                  rules={[{ required: true, message: t("markingCodes.label.enterQuantity") }]}
+                              >
+                                {suggestedQuantity ? (
+                                    <Tooltip
+                                        title={suggestedQuantity}
+                                        placement="top"
+                                        styles={{ body: { paddingInline: 16 } }}
+                                    >
+                                      <span style={{ display: "inline-block", width: "100%" }}>
+                                        {inputNumber}
+                                      </span>
+                                    </Tooltip>
+                                ) : inputNumber}
+                              </Form.Item>
+                          )
+                        }}
                       </Form.Item>
 
-                      {/* --- Generation --- */}
                       <Form.Item
                           className="input"
                           name={[field.name, "generation"]}
@@ -236,7 +346,6 @@ const OrderForm = () => {
                         />
                       </Form.Item>
 
-                      {/* --- Add/Remove buttons --- */}
                       {index === fields.length - 1 ? (
                           <Button type="primary" className="create-order-btn" icon={<PlusOutlined />} onClick={() => add()} />
                       ) : (
@@ -248,16 +357,28 @@ const OrderForm = () => {
           )}
         </Form.List>
 
+        <Form.Item noStyle shouldUpdate>
+          {() => (
+              hasDifferentSelectedProducts() && (
+                  <Alert
+                      type="info"
+                      showIcon
+                      message={t("markingCodes.orderCreation.differentProductsWarning")}
+                  />
+              )
+          )}
+        </Form.Item>
+
         <CustomButton
-          disabled={
-            isSubmitting ||
-            referencesLoading ||
-            productsLoading ||
-            Boolean(referencesError) ||
-            Boolean(productsError)
-          }
-          type="submit"
-          className="outline full-width"
+            disabled={
+                isSubmitting ||
+                referencesLoading ||
+                productsLoading ||
+                Boolean(referencesError) ||
+                Boolean(productsError)
+            }
+            type="submit"
+            className="outline full-width"
         >
           {t("markingCodes.orderCreation.submitOrder")}
         </CustomButton>
