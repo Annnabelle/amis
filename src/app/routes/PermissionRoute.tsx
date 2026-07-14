@@ -18,7 +18,7 @@ const getCompanyIdFromPath = (pathname: string) => {
     : null;
 };
 
-const resolveFallbackPath = (access: UserAccess) => {
+export const resolveFallbackPath = (access: UserAccess) => {
   const systemCandidates = [
     [AccessModules.Users, endpointAccessMap.usersList, '/users'],
     [AccessModules.Companies, endpointAccessMap.companiesList, '/organization'],
@@ -35,6 +35,7 @@ const resolveFallbackPath = (access: UserAccess) => {
   }
 
   const companyCandidates = [
+    [AccessModules.CompanyMemberships, endpointAccessMap.companyMembershipsList, 'memberships'],
     [AccessModules.Products, endpointAccessMap.productsList, 'products'],
     [AccessModules.Orders, endpointAccessMap.ordersList, 'orders'],
     [AccessModules.Reports, endpointAccessMap.aggregationReportsList, 'agregations'],
@@ -59,7 +60,7 @@ const resolveFallbackPath = (access: UserAccess) => {
     }
   }
 
-  return '/';
+  return '/welcome';
 };
 
 type PermissionRouteProps = {

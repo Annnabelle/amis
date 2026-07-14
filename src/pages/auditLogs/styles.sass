@@ -2,17 +2,30 @@
 @use '../../shared/styles/mixins' as mix
 @use '../../shared/styles/variables' as vars
 .interactive-tag
-    transition: all 0.3s ease
-    border-radius: 16px
-    padding: 4px 12px
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    min-height: 28px
+    width: fit-content
+    border-radius: map.get(vars.$border, 'r-6')
+    padding: 4px 10px
+    font-size: 12px
+    font-weight: 600
+    line-height: 16px
+    letter-spacing: 0
+    text-transform: none
+    white-space: nowrap
+    box-sizing: border-box
+    margin: 0
     cursor: pointer
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease
+
     &:hover
-        transform: scale(1.05)
-        filter: brightness(1.1)
+        box-shadow: 0 2px 6px rgba(var(--main-primary-rgb), 0.12)
 .audit-logs-list
     .tooltip-tag
         padding: 4px 8px
-        border-radius: 16px
+        border-radius: map.get(vars.$border, 'r-6')
         font-size: 12px !important
         font-weight: 700
     .audit-logs-card

@@ -2,37 +2,6 @@
 @use "../../shared/styles/mixins" as mix
 @use "../../shared/styles/variables" as vars
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap')
-:root
-  --basic-white: #FFFFFF
-  --basic-black: #1E1E1E
-  --main-primary: #1E90FF
-  --main-box-shadow: #DCDCDC
-  --main-secondary-white: #EAEAEA
-  --main-grey: #B4B5B6
-  --main-light: #D9ECFF
-  --main-more-lighter: #D9ECFF
-  --main-bg: #FAFAFA
-  --main-light-grey: #CCCCCC
-  --event-green: #0BB614
-  --event-red: #FF1919
-  --event-yellow: #E9CE00
-  --autofill-bg: #FFFFFF
-
-:root[data-theme='dark']
-  --basic-white: #151419
-  --basic-black: #EAEAEA
-  --main-primary: #1E90FF
-  --main-box-shadow: #494949
-  --main-secondary-white: #EAEAEA
-  --main-grey: #B4B5B6
-  --main-light: #1E8FFF90
-  --main-more-lighter: #D9ECFF
-  --main-bg: #090A0C
-  --main-light-grey: #CCCCCC
-  --event-green: #0BB614
-  --event-red: #FF1919
-  --event-yellow: #E9CE00
-  --autofill-bg: #151419
 
 body
   font-family: "Montserrat", sans-serif
@@ -43,6 +12,54 @@ body
   overflow-y: auto
   background: map.get(vars.$main, 'main-bg')
   color: map.get(vars.$basic, 'black')
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-picker,
+.ant-input-number,
+.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector
+  background: map.get(vars.$surface, 'base') !important
+  color: map.get(vars.$text, 'primary') !important
+  border-color: map.get(vars.$surface, 'border') !important
+
+  &::placeholder,
+  input::placeholder
+    color: map.get(vars.$text, 'tertiary') !important
+
+.ant-input-affix-wrapper
+  .ant-input
+    background: transparent !important
+
+  .ant-input-suffix
+    color: map.get(vars.$text, 'secondary')
+
+.ant-table-wrapper
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content,
+  .ant-table-tbody > tr > td
+    background: map.get(vars.$surface, 'base') !important
+    color: map.get(vars.$text, 'primary') !important
+
+  .ant-table-thead > tr > th
+    color: map.get(vars.$text, 'primary') !important
+
+.ant-pagination
+  .ant-pagination-item,
+  .ant-pagination-options .ant-select-selector
+    background: map.get(vars.$surface, 'base') !important
+    border-color: map.get(vars.$surface, 'border') !important
+
+  .ant-pagination-item a,
+  .ant-pagination-prev,
+  .ant-pagination-next
+    color: map.get(vars.$text, 'secondary') !important
+
+  .ant-pagination-item-active
+    border-color: map.get(vars.$main, 'main') !important
+
+    a
+      color: map.get(vars.$main, 'main') !important
 
 :root.theme-transition *,
 :root.theme-transition *::before,
@@ -109,9 +126,9 @@ input:-webkit-autofill:active
   padding: 24px
   margin-bottom: 20px
   border-radius: 18px
-  border: 1px solid rgba(30, 144, 255, 0.18)
-  background: linear-gradient(135deg, rgba(30, 144, 255, 0.08) 0%, rgba(30, 144, 255, 0.02) 55%, rgba(255, 255, 255, 1) 100%)
-  box-shadow: 0 10px 24px rgba(30, 144, 255, 0.08)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.18)
+  background: linear-gradient(135deg, rgba(var(--main-primary-rgb), 0.08) 0%, rgba(var(--main-primary-rgb), 0.02) 55%, rgba(var(--white-rgb), 1) 100%)
+  box-shadow: 0 10px 24px rgba(var(--main-primary-rgb), 0.08)
 
 .route-overview-head
   display: flex
@@ -129,7 +146,7 @@ input:-webkit-autofill:active
     margin: 0
     font-size: 30px
     line-height: 1.1
-    color: #1E1E1E
+    color: map.get(vars.$text, 'primary')
 
 .route-overview-status
   display: flex
@@ -148,13 +165,13 @@ input:-webkit-autofill:active
   gap: 6px
   padding: 14px 16px
   border-radius: 14px
-  background: rgba(255, 255, 255, 0.82)
-  border: 1px solid rgba(30, 144, 255, 0.08)
+  background: rgba(var(--white-rgb), 0.82)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.08)
 
   .value
     font-size: 16px
     font-weight: 600
-    color: #1E1E1E
+    color: map.get(vars.$text, 'primary')
 
 .detail-card
   min-width: 0
@@ -163,22 +180,22 @@ input:-webkit-autofill:active
   padding: 16px
   background: var(--basic-white)
   transition: all 0.3s ease
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08)
+  box-shadow: 0 1px 3px rgba(var(--black-rgb), 0.08)
 
   &:hover
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12)
-    border-color: #1E90FF
+    box-shadow: 0 2px 8px rgba(var(--black-rgb), 0.12)
+    border-color: map.get(vars.$main, 'main')
     transform: translateY(-2px)
 
   h4
     margin: 0 0 16px 0
     font-size: 13px
     font-weight: 600
-    color: #1E90FF
+    color: map.get(vars.$main, 'main')
     text-transform: uppercase
     letter-spacing: 0.5px
     padding-bottom: 12px
-    border-bottom: 2px solid rgba(30, 144, 255, 0.1)
+    border-bottom: 2px solid rgba(var(--main-primary-rgb), 0.1)
 
 .detail-card-header
   display: flex
@@ -212,7 +229,7 @@ input:-webkit-autofill:active
       width: 68px
       height: 2px
       border-radius: 999px
-      background: rgba(30, 144, 255, 0.12)
+      background: rgba(var(--main-primary-rgb), 0.12)
 
   .route-task-controls
     grid-column: 3
@@ -233,9 +250,9 @@ input:-webkit-autofill:active
 .invoice-item-card
   min-width: 0
   padding: 14px
-  border: 1px solid rgba(30, 144, 255, 0.12)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.12)
   border-radius: 8px
-  background: linear-gradient(180deg, rgba(30, 144, 255, 0.04) 0%, rgba(255, 255, 255, 1) 100%)
+  background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.04) 0%, rgba(var(--white-rgb), 1) 100%)
 
 .invoice-item-card-head
   display: grid
@@ -244,7 +261,7 @@ input:-webkit-autofill:active
   align-items: start
   padding-bottom: 12px
   margin-bottom: 12px
-  border-bottom: 1px solid rgba(30, 144, 255, 0.10)
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.10)
 
 .invoice-item-product,
 .invoice-item-amount,
@@ -267,7 +284,7 @@ input:-webkit-autofill:active
   white-space: nowrap
   font-size: 14px
   font-weight: 600
-  color: #1E1E1E
+  color: map.get(vars.$text, 'primary')
 
 .invoice-item-amount
   text-align: right
@@ -275,7 +292,7 @@ input:-webkit-autofill:active
   strong
     font-size: 15px
     font-weight: 700
-    color: #1E90FF
+    color: map.get(vars.$main, 'main')
     white-space: nowrap
 
 .invoice-item-card-grid
@@ -288,8 +305,8 @@ input:-webkit-autofill:active
   flex-direction: column
   padding: 10px
   border-radius: 8px
-  background: rgba(255, 255, 255, 0.78)
-  border: 1px solid rgba(30, 144, 255, 0.08)
+  background: rgba(var(--white-rgb), 0.78)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.08)
 
   .label
     flex: 0 0 auto
@@ -304,7 +321,7 @@ input:-webkit-autofill:active
     white-space: nowrap
     font-size: 13px
     font-weight: 600
-    color: #1E1E1E
+    color: map.get(vars.$text, 'primary')
 
 .invoice-items-pagination
   display: flex
@@ -330,34 +347,34 @@ input:-webkit-autofill:active
   .label
     font-size: 11px
     font-weight: 600
-    color: #999
+    color: map.get(vars.$text, 'muted')
     text-transform: uppercase
     letter-spacing: 0.4px
 
   .value
     font-size: 14px
     font-weight: 500
-    color: #1E1E1E
+    color: map.get(vars.$text, 'primary')
     word-break: break-word
     line-height: 1.4
 
   .link
-    color: #1E90FF
+    color: map.get(vars.$main, 'main')
     text-decoration: none
     transition: color 0.2s ease, text-decoration-color 0.2s ease
 
     &:hover
-      color: #0F6FD6
+      color: map.get(vars.$main, 'main-hover')
       text-decoration: none
 
 .inline-label
   text-transform: none !important
   letter-spacing: normal !important
   font-size: 14px !important
-  color: #7C8595 !important
+  color: map.get(vars.$text, 'secondary') !important
 
 .detail-separator
-  color: #7C8595
+  color: map.get(vars.$text, 'secondary')
   font-size: 14px
   line-height: 1.4
 
@@ -373,14 +390,14 @@ input:-webkit-autofill:active
   min-height: 96px
   padding: 14px
   border-radius: 14px
-  background: linear-gradient(180deg, rgba(30, 144, 255, 0.06) 0%, rgba(30, 144, 255, 0.02) 100%)
-  border: 1px solid rgba(30, 144, 255, 0.1)
+  background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.06) 0%, rgba(var(--main-primary-rgb), 0.02) 100%)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.1)
 
   .value
     font-size: 28px
     line-height: 1
     font-weight: 700
-    color: #1E90FF
+    color: map.get(vars.$main, 'main')
 
 .detail-actions
   gap: 10px
@@ -388,13 +405,13 @@ input:-webkit-autofill:active
 .detail-note
   font-size: 12px
   line-height: 1.4
-  color: #7C8595
+  color: map.get(vars.$text, 'secondary')
 
 .detail-text-block
   font-size: 14px
   font-weight: 500
   line-height: 1.4
-  color: #1E1E1E
+  color: map.get(vars.$text, 'primary')
   white-space: pre-wrap
   word-break: break-word
   padding: 4px 0
@@ -410,8 +427,8 @@ input:-webkit-autofill:active
   gap: 14px
   padding: 16px
   border-radius: 16px
-  border: 1px solid rgba(30, 144, 255, 0.12)
-  background: linear-gradient(180deg, rgba(30, 144, 255, 0.05) 0%, rgba(255, 255, 255, 1) 100%)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.12)
+  background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.05) 0%, rgba(var(--white-rgb), 1) 100%)
 
 .delivery-task-item-title
   display: flex
@@ -422,12 +439,12 @@ input:-webkit-autofill:active
     margin: 0
     font-size: 16px
     line-height: 1.3
-    color: #1E1E1E
+    color: map.get(vars.$text, 'primary')
 
 .delivery-task-item-shortname
   font-size: 12px
   font-weight: 600
-  color: #7C8595
+  color: map.get(vars.$text, 'secondary')
 
 .delivery-task-item-stats
   display: grid
@@ -459,9 +476,9 @@ input:-webkit-autofill:active
   gap: 8px
   padding: 7px 14px
   border-radius: 14px
-  border: 1px solid rgba(30, 144, 255, 0.14)
-  background: rgba(30, 144, 255, 0.04)
-  color: #2D3A54
+  border: 1px solid rgba(var(--main-primary-rgb), 0.14)
+  background: rgba(var(--main-primary-rgb), 0.04)
+  color: map.get(vars.$text, 'slate')
   font-size: 12px
   font-weight: 600
   line-height: 1.1
@@ -484,20 +501,20 @@ input:-webkit-autofill:active
       display: block
 
   &:hover
-    border-color: rgba(30, 144, 255, 0.35)
-    background: rgba(30, 144, 255, 0.08)
+    border-color: rgba(var(--main-primary-rgb), 0.35)
+    background: rgba(var(--main-primary-rgb), 0.08)
 
 .route-task-card
-  border: 1px solid rgba(30, 144, 255, 0.10)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.10)
   border-radius: 18px
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 255, 1) 100%)
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05)
+  background: linear-gradient(180deg, rgba(var(--white-rgb), 1) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
+  box-shadow: 0 6px 18px rgba(var(--slate-rgb), 0.05)
   transition: box-shadow 0.2s ease, border-color 0.2s ease
   overflow: hidden
 
   &:hover
-    border-color: rgba(30, 144, 255, 0.20)
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08)
+    border-color: rgba(var(--main-primary-rgb), 0.20)
+    box-shadow: 0 10px 24px rgba(var(--slate-rgb), 0.08)
 
 .route-task-header
   position: relative
@@ -518,8 +535,8 @@ input:-webkit-autofill:active
   width: 28px
   height: 28px
   border-radius: 999px
-  background: rgba(30, 144, 255, 0.08)
-  color: #1E90FF
+  background: rgba(var(--main-primary-rgb), 0.08)
+  color: map.get(vars.$main, 'main')
   font-size: 12px
 
 .route-task-main
@@ -539,7 +556,7 @@ input:-webkit-autofill:active
   font-size: 28px
   line-height: 1.05
   font-weight: 700
-  color: #1F2937
+  color: map.get(vars.$text, 'primary')
   align-self: start
 
 .route-task-customer-block
@@ -552,14 +569,14 @@ input:-webkit-autofill:active
 .route-task-customer-name
   font-size: 16px
   font-weight: 600
-  color: #2D3A54
+  color: map.get(vars.$text, 'slate')
   line-height: 1.3
   word-break: break-word
 
 .route-task-customer-meta
   font-size: 13px
   line-height: 1.35
-  color: #7C8595
+  color: map.get(vars.$text, 'secondary')
   word-break: break-word
 
 .route-task-metrics
@@ -578,13 +595,13 @@ input:-webkit-autofill:active
   font-weight: 700
   letter-spacing: 0.05em
   text-transform: uppercase
-  color: #8A94A6
+  color: map.get(vars.$text, 'tertiary')
 
 .route-task-metric-value
   font-size: 22px
   line-height: 1.1
   font-weight: 700
-  color: #24324A
+  color: map.get(vars.$text, 'slate')
 
 .route-task-card.collapsed
   .route-task-header
@@ -608,10 +625,10 @@ input:-webkit-autofill:active
 .route-task-invoice
   font-size: 13px
   font-weight: 600
-  color: #7C8595
+  color: map.get(vars.$text, 'secondary')
 
 .route-task-expanded
-  border-top: 1px solid rgba(30, 144, 255, 0.10)
+  border-top: 1px solid rgba(var(--main-primary-rgb), 0.10)
   padding: 0 20px 18px
   display: flex
   flex-direction: column
@@ -633,19 +650,19 @@ input:-webkit-autofill:active
   font-weight: 700
   letter-spacing: 0.05em
   text-transform: uppercase
-  color: #8A94A6
+  color: map.get(vars.$text, 'tertiary')
 
 .route-task-expanded-value
   font-size: 14px
   line-height: 1.45
-  color: #2D3A54
+  color: map.get(vars.$text, 'slate')
   word-break: break-word
 
 .route-task-items-list
   display: flex
   flex-direction: column
   border-radius: 14px
-  background: rgba(248, 250, 255, 0.9)
+  background: rgba(var(--surface-soft-rgb), 0.9)
 
 .route-task-items-head,
 .route-task-item-row
@@ -656,17 +673,17 @@ input:-webkit-autofill:active
   padding: 12px 16px
 
 .route-task-items-head
-  border-bottom: 1px solid rgba(30, 144, 255, 0.10)
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.10)
   font-size: 11px
   font-weight: 700
   letter-spacing: 0.05em
   text-transform: uppercase
-  color: #8A94A6
+  color: map.get(vars.$text, 'tertiary')
 
 .route-task-item-row
   font-size: 14px
-  color: #2D3A54
-  border-bottom: 1px solid rgba(30, 144, 255, 0.06)
+  color: map.get(vars.$text, 'slate')
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.06)
 
   &:last-child
     border-bottom: none
@@ -687,18 +704,18 @@ input:-webkit-autofill:active
   font-weight: 700
   letter-spacing: 0.05em
   text-transform: uppercase
-  color: #8A94A6
+  color: map.get(vars.$text, 'tertiary')
 
 .route-task-item-name
   font-weight: 600
-  color: #24324A
+  color: map.get(vars.$text, 'slate')
 
 .route-task-item-subname
   font-size: 12px
-  color: #7C8595
+  color: map.get(vars.$text, 'secondary')
 
 .route-task-item-row-empty
-  color: #9AA3B2
+  color: map.get(vars.$text, 'muted')
 
 @media (min-width: 1100px)
   .detail-card-wide
@@ -706,93 +723,94 @@ input:-webkit-autofill:active
 
 :root[data-theme='dark']
   .route-overview-card
-    background: linear-gradient(135deg, rgba(30, 144, 255, 0.16) 0%, rgba(21, 24, 35, 0.96) 100%)
-    border-color: rgba(100, 181, 246, 0.25)
+    background: linear-gradient(135deg, rgba(var(--main-primary-rgb), 0.14) 0%, rgba(var(--surface-soft-rgb), 0.96) 55%, rgba(var(--black-rgb), 0.12) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.25)
+    box-shadow: 0 14px 30px rgba(var(--black-rgb), 0.22)
 
   .route-overview-title h2
-    color: #F5F7FB
+    color: map.get(vars.$text, 'primary')
 
   .route-meta-chip
-    background: rgba(18, 22, 32, 0.72)
-    border-color: rgba(100, 181, 246, 0.16)
+    background: rgba(var(--surface-soft-rgb), 0.72)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.16)
 
     .value
-      color: #F5F7FB
+      color: map.get(vars.$text, 'primary')
 
   .detail-card
-    background: #1A1A1E
-    border-color: #2E2E38
+    background: map.get(vars.$surface, 'muted')
+    border-color: map.get(vars.$surface, 'border')
 
     &:hover
-      border-color: #1E90FF
-      box-shadow: 0 2px 8px rgba(30, 144, 255, 0.15)
+      border-color: map.get(vars.$main, 'main')
+      box-shadow: 0 2px 8px rgba(var(--main-primary-rgb), 0.15)
 
     h4
-      color: #1E90FF
+      color: map.get(vars.$main, 'main')
 
   .detail-item
     .label
-      color: #888
+      color: map.get(vars.$text, 'secondary')
 
     .value
-      color: #E0E0E0
+      color: map.get(vars.$text, 'primary')
 
   .detail-stat
-    background: linear-gradient(180deg, rgba(100, 181, 246, 0.12) 0%, rgba(100, 181, 246, 0.04) 100%)
-    border-color: rgba(100, 181, 246, 0.14)
+    background: linear-gradient(180deg, rgba(var(--main-primary-soft-rgb), 0.12) 0%, rgba(var(--main-primary-soft-rgb), 0.04) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.14)
 
     .value
-      color: #64B5F6
+      color: map.get(vars.$main, 'main-hover')
 
   .invoice-item-card
-    background: linear-gradient(180deg, rgba(100, 181, 246, 0.08) 0%, rgba(26, 26, 30, 1) 100%)
-    border-color: rgba(100, 181, 246, 0.14)
+    background: linear-gradient(180deg, rgba(var(--main-primary-soft-rgb), 0.08) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.14)
 
   .invoice-item-product strong,
   .invoice-item-chip .value
-    color: #F5F7FB
+    color: map.get(vars.$text, 'primary')
 
   .invoice-item-amount strong
-    color: #64B5F6
+    color: map.get(vars.$main, 'main-hover')
 
   .invoice-item-chip
-    background: rgba(255, 255, 255, 0.03)
-    border-color: rgba(100, 181, 246, 0.10)
+    background: rgba(var(--white-rgb), 0.03)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.10)
 
   .detail-note
-    color: #9EA7B8
+    color: map.get(vars.$text, 'secondary')
 
   .inline-label,
   .detail-separator
-    color: #9EA7B8 !important
+    color: map.get(vars.$text, 'secondary') !important
 
   .detail-text-block
-    color: #E0E0E0
+    color: map.get(vars.$text, 'primary')
 
   .delivery-task-item-card
-    background: linear-gradient(180deg, rgba(30, 144, 255, 0.10) 0%, rgba(26, 26, 30, 1) 100%)
-    border-color: rgba(100, 181, 246, 0.18)
+    background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.10) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.18)
 
   .delivery-task-item-title h5
-    color: #F5F7FB
+    color: map.get(vars.$text, 'primary')
 
   .route-task-control-btn
-    background: rgba(100, 181, 246, 0.08)
-    border-color: rgba(100, 181, 246, 0.18)
-    color: #D9E7FF
+    background: rgba(var(--main-primary-soft-rgb), 0.08)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.18)
+    color: map.get(vars.$text, 'slate')
 
   .route-task-card
-    background: linear-gradient(180deg, rgba(28, 32, 40, 1) 0%, rgba(24, 28, 36, 1) 100%)
-    border-color: rgba(100, 181, 246, 0.12)
+    background: linear-gradient(180deg, rgba(var(--surface-soft-rgb), 1) 0%, rgba(var(--surface-soft-rgb), 0.92) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.12)
 
   .route-task-number,
   .route-task-item-name,
   .route-task-metric-value,
   .route-task-expanded-value
-    color: #F5F7FB
+    color: map.get(vars.$text, 'primary')
 
   .route-task-customer-name
-    color: #E6EEF9
+    color: map.get(vars.$text, 'primary')
 
   .route-task-customer-meta,
   .route-task-invoice,
@@ -800,27 +818,27 @@ input:-webkit-autofill:active
   .route-task-expanded-label,
   .route-task-metric-label,
   .route-task-items-head
-    color: #9EA7B8
+    color: map.get(vars.$text, 'secondary')
 
   .route-task-expand-icon
-    background: rgba(100, 181, 246, 0.12)
-    color: #8CC3FF
+    background: rgba(var(--main-primary-soft-rgb), 0.12)
+    color: map.get(vars.$main, 'main-hover')
 
   .route-task-expanded
-    border-top-color: rgba(100, 181, 246, 0.10)
+    border-top-color: rgba(var(--main-primary-soft-rgb), 0.10)
 
   .route-task-items-list
-    background: rgba(255, 255, 255, 0.02)
+    background: rgba(var(--white-rgb), 0.02)
 
   .route-task-items-head,
   .route-task-item-row
-    border-bottom-color: rgba(100, 181, 246, 0.08)
+    border-bottom-color: rgba(var(--main-primary-soft-rgb), 0.08)
 
   .route-task-item-row
-    color: #D9E7FF
+    color: map.get(vars.$text, 'slate')
 
   .route-task-item-cell-label
-    color: #9EA7B8
+    color: map.get(vars.$text, 'secondary')
 
 @media (max-width: 900px)
   .detail-grid-secondary
@@ -830,8 +848,8 @@ input:-webkit-autofill:active
     gap: 14px
     padding: 20px
     border-radius: 22px
-    background: linear-gradient(180deg, rgba(30, 144, 255, 0.08) 0%, rgba(255, 255, 255, 0.98) 100%)
-    box-shadow: 0 12px 30px rgba(30, 144, 255, 0.10)
+    background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.08) 0%, rgba(var(--white-rgb), 0.98) 100%)
+    box-shadow: 0 12px 30px rgba(var(--main-primary-rgb), 0.10)
 
   .route-overview-head
     gap: 12px
@@ -847,7 +865,7 @@ input:-webkit-autofill:active
       font-size: 12px
       letter-spacing: 0.03em
       text-transform: none
-      color: #7C8595
+      color: map.get(vars.$text, 'secondary')
 
   .route-overview-inline
     display: flex
@@ -861,7 +879,7 @@ input:-webkit-autofill:active
     .inline-label,
     .detail-separator
       font-size: 16px !important
-      color: #7C8595 !important
+      color: map.get(vars.$text, 'secondary') !important
 
   .route-overview-inline-row
     width: 100%
@@ -873,22 +891,11 @@ input:-webkit-autofill:active
 
   .route-overview-status
     .status-badge
-      min-height: 34px
-      padding: 8px 12px
-      border-radius: 12px
-      font-size: 13px
-      letter-spacing: 0
-      text-transform: none
+      flex-shrink: 0
 
   .route-overview-inline-row
     .status-badge
       flex-shrink: 0
-      min-height: 34px
-      padding: 8px 12px
-      border-radius: 12px
-      font-size: 13px
-      letter-spacing: 0
-      text-transform: none
 
   .route-overview-meta
     grid-template-columns: 1fr
@@ -963,10 +970,7 @@ input:-webkit-autofill:active
     gap: 8px
 
     .status-badge
-      min-height: 32px
-      padding: 6px 12px
-      border-radius: 10px
-      font-size: 12px
+      flex-shrink: 0
 
     .primary
       width: 100%
@@ -998,9 +1002,9 @@ input:-webkit-autofill:active
   .route-task-expanded-item
     gap: 4px
     padding: 10px 12px
-    border: 1px solid rgba(30, 144, 255, 0.10)
+    border: 1px solid rgba(var(--main-primary-rgb), 0.10)
     border-radius: 12px
-    background: rgba(248, 250, 255, 0.92)
+    background: rgba(var(--surface-soft-rgb), 0.92)
 
   .route-task-expanded-value
     font-size: 13px
@@ -1017,17 +1021,17 @@ input:-webkit-autofill:active
     grid-template-columns: 1fr
     gap: 10px
     padding: 12px
-    border: 1px solid rgba(30, 144, 255, 0.08)
+    border: 1px solid rgba(var(--main-primary-rgb), 0.08)
     border-radius: 14px
-    background: rgba(248, 250, 255, 0.92)
+    background: rgba(var(--surface-soft-rgb), 0.92)
 
     &:last-child
-      border-bottom: 1px solid rgba(30, 144, 255, 0.08)
+      border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.08)
 
   .route-task-item-product
     gap: 2px
     padding-bottom: 8px
-    border-bottom: 1px solid rgba(30, 144, 255, 0.08)
+    border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.08)
 
   .route-task-item-cell
     flex-direction: row
@@ -1038,7 +1042,7 @@ input:-webkit-autofill:active
 
     > span:last-child
       font-weight: 600
-      color: #24324A
+      color: map.get(vars.$text, 'slate')
       text-align: right
 
   .route-task-item-row-empty
@@ -1064,7 +1068,7 @@ input:-webkit-autofill:active
       font-size: 16px
       letter-spacing: 0.03em
       text-transform: none
-      color: #7C8595
+      color: map.get(vars.$text, 'secondary')
 
       &::after
         content: ':'
@@ -1077,17 +1081,26 @@ input:-webkit-autofill:active
 
 :root[data-theme='dark']
   @media (max-width: 900px)
+    .route-overview-card
+      background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.14) 0%, rgba(var(--surface-soft-rgb), 0.96) 100%)
+      border-color: rgba(var(--main-primary-soft-rgb), 0.22)
+      box-shadow: 0 12px 28px rgba(var(--black-rgb), 0.24)
+
+    .route-overview-inline h2,
+    .route-meta-chip .value
+      color: map.get(vars.$text, 'primary')
+
     .route-task-expanded-item,
     .route-task-item-row
-      background: rgba(255, 255, 255, 0.03)
-      border-color: rgba(100, 181, 246, 0.10)
+      background: rgba(var(--white-rgb), 0.03)
+      border-color: rgba(var(--main-primary-soft-rgb), 0.10)
 
     .route-task-item-product
-      border-bottom-color: rgba(100, 181, 246, 0.10)
+      border-bottom-color: rgba(var(--main-primary-soft-rgb), 0.10)
 
     .route-task-item-cell
       > span:last-child
-        color: #F5F7FB
+        color: map.get(vars.$text, 'primary')
 
 .detail-card button:not(.route-task-control-btn)
   width: 100%
@@ -1099,7 +1112,7 @@ input:-webkit-autofill:active
 
   &:hover:not(:disabled)
     transform: translateY(-1px)
-    box-shadow: 0 2px 6px rgba(30, 144, 255, 0.2)
+    box-shadow: 0 2px 6px rgba(var(--main-primary-rgb), 0.2)
 
   &:disabled
     opacity: 0.5
@@ -1109,153 +1122,106 @@ input:-webkit-autofill:active
   display: inline-flex
   align-items: center
   justify-content: center
-  padding: 6px 12px
-  border-radius: 6px
+  min-height: 28px
+  padding: 4px 10px
+  border-radius: map.get(vars.$border, 'r-6')
+  border: 1px solid var(--status-border, #{map.get(vars.$status, 'default-border')})
+  background: var(--status-bg, #{map.get(vars.$status, 'default-bg')})
+  color: var(--status-color, #{map.get(vars.$status, 'default-color')})
   font-size: 12px
   font-weight: 600
-  text-transform: uppercase
-  letter-spacing: 0.5px
+  line-height: 16px
+  text-transform: none
+  letter-spacing: 0
   white-space: nowrap
   gap: 4px
   width: fit-content
+  box-sizing: border-box
 
   &.draft
-    background: #F0F0F0
-    color: #666
+    --status-bg: #{map.get(vars.$status, 'neutral-bg')}
+    --status-color: #{map.get(vars.$status, 'neutral-color')}
+    --status-border: #{map.get(vars.$status, 'neutral-border')}
 
   &.assigned_to_warehouse
-    background: #FFF3CD
-    color: #856404
+    --status-bg: #{map.get(vars.$status, 'warning-bg')}
+    --status-color: #{map.get(vars.$status, 'warning-color')}
+    --status-border: #{map.get(vars.$status, 'warning-border')}
 
   &.ready_for_loading
-    background: #FFF3CD
-    color: #856404
+    --status-bg: #{map.get(vars.$status, 'warning-bg')}
+    --status-color: #{map.get(vars.$status, 'warning-color')}
+    --status-border: #{map.get(vars.$status, 'warning-border')}
 
   &.planned
-    background: #FFF6DA
-    color: #9A6700
+    --status-bg: #{map.get(vars.$status, 'warning-bg')}
+    --status-color: #{map.get(vars.$status, 'warning-color')}
+    --status-border: #{map.get(vars.$status, 'warning-border')}
 
   &.loading
-    background: #E6F4FF
-    color: #0958D9
+    --status-bg: #{map.get(vars.$status, 'info-bg')}
+    --status-color: #{map.get(vars.$status, 'info-color')}
+    --status-border: #{map.get(vars.$status, 'info-border')}
 
   &.loaded
-    background: #D4EDDA
-    color: #155724
+    --status-bg: #{map.get(vars.$status, 'success-bg')}
+    --status-color: #{map.get(vars.$status, 'success-color')}
+    --status-border: #{map.get(vars.$status, 'success-border')}
 
   &.handover_in_progress
-    background: #E6F4FF
-    color: #0958D9
+    --status-bg: #{map.get(vars.$status, 'info-bg')}
+    --status-color: #{map.get(vars.$status, 'info-color')}
+    --status-border: #{map.get(vars.$status, 'info-border')}
 
   &.delivering
-    background: #E6F4FF
-    color: #0958D9
+    --status-bg: #{map.get(vars.$status, 'info-bg')}
+    --status-color: #{map.get(vars.$status, 'info-color')}
+    --status-border: #{map.get(vars.$status, 'info-border')}
 
   &.in_transit
-    background: #F0E5FF
-    color: #6B21A8
+    --status-bg: #{map.get(vars.$status, 'cyan-bg')}
+    --status-color: #{map.get(vars.$status, 'cyan-color')}
+    --status-border: #{map.get(vars.$status, 'cyan-border')}
 
   &.partially_delivered
-    background: #FFF0E5
-    color: #9A3412
+    --status-bg: #{map.get(vars.$status, 'orange-bg')}
+    --status-color: #{map.get(vars.$status, 'orange-color')}
+    --status-border: #{map.get(vars.$status, 'orange-border')}
 
   &.delivered
-    background: #D4EDDA
-    color: #155724
+    --status-bg: #{map.get(vars.$status, 'success-bg')}
+    --status-color: #{map.get(vars.$status, 'success-color')}
+    --status-border: #{map.get(vars.$status, 'success-border')}
 
   &.returning
-    background: #F0E5FF
-    color: #6B21A8
+    --status-bg: #{map.get(vars.$status, 'purple-bg')}
+    --status-color: #{map.get(vars.$status, 'purple-color')}
+    --status-border: #{map.get(vars.$status, 'purple-border')}
 
   &.returned
-    background: #E2E3E5
-    color: #383D41
+    --status-bg: #{map.get(vars.$status, 'neutral-bg')}
+    --status-color: #{map.get(vars.$status, 'neutral-color')}
+    --status-border: #{map.get(vars.$status, 'neutral-border')}
 
   &.closed
-    background: #E2E3E5
-    color: #383D41
+    --status-bg: #{map.get(vars.$status, 'neutral-bg')}
+    --status-color: #{map.get(vars.$status, 'neutral-color')}
+    --status-border: #{map.get(vars.$status, 'neutral-border')}
 
   &.cancelled
-    background: #F8D7DA
-    color: #721C24
+    --status-bg: #{map.get(vars.$status, 'danger-bg')}
+    --status-color: #{map.get(vars.$status, 'danger-color')}
+    --status-border: #{map.get(vars.$status, 'danger-border')}
 
   &.failed
-    background: #FFE5E5
-    color: #C22E2E
+    --status-bg: #{map.get(vars.$status, 'danger-bg')}
+    --status-color: #{map.get(vars.$status, 'danger-color')}
+    --status-border: #{map.get(vars.$status, 'danger-border')}
 
   &.issue_failed
-    background: #FFE5E5
-    color: #C22E2E
-
-:root[data-theme='dark']
-  .status-badge
-    &.draft
-      background: #3A3A3A
-      color: #BBB
-
-    &.assigned_to_warehouse
-      background: #664400
-      color: #FFD700
-
-    &.ready_for_loading
-      background: #664400
-      color: #FFD700
-
-    &.planned
-      background: #5C4700
-      color: #FFD666
-
-    &.loading
-      background: #0C3B66
-      color: #69B1FF
-
-    &.loaded
-      background: #2D5016
-      color: #81C784
-
-    &.handover_in_progress
-      background: #0C3B66
-      color: #69B1FF
-
-    &.delivering
-      background: #0C3B66
-      color: #69B1FF
-
-    &.in_transit
-      background: #4A2E7A
-      color: #CE93D8
-
-    &.partially_delivered
-      background: #664422
-      color: #FFAB91
-
-    &.delivered
-      background: #2D5016
-      color: #81C784
-
-    &.returning
-      background: #4A2E7A
-      color: #CE93D8
-
-    &.returned
-      background: #4A4A4A
-      color: #CCC
-
-    &.closed
-      background: #4A4A4A
-      color: #CCC
-
-    &.cancelled
-      background: #663333
-      color: #EF5350
-
-    &.failed
-      background: #663333
-      color: #FF6B6B
-
-    &.issue_failed
-      background: #663333
-      color: #FF6B6B
+    --status-bg: #{map.get(vars.$status, 'danger-bg')}
+    --status-color: #{map.get(vars.$status, 'danger-color')}
+    --status-border: #{map.get(vars.$status, 'danger-border')}
 
 .loading-page-state
   display: flex
@@ -1282,7 +1248,7 @@ input:-webkit-autofill:active
 .loading-products-card
   padding: 20px 22px
   border-radius: 20px
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04)
+  box-shadow: 0 10px 30px rgba(var(--slate-rgb), 0.04)
 
 .loading-route-counters
   display: flex
@@ -1297,14 +1263,14 @@ input:-webkit-autofill:active
   min-width: 164px
   padding: 14px 18px
   border-radius: 18px
-  background: linear-gradient(180deg, rgba(30, 144, 255, 0.08) 0%, rgba(30, 144, 255, 0.03) 100%)
-  border: 1px solid rgba(30, 144, 255, 0.14)
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05)
+  background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.08) 0%, rgba(var(--main-primary-rgb), 0.03) 100%)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.14)
+  box-shadow: 0 10px 26px rgba(var(--slate-rgb), 0.05)
 
 .loading-route-counter-label
   font-size: 11px
   font-weight: 600
-  color: #6b7280
+  color: map.get(vars.$text, 'secondary')
   text-transform: uppercase
   letter-spacing: 0.04em
 
@@ -1312,7 +1278,7 @@ input:-webkit-autofill:active
   font-size: 30px
   line-height: 1
   font-weight: 700
-  color: #111827
+  color: map.get(vars.$text, 'primary')
 
 .loading-products-table
   display: flex
@@ -1328,16 +1294,16 @@ input:-webkit-autofill:active
 
 .loading-products-table-head
   padding: 0 0 14px
-  border-bottom: 1px solid #e5e7eb
+  border-bottom: 1px solid map.get(vars.$surface, 'border')
   font-size: 12px
   font-weight: 700
-  color: #6b7280
+  color: map.get(vars.$text, 'secondary')
   text-transform: uppercase
   letter-spacing: 0.04em
 
 .loading-products-table-row
   padding: 16px 0
-  border-bottom: 1px solid #f1f5f9
+  border-bottom: 1px solid map.get(vars.$surface, 'border-soft')
 
   &:last-child
     border-bottom: none
@@ -1351,11 +1317,11 @@ input:-webkit-autofill:active
   font-weight: 600
   font-size: 18px
   line-height: 1.35
-  color: #111827
+  color: map.get(vars.$text, 'primary')
 
 .loading-products-product-short
   font-size: 13px
-  color: #6b7280
+  color: map.get(vars.$text, 'secondary')
 
 .loading-products-cell
   display: flex
@@ -1363,7 +1329,7 @@ input:-webkit-autofill:active
   justify-content: flex-start
   font-weight: 600
   font-size: 22px
-  color: #111827
+  color: map.get(vars.$text, 'primary')
 
 .loading-products-cell-label
   display: none
@@ -1385,7 +1351,7 @@ input:-webkit-autofill:active
   gap: 10px
   font-size: 14px
   font-weight: 700
-  color: #111827
+  color: map.get(vars.$text, 'primary')
 
 .loading-scan-group-count
   min-width: 28px
@@ -1395,8 +1361,8 @@ input:-webkit-autofill:active
   justify-content: center
   padding: 0 8px
   border-radius: 999px
-  background: #eef2ff
-  color: #4338ca
+  background: map.get(vars.$status, 'info-bg')
+  color: map.get(vars.$status, 'info-color')
   font-size: 12px
   font-weight: 700
 
@@ -1412,21 +1378,21 @@ input:-webkit-autofill:active
   gap: 8px
   padding: 12px 42px 12px 14px
   border-radius: 14px
-  border: 1px solid #e5e7eb
-  background: #ffffff
+  border: 1px solid map.get(vars.$surface, 'border')
+  background: map.get(vars.$surface, 'base')
 
 .loading-scan-item.accepted
-  border-left: 4px solid #22c55e
+  border-left: 4px solid map.get(vars.$events, 'success')
 
 .loading-scan-item.rejected
-  border-left: 4px solid #ef4444
-  background: #fff7f7
+  border-left: 4px solid map.get(vars.$events, 'danger')
+  background: map.get(vars.$surface, 'danger-soft')
 
 .loading-scan-item-code
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace
   font-size: 13px
   line-height: 1.45
-  color: #0f172a
+  color: map.get(vars.$text, 'primary')
   word-break: break-all
 
 .loading-scan-item-delete
@@ -1441,27 +1407,27 @@ input:-webkit-autofill:active
   border: none
   border-radius: 8px
   background: transparent
-  color: #dc2626
+  color: map.get(vars.$events, 'danger')
   padding: 0
   cursor: pointer
   transition: color .2s ease, background .2s ease
 
   &:hover
-    background: #fee2e2
-    color: #b91c1c
+    background: map.get(vars.$status, 'danger-bg')
+    color: map.get(vars.$status, 'danger-color')
 
   .anticon
     display: inline-flex
     font-size: 15px
 
   &:disabled
-    color: #fca5a5
+    color: map.get(vars.$status, 'danger-border')
     cursor: not-allowed
 
 .loading-scan-item-reason
   font-size: 13px
   line-height: 1.4
-  color: #64748b
+  color: map.get(vars.$text, 'secondary')
 
 .loading-complete-warning
   display: flex
@@ -1474,8 +1440,8 @@ input:-webkit-autofill:active
   gap: 8px
   padding: 12px
   border-radius: 12px
-  background: #f8fafc
-  border: 1px solid #e2e8f0
+  background: map.get(vars.$surface, 'soft')
+  border: 1px solid map.get(vars.$surface, 'border-soft')
 
 .loading-complete-warning-item
   display: flex
@@ -1483,7 +1449,7 @@ input:-webkit-autofill:active
   justify-content: space-between
   gap: 12px
   font-size: 14px
-  color: #334155
+  color: map.get(vars.$text, 'slate')
 
 @media (max-width: 720px)
   .loading-page-layout
@@ -1523,4 +1489,4 @@ input:-webkit-autofill:active
     display: inline
     font-size: 12px
     font-weight: 500
-    color: #6b7280
+    color: map.get(vars.$text, 'secondary')

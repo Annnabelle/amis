@@ -14,7 +14,8 @@ import { createDeliveryRoute } from 'entities/deliveryRoutes/model';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { getSalesOrders } from 'entities/salesOrders/model';
-import { searchUsers } from 'entities/users/model';
+import { searchCompanyMemberships } from 'entities/companyMemberships/model';
+import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
@@ -47,8 +48,8 @@ const DeliveryRoutesCreate = () => {
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const isOrdersLoading = useAppSelector((state) => state.salesOrders.isLoading);
   const ordersError = useAppSelector((state) => state.salesOrders.error);
-  const searchedUsers = useAppSelector((state) => state.users.searchedUsers);
-  const usersError = useAppSelector((state) => state.users.error);
+  const searchedMemberships = useAppSelector((state) => state.companyMemberships.searchedMemberships);
+  const companyMembershipsError = useAppSelector((state) => state.companyMemberships.error);
   const [form] = Form.useForm<DeliveryRouteFormValues>();
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
@@ -167,12 +168,19 @@ const DeliveryRoutesCreate = () => {
     }
   };
 
-  const handleUserSearch = async (value: string) => {
-    if (!value.trim()) return;
+  const handleUserSearch = async (value: string, role: CompanyRole) => {
+    if (!value.trim() || !companyId) return;
 
     try {
       await dispatch(
-        searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' })
+        searchCompanyMemberships({
+          companyId,
+          query: value,
+          page: 1,
+          limit: 10,
+          state: CompanyMembershipState.Active,
+          role,
+        })
       ).unwrap();
     } catch (error: unknown) {
       toast.error(
@@ -391,9 +399,9 @@ const DeliveryRoutesCreate = () => {
       <RequiredDataAlert
         endpoints={[
           endpointAccessMap.salesOrdersList,
-          endpointAccessMap.usersList,
+          endpointAccessMap.companyMembershipsSearch,
         ]}
-        errors={[ordersError, usersError]}
+        errors={[ordersError, companyMembershipsError]}
       />
       <div className="box">
         <div className="box-container">
@@ -490,10 +498,10 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.driver')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => void handleUserSearch(value)}
-                    options={searchedUsers.map((user) => ({
-                      value: `${user.firstName} ${user.lastName}`,
-                      userId: user.id,
+                    onSearch={(value) => void handleUserSearch(value, CompanyRole.Driver)}
+                    options={searchedMemberships.map((membership) => ({
+                      value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
+                      userId: membership.userId,
                     }))}
                     onSelect={(value, option) => {
                       isSelectingDriverRef.current = true;
@@ -547,10 +555,10 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.agent')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => void handleUserSearch(value)}
-                    options={searchedUsers.map((user) => ({
-                      value: `${user.firstName} ${user.lastName}`,
-                      userId: user.id,
+                    onSearch={(value) => void handleUserSearch(value, CompanyRole.DeliveryAgent)}
+                    options={searchedMemberships.map((membership) => ({
+                      value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
+                      userId: membership.userId,
                     }))}
                     onSelect={(value, option) => {
                       isSelectingAgentRef.current = true;
@@ -735,7 +743,7 @@ const DeliveryRoutesCreate = () => {
                 <CustomButton
                   type="submit"
                   disabled={
-                    isOrdersLoading || Boolean(ordersError) || Boolean(usersError)
+                    isOrdersLoading || Boolean(ordersError) || Boolean(companyMembershipsError)
                   }
                 >
                   {t('deliveryRoutes.actions.create')}

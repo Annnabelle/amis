@@ -15,6 +15,7 @@ const initialState: UsersState = {
   user: storedUser ? JSON.parse(storedUser) : null,
   userById: null,
   userPreviewById: {},
+  userPreviewLoadingById: {},
   updateUser: null,
   users: [],
   searchedUsers: [],
@@ -178,6 +179,17 @@ export const getUserPreview = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(err.message || "Ошибка сервера");
     }
+  },
+  {
+    condition: (params, { getState }) => {
+      const state = getState() as { users: UsersState };
+      const usersState = state.users;
+
+      return !(
+        usersState.userPreviewById[params.id] ||
+        usersState.userPreviewLoadingById[params.id]
+      );
+    },
   }
 );
 
@@ -255,46 +267,6 @@ export const searchUsers = createAsyncThunk(
 );
 
 
-export const assignUserToCompany = createAsyncThunk(
-  "users/assignUserToCompany",
-  async (
-    { userId, companyId }: { userId: string; companyId: string },
-    thunkAPI
-  ) => {
-    try {
-      const response = await axiosInstance.patch(`/users/${userId}/companies/assign`, {
-        companyId,
-      });
-      return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "Error assigning user"
-      );
-    }
-  }
-);
-
-export const unassignUserToCompany = createAsyncThunk(
-  "users/unassignUserToCompany",
-  async (
-    { userId, companyId }: { userId: string; companyId: string },
-    thunkAPI
-  ) => {
-    try {
-      const response = await axiosInstance.patch(`/users/${userId}/companies/unassign`, {
-        companyId,
-      });
-      return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "Error unassign user"
-      );
-    }
-  }
-);
-
-
-
 export const usersSlice = createSlice({ 
   name: 'users',
   initialState,
@@ -349,26 +321,6 @@ export const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(assignUserToCompany.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(assignUserToCompany.fulfilled, (state) => {
-        state.isLoading = false;
-      })
-      .addCase(assignUserToCompany.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(unassignUserToCompany.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(unassignUserToCompany.fulfilled, (state) => {
-        state.isLoading = false;
-      })
-      .addCase(unassignUserToCompany.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
       .addCase(getAllUsers.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -420,18 +372,21 @@ export const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(getUserPreview.pending, (state) => {
+      .addCase(getUserPreview.pending, (state, action) => {
         state.isLoading = true;
+        state.userPreviewLoadingById[action.meta.arg.id] = true;
         state.error = null;
       })
       .addCase(getUserPreview.fulfilled, (state, action) => {
         state.isLoading = false;
         if (action.payload) {
           state.userPreviewById[action.payload.id] = action.payload;
+          delete state.userPreviewLoadingById[action.payload.id];
         }
       })
       .addCase(getUserPreview.rejected, (state, action) => {
         state.isLoading = false;
+        delete state.userPreviewLoadingById[action.meta.arg.id];
         state.error = action.payload as string;
       })
       .addCase(updateUser.pending, (state) => {

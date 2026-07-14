@@ -34,7 +34,7 @@ const SalesOrdersCreate = () => {
   const companyLookupRequestRef = useRef(0);
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
-    : '/organization';
+    : '/sales-orders';
 
   const items = Form.useWatch('items', form);
 

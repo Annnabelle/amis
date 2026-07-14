@@ -311,13 +311,13 @@
         gap: 16px
         .order-detail-card
             background: map.get(vars.$basic, 'white')
-            border: 1px solid #e5e7eb
+            border: 1px solid map.get(vars.$surface, 'border')
             border-radius: 12px
             padding: 16px
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+            box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.08)
             transition: all 0.3s ease
             &:hover
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12)
+                box-shadow: 0 8px 20px rgba(var(--black-rgb), 0.12)
                 border-color: map.get(vars.$main, 'main')
             .order-header
                 display: flex
@@ -325,7 +325,7 @@
                 align-items: flex-start
                 margin-bottom: 12px
                 padding-bottom: 12px
-                border-bottom: 2px solid #f3f4f6
+                border-bottom: 2px solid map.get(vars.$surface, 'border-soft')
                 .customer-info
                     flex: 1
                     .customer-name
@@ -338,7 +338,7 @@
                         grid-template-columns: 1fr 1fr
                         gap: 6px 12px
                         .detail-item
-                            +mix.typography(12px, 400, #666)
+                            +mix.typography(12px, 400, map.get(vars.$text, 'secondary'))
                             display: flex
                             align-items: center
                             .label
@@ -348,7 +348,7 @@
                                 margin-right: 4px
                             &.highlight
                                 +mix.typography(12px, 700, map.get(vars.$basic, 'black'))
-                                background: #f0f4ff
+                                background: map.get(vars.$status, 'info-bg')
                                 padding: 4px 8px
                                 border-radius: 4px
                                 .label
@@ -364,18 +364,18 @@
                         +mix.typography(12px, 700, map.get(vars.$basic, 'white'))
                         text-transform: uppercase
                         letter-spacing: 0.5px
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)
+                        box-shadow: 0 2px 8px rgba(var(--black-rgb), 0.15)
                         &[data-priority="low"]
-                            background: #10b981
+                            background: map.get(vars.$events, 'success')
                         &[data-priority="normal"]
                             background: map.get(vars.$main, 'main')
                         &[data-priority="high"]
-                            background: #f59e0b
+                            background: map.get(vars.$events, 'warning')
                         &[data-priority="urgent"]
-                            background: #ef4444
+                            background: map.get(vars.$events, 'danger')
                     .due-date
-                        +mix.typography(12px, 600, #333)
-                        background: #f9fafb
+                        +mix.typography(12px, 600, map.get(vars.$text, 'primary'))
+                        background: map.get(vars.$surface, 'soft')
                         padding: 4px 8px
                         border-radius: 4px
             .contract-info
@@ -384,7 +384,7 @@
                 margin-bottom: 0
                 border-radius: 8px
                 overflow: hidden
-                border: 1px solid #e5e7eb
+                border: 1px solid map.get(vars.$surface, 'border')
                 .table-header, .table-row
                     display: grid
                     grid-template-columns: 2fr 1fr 1fr 1fr 1fr
@@ -392,18 +392,18 @@
                     padding: 10px 12px
                     align-items: center
                 .table-header
-                    background: linear-gradient(135deg, map.get(vars.$main, 'light') 0%, #e8f1ff 100%)
+                    background: linear-gradient(135deg, map.get(vars.$main, 'light') 0%, map.get(vars.$main, 'main-more-lighter') 100%)
                     +mix.typography(12px, 700, map.get(vars.$basic, 'black'))
                     text-transform: uppercase
                     letter-spacing: 0.4px
                     color: map.get(vars.$main, 'main')
                 .table-row
-                    border-bottom: 1px solid #f0f0f0
-                    +mix.typography(12px, 400, #333)
-                    background: #ffffff
+                    border-bottom: 1px solid map.get(vars.$surface, 'border')
+                    +mix.typography(12px, 400, map.get(vars.$text, 'primary'))
+                    background: map.get(vars.$surface, 'base')
                     transition: background-color 0.2s ease
                     &:hover
-                        background: #f9fafb
+                        background: map.get(vars.$surface, 'soft')
                     &:last-child
                         border-bottom: none
             .order-totals
@@ -417,8 +417,8 @@
                 align-items: center
                 gap: 6px
                 padding: 8px 14px
-                background: #f3f4f6
-                border: 1px solid #e5e7eb
+                background: map.get(vars.$surface, 'border-soft')
+                border: 1px solid map.get(vars.$surface, 'border')
                 border-radius: 6px
                 +mix.typography(12px, 600, map.get(vars.$basic, 'black'))
                 cursor: pointer
@@ -442,7 +442,7 @@
             &.expanded
                 .order-header
                     padding-bottom: 12px
-                    border-bottom: 2px solid #f3f4f6
+                    border-bottom: 2px solid map.get(vars.$surface, 'border-soft')
                     margin-bottom: 12px
             .expand-icon
                 display: flex
@@ -462,15 +462,15 @@
                     gap: 4px
                     padding: 12px
                     background: map.get(vars.$basic, 'white')
-                    border: 1px solid #e5e7eb
+                    border: 1px solid map.get(vars.$surface, 'border')
                     border-radius: 8px
                     transition: all 0.3s ease
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04)
+                    box-shadow: 0 2px 4px rgba(var(--black-rgb), 0.04)
                     &:hover
                         border-color: map.get(vars.$main, 'main')
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+                        box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.08)
                     .stat-label
-                        +mix.typography(11px, 600, #999)
+                        +mix.typography(11px, 600, map.get(vars.$text, 'muted'))
                         text-transform: uppercase
                         letter-spacing: 0.2px
                     .stat-value

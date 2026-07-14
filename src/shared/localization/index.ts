@@ -28,6 +28,10 @@
                 status: "Status",
                 moreDetails: "More details"
             },
+            welcome: {
+                title: "Welcome to AMIS",
+                description: "System sections will appear as soon as you receive an invitation from your manager."
+            },
             statuses: {
                 active: "Active",
                 inactive: "Inactive",
@@ -157,6 +161,7 @@
                 myOrganizations: "My organizations",
                 exitCompany: "Exit company",
                 users: "Users",
+                systemEmployees: "Employees",
                 audit: "System logs",
                 markingCodes: "Marking codes",
                 agregations: "Aggregations",
@@ -166,7 +171,8 @@
                 salesOrders: "Sales Orders",
                 deliveryRoutes: "Delivery Routes",
                 deliveryTasks: "Delivery Tasks",
-                invoices: "Invoices"
+                invoices: "Invoices",
+                companyMemberships: "Employees"
             },
             scanner: {
                 accepted: "Accepted",
@@ -733,6 +739,142 @@
                     adding: 'Adding',
                 }
             },
+            systemEmployees: {
+                title: "Employees",
+                subtitle: "Invitations and roles",
+                fields: {
+                    role: "Role",
+                    roles: "Roles",
+                    state: "State",
+                    userStatus: "User status",
+                    existingUser: "Existing user",
+                    createdAt: "Created",
+                    updatedAt: "Updated",
+                    invitedBy: "Invited by"
+                },
+                roles: {
+                    system_owner: "Owner",
+                    system_admin: "Admin",
+                    system_support: "Support",
+                    system_auditor: "Auditor"
+                },
+                states: {
+                    active: "Active",
+                    invited: "Invited",
+                    declined: "Declined",
+                    disabled: "Disabled"
+                },
+                actions: {
+                    invite: "Invite",
+                    sendInvitation: "Send invitation",
+                    editRoles: "Edit",
+                    saveRoles: "Save roles",
+                    revoke: "Revoke",
+                    accept: "Accept",
+                    decline: "Decline"
+                },
+                placeholders: {
+                    search: "Search by name or email",
+                    searchUsers: "Search users",
+                    selectRoles: "Select roles"
+                },
+                validation: {
+                    userRequired: "Select an existing user",
+                    rolesRequired: "Select at least one role"
+                },
+                messages: {
+                    success: {
+                        invite: "Invitation sent",
+                        update: "Roles updated",
+                        revoke: "Access revoked"
+                    },
+                    error: {
+                        invite: "Could not send invitation",
+                        update: "Could not update roles",
+                        revoke: "Could not revoke access"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Invite employee",
+                    inviteAction: "Invite",
+                    detailsAction: "System",
+                    editAction: "Edit",
+                    revokeAction: "Revoke",
+                    employee: "employee",
+                    systemAccess: "system access"
+                },
+                invitations: {
+                    title: "You have been invited to AMIS",
+                    rolesPrefix: "with roles:"
+                },
+                revokeQuestion: "Revoke system access?"
+            },
+            companyMemberships: {
+                title: "Employees",
+                subtitle: "Company access and roles",
+                fields: {
+                    role: "Role",
+                    roles: "Roles",
+                    state: "State",
+                    userStatus: "User status",
+                    existingUser: "Existing user",
+                    createdAt: "Created",
+                    updatedAt: "Updated",
+                    invitedBy: "Invited by"
+                },
+                states: {
+                    active: "Active",
+                    invited: "Invited",
+                    declined: "Declined",
+                    disabled: "Disabled"
+                },
+                actions: {
+                    invite: "Invite",
+                    sendInvitation: "Send invitation",
+                    editRoles: "Edit",
+                    saveRoles: "Save roles",
+                    revoke: "Revoke",
+                    accept: "Accept",
+                    decline: "Decline"
+                },
+                placeholders: {
+                    searchUsers: "Search users",
+                    searchUserByEmail: "Enter full user email",
+                    selectRoles: "Select roles"
+                },
+                validation: {
+                    userRequired: "Select an existing user",
+                    emailRequired: "Enter user email",
+                    emailInvalid: "Enter a valid email",
+                    userNotFound: "User with this email was not found",
+                    rolesRequired: "Select at least one role"
+                },
+                messages: {
+                    success: {
+                        invite: "Invitation sent",
+                        update: "Roles updated",
+                        revoke: "Access revoked"
+                    },
+                    error: {
+                        invite: "Could not send invitation",
+                        update: "Could not update roles",
+                        revoke: "Could not revoke access"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Invite employee",
+                    detailsAction: "Company",
+                    editAction: "Edit",
+                    revokeAction: "Revoke",
+                    member: "employee",
+                    companyAccess: "company access"
+                },
+                invitations: {
+                    title: "You have been invited to a company",
+                    rolesPrefix: "with roles:"
+                },
+                revokeQuestion: "Revoke company access?"
+            },
             organizations: {
                 companyTypeOption: {
                     type1: "type1",
@@ -1184,12 +1326,14 @@
                     submitOrder: "Submit Order",
                     orderHasBeenSuccessfullyCreated: "Order has been successfully created",
                     failedToCreateOrder: "Failed to create order",
+                    differentProductsWarning: "Please note, you selected different product names",
                 },
                 label:{
                     chooseProduct: "Choose product",
                     choosePackageType: "Choose package type",
                     enterQuantity: "Enter quantity",
-                    chooseGenerationMethod: "Generation method"
+                    chooseGenerationMethod: "Generation method",
+                    duplicatePackageType: "This package type is already selected for this product"
                 },
                 markingCode: {
                     product: "Product",
@@ -1310,6 +1454,10 @@
                 phone: "Телефон",
                 status: "Статус",
                 moreDetails: "Подробнее"
+            },
+            welcome: {
+                title: "Добро пожаловать в AMIS",
+                description: "Элементы системы появятся как только вы получите приглашение от Вашего руководителя."
             },
             statuses: {
                 active: "Активен",
@@ -1440,6 +1588,7 @@
                 myOrganizations: "Мои организации",
                 exitCompany: "Выйти из компании",
                 users: "Пользователи",
+                systemEmployees: "Сотрудники",
                 audit: "Логи системы",
                 markingCodes: "Коды маркировки",
                 agregations: "Агрегации",
@@ -1450,6 +1599,7 @@
                 deliveryRoutes: "Рейсы",
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
+                companyMemberships: "Сотрудники",
             },
             scanner: {
                 accepted: "Принято",
@@ -2016,6 +2166,142 @@
                     adding: 'Добавление',
                 }
             },
+            systemEmployees: {
+                title: "Сотрудники",
+                subtitle: "Приглашения и роли",
+                fields: {
+                    role: "Роль",
+                    roles: "Роли",
+                    state: "Статус доступа",
+                    userStatus: "Статус пользователя",
+                    existingUser: "Существующий пользователь",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено",
+                    invitedBy: "Пригласил"
+                },
+                roles: {
+                    system_owner: "Владелец",
+                    system_admin: "Администратор",
+                    system_support: "Поддержка",
+                    system_auditor: "Аудитор"
+                },
+                states: {
+                    active: "Активен",
+                    invited: "Приглашен",
+                    declined: "Отклонен",
+                    disabled: "Отключен"
+                },
+                actions: {
+                    invite: "Пригласить",
+                    sendInvitation: "Отправить приглашение",
+                    editRoles: "Изменить",
+                    saveRoles: "Сохранить роли",
+                    revoke: "Отозвать",
+                    accept: "Принять",
+                    decline: "Отклонить"
+                },
+                placeholders: {
+                    search: "Поиск по имени или email",
+                    searchUsers: "Найти пользователя",
+                    selectRoles: "Выберите роли"
+                },
+                validation: {
+                    userRequired: "Выберите существующего пользователя",
+                    rolesRequired: "Выберите хотя бы одну роль"
+                },
+                messages: {
+                    success: {
+                        invite: "Приглашение отправлено",
+                        update: "Роли обновлены",
+                        revoke: "Доступ отозван"
+                    },
+                    error: {
+                        invite: "Не удалось отправить приглашение",
+                        update: "Не удалось обновить роли",
+                        revoke: "Не удалось отозвать доступ"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Пригласить сотрудника",
+                    inviteAction: "Приглашение",
+                    detailsAction: "Системный",
+                    editAction: "Редактирование",
+                    revokeAction: "Отзыв",
+                    employee: "сотрудник",
+                    systemAccess: "системного доступа"
+                },
+                invitations: {
+                    title: "Вас пригласили в систему AMIS",
+                    rolesPrefix: "с ролями:"
+                },
+                revokeQuestion: "Отозвать системный доступ?"
+            },
+            companyMemberships: {
+                title: "Сотрудники",
+                subtitle: "Доступы и роли в компании",
+                fields: {
+                    role: "Роль",
+                    roles: "Роли",
+                    state: "Статус доступа",
+                    userStatus: "Статус пользователя",
+                    existingUser: "Существующий пользователь",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено",
+                    invitedBy: "Пригласил"
+                },
+                states: {
+                    active: "Активен",
+                    invited: "Приглашен",
+                    declined: "Отклонен",
+                    disabled: "Отключен"
+                },
+                actions: {
+                    invite: "Пригласить",
+                    sendInvitation: "Отправить приглашение",
+                    editRoles: "Изменить",
+                    saveRoles: "Сохранить роли",
+                    revoke: "Отозвать",
+                    accept: "Принять",
+                    decline: "Отклонить"
+                },
+                placeholders: {
+                    searchUsers: "Найти пользователя",
+                    searchUserByEmail: "Введите полный email пользователя",
+                    selectRoles: "Выберите роли"
+                },
+                validation: {
+                    userRequired: "Выберите существующего пользователя",
+                    emailRequired: "Введите email пользователя",
+                    emailInvalid: "Введите корректный email",
+                    userNotFound: "Пользователь с таким email не найден",
+                    rolesRequired: "Выберите хотя бы одну роль"
+                },
+                messages: {
+                    success: {
+                        invite: "Приглашение отправлено",
+                        update: "Роли обновлены",
+                        revoke: "Доступ отозван"
+                    },
+                    error: {
+                        invite: "Не удалось отправить приглашение",
+                        update: "Не удалось обновить роли",
+                        revoke: "Не удалось отозвать доступ"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Пригласить сотрудника",
+                    detailsAction: "Сотрудник",
+                    editAction: "Редактирование",
+                    revokeAction: "Отзыв",
+                    member: "компании",
+                    companyAccess: "доступа к компании"
+                },
+                invitations: {
+                    title: "Вас пригласили в компанию",
+                    rolesPrefix: "с ролями:"
+                },
+                revokeQuestion: "Отозвать доступ к компании?"
+            },
             organizations: {
                 companyTypeOption: {
                     type1: "type1",
@@ -2468,12 +2754,14 @@
                     submitOrder: "Отправить заказ",
                     orderHasBeenSuccessfullyCreated: "Заказ успешно создан",
                     failedToCreateOrder: "Не удалось создать заказ",
+                    differentProductsWarning: "Обратите внимание, вы выбрали разные наименования товара",
                 },
                 label:{
                     chooseProduct: "Выберите продукцию",
                     choosePackageType: "Выберите тип упаковки",
                     enterQuantity: "Введите количество",
-                    chooseGenerationMethod: "Метод генерации"
+                    chooseGenerationMethod: "Метод генерации",
+                    duplicatePackageType: "Этот тип упаковки уже выбран для этого товара"
                 },
                 markingCode: {
                     product: "Продукция",
@@ -2584,6 +2872,10 @@
                 expandAll: "Barchasini yoyish",
                 collapseAll: "Barchasini buklash",
                 history: "Tarix"
+            },
+            welcome: {
+                title: "AMIS tizimiga xush kelibsiz",
+                description: "Tizim bo‘limlari rahbaringizdan taklifnoma olganingizdan so‘ng paydo bo‘ladi."
             },
             statuses: {
                 active: "Faol",
@@ -2715,6 +3007,7 @@
                 myOrganizations: "Mening tashkilotlarim",
                 exitCompany: "Kompaniyadan chiqish",
                 users: "Foydalanuvchilar",
+                systemEmployees: "Xodimlar",
                 audit: "Tizim jurnallari",
                 markingCodes: "Markirovka kodlari",
                 agregations: "Agregatsiyalar",
@@ -2725,6 +3018,7 @@
                 deliveryRoutes: "Reyslar",
                 deliveryTasks: "Yetkazib berish vazifalari",
                 invoices: "Hisob-fakturalar",
+                companyMemberships: "Xodimlar",
             },
             scanner: {
                 accepted: "Qabul qilindi",
@@ -3262,6 +3556,142 @@
                     adding: 'Qo‘shish',
                 }
             },
+            systemEmployees: {
+                title: "Xodimlar",
+                subtitle: "Takliflar va rollar",
+                fields: {
+                    role: "Rol",
+                    roles: "Rollar",
+                    state: "Kirish holati",
+                    userStatus: "Foydalanuvchi holati",
+                    existingUser: "Mavjud foydalanuvchi",
+                    createdAt: "Yaratilgan",
+                    updatedAt: "Yangilangan",
+                    invitedBy: "Taklif qilgan"
+                },
+                roles: {
+                    system_owner: "Egasi",
+                    system_admin: "Administrator",
+                    system_support: "Yordam",
+                    system_auditor: "Auditor"
+                },
+                states: {
+                    active: "Faol",
+                    invited: "Taklif qilingan",
+                    declined: "Rad etilgan",
+                    disabled: "O‘chirilgan"
+                },
+                actions: {
+                    invite: "Taklif qilish",
+                    sendInvitation: "Taklif yuborish",
+                    editRoles: "Tahrirlash",
+                    saveRoles: "Rollarni saqlash",
+                    revoke: "Bekor qilish",
+                    accept: "Qabul qilish",
+                    decline: "Rad etish"
+                },
+                placeholders: {
+                    search: "Ism yoki email bo‘yicha qidirish",
+                    searchUsers: "Foydalanuvchilarni qidirish",
+                    selectRoles: "Rollarni tanlang"
+                },
+                validation: {
+                    userRequired: "Mavjud foydalanuvchini tanlang",
+                    rolesRequired: "Kamida bitta rolni tanlang"
+                },
+                messages: {
+                    success: {
+                        invite: "Taklif yuborildi",
+                        update: "Rollar yangilandi",
+                        revoke: "Kirish bekor qilindi"
+                    },
+                    error: {
+                        invite: "Taklif yuborilmadi",
+                        update: "Rollarni yangilab bo‘lmadi",
+                        revoke: "Kirishni bekor qilib bo‘lmadi"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Xodimni taklif qilish",
+                    inviteAction: "Taklif",
+                    detailsAction: "Tizim",
+                    editAction: "Tahrirlash",
+                    revokeAction: "Bekor qilish",
+                    employee: "xodimi",
+                    systemAccess: "tizim kirishi"
+                },
+                invitations: {
+                    title: "Siz AMIS tizimiga taklif qilindingiz",
+                    rolesPrefix: "quyidagi rollar bilan:"
+                },
+                revokeQuestion: "Tizim kirishini bekor qilasizmi?"
+            },
+            companyMemberships: {
+                title: "Xodimlar",
+                subtitle: "Kompaniya kirishlari va rollari",
+                fields: {
+                    role: "Rol",
+                    roles: "Rollar",
+                    state: "Kirish holati",
+                    userStatus: "Foydalanuvchi holati",
+                    existingUser: "Mavjud foydalanuvchi",
+                    createdAt: "Yaratilgan",
+                    updatedAt: "Yangilangan",
+                    invitedBy: "Taklif qilgan"
+                },
+                states: {
+                    active: "Faol",
+                    invited: "Taklif qilingan",
+                    declined: "Rad etilgan",
+                    disabled: "O‘chirilgan"
+                },
+                actions: {
+                    invite: "Taklif qilish",
+                    sendInvitation: "Taklif yuborish",
+                    editRoles: "Tahrirlash",
+                    saveRoles: "Rollarni saqlash",
+                    revoke: "Bekor qilish",
+                    accept: "Qabul qilish",
+                    decline: "Rad etish"
+                },
+                placeholders: {
+                    searchUsers: "Foydalanuvchilarni qidirish",
+                    searchUserByEmail: "Foydalanuvchining to'liq emailini kiriting",
+                    selectRoles: "Rollarni tanlang"
+                },
+                validation: {
+                    userRequired: "Mavjud foydalanuvchini tanlang",
+                    emailRequired: "Foydalanuvchi emailini kiriting",
+                    emailInvalid: "To'g'ri email kiriting",
+                    userNotFound: "Bu email bilan foydalanuvchi topilmadi",
+                    rolesRequired: "Kamida bitta rolni tanlang"
+                },
+                messages: {
+                    success: {
+                        invite: "Taklif yuborildi",
+                        update: "Rollar yangilandi",
+                        revoke: "Kirish bekor qilindi"
+                    },
+                    error: {
+                        invite: "Taklif yuborilmadi",
+                        update: "Rollarni yangilab bo‘lmadi",
+                        revoke: "Kirishni bekor qilib bo‘lmadi"
+                    }
+                },
+                modal: {
+                    inviteTitle: "Xodimni taklif qilish",
+                    detailsAction: "Kompaniya",
+                    editAction: "Tahrirlash",
+                    revokeAction: "Bekor qilish",
+                    member: "xodim",
+                    companyAccess: "kompaniya kirishi"
+                },
+                invitations: {
+                    title: "Siz kompaniyaga taklif qilindingiz",
+                    rolesPrefix: "quyidagi rollar bilan:"
+                },
+                revokeQuestion: "Kompaniya kirishini bekor qilasizmi?"
+            },
             organizations: {
                 companyTypeOption: {
                     type1: "type1",
@@ -3712,12 +4142,14 @@
                     submitOrder: "Buyurtmani yuborish",
                     orderHasBeenSuccessfullyCreated: "Buyurtma muvaffaqiyatli yaratildi",
                     failedToCreateOrder: "Buyurtma yaratishda xatolik",
+                    differentProductsWarning: "E’tibor bering, siz turli mahsulot nomlarini tanladingiz",
                 },
                 label:{
                     chooseProduct: "Mahsulotni tanlang",
                     choosePackageType: "Qadoq turini tanlang",
                     enterQuantity: "Miqdor kiriting",
-                    chooseGenerationMethod: "Generatsiya usuli"
+                    chooseGenerationMethod: "Generatsiya usuli",
+                    duplicatePackageType: "Bu qadoq turi ushbu mahsulot uchun allaqachon tanlangan"
                 },
                 markingCode: {
                     product: "Mahsulot",

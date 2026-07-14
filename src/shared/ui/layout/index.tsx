@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { type MenuProps } from 'antd';
-import { Button, Layout, Menu, Select, Switch } from 'antd';
+import { Button, Layout, Menu, Select, Switch, Tag } from 'antd';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -21,22 +21,36 @@ import {
   LogoutOutlined,
   SunOutlined,
   MoonOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
 import Session from 'widgets/session';
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
 import { getOrganizationById } from 'entities/organization/model';
-import { setCurrentCompanyId } from 'entities/access/model';
-import { AccessModules, type AccessModule } from 'entities/access/types';
+import {
+  acceptSystemAccessInvitation,
+  declineSystemAccessInvitation,
+  fetchRoleReferences,
+  respondCompanyMembershipInvitation,
+  setCurrentCompanyId,
+} from 'entities/access/model';
+import {
+  AccessModules,
+  getRoleReferenceCacheKey,
+  RoleReferenceScope,
+  type AccessModule,
+} from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
+import { isLanguage, type Language } from 'shared/types/dtos';
 
 const { Header, Content, Sider } = Layout;
 
@@ -60,13 +74,18 @@ type MobileNavConfig = {
   items: MobileNavItem[];
 };
 
+const getLocalizedText = (
+  value: Record<Language, string>,
+  language: Language
+) => value[language] || value.ru || value.en || value.uz;
+
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { isDarkTheme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
 
   const access = useAppSelector((state) => state.access.data);
@@ -87,6 +106,53 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     () => access?.companies ?? [],
     [access?.companies]
   );
+  const pendingSystemInvitations = access?.invitations.systemAccess.filter(
+    (invitation) => invitation.state === 'invited'
+  ) ?? [];
+  const pendingCompanyInvitations = access?.invitations.companyMemberships.filter(
+    (invitation) => invitation.state === 'invited'
+  ) ?? [];
+  const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
+  const systemRoleReferences = useAppSelector(
+    (state) => state.access.roleReferences[RoleReferenceScope.System] ?? []
+  );
+  const roleReferences = useAppSelector((state) => state.access.roleReferences);
+  const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
+  const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
+  const areSystemRoleReferencesLoaded = useAppSelector((state) =>
+    Boolean(state.access.roleReferencesLoaded[RoleReferenceScope.System])
+  );
+  const areSystemRoleReferencesLoading = useAppSelector((state) =>
+    Boolean(state.access.roleReferencesLoading[RoleReferenceScope.System])
+  );
+  const systemRoleLabels = useMemo(
+    () =>
+      systemRoleReferences.reduce<Record<string, string>>((acc, role) => {
+        acc[role.alias] = getLocalizedText(role.name, currentLanguage);
+        return acc;
+      }, {}),
+    [currentLanguage, systemRoleReferences]
+  );
+  const companyRoleLabelsByCompany = useMemo(
+    () =>
+      pendingCompanyInvitations.reduce<Record<string, Record<string, string>>>(
+        (acc, invitation) => {
+          const key = getRoleReferenceCacheKey(
+            RoleReferenceScope.Company,
+            invitation.company.id
+          );
+          acc[invitation.company.id] = (roleReferences[key] ?? []).reduce<
+            Record<string, string>
+          >((roleAcc, role) => {
+            roleAcc[role.alias] = getLocalizedText(role.name, currentLanguage);
+            return roleAcc;
+          }, {});
+          return acc;
+        },
+        {}
+      ),
+    [currentLanguage, pendingCompanyInvitations, roleReferences]
+  );
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
   const section = pathSegments[2];
@@ -94,6 +160,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isOrganizationRoot = location.pathname === '/organization';
   const isOrganizationScreen = pathSegments[0] === 'organization' && Boolean(orgId) && !section;
   const isRoutesScreen = pathSegments[0] === 'organization' && Boolean(orgId) && section === 'delivery-routes' && !routeId;
+  const isSystemScreen = [
+    '/users',
+    '/system-employees',
+    '/audit-logs',
+  ].some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
   const routeCompanyId = orgId;
   const selectedCompanyId = routeCompanyId ?? storedCompanyId ?? companies[0]?.companyId;
   const membershipCompany = companies.find(
@@ -140,6 +211,46 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   useEffect(() => {
     if (
+      !access ||
+      areSystemRoleReferencesLoaded ||
+      areSystemRoleReferencesLoading
+    ) {
+      return;
+    }
+
+    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+  }, [
+    areSystemRoleReferencesLoaded,
+    areSystemRoleReferencesLoading,
+    access,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    pendingCompanyInvitations.forEach((invitation) => {
+      const key = getRoleReferenceCacheKey(
+        RoleReferenceScope.Company,
+        invitation.company.id
+      );
+
+      if (roleReferencesLoaded[key] || roleReferencesLoading[key]) {
+        return;
+      }
+
+      void dispatch(fetchRoleReferences({
+        scope: RoleReferenceScope.Company,
+        companyId: invitation.company.id,
+      }));
+    });
+  }, [
+    dispatch,
+    pendingCompanyInvitations,
+    roleReferencesLoaded,
+    roleReferencesLoading,
+  ]);
+
+  useEffect(() => {
+    if (
       !selectedCompanyId ||
       membershipCompany ||
       (organizationById && String(organizationById.id) === selectedCompanyId)
@@ -176,6 +287,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     modules: AccessModule[]
   ): CompanyModuleMenuItem[] => {
     const frontendModuleOrder: CompanyModuleMenuItem[] = [
+      {
+        module: AccessModules.CompanyMemberships,
+        key: 'memberships',
+        icon: <TeamOutlined />,
+        path: `/organization/${companyId}/memberships`,
+        label: t('navigation.companyMemberships'),
+      },
       {
         module: AccessModules.Products,
         key: 'products',
@@ -237,6 +355,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
+  if (systemModules.includes(AccessModules.Employees)) {
+    systemMenuItems.push({
+      key: '/system-employees',
+      icon: <TeamOutlined />,
+      label: (
+        <Link to="/system-employees">
+          {t('navigation.systemEmployees')}
+        </Link>
+      ),
+    });
+  }
+
   if (systemModules.includes(AccessModules.Companies)) {
     systemMenuItems.push({
       key: '/organization',
@@ -260,6 +390,47 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       ),
     });
   }
+
+  const systemMobileNavItems = useMemo<MobileNavItem[]>(() => [
+    ...(systemModules.includes(AccessModules.Users)
+      ? [{
+          key: '/users',
+          label: t('navigation.users'),
+          meta: '',
+          isActive: location.pathname === '/users' || location.pathname.startsWith('/users/'),
+          onClick: () => navigate('/users'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Employees)
+      ? [{
+          key: '/system-employees',
+          label: t('navigation.systemEmployees'),
+          meta: '',
+          isActive:
+            location.pathname === '/system-employees' ||
+            location.pathname.startsWith('/system-employees/'),
+          onClick: () => navigate('/system-employees'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Companies)
+      ? [{
+          key: '/organization',
+          label: t('navigation.organizations'),
+          meta: '',
+          isActive: location.pathname === '/organization',
+          onClick: () => navigate('/organization'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Audit)
+      ? [{
+          key: '/audit-logs',
+          label: t('navigation.audit'),
+          meta: '',
+          isActive: location.pathname === '/audit-logs',
+          onClick: () => navigate('/audit-logs'),
+        }]
+      : []),
+  ], [location.pathname, navigate, systemModules, t]);
 
   const selectedCompanyModuleItems = selectedCompany
     ? getCompanyModuleItems(selectedCompany.companyId, selectedCompany.modules)
@@ -323,6 +494,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       return null;
     }
 
+    if (isSystemScreen && systemMobileNavItems.length > 0) {
+      return {
+        title: t('navigation.management'),
+        subtitle: '',
+        backPath: null as string | null,
+        items: systemMobileNavItems,
+      };
+    }
+
     if (isOrganizationRoot) {
       return {
         title: t('navigation.myOrganizations'),
@@ -372,6 +552,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return null;
   }, [
     isMobile,
+    isSystemScreen,
     isOrganizationRoot,
     isOrganizationScreen,
     isRoutesScreen,
@@ -382,6 +563,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     routes,
     selectedCompany?.name,
     selectedCompanyModuleItems,
+    systemMobileNavItems,
     mobileSelectableCompanies,
     handleMobileCompanySelect,
     t,
@@ -446,6 +628,110 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   onClick={() => setCollapsed(!collapsed)}
                 />
               </div>
+
+              {!collapsed && (pendingSystemInvitations.length > 0 || pendingCompanyInvitations.length > 0) && (
+                <div className="layout-sider-invitations">
+                  {pendingSystemInvitations.map((invitation) => (
+                    <div className="layout-sider-invitation" key={invitation.id}>
+                      <div className="layout-sider-invitation-copy">
+                        <p className="layout-sider-invitation-title">
+                          {t('systemEmployees.invitations.title')}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {t('systemEmployees.invitations.rolesPrefix')}
+                        </p>
+                        <div className="layout-sider-invitation-roles">
+                          {invitation.roles.map((role) => (
+                            <Tag key={role} style={{ width: 'auto' }}>
+                              {systemRoleLabels[role] ?? role}
+                            </Tag>
+                          ))}
+                        </div>
+                        <div className="layout-sider-invitation-created-by">
+                          <span className="layout-sider-invitation-created-by-label">
+                            {t('systemEmployees.fields.invitedBy')}
+                          </span>
+                          <UserPreviewCardById userId={invitation.createdBy} />
+                        </div>
+                      </div>
+                      <div className="layout-sider-invitation-actions">
+                        <Button
+                          type="primary"
+                          className="layout-sider-invitation-accept"
+                          onClick={() => {
+                            void dispatch(acceptSystemAccessInvitation({ id: invitation.id }));
+                          }}
+                        >
+                          {t('systemEmployees.actions.accept')}
+                        </Button>
+                        <Button
+                          danger
+                          className="layout-sider-invitation-decline"
+                          onClick={() => {
+                            void dispatch(declineSystemAccessInvitation({ id: invitation.id }));
+                          }}
+                        >
+                          {t('systemEmployees.actions.decline')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingCompanyInvitations.map((invitation) => (
+                    <div className="layout-sider-invitation" key={invitation.id}>
+                      <div className="layout-sider-invitation-copy">
+                        <p className="layout-sider-invitation-title">
+                          {t('companyMemberships.invitations.title')}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {invitation.company.name}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {t('companyMemberships.invitations.rolesPrefix')}
+                        </p>
+                        <div className="layout-sider-invitation-roles">
+                          {invitation.roles.map((role) => (
+                            <Tag key={role} style={{ width: 'auto' }}>
+                              {companyRoleLabelsByCompany[invitation.company.id]?.[role] ?? role}
+                            </Tag>
+                          ))}
+                        </div>
+                        <div className="layout-sider-invitation-created-by">
+                          <span className="layout-sider-invitation-created-by-label">
+                            {t('companyMemberships.fields.invitedBy')}
+                          </span>
+                          <UserPreviewCardById userId={invitation.createdBy} />
+                        </div>
+                      </div>
+                      <div className="layout-sider-invitation-actions">
+                        <Button
+                          type="primary"
+                          className="layout-sider-invitation-accept"
+                          onClick={() => {
+                            void dispatch(respondCompanyMembershipInvitation({
+                              id: invitation.id,
+                              decision: 'accept',
+                            }));
+                          }}
+                        >
+                          {t('companyMemberships.actions.accept')}
+                        </Button>
+                        <Button
+                          danger
+                          className="layout-sider-invitation-decline"
+                          onClick={() => {
+                            void dispatch(respondCompanyMembershipInvitation({
+                              id: invitation.id,
+                              decision: 'decline',
+                            }));
+                          }}
+                        >
+                          {t('companyMemberships.actions.decline')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <Menu
                 key={`menu-${collapsed ? 'collapsed' : 'open'}`}

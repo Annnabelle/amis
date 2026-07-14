@@ -1,5 +1,8 @@
 export const statusColors: Record<string, string> = {
     active: "green",
+    invited: "blue",
+    declined: "red",
+    disabled: "gray",
     inactive: "red",
     new: "blue",
     requested: "yellow",

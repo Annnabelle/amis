@@ -48,6 +48,7 @@ export type UsersState = {
     user: UserResponse | null;
     userById: UserResponse | null;
     userPreviewById: Record<HexString, UserPreview>;
+    userPreviewLoadingById: Record<HexString, boolean>;
     updateUser: UserResponse | null;
     searchedUsers: UserResponse[];
     users: UserResponse[];

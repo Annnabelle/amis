@@ -83,7 +83,7 @@ const MarkingCodeProduct = () => {
                             pageSize: paginationPageSize,
                             total: paginationTotal,
                             showSizeChanger: { showSearch: false },
-                            pageSizeOptions: ['10', '15', '20', '25'],
+                            pageSizeOptions: ['10', '20', '30', '40', '50'],
                             locale: { items_per_page: '' },
                             onChange: (nextPage, nextPageSize) => {
                                 if (!orderId || !batchId) return;

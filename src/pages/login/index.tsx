@@ -6,6 +6,7 @@ import { Login } from 'entities/users/model';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { resolveFallbackPath } from 'app/routes/PermissionRoute';
 import lightMainBG from 'shared/assets/main-bg.png';
 import darkMainBG from 'shared/assets/bg-black.png';
 import FormComponent from 'shared/ui/formComponent';
@@ -22,6 +23,9 @@ const LoginPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const isAuthenticated = useAppSelector(state => state.users.isAuthenticated);
+    const access = useAppSelector(state => state.access.data);
+    const accessLoading = useAppSelector(state => state.access.loading);
+    const accessError = useAppSelector(state => state.access.error);
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { isDarkTheme } = useTheme();
@@ -43,10 +47,19 @@ const LoginPage = () => {
     };
 
     useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/organization');
+        if (!isAuthenticated || accessLoading) {
+            return;
         }
-    }, [isAuthenticated, navigate]);
+
+        if (access) {
+            navigate(resolveFallbackPath(access), { replace: true });
+            return;
+        }
+
+        if (accessError) {
+            navigate('/welcome', { replace: true });
+        }
+    }, [access, accessError, accessLoading, isAuthenticated, navigate]);
 
     const loginBackground = isDarkTheme ? darkMainBG : lightMainBG;
 
