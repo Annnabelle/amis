@@ -55,7 +55,8 @@
             },
             export: {
                 short: "Short",
-                long: "Full"
+                long: "Full",
+                longWithGroupSnapshot: "Full with group snapshot"
             },
             groups: {
                 groups: "groups",
@@ -1482,7 +1483,8 @@
             },
             export: {
                 short: "Короткий",
-                long: "Полный"
+                long: "Полный",
+                longWithGroupSnapshot: "Полный со слепком групп"
             },
             groups: {
                 groups: "группы",
@@ -2900,7 +2902,8 @@
             },
             export: {
                 short: "Qisqa",
-                long: "To‘liq"
+                long: "To‘liq",
+                longWithGroupSnapshot: "Guruhlar snapshoti bilan to‘liq"
             },
              groups: {
                 groups: "guruh",

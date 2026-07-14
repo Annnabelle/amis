@@ -5,7 +5,12 @@ import CustomButton from "../button";
 import "./styles.sass"
 
 type ExportType = "group" | "unit";
-type ExportFormat = "short" | "long";
+type ExportFormat = "short" | "long" | "long_with_group_snapshot";
+
+type ExportDropdownOption = {
+    key: ExportFormat;
+    label: string;
+};
 
 interface ExportDropdownButtonProps {
     type: ExportType;
@@ -13,6 +18,7 @@ interface ExportDropdownButtonProps {
     label: string;
     onExport: (type: ExportType, format: ExportFormat) => void;
     t: (key: string) => string;
+    extraOptions?: ExportDropdownOption[];
 }
 
 const ExportDropdownButton: React.FC<ExportDropdownButtonProps> = ({
@@ -21,6 +27,7 @@ const ExportDropdownButton: React.FC<ExportDropdownButtonProps> = ({
        label,
        onExport,
        t,
+       extraOptions = [],
    }) => {
     const menuItems: MenuProps["items"] = [
         {
@@ -33,10 +40,15 @@ const ExportDropdownButton: React.FC<ExportDropdownButtonProps> = ({
             className: "btn outline",
             label: t("export.long"),
         },
+        ...extraOptions.map((option) => ({
+            key: option.key,
+            className: "btn outline",
+            label: option.label,
+        })),
     ];
 
     const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-        if (key === "short" || key === "long") {
+        if (key === "short" || key === "long" || key === "long_with_group_snapshot") {
             onExport(type, key as ExportFormat);
         }
     };

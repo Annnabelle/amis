@@ -22,7 +22,7 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 type ExportLoadingState = {
     type: "group" | "unit";
-    format: "short" | "long";
+    format: ExportAggregationReportParams["format"];
 } | null;
 
 const AggregationReportPage: React.FC = () => {
@@ -88,7 +88,7 @@ const AggregationReportPage: React.FC = () => {
 
     const handleExport = async (
         type: "group" | "unit",
-        format: "short" | "long"
+        format: ExportAggregationReportParams["format"]
     ) => {
         if (!id || !aggregation?.productionOrderNumber) return;
 
@@ -133,6 +133,12 @@ const AggregationReportPage: React.FC = () => {
                                         label={t("aggregations.exportUnit")}
                                         onExport={handleExport}
                                         t={t}
+                                        extraOptions={[
+                                            {
+                                                key: "long_with_group_snapshot",
+                                                label: t("export.longWithGroupSnapshot"),
+                                            },
+                                        ]}
                                     />
                                 </>
                             )}
