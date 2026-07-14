@@ -92,7 +92,6 @@ export type CreateSalesOrderResponseDto =
   | ErrorDto;
 
 export type GetSalesOrdersDto = PaginatedDto & {
-  companyId?: HexString;
   status?: SalesOrderStatus;
 };
 
@@ -108,10 +107,3 @@ export type GetSalesOrderResponseDto =
   | { success: boolean; salesOrder: SalesOrderResponseDto }
   | ErrorDto;
 
-export type DeleteSalesOrderDto = {
-  id: HexString;
-};
-
-export type DeleteSalesOrderResponseDto =
-  | { success: boolean }
-  | ErrorDto;

@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import { fetchReferencesByType } from "entities/references/model";
 import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 type OrderFormItem = {
   product?: string;
@@ -38,7 +40,6 @@ const OrderForm = () => {
   const { id } = useParams<{ id: string }>();
   const orgId = id;
   const dispatch = useAppDispatch();
-
   const generateOptions = [
     { value: "self", label: t("markingCodes.independently") },
     { value: "operator", label: t("markingCodes.byOperator") },
@@ -47,9 +48,16 @@ const OrderForm = () => {
   const packTypeReferences =
       useAppSelector((state) => state.references.references.cisType) ?? [];
 
-  const { products, productById: rawProductById } = useAppSelector(
+  const {
+    products,
+    productById: rawProductById,
+    isLoading: productsLoading,
+    error: productsError,
+  } = useAppSelector(
       (state) => state.products
   );
+  const referencesLoading = useAppSelector((state) => state.references.loading);
+  const referencesError = useAppSelector((state) => state.references.error);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [productDetailsById, setProductDetailsById] = useState<Record<string, Product>>({});
@@ -77,7 +85,7 @@ const OrderForm = () => {
 
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
-      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
+      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
     }
   };
 
@@ -174,6 +182,15 @@ const OrderForm = () => {
   };
 
   return (
+    <>
+      <RequiredDataAlert
+        endpoints={[
+          endpointAccessMap.referencesRead,
+          endpointAccessMap.productsList,
+          endpointAccessMap.productsRead,
+        ]}
+        errors={[referencesError, productsError]}
+      />
       <FormComponent form={form} onFinish={handleCreateMarkingCode}>
         <Form.List name="items" initialValue={[{}]}>
           {(fields, { add, remove }) => (
@@ -352,10 +369,21 @@ const OrderForm = () => {
           )}
         </Form.Item>
 
-        <CustomButton disabled={isSubmitting} type="submit" className="outline full-width">
+        <CustomButton
+            disabled={
+                isSubmitting ||
+                referencesLoading ||
+                productsLoading ||
+                Boolean(referencesError) ||
+                Boolean(productsError)
+            }
+            type="submit"
+            className="outline full-width"
+        >
           {t("markingCodes.orderCreation.submitOrder")}
         </CustomButton>
       </FormComponent>
+    </>
   );
 };
 

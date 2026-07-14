@@ -24,7 +24,8 @@ import {
 } from 'entities/scanSessions/model';
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
-import { isAgentRole } from 'shared/lib/userRoles';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const SCAN_CACHE_PREFIX = 'delivery-task-scans';
 const SCAN_RESULT_TOAST_ID = 'delivery-task-scan-result';
@@ -43,7 +44,6 @@ const DeliveryTasksScan = () => {
   const task = useAppSelector((state) => state.deliveryTasks.taskById);
   const taskLoading = useAppSelector((state) => state.deliveryTasks.loadingById);
   const taskError = useAppSelector((state) => state.deliveryTasks.error);
-  const currentUser = useAppSelector((state) => state.users.currentUser);
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -56,14 +56,21 @@ const DeliveryTasksScan = () => {
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
   const [isClosingSession, setIsClosingSession] = useState(false);
 
-  const canUseScreen = isAgentRole(currentUser);
+  const canCreateScanSession = useCan(endpointAccessMap.scanSessionsCreate);
+  const canScan = useCan(endpointAccessMap.scanSessionsScan);
+  const canCancelScan = useCan(endpointAccessMap.scanSessionsCancelScan);
+  const canCompleteScanSession = useCan(endpointAccessMap.scanSessionsComplete);
+  const canCompleteHandover = useCan(endpointAccessMap.deliveryTasksCompleteHandover);
+  const canCompleteOperation =
+    canCompleteHandover &&
+    (scanSession?.status !== 'active' || canCompleteScanSession);
   const routePath = task?.deliveryRouteId
     ? orgId
       ? `/organization/${orgId}/delivery-routes/${task.deliveryRouteId}`
-      : `/delivery-routes/${task.deliveryRouteId}`
+      : '/organization'
     : orgId
       ? `/organization/${orgId}/delivery-routes`
-      : '/delivery-routes';
+      : '/organization';
 
   useEffect(() => {
     if (!taskId) return;
@@ -96,11 +103,20 @@ const DeliveryTasksScan = () => {
 
   useEffect(() => {
     return () => {
-      if (scanSession?.id && scanSession.status === 'active') {
+      if (
+        canCompleteScanSession &&
+        scanSession?.id &&
+        scanSession.status === 'active'
+      ) {
         void dispatch(completeScanSession(scanSession.id));
       }
     };
-  }, [dispatch, scanSession?.id, scanSession?.status]);
+  }, [
+    canCompleteScanSession,
+    dispatch,
+    scanSession?.id,
+    scanSession?.status,
+  ]);
 
   const formatCodeForToast = (code: string) => {
     const trimmed = code.trim();
@@ -451,15 +467,17 @@ const DeliveryTasksScan = () => {
             {group.scans.map((scan) => (
               <div key={`${scan.code}-${scan.ts}`} className="loading-scan-item accepted">
                 <div className="loading-scan-item-code">{scan.code}</div>
-                <button
-                  type="button"
-                  className="loading-scan-item-delete"
-                  aria-label={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
-                  title={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
-                  onClick={() => void handleDeleteScan(scan.code)}
-                >
-                  <DeleteOutlined />
-                </button>
+                {canCancelScan && (
+                  <button
+                    type="button"
+                    className="loading-scan-item-delete"
+                    aria-label={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
+                    title={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
+                    onClick={() => void handleDeleteScan(scan.code)}
+                  >
+                    <DeleteOutlined />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -484,24 +502,6 @@ const DeliveryTasksScan = () => {
       )}
     </div>
   );
-
-  if (!canUseScreen) {
-    return (
-      <MainLayout>
-        <Heading title={t('deliveryTasks.scanTitle')} subtitle={t('deliveryTasks.scanSubtitle')} />
-        <div className="box">
-          <div className="box-container">
-            <div className="box-container-items loading-page-state">
-              <Empty description={t('common.dataNotFound', { defaultValue: 'Доступ запрещён' })} />
-              <CustomButton className="outline" onClick={() => navigate(routePath)}>
-                {t('common.backToRoute')}
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
 
   if (taskLoading && !task) {
     return (
@@ -558,21 +558,27 @@ const DeliveryTasksScan = () => {
         subtitle={task.customer.name}
       >
         <div className="btns-group">
-          <CustomButton
-            className="primary"
-            onClick={handleStartScanning}
-            disabled={isCreating || isClosingSession || scannerMode === 'delete'}
-          >
-            {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
-          </CustomButton>
-          <CustomButton
-            className="danger"
-            onClick={handleStartDeleteScanning}
-            disabled={isCreating || isCompletingSession || isClosingSession || scannerMode === 'delivery'}
-          >
-            {t('deliveryTasks.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
-          </CustomButton>
-          {scanSession?.status === 'active' && scannerMode !== 'delete' && (
+          {canCreateScanSession && (
+            <CustomButton
+              className="primary"
+              onClick={handleStartScanning}
+              disabled={isCreating || isClosingSession || scannerMode === 'delete'}
+            >
+              {isCreating ? t('scanner.creatingSession') : t('scanner.startScanning')}
+            </CustomButton>
+          )}
+          {canCancelScan && (
+            <CustomButton
+              className="danger"
+              onClick={handleStartDeleteScanning}
+              disabled={isCreating || isCompletingSession || isClosingSession || scannerMode === 'delivery'}
+            >
+              {t('deliveryTasks.actions.deleteByScanning', { defaultValue: 'Удалить сканированием' })}
+            </CustomButton>
+          )}
+          {scanSession?.status === 'active' &&
+            scannerMode !== 'delete' &&
+            canCompleteOperation && (
             <CustomButton
               className="outline"
               onClick={() => void handleComplete()}
@@ -659,16 +665,22 @@ const DeliveryTasksScan = () => {
                 acceptedCount={scanSession?.counters.accepted ?? 0}
                 rejectedCount={scanSession?.counters.rejected ?? 0}
                 primaryActionLabel={
-                  scannerMode === 'delivery' ? t('deliveryTasks.actions.completeDelivery') : undefined
+                  scannerMode === 'delivery' && canCompleteOperation
+                    ? t('deliveryTasks.actions.completeDelivery')
+                    : undefined
                 }
-                onPrimaryAction={scannerMode === 'delivery' ? () => void handleComplete() : undefined}
+                onPrimaryAction={
+                  scannerMode === 'delivery' && canCompleteOperation
+                    ? () => void handleComplete()
+                    : undefined
+                }
                 enableCamera={scannerMode !== null}
                 cameraAutoStart={scannerMode !== null}
                 scanDisabled={
                   scannerMode === 'delivery'
-                    ? !scanSession || isCreating || isCompletingSession || isClosingSession
+                    ? !canScan || !scanSession || isCreating || isCompletingSession || isClosingSession
                     : scannerMode === 'delete'
-                      ? isCreating || isCompletingSession || isClosingSession
+                      ? !canCancelScan || isCreating || isCompletingSession || isClosingSession
                       : true
                 }
                 scanInProgress={isScanning}

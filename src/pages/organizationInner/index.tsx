@@ -4,13 +4,17 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
-import { getAllOrganizations, getOrganizationById } from 'entities/organization/model'
+import { getOrganizationById } from 'entities/organization/model'
 import CustomButton from 'shared/ui/button'
 import FormComponent from 'shared/ui/formComponent'
 import { useNavigate, useParams } from 'react-router-dom'
 import {type LanguageKey, useIsMobile, useNavigationBack} from 'shared/lib'
 import dayjs from "dayjs";
 import {fetchReferencesByType} from "entities/references/model";
+import { setCurrentCompanyId } from "entities/access/model";
+import { AccessModules, type AccessModule } from "entities/access/types";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const OrganizationsInner = () => {
     const { id } = useParams<{ id: string }>();
@@ -20,6 +24,7 @@ const OrganizationsInner = () => {
     const navigateBack = useNavigationBack();
     const isMobile = useIsMobile();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
+    const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? [])
 
     const [form] = Form.useForm()
 
@@ -27,10 +32,13 @@ const OrganizationsInner = () => {
     const productGroupReferences = useAppSelector(
         (state) => state.references.references.productGroup
     ) ?? [];
+    const referencesError = useAppSelector((state) => state.references.error);
 
     useEffect(() => {
+        if (isMobile) return;
+
         dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+    }, [dispatch, isMobile]);
 
     useEffect(() => {
         if (organizationById) {
@@ -85,23 +93,36 @@ const OrganizationsInner = () => {
     }, [organizationById, form])
 
     useEffect(() => {
-        dispatch(getAllOrganizations({
-            page: 1,
-            limit: 10,
-            sortOrder: 'asc',
-        })) 
-    }, [dispatch])
-
-
-
-    useEffect(() => {
-        if (id){
+        if (!isMobile && id){
             dispatch(getOrganizationById({id: id}))
         }
-    }, [dispatch, id])
+    }, [dispatch, id, isMobile])
 
-    const handleProductNavigation = (id: any) => {
-        navigate(`/organization/${id}/products`); 
+    const getFirstCompanyModulePath = (
+        companyId: string,
+        modules: AccessModule[]
+    ) => {
+        const modulePaths: Array<{ module: AccessModule; path: string }> = [
+            { module: AccessModules.Products, path: `/organization/${companyId}/products` },
+            { module: AccessModules.Orders, path: `/organization/${companyId}/orders` },
+            { module: AccessModules.Reports, path: `/organization/${companyId}/agregations` },
+            { module: AccessModules.SalesOrders, path: `/organization/${companyId}/sales-orders` },
+            { module: AccessModules.DeliveryRoutes, path: `/organization/${companyId}/delivery-routes` },
+            { module: AccessModules.Invoices, path: `/organization/${companyId}/invoices` },
+        ];
+
+        return modulePaths.find((item) => modules.includes(item.module))?.path;
+    };
+
+    const handleEnterCompany = () => {
+        if (!id) return;
+
+        dispatch(setCurrentCompanyId(id));
+        const firstModulePath = getFirstCompanyModulePath(id, systemModules);
+
+        if (firstModulePath) {
+            navigate(firstModulePath);
+        }
     }
 
     const hasValue = (value?: string | number | null) =>
@@ -131,10 +152,14 @@ const OrganizationsInner = () => {
     <MainLayout>
         {!isMobile && (
         <>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.referencesRead]}
+            errors={[referencesError]}
+        />
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')} totalAmount='100'>
             <div className="btns-group">
                 <CustomButton className='outline' onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
-                <CustomButton onClick={() => handleProductNavigation(id)}>{t('btn.toProducts')}</CustomButton>
+                <CustomButton onClick={handleEnterCompany}>{t('btn.enterCompany')}</CustomButton>
             </div>
         </Heading>
         <div className="box">

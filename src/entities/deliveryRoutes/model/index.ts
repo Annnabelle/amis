@@ -320,6 +320,39 @@ export const completeDeliveryRouteReturn = createAsyncThunk<
   }
 });
 
+export const closeDeliveryRoute = createAsyncThunk<
+  DeliveryRouteResponse,
+  string,
+  { rejectValue: ErrorDto }
+>("deliveryRoutes/closeDeliveryRoute", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await axiosInstance.post<GetDeliveryRouteResponseDto>(
+      `${BASE_URL}/delivery-routes/${id}/close`
+    );
+
+    const mapped = mapSingleRouteResponse(data);
+    if (mapped.success && mapped.deliveryRoute) {
+      return mapped.deliveryRoute;
+    }
+
+    return rejectWithValue(mapped.error as ErrorDto);
+  } catch (err: any) {
+    if (err.response?.data && "errorCode" in err.response.data) {
+      return rejectWithValue(err.response.data);
+    }
+
+    return rejectWithValue({
+      success: false,
+      errorCode: 403,
+      errorMessage: {
+        ru: "Ошибка сети",
+        en: "Network error",
+        uz: "Tarmoq xatosi",
+      },
+    });
+  }
+});
+
 export const deliveryRoutesSlice = createSlice({
   name: "deliveryRoutes",
   initialState,
@@ -444,6 +477,18 @@ export const deliveryRoutesSlice = createSlice({
       .addCase(completeDeliveryRouteReturn.rejected, (state, action) => {
         state.loadingById = false;
         state.error = getBackendErrorMessage(action.payload, "Не удалось завершить возврат");
+      })
+      .addCase(closeDeliveryRoute.pending, (state) => {
+        state.loadingById = true;
+        state.error = null;
+      })
+      .addCase(closeDeliveryRoute.fulfilled, (state, action) => {
+        state.loadingById = false;
+        state.routeById = action.payload;
+      })
+      .addCase(closeDeliveryRoute.rejected, (state, action) => {
+        state.loadingById = false;
+        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить рейс");
       });
   },
 });

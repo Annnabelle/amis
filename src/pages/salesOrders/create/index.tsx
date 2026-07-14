@@ -11,10 +11,11 @@ import { toast } from 'react-toastify';
 import { createSalesOrder } from 'entities/salesOrders/model';
 import { mapSalesOrderFormToCreateDto, type SalesOrderFormValues } from 'entities/salesOrders/mappers';
 import { searchProducts } from 'entities/products/model';
-import { searchOrganizations } from 'entities/organization/model';
-import type { CompanyResponse } from 'entities/organization/types';
+import { getCompanyByTin } from 'entities/organization/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 import { SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
 
 const TIN_LENGTH = 9;
@@ -24,10 +25,12 @@ const SalesOrdersCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const products = useAppSelector((state) => state.products.products);
+  const { products, isLoading: productsLoading, error: productsError } =
+    useAppSelector((state) => state.products);
   const [form] = Form.useForm<SalesOrderFormValues>();
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
   const [isCompanyFound, setIsCompanyFound] = useState(false);
+  const [companyLookupError, setCompanyLookupError] = useState<string | null>(null);
   const companyLookupRequestRef = useRef(0);
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
@@ -116,12 +119,6 @@ const SalesOrdersCreate = () => {
 
   const normalizeTin = (value: string) => value.replace(/\D/g, '').slice(0, TIN_LENGTH);
 
-  const formatCompanyAddress = (company: CompanyResponse) =>
-    [company.address?.region, company.address?.district, company.address?.address]
-      .map((part) => part?.trim())
-      .filter(Boolean)
-      .join(', ');
-
   const handleTinChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const normalized = normalizeTin(event.target.value);
     const requestId = ++companyLookupRequestRef.current;
@@ -135,6 +132,7 @@ const SalesOrdersCreate = () => {
       },
     });
     setIsCompanyFound(false);
+    setCompanyLookupError(null);
 
     if (normalized.length !== TIN_LENGTH || /^0+$/.test(normalized)) {
       setIsSearchingCompany(false);
@@ -144,18 +142,9 @@ const SalesOrdersCreate = () => {
     setIsSearchingCompany(true);
 
     try {
-      const response = await dispatch(
-        searchOrganizations({
-          query: normalized,
-          page: 1,
-          limit: 10,
-          sortOrder: 'asc',
-        })
-      ).unwrap() as { data?: CompanyResponse[] };
+      const company = await dispatch(getCompanyByTin(normalized)).unwrap();
 
       if (requestId !== companyLookupRequestRef.current) return;
-
-      const company = response.data?.find((item) => item.tin === normalized);
 
       if (!company) {
         setIsSearchingCompany(false);
@@ -165,18 +154,20 @@ const SalesOrdersCreate = () => {
 
       form.setFieldsValue({
         customer: {
-          companyId: company.id,
+          companyId: undefined,
           tin: normalized,
-          name: company.displayName,
-          address: formatCompanyAddress(company),
+          name: company.name,
+          address: company.address,
         },
       });
       setIsCompanyFound(true);
       setIsSearchingCompany(false);
-    } catch {
+    } catch (error: unknown) {
       if (requestId === companyLookupRequestRef.current) {
         setIsSearchingCompany(false);
-        toast.error(t('salesOrders.validation.customerCompanyNotFound'));
+        const message = getBackendErrorMessage(error, t('common.error'));
+        setCompanyLookupError(message);
+        toast.error(message);
       }
     }
   };
@@ -189,7 +180,6 @@ const SalesOrdersCreate = () => {
         page: 1,
         limit: 10,
         sortOrder: 'asc',
-        companyId: orgId,
       })
     );
   }, [dispatch, orgId]);
@@ -202,7 +192,6 @@ const SalesOrdersCreate = () => {
         page: 1,
         limit: 10,
         sortOrder: 'asc',
-        companyId: orgId,
       })
     );
   };
@@ -213,7 +202,7 @@ const SalesOrdersCreate = () => {
       return;
     }
 
-    if (!isCompanyFound || !values.customer.companyId) {
+    if (!isCompanyFound) {
       toast.error(t('salesOrders.validation.customerCompanyNotFound'));
       return;
     }
@@ -234,6 +223,13 @@ const SalesOrdersCreate = () => {
   return (
     <MainLayout>
       <Heading title={t('salesOrders.title')} subtitle={t('common.create')} />
+      <RequiredDataAlert
+        endpoints={[
+          endpointAccessMap.companiesByTin,
+          endpointAccessMap.productsList,
+        ]}
+        errors={[companyLookupError, productsError]}
+      />
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -254,7 +250,6 @@ const SalesOrdersCreate = () => {
                 <Form.Item
                   name={["customer", "companyId"]}
                   hidden
-                  rules={[{ required: true, message: t('salesOrders.validation.customerCompanyNotFound') }]}
                 >
                   <Input />
                 </Form.Item>
@@ -570,7 +565,15 @@ const SalesOrdersCreate = () => {
                 <CustomButton className="outline" onClick={() => navigate(listPath)}>
                   {t('btn.cancel')}
                 </CustomButton>
-                <CustomButton type="submit" disabled={!isCompanyFound}>
+                <CustomButton
+                  type="submit"
+                  disabled={
+                    !isCompanyFound ||
+                    productsLoading ||
+                    Boolean(companyLookupError) ||
+                    Boolean(productsError)
+                  }
+                >
                   {t('salesOrders.actions.create')}
                 </CustomButton>
               </div>

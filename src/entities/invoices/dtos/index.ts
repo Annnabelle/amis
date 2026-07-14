@@ -140,7 +140,6 @@ export type InvoiceResponseDto = {
 export type GetInvoicesDto = Partial<PaginatedDto> & {
   status?: InvoiceStatus;
   sortBy?: InvoiceSortField;
-  companyId?: HexString;
   receiverCompanyId?: HexString;
 };
 

@@ -11,6 +11,8 @@ import { getProductById } from 'entities/products/model';
 import { useNavigationBack } from 'shared/lib';
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const ProductsView = () => {
     const params = useParams();
@@ -22,6 +24,7 @@ const ProductsView = () => {
     const productById = useAppSelector((state) => state.products.productById)
     const countryReferences =
         useAppSelector((state) => state.references.references.countryCode) ?? [];
+    const referencesError = useAppSelector((state) => state.references.error);
 
     const supportedLangs = ['ru', 'en', 'uz'] as const;
     type Lang = typeof supportedLangs[number];
@@ -80,6 +83,10 @@ const ProductsView = () => {
 
     return (
     <MainLayout>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.referencesRead]}
+            errors={[referencesError]}
+        />
         <Heading title={t('products.view')} >
              <CustomButton onClick={() => navigateBack(`/organization/${orgId}/products`)}>{t('btn.back')}</CustomButton>
         </Heading>

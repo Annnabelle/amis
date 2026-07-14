@@ -23,12 +23,20 @@ import type {MultiLanguage} from "shared/types/dtos";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import { useCan } from "entities/access/lib";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
+    const canReadProduct = useCan(endpointAccessMap.productsRead);
+    const canCreateProduct = useCan(endpointAccessMap.productsCreate);
+    const canUpdateProduct = useCan(endpointAccessMap.productsUpdate);
+    const canDeleteProduct = useCan(endpointAccessMap.productsDelete);
+    const canReadAudit = useCan(endpointAccessMap.auditList);
     const products = useAppSelector((state) => state.products.products)
     const dataLimit = useAppSelector((state) => state.products.limit)
     const dataPage = useAppSelector((state) => state.products.page)
@@ -44,6 +52,10 @@ const Products = () => {
     type Lang = LangKey[number];
     const orgId = id
     const company = useAppSelector(state => state.organizations.organizationById)
+    const companyError = useAppSelector(state => state.organizations.error)
+    const companyLoading = useAppSelector(state => state.organizations.isLoading)
+    const referencesError = useAppSelector(state => state.references.error)
+    const referencesLoading = useAppSelector(state => state.references.loading)
 
     useEffect(() => {
         if (id){
@@ -110,7 +122,6 @@ const Products = () => {
                 page: dataPage || 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
-                companyId: id,
             })
             );
         }
@@ -195,10 +206,10 @@ const Products = () => {
     };
 
     useEffect(() => {
-        if (selectedProductId){
+        if (selectedProductId && canReadProduct){
             dispatch(getProductById({id: selectedProductId}))
         }
-    }, [dispatch, selectedProductId])
+    }, [canReadProduct, dispatch, selectedProductId])
 
 
     const handleDeleteProduct = (record: ProductTableDataType) => {
@@ -231,7 +242,6 @@ const Products = () => {
                     sortOrder: 'asc',
                     status: 'active',
                     sortBy: 'name',
-                    companyId: "68aad743aad6b8936a833ef7", 
                 }));
             } else {
                 toast.error(t('products.messages.error.deleteProduct'));
@@ -253,7 +263,6 @@ const Products = () => {
                 page: 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
-                companyId: id
             })
             );
         } else {
@@ -263,7 +272,6 @@ const Products = () => {
                 page: 1,
                 limit: dataLimit || 10,
                 sortOrder: "asc",
-                companyId: id,
             })
             );
         }
@@ -282,8 +290,12 @@ const Products = () => {
         <MainLayout>
             <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
-                    <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
-                    <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
+                    {canReadAudit && (
+                        <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                    )}
+                    {canCreateProduct && (
+                        <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
+                    )}
                 </div>
             </Heading>
             <div className="box">
@@ -308,9 +320,21 @@ const Products = () => {
                 </div>
                 <div className="box-container-items">
                     <ComponentTable<ProductTableDataType>
-                        columns={ProductsTableColumns(t, handleRowClick, handleDeleteProduct)}
+                        columns={ProductsTableColumns(
+                            t,
+                            handleRowClick,
+                            handleDeleteProduct,
+                            {
+                                canUpdate: canUpdateProduct,
+                                canDelete: canDeleteProduct,
+                            }
+                        )}
                         data={ProductsData}
-                        onRowClick={(record) => handleRowClick('Product', 'retrieve', record)}
+                        onRowClick={
+                            canReadProduct
+                                ? (record) => handleRowClick('Product', 'retrieve', record)
+                                : undefined
+                        }
                         pagination={{
                             current: dataPage || 1,
                             pageSize: dataLimit || 10,
@@ -319,7 +343,7 @@ const Products = () => {
                             pageSizeOptions: ['10', '20', '30', '40', '50'],
                             locale: { items_per_page: '' },
                             onChange: (newPage, newLimit) => {
-                            dispatch(getAllProducts({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc", companyId: id }));
+                            dispatch(getAllProducts({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
                             },
                         }}
                     />
@@ -333,6 +357,13 @@ const Products = () => {
             closeModal={() => handleModal('addProduct', false)}
             className="modal-large"
             >
+            <RequiredDataAlert
+                endpoints={[
+                    endpointAccessMap.companiesRead,
+                    endpointAccessMap.referencesRead,
+                ]}
+                errors={[companyError, referencesError]}
+            />
             <FormComponent onFinish={handleRegisterProduct}
               form={form}
                 onValuesChange={(changedValues) => {
@@ -625,7 +656,17 @@ const Products = () => {
                     </Form.Item>
                 </div>
 
-                <CustomButton type="submit">{t('btn.create')}</CustomButton>
+                <CustomButton
+                    type="submit"
+                    disabled={
+                        companyLoading ||
+                        referencesLoading ||
+                        Boolean(companyError) ||
+                        Boolean(referencesError)
+                    }
+                >
+                    {t('btn.create')}
+                </CustomButton>
             </FormComponent>
         </ModalWindow>
         <ModalWindow

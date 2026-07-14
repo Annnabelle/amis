@@ -15,7 +15,11 @@ import { deliveryRoutesSlice } from "entities/deliveryRoutes/model";
 import { deliveryTasksSlice } from "entities/deliveryTasks/model";
 import { invoicesSlice } from "entities/invoices/model";
 import { scanSessionsSlice } from "entities/scanSessions/model";
+import { accessSlice } from "entities/access/model";
+import { systemEmployeesSlice } from "entities/systemEmployees/model";
+import { companyMembershipsSlice } from "entities/companyMemberships/model";
 import {loaderSlice} from "./loader";
+import { setRuntimeCompanyId } from "shared/lib/companyContext";
 
 export const store = configureStore({
     reducer: {
@@ -34,6 +38,9 @@ export const store = configureStore({
         deliveryTasks: deliveryTasksSlice.reducer,
         invoices: invoicesSlice.reducer,
         scanSessions: scanSessionsSlice.reducer,
+        access: accessSlice.reducer,
+        systemEmployees: systemEmployeesSlice.reducer,
+        companyMemberships: companyMembershipsSlice.reducer,
         loader: loaderSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
@@ -41,6 +48,19 @@ export const store = configureStore({
         serializableCheck: false,
         }),
     });
+
+let previousCompanyId = store.getState().access.currentCompanyId;
+setRuntimeCompanyId(previousCompanyId);
+
+store.subscribe(() => {
+    const currentCompanyId = store.getState().access.currentCompanyId;
+
+    if (currentCompanyId !== previousCompanyId) {
+        previousCompanyId = currentCompanyId;
+        setRuntimeCompanyId(currentCompanyId);
+    }
+});
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 

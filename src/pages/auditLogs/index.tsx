@@ -25,15 +25,37 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { fetchAuditLogs } from "entities/auditLog/model";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
-import { Link } from "react-router-dom";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import dayjs from "dayjs";
+import { PermissionLink } from "entities/access/ui";
+import {
+  endpointAccessMap,
+  type StaticEndpointAccess,
+} from "shared/config/endpointAccessMap";
 
 const { Panel } = Collapse;
+
+const getTargetAccess = (
+  targetEntity: string
+): StaticEndpointAccess | null => {
+  switch (targetEntity) {
+    case "user":
+      return endpointAccessMap.usersRead;
+    case "company":
+      return endpointAccessMap.companiesRead;
+    case "product":
+      return endpointAccessMap.productsRead;
+    case "markingCodeOrder":
+    case "order":
+      return endpointAccessMap.ordersRead;
+    default:
+      return null;
+  }
+};
 
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -184,13 +206,14 @@ const AuditLogsPage: React.FC = () => {
             </div>
             <div className="content-items-item-description">
               <h5 className="description">
-                <Link
+                <PermissionLink
+                    endpoint={endpointAccessMap.ordersRead}
                     to={`/organization/${orgId}/orderId/${orderId}/batchId/${target.batches?.[0]?.id || ""}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
                   {target.orderNumber}
-                </Link>
+                </PermissionLink>
               </h5>
             </div>
           </div>
@@ -204,13 +227,14 @@ const AuditLogsPage: React.FC = () => {
             </div>
             <div className="content-items-item-description">
               <h5 className="description">
-                <Link
+                <PermissionLink
+                    endpoint={endpointAccessMap.ordersRead}
                     to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
                   {batch.id}
-                </Link>
+                </PermissionLink>
               </h5>
             </div>
           </div>
@@ -283,15 +307,23 @@ const AuditLogsPage: React.FC = () => {
                 path = `/organization/${entityId}`;
                 break;
               case "product":
-                path = `/products/${target.id}`;
+                path = target.companyId
+                  ? `/organization/${target.companyId}/products/${target.id}`
+                  : "/organization";
                 break;
             }
 
-            if (path) {
+            const targetAccess = getTargetAccess(targetEntity ?? "");
+            if (path && targetAccess) {
               formattedValue = (
-                  <Link to={path} className="actor-link-hover" style={{ color: "inherit" }}>
+                  <PermissionLink
+                    endpoint={targetAccess}
+                    to={path}
+                    className="actor-link-hover"
+                    style={{ color: "inherit" }}
+                  >
                     {value}
-                  </Link>
+                  </PermissionLink>
               );
             }
           }
@@ -378,9 +410,14 @@ const AuditLogsPage: React.FC = () => {
                   {
                     label:`${t('users.addUserForm.label.firstName')}`,
                     value: (
-                      <Link to={`/users/${item.actorId}`} style={{ color: "inherit" }} className="actor-link-hover">
+                      <PermissionLink
+                        endpoint={endpointAccessMap.usersRead}
+                        to={`/users/${item.actorId}`}
+                        style={{ color: "inherit" }}
+                        className="actor-link-hover"
+                      >
                         {item.firstName} {item.lastName}
-                      </Link>
+                      </PermissionLink>
                     ),
                     icon: <UserOutlined style={{ color: "var(--main-primary)" }} />,
                   },
@@ -480,10 +517,14 @@ const AuditLogsPage: React.FC = () => {
                                         return (
                                           <span className="log-list-heading-container-target" style={{ marginLeft: 6 }}>
                                             {" "}<FaArrowRightLong/>{" "}
-                                            {targetInfo.path ? (
-                                              <Link to={targetInfo.path} className="actor-link-hover">
+                                            {targetInfo.path && getTargetAccess(item.targetEntity) ? (
+                                              <PermissionLink
+                                                endpoint={getTargetAccess(item.targetEntity)!}
+                                                to={targetInfo.path}
+                                                className="actor-link-hover"
+                                              >
                                                 {targetInfo.name}
-                                              </Link>
+                                              </PermissionLink>
                                             ) : (
                                               <span>{targetInfo.name}</span>
                                             )}

@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getUserPreview } from 'entities/users/model';
 import type { UserPreview } from 'entities/users/types';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const { Text } = Typography;
 
@@ -22,7 +24,9 @@ const statusColorMap: Record<string, string> = {
 
 const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
   const { t } = useTranslation();
+  const canReadUser = useCan(endpointAccessMap.usersRead);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || '-';
+  const displayName = fullName !== '-' ? fullName : user.email || user.id;
   const phoneDisplay = user.phone ? (user.phone.startsWith('+') ? user.phone : `+${user.phone}`) : '-';
   const iconChipStyle = {
     width: compact ? 24 : 24,
@@ -41,8 +45,8 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
           <UserOutlined style={{ color: 'var(--main-primary)', fontSize: 15 }} />
         </span>
         <div style={{ minWidth: 0 }}>
-          <Text style={{ display: 'block', color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }} ellipsis={{ tooltip: fullName }}>
-            {fullName}
+          <Text style={{ display: 'block', color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }} ellipsis={{ tooltip: displayName }}>
+            {displayName}
           </Text>
           {user.status ? (
             <Tag
@@ -104,7 +108,8 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
         </span>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
-          <Link
+            {canReadUser ? (
+                <Link
             to={`/users/${user.id}`}
             style={{
               color: 'var(--text-primary)',
@@ -117,12 +122,12 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
               minWidth: 0,
               maxWidth: compact ? 300 : 180,
             }}
-            title={fullName}
+            title={displayName}
           >
-            {fullName}
+            {displayName}
           </Link>
 
-          {user.email ? (
+            ) : (
             <span style={{ display: 'inline-flex', alignItems: 'center', minWidth: 0, color: 'var(--text-secondary)' }}>
               <Text
                 style={{
@@ -132,12 +137,12 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
                   fontWeight: 400,
                   lineHeight: '16px',
                 }}
-                ellipsis={{ tooltip: user.email }}
+                ellipsis={{ tooltip: displayName }}
               >
-                {user.email}
+                {displayName}
               </Text>
             </span>
-          ) : null}
+            )}
         </div>
       </div>
     </Popover>
@@ -147,17 +152,22 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
 export const UserPreviewCardById = ({ userId, compact = false }: { userId: string; compact?: boolean }) => {
   const dispatch = useAppDispatch();
   const preview = useAppSelector((state) => state.users.userPreviewById[userId]);
+  const canPreviewUser = useCan(endpointAccessMap.usersPreview);
 
   useEffect(() => {
-    if (!userId || preview) {
+    if (!userId || preview || !canPreviewUser) {
       return;
     }
 
     void dispatch(getUserPreview({ id: userId }));
-  }, [dispatch, preview, userId]);
+  }, [canPreviewUser, dispatch, preview, userId]);
 
   if (!userId) {
     return null;
+  }
+
+  if (!canPreviewUser) {
+    return <span>{userId}</span>;
   }
 
   if (!preview) {

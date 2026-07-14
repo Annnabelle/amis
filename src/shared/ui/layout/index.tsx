@@ -1,11 +1,12 @@
 import React, {
+  useCallback,
   useState,
   type ReactNode,
   useEffect,
   useMemo,
 } from 'react';
 import { type MenuProps } from 'antd';
-import { Button, Layout, Menu, Switch } from 'antd';
+import { Button, Layout, Menu, Select, Switch, Tag } from 'antd';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -14,26 +15,42 @@ import {
   AppstoreOutlined,
   CodeOutlined,
   ClusterOutlined,
-  BuildOutlined,
   ShoppingCartOutlined,
   CarOutlined,
   FileDoneOutlined,
+  LogoutOutlined,
   SunOutlined,
   MoonOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
 import Session from 'widgets/session';
+import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { getAllOrganizations } from 'entities/organization/model';
 import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
+import { getOrganizationById } from 'entities/organization/model';
+import {
+  acceptSystemAccessInvitation,
+  declineSystemAccessInvitation,
+  fetchRoleReferences,
+  respondCompanyMembershipInvitation,
+  setCurrentCompanyId,
+} from 'entities/access/model';
+import {
+  AccessModules,
+  getRoleReferenceCacheKey,
+  RoleReferenceScope,
+  type AccessModule,
+} from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
+import { isLanguage, type Language } from 'shared/types/dtos';
 
 const { Header, Content, Sider } = Layout;
 
@@ -57,30 +74,85 @@ type MobileNavConfig = {
   items: MobileNavItem[];
 };
 
+const getLocalizedText = (
+  value: Record<Language, string>,
+  language: Language
+) => value[language] || value.ru || value.en || value.uz;
+
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { isDarkTheme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
 
-  const getOrgOpenKeys = (pathname: string) => {
-    const parts = pathname.split('/');
-    if (parts[1] !== 'organization' || !parts[2]) {
-      return [];
-    }
-
-    const currentOrgId = parts[2];
-    return ['my-organizations-group', `my-org-${currentOrgId}`];
-  };
-
-  const [openKeys, setOpenKeys] = useState<string[]>(() => getOrgOpenKeys(window.location.pathname));
-  const organizations = useAppSelector((state) => state.organizations.organizations);
+  const access = useAppSelector((state) => state.access.data);
+  const storedCompanyId = useAppSelector((state) => state.access.currentCompanyId);
   const routes = useAppSelector((state) => state.deliveryRoutes.routes);
+  const organizations = useAppSelector(
+    (state) => state.organizations.organizations
+  );
+  const organizationById = useAppSelector(
+    (state) => state.organizations.organizationById
+  );
 
-  const isSuperAdmin = true;
+  const systemModules = useMemo(
+    () => access?.system.modules ?? [],
+    [access?.system.modules]
+  );
+  const companies = useMemo(
+    () => access?.companies ?? [],
+    [access?.companies]
+  );
+  const pendingSystemInvitations = access?.invitations.systemAccess.filter(
+    (invitation) => invitation.state === 'invited'
+  ) ?? [];
+  const pendingCompanyInvitations = access?.invitations.companyMemberships.filter(
+    (invitation) => invitation.state === 'invited'
+  ) ?? [];
+  const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
+  const systemRoleReferences = useAppSelector(
+    (state) => state.access.roleReferences[RoleReferenceScope.System] ?? []
+  );
+  const roleReferences = useAppSelector((state) => state.access.roleReferences);
+  const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
+  const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
+  const areSystemRoleReferencesLoaded = useAppSelector((state) =>
+    Boolean(state.access.roleReferencesLoaded[RoleReferenceScope.System])
+  );
+  const areSystemRoleReferencesLoading = useAppSelector((state) =>
+    Boolean(state.access.roleReferencesLoading[RoleReferenceScope.System])
+  );
+  const systemRoleLabels = useMemo(
+    () =>
+      systemRoleReferences.reduce<Record<string, string>>((acc, role) => {
+        acc[role.alias] = getLocalizedText(role.name, currentLanguage);
+        return acc;
+      }, {}),
+    [currentLanguage, systemRoleReferences]
+  );
+  const companyRoleLabelsByCompany = useMemo(
+    () =>
+      pendingCompanyInvitations.reduce<Record<string, Record<string, string>>>(
+        (acc, invitation) => {
+          const key = getRoleReferenceCacheKey(
+            RoleReferenceScope.Company,
+            invitation.company.id
+          );
+          acc[invitation.company.id] = (roleReferences[key] ?? []).reduce<
+            Record<string, string>
+          >((roleAcc, role) => {
+            roleAcc[role.alias] = getLocalizedText(role.name, currentLanguage);
+            return roleAcc;
+          }, {});
+          return acc;
+        },
+        {}
+      ),
+    [currentLanguage, pendingCompanyInvitations, roleReferences]
+  );
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
   const section = pathSegments[2];
@@ -88,168 +160,215 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isOrganizationRoot = location.pathname === '/organization';
   const isOrganizationScreen = pathSegments[0] === 'organization' && Boolean(orgId) && !section;
   const isRoutesScreen = pathSegments[0] === 'organization' && Boolean(orgId) && section === 'delivery-routes' && !routeId;
-  const selectedOrganization = organizations.find((org) => String(org.id) === orgId);
+  const isSystemScreen = [
+    '/users',
+    '/system-employees',
+    '/audit-logs',
+  ].some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
+  const routeCompanyId = orgId;
+  const selectedCompanyId = routeCompanyId ?? storedCompanyId ?? companies[0]?.companyId;
+  const membershipCompany = companies.find(
+    (company) => company.companyId === selectedCompanyId
+  );
+  const isSystemCompanyContext = Boolean(
+    selectedCompanyId && storedCompanyId === selectedCompanyId && !membershipCompany
+  );
+  const systemCompany =
+    isSystemCompanyContext &&
+    organizationById &&
+    String(organizationById.id) === selectedCompanyId
+      ? {
+          companyId: selectedCompanyId,
+          name: organizationById.displayName,
+          roles: [],
+          permissions: access?.system.permissions ?? [],
+          modules: systemModules,
+        }
+      : null;
+  const selectedCompany = membershipCompany ?? systemCompany;
+  const selectableCompanies = systemCompany
+    ? [...companies, systemCompany]
+    : companies;
+  const mobileSelectableCompanies = useMemo(() => {
+    const result = [...companies];
+
+    organizations.forEach((organization) => {
+      if (result.some((company) => company.companyId === String(organization.id))) {
+        return;
+      }
+
+      result.push({
+        companyId: String(organization.id),
+        name: organization.displayName,
+        roles: [],
+        permissions: access?.system.permissions ?? [],
+        modules: systemModules,
+      });
+    });
+
+    return result;
+  }, [access?.system.permissions, companies, organizations, systemModules]);
 
   useEffect(() => {
-    if (collapsed) return;
-
-    const parts = location.pathname.split('/');
-    if (parts[1] !== 'organization' || !parts[2]) {
+    if (
+      !access ||
+      areSystemRoleReferencesLoaded ||
+      areSystemRoleReferencesLoading
+    ) {
       return;
     }
 
-    const currentOrgId = parts[2];
-    const requiredKeys = ['my-organizations-group', `my-org-${currentOrgId}`];
-
-    setOpenKeys((prev) => {
-      const hasAll = requiredKeys.every((key) => prev.includes(key));
-      if (hasAll) {
-        return prev;
-      }
-
-      const newSet = new Set(prev);
-      requiredKeys.forEach((key) => newSet.add(key));
-      return Array.from(newSet);
-    });
-  }, [location.pathname, collapsed]);
+    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+  }, [
+    areSystemRoleReferencesLoaded,
+    areSystemRoleReferencesLoading,
+    access,
+    dispatch,
+  ]);
 
   useEffect(() => {
-    dispatch(
-      getAllOrganizations({
-        page: 1,
-        limit: 10,
-        sortOrder: 'asc',
-      })
-    );
-  }, [dispatch]);
+    pendingCompanyInvitations.forEach((invitation) => {
+      const key = getRoleReferenceCacheKey(
+        RoleReferenceScope.Company,
+        invitation.company.id
+      );
+
+      if (roleReferencesLoaded[key] || roleReferencesLoading[key]) {
+        return;
+      }
+
+      void dispatch(fetchRoleReferences({
+        scope: RoleReferenceScope.Company,
+        companyId: invitation.company.id,
+      }));
+    });
+  }, [
+    dispatch,
+    pendingCompanyInvitations,
+    roleReferencesLoaded,
+    roleReferencesLoading,
+  ]);
+
+  useEffect(() => {
+    if (
+      !selectedCompanyId ||
+      membershipCompany ||
+      (organizationById && String(organizationById.id) === selectedCompanyId)
+    ) {
+      return;
+    }
+
+    dispatch(getOrganizationById({ id: selectedCompanyId }));
+  }, [
+    dispatch,
+    membershipCompany,
+    organizationById,
+    selectedCompanyId,
+  ]);
 
   useEffect(() => {
     if (!isMobile || !orgId || section !== 'delivery-routes') {
       return;
     }
 
-    dispatch(
-      getDeliveryRoutes({
-        companyId: orgId,
-      })
-    );
+    dispatch(getDeliveryRoutes({}));
   }, [dispatch, isMobile, orgId, section]);
 
-  const getOrgSubMenuItems = (currentOrgId: string): MenuProps['items'] => [
-    {
-      key: 'products',
-      icon: <AppstoreOutlined />,
-      className: 'org-submenu-item',
-      label: (
-        <Link to={`/organization/${currentOrgId}/products`}>
-          {t('navigation.products')}
-        </Link>
-      ),
-    },
-    {
-      key: 'orders',
-      icon: <CodeOutlined />,
-      className: 'org-submenu-item',
-      label: (
-        <Link to={`/organization/${currentOrgId}/orders`}>
-          {t('navigation.markingCodes')}
-        </Link>
-      ),
-    },
-    {
-      key: 'agregations',
-      icon: <ClusterOutlined />,
-      className: 'org-submenu-item',
-      label: (
-        <Link to={`/organization/${currentOrgId}/agregations`}>
-          {t('navigation.agregations')}
-        </Link>
-      ),
-    },
-    {
-      key: 'sales-orders',
-      icon: <ShoppingCartOutlined />,
-      className: 'org-submenu-item',
-      label: (
-        <Link to={`/organization/${currentOrgId}/sales-orders`}>
-          {t('navigation.deals')}
-        </Link>
-      ),
-    },
-    {
-      key: 'delivery-routes',
-      icon: <CarOutlined />,
-      className: 'org-submenu-item',
-      label: (
-        <Link to={`/organization/${currentOrgId}/delivery-routes`}>
-          {t('navigation.routes')}
-        </Link>
-      ),
-    },
-    {
-      key: 'invoices',
-      icon: <FileDoneOutlined />,
-      className: 'org-submenu-item',
-      label: (
-        <Link to={`/organization/${currentOrgId}/invoices`}>
-          {t('navigation.invoices')}
-        </Link>
-      ),
-    },
-  ];
+  type CompanyModuleMenuItem = {
+    module: AccessModule;
+    key: string;
+    icon: ReactNode;
+    path: string;
+    label: string;
+  };
 
-  const myOrganizations = useMemo(
-    () =>
-      organizations?.map((org) => ({
-        id: String(org.id),
-        name: org.displayName,
-        isTest: !!org.isTest,
-      })) || [],
-    [organizations]
-  );
+  const getCompanyModuleItems = (
+    companyId: string,
+    modules: AccessModule[]
+  ): CompanyModuleMenuItem[] => {
+    const frontendModuleOrder: CompanyModuleMenuItem[] = [
+      {
+        module: AccessModules.CompanyMemberships,
+        key: 'memberships',
+        icon: <TeamOutlined />,
+        path: `/organization/${companyId}/memberships`,
+        label: t('navigation.companyMemberships'),
+      },
+      {
+        module: AccessModules.Products,
+        key: 'products',
+        icon: <AppstoreOutlined />,
+        path: `/organization/${companyId}/products`,
+        label: t('navigation.products'),
+      },
+      {
+        module: AccessModules.Orders,
+        key: 'orders',
+        icon: <CodeOutlined />,
+        path: `/organization/${companyId}/orders`,
+        label: t('navigation.markingCodes'),
+      },
+      {
+        module: AccessModules.Reports,
+        key: 'agregations',
+        icon: <ClusterOutlined />,
+        path: `/organization/${companyId}/agregations`,
+        label: t('navigation.agregations'),
+      },
+      {
+        module: AccessModules.SalesOrders,
+        key: 'sales-orders',
+        icon: <ShoppingCartOutlined />,
+        path: `/organization/${companyId}/sales-orders`,
+        label: t('navigation.deals'),
+      },
+      {
+        module: AccessModules.DeliveryRoutes,
+        key: 'delivery-routes',
+        icon: <CarOutlined />,
+        path: `/organization/${companyId}/delivery-routes`,
+        label: t('navigation.routes'),
+      },
+      {
+        module: AccessModules.Invoices,
+        key: 'invoices',
+        icon: <FileDoneOutlined />,
+        path: `/organization/${companyId}/invoices`,
+        label: t('navigation.invoices'),
+      },
+    ];
 
-  const prefixMenuKeys = (items: MenuProps['items'], prefix: string): MenuProps['items'] =>
-    items?.map((item) => {
-      if (!item) {
-        return item;
-      }
+    return frontendModuleOrder.filter((item) => modules.includes(item.module));
+  };
 
-      const baseKey = String(item.key);
-      const nextKey = `${prefix}-${baseKey}`;
-      const hasChildren = 'children' in item && Boolean((item as any).children);
-      const children = hasChildren
-        ? prefixMenuKeys((item as any).children as MenuProps['items'], nextKey)
-        : undefined;
+  const systemMenuItems: MenuProps['items'] = [];
 
-      return {
-        ...item,
-        key: nextKey,
-        ...(hasChildren ? { children } : {}),
-      };
+  if (systemModules.includes(AccessModules.Users)) {
+    systemMenuItems.push({
+      key: '/users',
+      icon: <UserOutlined />,
+      label: (
+        <Link to="/users">
+          {t('navigation.users') || 'Пользователи'}
+        </Link>
+      ),
     });
+  }
 
-  const myOrganizationsItems: MenuProps['items'] = myOrganizations.map((org) => ({
-    key: `my-org-${org.id}`,
-    icon: (
-      <span className="org-icon-wrapper">
-        <BuildOutlined />
-        {org.isTest && (
-          <span className="org-test-badge">
-            {t('organizations.testFlag')}
-          </span>
-        )}
-      </span>
-    ),
-    label: <span className="org-name">{org.name}</span>,
-    className: org.isTest ? 'test-org-menu-item' : undefined,
-    title: org.isTest ? `${org.name} ${t('organizations.testFlag')}` : org.name,
-    children: prefixMenuKeys(getOrgSubMenuItems(org.id), org.id),
-  }));
+  if (systemModules.includes(AccessModules.Employees)) {
+    systemMenuItems.push({
+      key: '/system-employees',
+      icon: <TeamOutlined />,
+      label: (
+        <Link to="/system-employees">
+          {t('navigation.systemEmployees')}
+        </Link>
+      ),
+    });
+  }
 
-  const menuItems: MenuProps['items'] = [];
-
-  if (isSuperAdmin) {
-    menuItems.push({
+  if (systemModules.includes(AccessModules.Companies)) {
+    systemMenuItems.push({
       key: '/organization',
       icon: <ApartmentOutlined />,
       label: (
@@ -260,55 +379,128 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
-  menuItems.push({
-    key: '/users',
-    icon: <UserOutlined />,
-    label: (
-      <Link to="/users">
-        {t('navigation.users') || 'Пользователи'}
-      </Link>
-    ),
-  });
+  if (systemModules.includes(AccessModules.Audit)) {
+    systemMenuItems.push({
+      key: '/audit-logs',
+      icon: <FileTextOutlined />,
+      label: (
+        <Link to="/audit-logs">
+          {t('navigation.audit') || 'Логи системы'}
+        </Link>
+      ),
+    });
+  }
 
-  menuItems.push({
-    key: '/audit-logs',
-    icon: <FileTextOutlined />,
-    label: (
-      <Link to="/audit-logs">
-        {t('navigation.audit') || 'Логи системы'}
-      </Link>
-    ),
-  });
+  const systemMobileNavItems = useMemo<MobileNavItem[]>(() => [
+    ...(systemModules.includes(AccessModules.Users)
+      ? [{
+          key: '/users',
+          label: t('navigation.users'),
+          meta: '',
+          isActive: location.pathname === '/users' || location.pathname.startsWith('/users/'),
+          onClick: () => navigate('/users'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Employees)
+      ? [{
+          key: '/system-employees',
+          label: t('navigation.systemEmployees'),
+          meta: '',
+          isActive:
+            location.pathname === '/system-employees' ||
+            location.pathname.startsWith('/system-employees/'),
+          onClick: () => navigate('/system-employees'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Companies)
+      ? [{
+          key: '/organization',
+          label: t('navigation.organizations'),
+          meta: '',
+          isActive: location.pathname === '/organization',
+          onClick: () => navigate('/organization'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Audit)
+      ? [{
+          key: '/audit-logs',
+          label: t('navigation.audit'),
+          meta: '',
+          isActive: location.pathname === '/audit-logs',
+          onClick: () => navigate('/audit-logs'),
+        }]
+      : []),
+  ], [location.pathname, navigate, systemModules, t]);
 
-  if (myOrganizations.length > 0) {
-    menuItems.push({
-      key: 'my-organizations-group',
-      icon: <ApartmentOutlined />,
-      className: 'no-left-margin',
-      label: t('navigation.myOrganizations') || 'Мои организации',
-      children: myOrganizationsItems,
+  const selectedCompanyModuleItems = selectedCompany
+    ? getCompanyModuleItems(selectedCompany.companyId, selectedCompany.modules)
+    : [];
+
+  const companyMenuItems: MenuProps['items'] = selectedCompanyModuleItems.map(
+    (item) => ({
+      key: item.path,
+      icon: item.icon,
+      label: <Link to={item.path}>{item.label}</Link>,
+    })
+  );
+
+  if (isSystemCompanyContext && selectedCompany) {
+    companyMenuItems.push({
+      key: 'exit-company',
+      icon: <LogoutOutlined />,
+      danger: true,
+      label: t('navigation.exitCompany'),
+      onClick: () => {
+        dispatch(setCurrentCompanyId(null));
+        navigate('/organization');
+      },
     });
   }
 
   const selectedKeys = useMemo(() => {
-    const parts = location.pathname.split('/');
-    const currentOrgId = parts[2];
-    const currentSection = parts[3];
+    const selectedCompanyModule = selectedCompanyModuleItems.find((item) =>
+      location.pathname.startsWith(item.path)
+    );
 
-    if (
-      currentOrgId &&
-      ['products', 'orders', 'agregations', 'sales-orders', 'delivery-routes', 'delivery-tasks', 'invoices'].includes(currentSection)
-    ) {
-      return [`${currentOrgId}-${currentSection}`];
+    if (selectedCompanyModule) {
+      return [selectedCompanyModule.path];
     }
 
-    const topLevel = `/${parts[1]}`;
-    return menuItems.some((item) => item?.key === topLevel) ? [topLevel] : [];
-  }, [location.pathname, menuItems]);
+    const topLevel = `/${location.pathname.split('/')[1]}`;
+    return systemMenuItems.some((item) => item?.key === topLevel)
+      ? [topLevel]
+      : [];
+  }, [location.pathname, selectedCompanyModuleItems, systemMenuItems]);
+
+  const handleCompanyChange = (companyId: string) => {
+    const company =
+      selectableCompanies.find((item) => item.companyId === companyId) ?? null;
+
+    dispatch(setCurrentCompanyId(companyId));
+    const firstModule = company
+      ? getCompanyModuleItems(company.companyId, company.modules)[0]
+      : undefined;
+
+    navigate(firstModule?.path ?? `/organization/${companyId}`);
+  };
+
+  const handleMobileCompanySelect = useCallback((companyId: string) => {
+    dispatch(setCurrentCompanyId(companyId));
+    navigate(`/organization/${companyId}`);
+  }, [dispatch, navigate]);
 
   const mobileNav = useMemo<MobileNavConfig | null>(() => {
     if (!isMobile) {
       return null;
+    }
+
+    if (isSystemScreen && systemMobileNavItems.length > 0) {
+      return {
+        title: t('navigation.management'),
+        subtitle: '',
+        backPath: null as string | null,
+        items: systemMobileNavItems,
+      };
     }
 
     if (isOrganizationRoot) {
@@ -316,37 +508,35 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         title: t('navigation.myOrganizations'),
         subtitle: '',
         backPath: null as string | null,
-        items: organizations.map((org) => ({
-          key: org.id,
-          label: org.displayName,
+        items: mobileSelectableCompanies.map((company) => ({
+          key: company.companyId,
+          label: company.name,
           meta: '',
           isActive: false,
-          onClick: () => navigate(`/organization/${org.id}`),
+          onClick: () => handleMobileCompanySelect(company.companyId),
         })),
       };
     }
 
     if (isOrganizationScreen && orgId) {
       return {
-        title: selectedOrganization?.displayName ?? t('navigation.myOrganizations'),
+        title: selectedCompany?.name ?? t('navigation.myOrganizations'),
         subtitle: t('navigation.myOrganizations'),
         backPath: '/organization',
-        items: [
-          {
-            key: `${orgId}-delivery-routes`,
-            label: t('navigation.routes'),
-            meta: t('deliveryRoutes.title'),
-            isActive: location.pathname === `/organization/${orgId}/delivery-routes`,
-            onClick: () => navigate(`/organization/${orgId}/delivery-routes`),
-          },
-        ],
+        items: selectedCompanyModuleItems.map((item) => ({
+          key: `${orgId}-${item.key}`,
+          label: item.label,
+          meta: '',
+          isActive: location.pathname === item.path,
+          onClick: () => navigate(item.path),
+        })),
       };
     }
 
     if (isRoutesScreen && orgId) {
       return {
         title: t('navigation.routes'),
-        subtitle: selectedOrganization?.displayName ?? '',
+        subtitle: selectedCompany?.name ?? '',
         backPath: `/organization/${orgId}`,
         items: routes.map((route) => ({
           key: route.id,
@@ -362,15 +552,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return null;
   }, [
     isMobile,
+    isSystemScreen,
     isOrganizationRoot,
     isOrganizationScreen,
     isRoutesScreen,
     location.pathname,
     navigate,
     orgId,
-    organizations,
+    routeId,
     routes,
-    selectedOrganization?.displayName,
+    selectedCompany?.name,
+    selectedCompanyModuleItems,
+    systemMobileNavItems,
+    mobileSelectableCompanies,
+    handleMobileCompanySelect,
     t,
   ]);
 
@@ -434,17 +629,148 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 />
               </div>
 
+              {!collapsed && (pendingSystemInvitations.length > 0 || pendingCompanyInvitations.length > 0) && (
+                <div className="layout-sider-invitations">
+                  {pendingSystemInvitations.map((invitation) => (
+                    <div className="layout-sider-invitation" key={invitation.id}>
+                      <div className="layout-sider-invitation-copy">
+                        <p className="layout-sider-invitation-title">
+                          {t('systemEmployees.invitations.title')}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {t('systemEmployees.invitations.rolesPrefix')}
+                        </p>
+                        <div className="layout-sider-invitation-roles">
+                          {invitation.roles.map((role) => (
+                            <Tag key={role} style={{ width: 'auto' }}>
+                              {systemRoleLabels[role] ?? role}
+                            </Tag>
+                          ))}
+                        </div>
+                        <div className="layout-sider-invitation-created-by">
+                          <span className="layout-sider-invitation-created-by-label">
+                            {t('systemEmployees.fields.invitedBy')}
+                          </span>
+                          <UserPreviewCardById userId={invitation.createdBy} />
+                        </div>
+                      </div>
+                      <div className="layout-sider-invitation-actions">
+                        <Button
+                          type="primary"
+                          className="layout-sider-invitation-accept"
+                          onClick={() => {
+                            void dispatch(acceptSystemAccessInvitation({ id: invitation.id }));
+                          }}
+                        >
+                          {t('systemEmployees.actions.accept')}
+                        </Button>
+                        <Button
+                          danger
+                          className="layout-sider-invitation-decline"
+                          onClick={() => {
+                            void dispatch(declineSystemAccessInvitation({ id: invitation.id }));
+                          }}
+                        >
+                          {t('systemEmployees.actions.decline')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingCompanyInvitations.map((invitation) => (
+                    <div className="layout-sider-invitation" key={invitation.id}>
+                      <div className="layout-sider-invitation-copy">
+                        <p className="layout-sider-invitation-title">
+                          {t('companyMemberships.invitations.title')}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {invitation.company.name}
+                        </p>
+                        <p className="layout-sider-invitation-subtitle">
+                          {t('companyMemberships.invitations.rolesPrefix')}
+                        </p>
+                        <div className="layout-sider-invitation-roles">
+                          {invitation.roles.map((role) => (
+                            <Tag key={role} style={{ width: 'auto' }}>
+                              {companyRoleLabelsByCompany[invitation.company.id]?.[role] ?? role}
+                            </Tag>
+                          ))}
+                        </div>
+                        <div className="layout-sider-invitation-created-by">
+                          <span className="layout-sider-invitation-created-by-label">
+                            {t('companyMemberships.fields.invitedBy')}
+                          </span>
+                          <UserPreviewCardById userId={invitation.createdBy} />
+                        </div>
+                      </div>
+                      <div className="layout-sider-invitation-actions">
+                        <Button
+                          type="primary"
+                          className="layout-sider-invitation-accept"
+                          onClick={() => {
+                            void dispatch(respondCompanyMembershipInvitation({
+                              id: invitation.id,
+                              decision: 'accept',
+                            }));
+                          }}
+                        >
+                          {t('companyMemberships.actions.accept')}
+                        </Button>
+                        <Button
+                          danger
+                          className="layout-sider-invitation-decline"
+                          onClick={() => {
+                            void dispatch(respondCompanyMembershipInvitation({
+                              id: invitation.id,
+                              decision: 'decline',
+                            }));
+                          }}
+                        >
+                          {t('companyMemberships.actions.decline')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <Menu
                 key={`menu-${collapsed ? 'collapsed' : 'open'}`}
                 mode="inline"
                 inlineCollapsed={collapsed}
                 selectedKeys={selectedKeys}
-                openKeys={collapsed ? [] : openKeys}
-                onOpenChange={setOpenKeys}
-                items={menuItems}
+                items={systemMenuItems}
                 inlineIndent={24}
                 className="layout-sider-menu"
               />
+
+              {selectableCompanies.length > 0 && (
+                <>
+                  {!collapsed && (
+                    <div className="layout-company-selector">
+                      <Select
+                        value={selectedCompanyId}
+                        options={selectableCompanies.map((company) => ({
+                          value: company.companyId,
+                          label: company.name,
+                        }))}
+                        onChange={handleCompanyChange}
+                        className="layout-company-selector-control"
+                        popupClassName="company-selector-popup"
+                        popupMatchSelectWidth={false}
+                      />
+                    </div>
+                  )}
+
+                  <Menu
+                    mode="inline"
+                    inlineCollapsed={collapsed}
+                    selectedKeys={selectedKeys}
+                    items={companyMenuItems}
+                    inlineIndent={24}
+                    className="layout-sider-menu layout-company-menu"
+                  />
+                </>
+              )}
             </Sider>
           )}
 

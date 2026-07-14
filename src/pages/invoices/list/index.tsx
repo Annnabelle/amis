@@ -9,12 +9,15 @@ import type { InvoicesTableDataType } from 'entities/invoices/ui/tableData/invoi
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const InvoicesList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const canReadInvoice = useCan(endpointAccessMap.invoicesRead);
 
   const invoices = useAppSelector((state) => state.invoices.invoices);
   const dataLimit = useAppSelector((state) => state.invoices.limit);
@@ -29,7 +32,6 @@ const InvoicesList = () => {
         limit: dataLimit || 10,
         sortOrder: 'desc',
         sortBy: 'createdAt',
-        companyId: orgId,
       })
     );
   }, [dispatch, dataPage, dataLimit, orgId]);
@@ -61,12 +63,15 @@ const InvoicesList = () => {
               data={invoicesData}
               loading={isLoading}
               scroll={false}
-              onRowClick={(record) =>
-                navigate(
-                  orgId
-                    ? `/organization/${orgId}/invoices/${record.key}`
-                    : `/invoices/${record.key}`
-                )
+              onRowClick={
+                canReadInvoice
+                  ? (record) =>
+                      navigate(
+                        orgId
+                          ? `/organization/${orgId}/invoices/${record.key}`
+                          : '/organization'
+                      )
+                  : undefined
               }
               pagination={{
                 current: dataPage || 1,
@@ -82,7 +87,6 @@ const InvoicesList = () => {
                       limit: newLimit || dataLimit || 10,
                       sortOrder: 'desc',
                       sortBy: 'createdAt',
-                      companyId: orgId,
                     })
                   );
                 },

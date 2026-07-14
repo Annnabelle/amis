@@ -79,7 +79,6 @@ export type GetProductResponseDto = {
 export type GetProductsDto = PaginatedDto &{
   status?: ProductStatus;
   sortBy?: ProductSortField;
-  companyId: HexString;
 }
 
 export type GetProductsResponseDto = {
@@ -88,7 +87,6 @@ export type GetProductsResponseDto = {
 
 export type SearchProductsDto = PaginatedDto & {
   query: string;
-  companyId?: string;
 }
 
 export type UpdateProductDto = {

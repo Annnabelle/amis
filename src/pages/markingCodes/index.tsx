@@ -18,30 +18,37 @@ import { searchProducts } from 'entities/products/model'
 import {createUtilizationReport} from "entities/utilization/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import {searchUsers} from "entities/users/model";
+import {searchCompanyMemberships} from "entities/companyMemberships/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
+import { useCan } from "entities/access/lib";
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { RequiredDataAlert } from 'entities/access/ui';
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const orgId = id
     const dispatch = useAppDispatch()
+    const canCreateOrder = useCan(endpointAccessMap.ordersCreate);
+    const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
+    const canSearchCompanyMemberships = useCan(endpointAccessMap.companyMembershipsSearch);
+    const canListProducts = useCan(endpointAccessMap.productsList);
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)
     const dataTotal = useAppSelector((state) => state.markingCodes.total)
     const packTypeReferences =
         useAppSelector(state => state.references.references.cisType) ?? [];
+    const referencesError = useAppSelector((state) => state.references.error);
     const { products } = useAppSelector((state) => state.products);
-    const searchedUsers = useAppSelector(
-        state => state.users.searchedUsers
+    const searchedMemberships = useAppSelector(
+        state => state.companyMemberships.searchedMemberships
     );
     const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
         page: dataPage || 1,
-        companyId: orgId!,
         limit: dataLimit || 10,
     });
     useEffect(() => {
@@ -158,9 +165,15 @@ const MarkingCodes = () => {
 
     return (
     <MainLayout>
+        <RequiredDataAlert
+            endpoints={[endpointAccessMap.referencesRead]}
+            errors={[referencesError]}
+        />
         <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
-                <CustomButton onClick={() => handleModal('addMarkingCodes', true)}>{t('markingCodes.order')}</CustomButton>
+                {canCreateOrder && (
+                    <CustomButton onClick={() => handleModal('addMarkingCodes', true)}>{t('markingCodes.order')}</CustomButton>
+                )}
             </div>
         </Heading>
         <div className="box">
@@ -168,6 +181,7 @@ const MarkingCodes = () => {
                 <div className="box-container-items">
                     <div className="box-container-items-item">
                         <FilterBar className="filters-large">
+                            {canSearchCompanyMemberships && (
                             <FilterBarItem>
                                 <Form.Item name="user" className="input">
                                         <Select
@@ -181,19 +195,21 @@ const MarkingCodes = () => {
                                             allowClear
                                             filterOption={false}
                                             onSearch={(value) => {
-                                                if (value.trim()) {
-                                                    dispatch(searchUsers({ query: value }));
+                                                if (value.trim() && orgId) {
+                                                    dispatch(searchCompanyMemberships({ companyId: orgId, query: value }));
                                                 }
                                             }}
                                             onChange={(value) => updateQueryParam('userId', value)}
-                                            options={searchedUsers.map(user => ({
-                                                value: user.id,
-                                                label: `${user.firstName} ${user.lastName}`,
+                                            options={searchedMemberships.map(membership => ({
+                                                value: membership.userId,
+                                                label: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
                                             }))}
                                         />
 
                                 </Form.Item>
                             </FilterBarItem>
+                            )}
+                            {canListProducts && (
                             <FilterBarItem>
                                 <Form.Item name="product" className="input">
                                     <Select
@@ -217,6 +233,7 @@ const MarkingCodes = () => {
                                     />
                                 </Form.Item>
                             </FilterBarItem>
+                            )}
                             <FilterBarItem>
                                 <Form.Item name="status" className="input">
                                     <Select
@@ -237,7 +254,7 @@ const MarkingCodes = () => {
                 </div>
                 <div className="box-container-items">
                     <ComponentTable<MarkingCodesTableDataType>
-                        columns={MarkingCodesTableColumns(t, orgId, handleAppoint)}
+                        columns={MarkingCodesTableColumns(t, orgId, canCreateUtilization, handleAppoint)}
                         data={MarkingCodesData}
                         pagination={{
                             current: queryParams.page,

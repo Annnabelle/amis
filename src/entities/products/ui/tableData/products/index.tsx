@@ -4,7 +4,12 @@ import CustomButton from 'shared/ui/button';
 import type { ProductTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
-export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Product", action: "retrieve" | "edit" | "delete",record: ProductTableDataType) => void, onDelete: (record: ProductTableDataType) => void) : TableProps<ProductTableDataType>["columns"] => [
+export const ProductsTableColumns = (
+  t: TFunction,
+  handleRowClick:(type: "Product", action: "retrieve" | "edit" | "delete",record: ProductTableDataType) => void,
+  onDelete: (record: ProductTableDataType) => void,
+  permissions: { canUpdate: boolean; canDelete: boolean }
+) : TableProps<ProductTableDataType>["columns"] => [
   {
     title: t('products.addProductForm.label.name'),
     dataIndex: "name",
@@ -36,13 +41,18 @@ export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Produ
     title: '',
     key: "action",
     width: 72,
-    render: (_, record) => (
+    render: (_, record) => {
+      if (!permissions.canUpdate && !permissions.canDelete) {
+        return null;
+      }
+
+      return (
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <Dropdown
           overlay={
             <Menu
               items={[
-                {
+                permissions.canUpdate ? {
                   key: "edit",
                   label: (
                     <CustomButton
@@ -53,8 +63,8 @@ export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Produ
                       {t('btn.edit')} 
                     </CustomButton>
                   ),
-                },
-                {
+                } : null,
+                permissions.canDelete ? {
                   key: "delete",
                   label: (
                     <CustomButton
@@ -65,8 +75,8 @@ export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Produ
                       {t('btn.delete')} 
                     </CustomButton>
                   ),
-                },
-              ]}
+                } : null,
+              ].filter(Boolean)}
             />
           }
           trigger={["click"]}
@@ -75,7 +85,8 @@ export const ProductsTableColumns = (t: TFunction,  handleRowClick:(type: "Produ
           <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} />
         </Dropdown>
       </div>
-    ),
+      );
+    },
   },
 ];
 

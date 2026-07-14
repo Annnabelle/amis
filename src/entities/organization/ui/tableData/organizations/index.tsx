@@ -6,7 +6,11 @@ import type { TFunction } from 'i18next';
 import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 
-export const OrganizationsTableColumns = (t: TFunction, onDelete: (record: OrganizationTableDataType) => void) : AdaptiveColumn<OrganizationTableDataType>[] => [
+export const OrganizationsTableColumns = (
+  t: TFunction,
+  onDelete: (record: OrganizationTableDataType) => void,
+  canDelete: boolean
+) : AdaptiveColumn<OrganizationTableDataType>[] => [
     {
         title: t('organizations.name'),
         dataIndex: "displayName",
@@ -76,7 +80,7 @@ export const OrganizationsTableColumns = (t: TFunction, onDelete: (record: Organ
     key: "action",
        flex: 1,
        ellipsis: false,
-    render: (_, record) => (
+    render: (_, record) => canDelete ? (
       <Dropdown
         overlay={
           <Menu
@@ -113,7 +117,7 @@ export const OrganizationsTableColumns = (t: TFunction, onDelete: (record: Organ
       >
         <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} style={{width: "100%", display: "flex", justifyContent: "center" }} />
       </Dropdown>
-    ),
+    ) : null,
   },
 ];
 

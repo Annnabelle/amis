@@ -5,7 +5,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
@@ -14,10 +14,13 @@ import { createDeliveryRoute } from 'entities/deliveryRoutes/model';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { getSalesOrders } from 'entities/salesOrders/model';
-import { searchUsers } from 'entities/users/model';
+import { searchCompanyMemberships } from 'entities/companyMemberships/model';
+import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
+import { PermissionLink, RequiredDataAlert } from 'entities/access/ui';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const getPriorityColor = (priority?: string) => {
   if (!priority) return 'default';
@@ -44,7 +47,9 @@ const DeliveryRoutesCreate = () => {
   const organizations = useAppSelector((state) => state.organizations.organizations);
   const orders = useAppSelector((state) => state.salesOrders.orders);
   const isOrdersLoading = useAppSelector((state) => state.salesOrders.isLoading);
-  const searchedUsers = useAppSelector((state) => state.users.searchedUsers);
+  const ordersError = useAppSelector((state) => state.salesOrders.error);
+  const searchedMemberships = useAppSelector((state) => state.companyMemberships.searchedMemberships);
+  const companyMembershipsError = useAppSelector((state) => state.companyMemberships.error);
   const [form] = Form.useForm<DeliveryRouteFormValues>();
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
@@ -52,7 +57,7 @@ const DeliveryRoutesCreate = () => {
   const isSelectingDriverRef = useRef(false);
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
-  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/delivery-routes';
+  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
   const initialValues = useMemo(
     () => ({
       schedule: {
@@ -113,7 +118,6 @@ const DeliveryRoutesCreate = () => {
         page: 1,
         limit: 50,
         sortOrder: 'asc',
-        companyId,
       })
     );
   }, [dispatch, companyId]);
@@ -164,12 +168,19 @@ const DeliveryRoutesCreate = () => {
     }
   };
 
-  const handleUserSearch = async (value: string) => {
-    if (!value.trim()) return;
+  const handleUserSearch = async (value: string, role: CompanyRole) => {
+    if (!value.trim() || !companyId) return;
 
     try {
       await dispatch(
-        searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' })
+        searchCompanyMemberships({
+          companyId,
+          query: value,
+          page: 1,
+          limit: 10,
+          state: CompanyMembershipState.Active,
+          role,
+        })
       ).unwrap();
     } catch (error: unknown) {
       toast.error(
@@ -292,16 +303,17 @@ const DeliveryRoutesCreate = () => {
         key: "salesOrderNumber",
         flex: 1,
         render: (_, record) => (
-          <Link
+          <PermissionLink
+            endpoint={endpointAccessMap.salesOrdersRead}
             className="table-text link"
             to={
               orgId
                 ? `/organization/${orgId}/sales-orders/${record.key}`
-                : `/sales-orders/${record.key}`
+                : '/organization'
             }
           >
             {record.salesOrderNumber}
-          </Link>
+          </PermissionLink>
         ),
       },
       {
@@ -384,6 +396,13 @@ const DeliveryRoutesCreate = () => {
   return (
     <MainLayout>
       <Heading title={t('deliveryRoutes.title')} subtitle={t('common.create')} />
+      <RequiredDataAlert
+        endpoints={[
+          endpointAccessMap.salesOrdersList,
+          endpointAccessMap.companyMembershipsSearch,
+        ]}
+        errors={[ordersError, companyMembershipsError]}
+      />
       <div className="box">
         <div className="box-container">
           <div className="box-container-items delivery-route-create-form">
@@ -479,10 +498,10 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.driver')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => void handleUserSearch(value)}
-                    options={searchedUsers.map((user) => ({
-                      value: `${user.firstName} ${user.lastName}`,
-                      userId: user.id,
+                    onSearch={(value) => void handleUserSearch(value, CompanyRole.Driver)}
+                    options={searchedMemberships.map((membership) => ({
+                      value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
+                      userId: membership.userId,
                     }))}
                     onSelect={(value, option) => {
                       isSelectingDriverRef.current = true;
@@ -536,10 +555,10 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.agent')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => void handleUserSearch(value)}
-                    options={searchedUsers.map((user) => ({
-                      value: `${user.firstName} ${user.lastName}`,
-                      userId: user.id,
+                    onSearch={(value) => void handleUserSearch(value, CompanyRole.DeliveryAgent)}
+                    options={searchedMemberships.map((membership) => ({
+                      value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
+                      userId: membership.userId,
                     }))}
                     onSelect={(value, option) => {
                       isSelectingAgentRef.current = true;
@@ -717,12 +736,18 @@ const DeliveryRoutesCreate = () => {
                   </div>
                 // {/* </div> */}
               )}
-
               <div className="form-btns-group">
                 <CustomButton className="outline" onClick={() => navigate(listPath)}>
                   {t('btn.cancel')}
                 </CustomButton>
-                <CustomButton type="submit">{t('deliveryRoutes.actions.create')}</CustomButton>
+                <CustomButton
+                  type="submit"
+                  disabled={
+                    isOrdersLoading || Boolean(ordersError) || Boolean(companyMembershipsError)
+                  }
+                >
+                  {t('deliveryRoutes.actions.create')}
+                </CustomButton>
               </div>
             </FormComponent>
           </div>

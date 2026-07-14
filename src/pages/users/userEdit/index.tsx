@@ -1,11 +1,9 @@
-import { Form, Input, Select, Spin, Tag } from 'antd'
+import { Form, Input, Select, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {assignUserToCompany, getUserById, unassignUserToCompany, updateUser } from 'entities/users/model'
+import { getUserById, updateUser } from 'entities/users/model'
 import { useAppDispatch, useAppSelector } from 'app/store'
-import { IoSearch } from 'react-icons/io5'
-import { getAllOrganizations, searchOrganizations } from 'entities/organization/model'
 import { useNavigationBack } from 'shared/lib'
 import { toast } from 'react-toastify'
 import MainLayout from 'shared/ui/layout'
@@ -13,24 +11,19 @@ import Heading from 'shared/ui/mainHeading'
 import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'
 import PhoneInput from 'shared/ui/phoneInput'
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const UsersEdit = () => {
     const { id } = useParams();
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
+    const canListCompanies = useCan(endpointAccessMap.companiesList);
     const userById = useAppSelector((state) => state.users.userById);
-    const organizations = useAppSelector((state) => state.organizations.organizations);
-    const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations);
     const [form] = Form.useForm()
-    const isLoadingOrganizations = useAppSelector((state) => state.organizations.isLoading);
-    const [searchValue, setSearchValue] = useState("");
-    const [assignedOrganizations, setAssignedOrganizations] = useState<any[]>([]);
     const isUserLoading = useAppSelector((state) => state.users.isLoading);
     const navigateBack = useNavigationBack();
     const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const assignableOrganizations = searchValue.trim()
-        ? searchedOrganizations
-        : organizations;
 
     useEffect(() => {
         if (id) {
@@ -38,60 +31,6 @@ const UsersEdit = () => {
             dispatch(getUserById({ id })).finally(() => setIsInitialLoading(false));
         }
     }, [dispatch, id]);
-
-    
-    const handleAssignOrganization = async (companyId: string) => {
-        if (!id) return;
-        try {
-            const resultAction = await dispatch(
-                assignUserToCompany({ userId: id, companyId })
-            );
-
-            if (assignUserToCompany.fulfilled.match(resultAction)) {
-                const org = organizations.find((o) => o.id === companyId);
-
-                setAssignedOrganizations((prev) => [
-                    ...prev,
-                    {
-                    ...resultAction.payload,
-                    displayName: org?.displayName || resultAction.payload.displayName,
-                    },
-                ]);
-
-                toast.success(t("organizations.messages.success.assignOrganization"));
-            } else {
-                toast.error(t("organizations.messages.error.assignOrganization"));
-            }
-        } catch {
-            toast.error(t("organizations.messages.error.assignOrganization"));
-        }
-    };
-    
-    
-    const handleUnAssignOrganization = async (companyId: string) => {
-        if (!id) return;
-        try {
-            const resultAction = await dispatch(
-                unassignUserToCompany({ userId: id, companyId })
-            );
-            if (unassignUserToCompany.fulfilled.match(resultAction)) {
-                setAssignedOrganizations((prev) =>
-                    prev.filter((org) => org.id !== companyId)
-                );
-                toast.success(t("organizations.messages.success.unassignOrganization"));
-            }
-        } catch {
-            toast.error(t("organizations.messages.error.unassignOrganization"));
-        }
-    };
-
-    useEffect(() => {
-        if (userById && organizations.length > 0) {
-            const assigned = organizations.filter((org) =>
-            userById.companyIds?.includes(org.id));
-            setAssignedOrganizations(assigned);
-        }
-    }, [userById, organizations]);
 
     useEffect(() => {
         if (userById) {
@@ -187,65 +126,13 @@ const UsersEdit = () => {
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.email')}  />
                                     </Form.Item>
                                 </div>
+                                {canListCompanies && (
                                 <div className="form-inputs">
                                     <Form.Item className="input" name="status" label="Статус" >
                                         <Select className='input' size="large" options={statusOption}/>
                                     </Form.Item>
                                 </div>
-                                <div className="form-inputs">
-                                    <Form.Item
-                                        className="input"
-                                        label={t("organizations.assignToCompany")}
-                                    >
-                                        <Select
-                                            showSearch
-                                            className="input"
-                                            size="large"
-                                            value={searchValue || undefined}
-                                            placeholder={t("search.byOrganization")}
-                                            suffixIcon={<IoSearch />}
-                                            filterOption={false}
-                                            onSearch={(value) => {
-                                                setSearchValue(value);
-                                                if (value.trim()) {
-                                                    dispatch(
-                                                        searchOrganizations({ query: value, page: 1, limit: 10, sortOrder: "asc" })
-                                                    );
-                                                } else {
-                                                    dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
-                                                }
-                                            }}
-                                            onSelect={(companyId) => {
-                                                handleAssignOrganization(companyId);
-                                                setSearchValue("");
-                                            }}
-                                            notFoundContent={isLoadingOrganizations ? <Spin size="small" /> : t("search.noResults")}
-                                            options={assignableOrganizations
-                                                .filter((org) => !assignedOrganizations.some((a) => a.id === org.id))
-                                                .map((org) => ({
-                                                    value: org.id,
-                                                    label: org.displayName,
-                                                }))}
-                                            >
-                                            </Select>
-                                    </Form.Item>
-                                    <div>
-                                        {isLoadingOrganizations ? (
-                                            <Spin />
-                                        ) : (
-                                            assignedOrganizations.map((organization) => (
-                                                <Tag
-                                                    key={organization.id}
-                                                    closable
-                                                    onClose={() => handleUnAssignOrganization(organization.id)}
-                                                    color="blue"
-                                                >
-                                                    {organization.displayName || <Spin size="small" />}
-                                                </Tag>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
+                                )}
                                 <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
                             </>
                         )}
