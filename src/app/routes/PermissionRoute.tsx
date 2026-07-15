@@ -18,7 +18,10 @@ const getCompanyIdFromPath = (pathname: string) => {
     : null;
 };
 
-export const resolveFallbackPath = (access: UserAccess) => {
+export const resolveFallbackPath = (
+  access: UserAccess,
+  options?: { mobile?: boolean }
+) => {
   const systemCandidates = [
     [AccessModules.Users, endpointAccessMap.usersList, '/users'],
     [AccessModules.Companies, endpointAccessMap.companiesList, '/organization'],
@@ -56,6 +59,10 @@ export const resolveFallbackPath = (access: UserAccess) => {
     )?.[2];
 
     if (section) {
+      if (options?.mobile) {
+        return `/organization/${company.companyId}`;
+      }
+
       return `/organization/${company.companyId}/${section}`;
     }
   }

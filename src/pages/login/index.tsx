@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import { Form, Input, Spin } from 'antd';
 import {useAppDispatch, useAppSelector} from 'app/store';
 import { Login } from 'entities/users/model';
+import { clearAccess } from 'entities/access/model';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +18,9 @@ import './styles.sass';
 
 const mobileToastPosition = () =>
     window.matchMedia('(max-width: 600px)').matches ? 'bottom-center' : undefined;
+
+const isMobileViewport = () =>
+    window.matchMedia('(max-width: 900px)').matches;
 
 const LoginPage = () => {
     const form = useFormInstance();
@@ -34,6 +38,7 @@ const LoginPage = () => {
         if (isSubmitting) return;
 
         setIsSubmitting(true);
+        dispatch(clearAccess());
         dispatch(Login(values)).unwrap()
             .then(() => {
                 toast.success(t('login.messages.successLogin'), {
@@ -52,7 +57,7 @@ const LoginPage = () => {
         }
 
         if (access) {
-            navigate(resolveFallbackPath(access), { replace: true });
+            navigate(resolveFallbackPath(access, { mobile: isMobileViewport() }), { replace: true });
             return;
         }
 
