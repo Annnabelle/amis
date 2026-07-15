@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 import { Form, Input, Spin } from 'antd';
 import {useAppDispatch, useAppSelector} from 'app/store';
 import { Login } from 'entities/users/model';
-import { clearAccess } from 'entities/access/model';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -14,13 +13,11 @@ import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { useTheme } from 'app/themeContext';
+import { useIsMobile } from 'shared/lib';
 import './styles.sass';
 
 const mobileToastPosition = () =>
     window.matchMedia('(max-width: 600px)').matches ? 'bottom-center' : undefined;
-
-const isMobileViewport = () =>
-    window.matchMedia('(max-width: 900px)').matches;
 
 const LoginPage = () => {
     const form = useFormInstance();
@@ -33,12 +30,12 @@ const LoginPage = () => {
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { isDarkTheme } = useTheme();
+    const isMobile = useIsMobile();
 
     const onFinish = (values: LoginForm) => {
         if (isSubmitting) return;
 
         setIsSubmitting(true);
-        dispatch(clearAccess());
         dispatch(Login(values)).unwrap()
             .then(() => {
                 toast.success(t('login.messages.successLogin'), {
@@ -57,14 +54,14 @@ const LoginPage = () => {
         }
 
         if (access) {
-            navigate(resolveFallbackPath(access, { mobile: isMobileViewport() }), { replace: true });
+            navigate(resolveFallbackPath(access, { mobile: isMobile }), { replace: true });
             return;
         }
 
         if (accessError) {
             navigate('/welcome', { replace: true });
         }
-    }, [access, accessError, accessLoading, isAuthenticated, navigate]);
+    }, [access, accessError, accessLoading, isAuthenticated, isMobile, navigate]);
 
     const loginBackground = isDarkTheme ? darkMainBG : lightMainBG;
 
