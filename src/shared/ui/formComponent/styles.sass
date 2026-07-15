@@ -36,7 +36,7 @@
                 margin-bottom: 10px
             .ant-select-selection-search
                 .ant-select-selection-search-input
-                    cursor: default !important
+                    cursor: text !important
         .ant-picker-input input,
         .ant-input-number input,
         .ant-input-number-input
@@ -60,6 +60,13 @@
             .ant-select-selection-item,
             .ant-select-selection-placeholder
                 line-height: 38px !important
+        .ant-select-open.ant-select-show-search
+            .ant-select-selection-item,
+            .ant-select-selection-placeholder
+                opacity: 0
+        .ant-select-focused.ant-select-show-search:not(.ant-select-open)
+            .ant-select-selection-search-input
+                caret-color: transparent
     .form-inputs-row
         width: 100%
         @include mix.flex-content(space-between, row)
