@@ -1397,6 +1397,7 @@
                 },
                 agregationReportPage: {
                     productName: "Product Name",
+                    parentCode: "Parent code",
                     codeNumber: "Code number",
                     code: "Code",
                     orders: "Orders",
@@ -2826,6 +2827,7 @@
                 },
                 agregationReportPage: {
                     productName: "Название продукта",
+                    parentCode: "Родительский код",
                     orders: "Заказы",
                     codeNumber: "Номер кода",
                     code: "Код",
@@ -4215,6 +4217,7 @@
                 },
                 agregationReportPage: {
                     productName: "Mahsulot nomi",
+                    parentCode: "Asosiy kod",
                     orders: "Buyurtmalar",
                     codeNumber: "Kod raqami",
                     code: "Kod",

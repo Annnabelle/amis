@@ -16,14 +16,26 @@ import {downloadReport} from "entities/export/model";
 import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
-import {Pagination, Select} from "antd";
+import {Button, Pagination, Select, Tooltip} from "antd";
+import {CopyOutlined} from "@ant-design/icons";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import "./styles.sass";
 
 type ExportLoadingState = {
     type: "group" | "unit";
     format: ExportAggregationReportParams["format"];
 } | null;
+
+type CodeGroup = {
+    key: string;
+    unitNumber: number;
+    parentCode: string;
+    codes: UnitCodeType[];
+};
+
+const capitalizeFirstLetter = (value: string) =>
+    value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 
 const AggregationReportPage: React.FC = () => {
     const { orgId, id } = useParams<{
@@ -72,19 +84,42 @@ const AggregationReportPage: React.FC = () => {
         );
     }, [id, dispatch, page, groupsLimit]);
 
-    const codesData = useMemo(() => {
+    const codeGroups = useMemo<CodeGroup[]>(() => {
         if (!id || unitsData.length === 0) return [];
 
-        const startIndex = (page - 1) * groupsLimit;
+        const groups = new Map<string, CodeGroup>();
 
-        return unitsData.map((unit, index) => ({
-            number: startIndex + index + 1,
-            key: `${unit.unitId}-${index}`,
-            parentCode: String(unit.unitNumber),
-            codeNumber: unit.codeNumber,
-            code: unit.code,
-        }));
-    }, [unitsData, id, page, groupsLimit]);
+        unitsData.forEach((unit, index) => {
+            const groupKey = unit.unitId || String(unit.unitNumber);
+            const group = groups.get(groupKey);
+            const row: UnitCodeType = {
+                number: index + 1,
+                key: `${unit.unitId}-${unit.codeNumber}-${index}`,
+                parentCode: unit.unitSerialNumber,
+                codeNumber: unit.codeNumber,
+                code: unit.code,
+            };
+
+            if (group) {
+                group.codes.push(row);
+                return;
+            }
+
+            groups.set(groupKey, {
+                key: groupKey,
+                unitNumber: unit.unitNumber,
+                parentCode: row.parentCode,
+                codes: [row],
+            });
+        });
+
+        return Array.from(groups.values());
+    }, [unitsData, id]);
+
+    const handleCopyParentCode = async (parentCode: string) => {
+        await navigator.clipboard.writeText(parentCode);
+        toast.success(t("common.copied", { defaultValue: "Скопировано" }));
+    };
 
     const handleExport = async (
         type: "group" | "unit",
@@ -169,12 +204,41 @@ const AggregationReportPage: React.FC = () => {
                         ]}
                     />
 
-                    <div className="box-container-items">
-                        <ComponentTable<UnitCodeType>
-                            columns={UnitsColumns(t)}
-                            data={codesData}
-                            pagination={false}
-                        />
+                    <div className="box-container-items aggregation-code-groups">
+                        {codeGroups.map((group) => (
+                            <div key={group.key} className="aggregation-code-group">
+                                <div className="aggregation-code-group-header">
+                                    <strong className="aggregation-code-group-title">
+                                        {capitalizeFirstLetter(t("groups.group"))} {group.unitNumber}
+                                    </strong>
+
+                                    <Tooltip title={group.parentCode}>
+                                        <span className="aggregation-code-group-parent">
+                                            <span className="aggregation-code-group-parent-label">
+                                                {t("aggregations.agregationReportPage.parentCode")}
+                                            </span>
+                                            <span className="aggregation-code-group-parent-value">
+                                                {group.parentCode}
+                                            </span>
+                                        </span>
+                                    </Tooltip>
+
+                                    <Tooltip title={t("btn.copy", { defaultValue: "Копировать" })}>
+                                        <Button
+                                            type="text"
+                                            icon={<CopyOutlined />}
+                                            onClick={() => handleCopyParentCode(group.parentCode)}
+                                        />
+                                    </Tooltip>
+                                </div>
+
+                                <ComponentTable<UnitCodeType>
+                                    columns={UnitsColumns(t)}
+                                    data={group.codes}
+                                    pagination={false}
+                                />
+                            </div>
+                        ))}
                     </div>
                       <Pagination
                         current={page}

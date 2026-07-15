@@ -1,0 +1,53 @@
+@use 'sass:map'
+@use '../../../shared/styles/mixins' as mix
+@use '../../../shared/styles/variables' as vars
+
+.aggregation-code-groups
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+.aggregation-code-group
+    overflow: hidden
+    border: 1px solid var(--surface-border)
+    border-radius: map.get(vars.$border, 'r-6')
+    background: var(--surface-base)
+
+.aggregation-code-group-header
+    display: grid
+    grid-template-columns: minmax(120px, max-content) minmax(0, 1fr) max-content
+    align-items: center
+    gap: 12px
+    padding: 10px 12px
+    border-bottom: 1px solid var(--surface-border)
+    background: var(--surface-base)
+
+.aggregation-code-group-title
+    +mix.typography(14px, 600, map.get(vars.$basic, 'black'))
+    white-space: nowrap
+
+.aggregation-code-group-parent
+    display: flex
+    align-items: center
+    gap: 3ch
+    min-width: 0
+
+.aggregation-code-group-parent-label
+    +mix.typography(14px, 600, map.get(vars.$basic, 'black'))
+    flex: 0 0 auto
+    white-space: nowrap
+
+.aggregation-code-group-parent-value
+    +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+    display: block
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+@media (max-width: 768px)
+    .aggregation-code-group-header
+        grid-template-columns: minmax(0, 1fr) max-content
+
+    .aggregation-code-group-title
+        grid-column: 1 / -1

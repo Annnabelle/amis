@@ -7,6 +7,7 @@ export type GetAggregationReportUnitsResponseDto = {
 export type AggregationUnitCodeResponseDto = {
     unitId: string;
     unitNumber: number;
+    unitSerialNumber: string;
     codeNumber: number;
     code: string;
     // state: AggregationUnitState;

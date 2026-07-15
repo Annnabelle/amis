@@ -5,6 +5,7 @@ export function mapUnitsDtoToEntity(dto: AggregationUnitCodeResponseDto): Aggreg
     return {
         unitId: dto.unitId,
         unitNumber: dto.unitNumber,
+        unitSerialNumber: dto.unitSerialNumber,
         codeNumber: dto.codeNumber,
         code: dto.code,
     }

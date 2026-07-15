@@ -6,13 +6,6 @@ export const UnitsColumns = (
     t: TFunction
 ): AdaptiveColumn<UnitCodeType>[] => [
     {
-        title: t("aggregations.agregationReportPage.unitsTable.unitSerialNumber"),
-        dataIndex: "parentCode",
-        key: "parentCode",
-        flex: 1,
-        render: (text) => <p className="table-text">{text}</p>,
-    },
-    {
         title:  t("aggregations.agregationReportPage.codeNumber"),
         dataIndex: "codeNumber",
         key: "codeNumber",
