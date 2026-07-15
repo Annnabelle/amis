@@ -15,6 +15,7 @@ import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import "./styles.sass";
 
 type OrderFormItem = {
   product?: string;
@@ -40,10 +41,10 @@ const OrderForm = () => {
   const { id } = useParams<{ id: string }>();
   const orgId = id;
   const dispatch = useAppDispatch();
-  const generateOptions = [
-    { value: "self", label: t("markingCodes.independently") },
-    { value: "operator", label: t("markingCodes.byOperator") },
-  ];
+  // const generateOptions = [
+  //   { value: "self", label: t("markingCodes.independently") },
+  //   { value: "operator", label: t("markingCodes.byOperator") },
+  // ];
 
   const packTypeReferences =
       useAppSelector((state) => state.references.references.cisType) ?? [];
@@ -58,8 +59,10 @@ const OrderForm = () => {
   );
   const referencesLoading = useAppSelector((state) => state.references.loading);
   const referencesError = useAppSelector((state) => state.references.error);
+  const formItems = Form.useWatch("items", form) ?? [];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [focusedProductFieldKey, setFocusedProductFieldKey] = useState<number | null>(null);
   const [productDetailsById, setProductDetailsById] = useState<Record<string, Product>>({});
 
   const productById: Record<string, Product> = rawProductById
@@ -87,6 +90,11 @@ const OrderForm = () => {
     if (value.trim()) {
       dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
     }
+  };
+
+  const clearProduct = (rowIndex: number) => {
+    form.setFieldValue(["items", rowIndex, "product"], undefined);
+    form.setFieldValue(["items", rowIndex, "packType"], undefined);
   };
 
   const getSuggestedQuantity = (rowIndex: number) => {
@@ -164,7 +172,7 @@ const OrderForm = () => {
         id: item.product!,
         quantity: item.quantity!,
         packageType: item.packType!,
-        serialNumberType: item.generation!,
+        serialNumberType: item.generation ?? "operator",
       })),
     };
 
@@ -194,8 +202,12 @@ const OrderForm = () => {
       <FormComponent form={form} onFinish={handleCreateMarkingCode}>
         <Form.List name="items" initialValue={[{}]}>
           {(fields, { add, remove }) => (
-              <div className="create-order-items">
-                {fields.map((field, index) => (
+              <div className="create-order-items marking-code-create-order-items">
+                {fields.map((field, index) => {
+                  const selectedProductId = formItems[field.name]?.product;
+                  const shouldShowProductClear = Boolean(selectedProductId) && focusedProductFieldKey === field.key;
+
+                  return (
                     <div key={field.key} className="form-inputs create-order-items-item">
 
                       <Form.Item
@@ -204,6 +216,7 @@ const OrderForm = () => {
                           rules={[{ required: true, message: t("markingCodes.label.chooseProduct") }]}
                       >
                         <Select
+                            className={shouldShowProductClear ? "marking-code-product-select has-product-clear" : "marking-code-product-select"}
                             size="large"
                             placeholder={t("markingCodes.orderCreation.product")}
                             showSearch
@@ -211,6 +224,26 @@ const OrderForm = () => {
                             filterOption={false}
                             optionLabelProp="label"
                             dropdownMatchSelectWidth={false}
+                            suffixIcon={
+                              shouldShowProductClear ? (
+                                  <CloseOutlined
+                                      className="marking-code-product-clear"
+                                      onMouseDown={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        clearProduct(field.name);
+                                      }}
+                                  />
+                              ) : undefined
+                            }
+                            onFocus={() => setFocusedProductFieldKey(field.key)}
+                            onBlur={() => setFocusedProductFieldKey(null)}
+                            onInputKeyDown={(event) => {
+                              if (event.key !== "Backspace" || !selectedProductId) return;
+
+                              event.preventDefault();
+                              clearProduct(field.name);
+                            }}
                             onSearch={handleProductSearch}
                             onChange={(productId) => {
                               form.setFieldValue(["items", field.name, "packType"], undefined);
@@ -317,7 +350,7 @@ const OrderForm = () => {
                                   name={[field.name, "quantity"]}
                                   rules={[{ required: true, message: t("markingCodes.label.enterQuantity") }]}
                               >
-                                {suggestedQuantity ? (
+                                {suggestedQuantity !== null ? (
                                     <Tooltip
                                         title={suggestedQuantity}
                                         placement="top"
@@ -333,26 +366,35 @@ const OrderForm = () => {
                         }}
                       </Form.Item>
 
-                      <Form.Item
-                          className="input"
-                          name={[field.name, "generation"]}
-                          initialValue="operator"
-                          rules={[{ required: true, message: t("markingCodes.label.chooseGenerationMethod") }]}
+                      {/* <Form.Item
+                        className="input"
+                        name={[field.name, "generation"]}
+                        initialValue="operator"
+                        rules={[{ required: true, message: t("markingCodes.label.chooseGenerationMethod") }]}
                       >
                         <Select
-                            size="large"
-                            style={{ maxWidth: 150, width: "100%", minWidth: 150 }}
-                            options={generateOptions}
+                          size="large"
+                          style={{ maxWidth: 150, width: "100%", minWidth: 150 }}
+                          options={generateOptions}
                         />
-                      </Form.Item>
+                      </Form.Item> */}
 
-                      {index === fields.length - 1 ? (
-                          <Button type="primary" className="create-order-btn" icon={<PlusOutlined />} onClick={() => add()} />
-                      ) : (
-                          <Button danger className="create-order-btn" icon={<CloseOutlined />} onClick={() => remove(field.name)} />
-                      )}
+                      <div className="marking-code-create-order-actions">
+                        <span className="marking-code-create-order-action-slot">
+                          {index === fields.length - 1 && (
+                            <Button type="primary" className="create-order-btn" icon={<PlusOutlined />} onClick={() => add()} />
+                          )}
+                        </span>
+
+                        <span className="marking-code-create-order-action-slot">
+                          {fields.length > 1 && (
+                            <Button danger className="create-order-btn" icon={<CloseOutlined />} onClick={() => remove(field.name)} />
+                          )}
+                        </span>
+                      </div>
                     </div>
-                ))}
+                  );
+                })}
               </div>
           )}
         </Form.List>
