@@ -24,7 +24,7 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   email: dto.email,
   phone: dto.phone,
   status: dto.status,
-  companyIds: dto.companyIds,
+  companyIds: dto.companyIds ?? [],
   role: dto.role
     ? {
         id: dto.role.id,
@@ -53,7 +53,7 @@ export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => (
 function isSuccessChangePasswordResponseDto(
   dto: ChangePasswordResponseDto
 ): dto is Exclude<ChangePasswordResponseDto, ErrorDto> {
-  return (dto as any).success !== undefined;
+  return "success" in dto;
 }
 
 export const mapChangePwdDtoToEntity = (
@@ -93,7 +93,7 @@ export function mapLoginResponseDtoToLoginResponse(
         email: dto.user.email,
         phone: dto.user.phone,
         status: dto.user.status,
-        companyIds: dto.user.companyIds,
+        companyIds: dto.user.companyIds ?? [],
         role: dto.user.role
           ? {
               id: dto.user.role.id,
@@ -127,7 +127,7 @@ export function mapUpdateUserDtoToEntity(dto: UserResponseDto): UserResponse {
     email: dto.email,
     phone: dto.phone,
     status: dto.status,
-    companyIds: dto.companyIds,
+    companyIds: dto.companyIds ?? [],
     role: dto.role
       ? {
           id: dto.role.id,
