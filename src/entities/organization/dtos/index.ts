@@ -7,46 +7,64 @@ import type {
   CompanyType,
   ContactsDto,
   ErrorDto,
+  Identifier,
   MultiLanguage,
   PaginatedDto,
   PaginatedResponseDto,
 } from "shared/types/dtos";
 
+export type FullName = {
+  first: string;
+  last: string;
+  middle: string;
+};
+
+export type Employee = {
+  userId?: Identifier;
+  tin?: string;
+  pinfl?: string;
+  name?: FullName;
+};
+
 export type CompanyResponseDto = {
   id: string;
   tin: string;
-  companyType?: CompanyType;
   displayName: string;
   name: MultiLanguage;
-  legalName: MultiLanguage;
-  productGroups: string[];
-  director: string;
-  address?: AddressDto;
+  legalName: string;
+  responsibleEmployees: {
+    director?: Employee;
+    accountant?: Employee;
+  };
+  address: {
+    region?: string;
+    district?: string;
+    address?: string;
+  };
   bankDetails?: BankDetailsDto;
-  contacts?: ContactsDto;
-  accessCodes: AccessCodesDto;
-  businessPlaceId: number;
+  vatCode: string | null;
+  contacts: {
+    phone?: string;
+    email?: string;
+    url?: string;
+    person?: string;
+  };
   status: CompanyStatus;
   deleted: boolean;
-  deletedAt: Date | string | null;
+  deletedAt: Date | null;
   isTest: boolean;
 };
 
 export type CreateCompanyDto = {
-  companyType: CompanyType;
-  displayName: string;
-  name: MultiLanguage;
-  legalName: MultiLanguage;
-  tin: string;
-  productGroups: string[];
-  isTest: boolean;
-  businessPlaceId: number;
-  director?: string;
-  address?: AddressDto;
-  bankDetails?: BankDetailsDto;
-  contacts?: ContactsDto;
-  accessCodes?: AccessCodesDto;
+  companyId: string;
 };
+
+export type ActivateCompanyResponseDto =
+  | {
+      success: true;
+      company: CompanyResponseDto;
+    }
+  | ErrorDto;
 
 export type UpdateCompanyDto = {
   companyType?: CompanyType;
@@ -77,29 +95,7 @@ export type GetCompanyResponseDto =
   | { success: boolean; company: CompanyResponseDto }
   | ErrorDto;
 
-export type PersonNameReadModel = {
-  firstName?: string;
-  lastName?: string;
-  middleName?: string;
-};
-
-export type CompanyByTinReadModel = {
-  tin: string;
-  name: string;
-  address: string;
-  phone?: string;
-  bankInfo: {
-    account: string;
-    name: string;
-    mfo: string;
-  };
-  vatCode?: string;
-  director?: PersonNameReadModel;
-  accountant?: PersonNameReadModel;
-  warehouseManager?: PersonNameReadModel;
-};
-
-export type GetCompanyByTinResponseDto = CompanyByTinReadModel | ErrorDto;
+export type GetCompanyByTinResponseDto = CompanyResponseDto;
 
 export type UpdateCompanyResponseDto =
   | { success: boolean; company: CompanyResponseDto }

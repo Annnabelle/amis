@@ -1,12 +1,12 @@
-import {Form, Input, Tag} from 'antd'
+import {Form, Input, Spin, Steps, Tag} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from 'app/store'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
-import { createOrganization, deleteOrganization, getAllOrganizations, getOrganizationById, searchOrganizations } from 'entities/organization/model'
+import { createOrganization, deleteOrganization, getAllOrganizations, getCompanyByTin, getOrganizationById, searchOrganizations } from 'entities/organization/model'
 import { OrganizationsTableColumns } from 'entities/organization/ui/tableData/organizations'
 import type { OrganizationTableDataType } from 'entities/organization/ui/tableData/organizations/types'
 import type {CompanyResponse} from 'entities/organization/types'
@@ -15,19 +15,28 @@ import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import { useNavigate } from 'react-router-dom'
-import type {CreateCompanyDto} from "entities/organization/dtos";
-import type {MultiLanguage} from "shared/types/dtos";
-import type {LanguageKey} from "shared/lib";
-import XTraceFormSection from "./xTraceFormSection";
-import {fetchReferencesByType} from "entities/references/model";
-import {clearXTrace} from "entities/xTrace/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { RequiredDataAlert } from 'entities/access/ui';
+import {
+    clearXTraceIntegrationValidation,
+    createCompanyFakturaUzIntegration,
+    createCompanyXTraceIntegration,
+    validateCompanyXTraceIntegrationToken
+} from 'entities/xTrace/model';
+import { fetchReferencesByType } from 'entities/references/model';
+import dayjs from 'dayjs';
+
+const TIN_LENGTH = 9;
+type CreateCompanyStep = "company" | "xTrace" | "fakturaUz";
+const createCompanyStepIndex: Record<CreateCompanyStep, number> = {
+    company: 0,
+    xTrace: 1,
+    fakturaUz: 2,
+};
 
 const Organizations = () => {
     const navigate = useNavigate()
@@ -43,71 +52,26 @@ const Organizations = () => {
     const dataLimit = useAppSelector((state) => state.organizations.limit)
     const dataPage = useAppSelector((state) => state.organizations.page)
     const dataTotal = useAppSelector((state) => state.organizations.total)
-    const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const [form] = Form.useForm();
-    const [isXTraceValidated, setIsXTraceValidated] = useState(false);
+    const [xTraceForm] = Form.useForm();
+    const [fakturaUzForm] = Form.useForm();
+    const [searchedCompanyByTin, setSearchedCompanyByTin] = useState<CompanyResponse | null>(null);
+    const [activatedCompany, setActivatedCompany] = useState<CompanyResponse | null>(null);
+    const [createCompanyStep, setCreateCompanyStep] = useState<CreateCompanyStep>("company");
+    const [isSearchingCompanyByTin, setIsSearchingCompanyByTin] = useState(false);
+    const [isActivatingCompany, setIsActivatingCompany] = useState(false);
+    const companyLookupRequestRef = useRef(0);
+    const xTraceValidationRequestRef = useRef(0);
+    const xTraceValidationTimeoutRef = useRef<number | null>(null);
+    const xTraceValidation = useAppSelector((state) => state.xTrace.integrationValidation);
+    const xTraceValidationLoading = useAppSelector((state) => state.xTrace.integrationValidationLoading);
+    const xTraceCreateLoading = useAppSelector((state) => state.xTrace.integrationCreateLoading);
+    const fakturaUzCreateLoading = useAppSelector((state) => state.xTrace.fakturaUzCreateLoading);
+    const fakturaUzIntegration = useAppSelector((state) => state.xTrace.fakturaUzIntegration);
+    const productGroupReferences = useAppSelector((state) => state.references.references.productGroup) ?? [];
     const isMobile = useIsMobile();
-    const lang = i18n.language as LanguageKey;
     const [searchQuery, setSearchQuery] = useState('');
-    const productGroupReferences = useAppSelector(
-        (state) => state.references.references.productGroup
-    ) ?? [];
-    const referencesError = useAppSelector((state) => state.references.error);
-    const referencesLoading = useAppSelector((state) => state.references.loading);
-    const xTraceError = useAppSelector((state) => state.xTrace.error);
-    const xTraceLoading = useAppSelector((state) => state.xTrace.loading);
-
-    useEffect(() => {
-        if (isMobile) return;
-
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch, isMobile]);
-
-    useEffect(() => {
-        if (!organizationById) return;
-
-        const lang = i18n.language.split('-')[0] as keyof MultiLanguage;
-
-        form.setFieldsValue({
-            displayName: organizationById.displayName,
-
-            productGroups: organizationById.productGroups,
-
-            tin: organizationById.tin,
-
-            legalName: organizationById.legalName[lang],
-
-            director: organizationById.director,
-
-            address: {
-                region: organizationById.address?.region,
-                district: organizationById.address?.district,
-                address: organizationById.address?.address,
-            },
-
-            bankDetails: {
-                bankName: organizationById.bankDetails?.bankName,
-                ccea: organizationById.bankDetails?.ccea,
-                account: organizationById.bankDetails?.account,
-                mfo: organizationById.bankDetails?.mfo,
-            },
-
-            contacts: {
-                phone: organizationById.contacts?.phone,
-                email: organizationById.contacts?.email,
-                url: organizationById.contacts?.url,
-                person: organizationById.contacts?.person,
-            },
-
-            accessCodes: {
-                gcpCode: organizationById.accessCodes?.gcpCode,
-                token: organizationById.accessCodes?.xTrace?.token,
-            },
-
-            status: organizationById.status,
-            isTest: organizationById.isTest,
-        });
-    }, [organizationById, form, i18n.language]);
+    const currentLanguage = i18n.language.split('-')[0] as "ru" | "en" | "uz";
 
     useEffect(() => {
         if (isMobile && !canListCompanies) return;
@@ -119,23 +83,63 @@ const Organizations = () => {
         })) 
     }, [canListCompanies, dispatch, isMobile])
 
+    useEffect(() => {
+        dispatch(fetchReferencesByType("productGroup"));
+    }, [dispatch]);
+
     const tableOrganizations = useMemo(() => {
         return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
     }, [organizations, searchQuery, searchedOrganizations]);
+
+    const formatEmployeeName = (employee?: CompanyResponse["responsibleEmployees"]["director"]) => {
+        if (!employee?.name) return "";
+
+        return [employee.name.last, employee.name.first, employee.name.middle]
+            .filter(Boolean)
+            .join(" ");
+    };
+
+    const formatContacts = (contacts: CompanyResponse["contacts"]) => {
+        return [contacts.phone, contacts.email]
+            .filter(Boolean)
+            .join(" / ");
+    };
+
+    const productGroupTitleByAlias = useMemo(() => {
+        const map = new Map<string, string>();
+
+        productGroupReferences.forEach((reference) => {
+            const localizedTitle =
+                reference.title?.[currentLanguage] ??
+                reference.title?.ru ??
+                reference.title?.en ??
+                reference.alias;
+
+            map.set(
+                reference.alias,
+                localizedTitle
+            );
+            map.set(reference.alias.trim().toLowerCase(), localizedTitle);
+        });
+
+        return map;
+    }, [currentLanguage, productGroupReferences]);
 
     const OrganizationsData = useMemo<OrganizationTableDataType[]>(() => {
         return tableOrganizations.map((organization, index) => ({
             key: organization.id,
             number: index + 1,
             displayName: organization.displayName,
-            director: organization.director,
-            legalName: organization.legalName[lang], // ✅ string
-            contacts: organization.contacts.phone ?? '',
+            tin: organization.tin,
+            director: formatEmployeeName(organization.responsibleEmployees.director),
+            legalName: organization.legalName,
+            contacts: formatContacts(organization.contacts),
+            vatCode: organization.vatCode ?? "",
             status: organization.status,
             isTest: organization.isTest,
             action: 'Действие',
         }));
-    }, [lang, tableOrganizations]);
+    }, [tableOrganizations]);
 
     const [modalState, setModalState] = useState<{
         addCompany: boolean;
@@ -151,107 +155,196 @@ const Organizations = () => {
         companyData: null, 
       });
 
+    useEffect(() => {
+        if (modalState.addCompany) {
+            dispatch(fetchReferencesByType("productGroup"));
+        }
+    }, [dispatch, modalState.addCompany]);
+
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({ ...prev, [modalName]: value }));
 
         if (modalName === "addCompany" && !value) {
             form.resetFields();
-            setIsXTraceValidated(false);
-            dispatch(clearXTrace());
+            xTraceForm.resetFields();
+            fakturaUzForm.resetFields();
+            setSearchedCompanyByTin(null);
+            setActivatedCompany(null);
+            setCreateCompanyStep("company");
+            dispatch(clearXTraceIntegrationValidation());
+            if (xTraceValidationTimeoutRef.current) {
+                window.clearTimeout(xTraceValidationTimeoutRef.current);
+                xTraceValidationTimeoutRef.current = null;
+            }
         }
     };
 
-    const handleCreateCompany = async (values: any) => {
-        if (!isXTraceValidated) {
-            toast.error(t("organizations.addUserForm.validation.xTrace.notValidated"));
+    const normalizeTin = (value: string) => value.replace(/\D/g, "").slice(0, TIN_LENGTH);
+
+    const handleFindCompanyByTin = async (tin: string, requestId: number) => {
+        const normalizedTin = normalizeTin(tin);
+        setSearchedCompanyByTin(null);
+
+        try {
+            setIsSearchingCompanyByTin(true);
+            const company = await dispatch(getCompanyByTin(normalizedTin)).unwrap();
+            if (requestId !== companyLookupRequestRef.current) return;
+            setSearchedCompanyByTin(company);
+        } catch (error: any) {
+            if (requestId === companyLookupRequestRef.current) {
+                toast.error(
+                    getBackendErrorMessage(error, t("common.dataNotFound"))
+                );
+            }
+        } finally {
+            if (requestId === companyLookupRequestRef.current) {
+                setIsSearchingCompanyByTin(false);
+            }
+        }
+    };
+
+    const handleTinChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const normalizedTin = normalizeTin(event.target.value);
+        const requestId = ++companyLookupRequestRef.current;
+
+        form.setFieldsValue({ tin: normalizedTin });
+        setSearchedCompanyByTin(null);
+
+        if (normalizedTin.length !== TIN_LENGTH || /^0+$/.test(normalizedTin)) {
+            setIsSearchingCompanyByTin(false);
             return;
         }
 
-        const langKey = i18n.language as LanguageKey;
+        await handleFindCompanyByTin(normalizedTin, requestId);
+    };
 
-        const payload: CreateCompanyDto = {
-            companyType: "type1",
-            displayName: values.displayName ?? values.name?.[langKey] ?? "",
-            name: values.name ?? { ru: "", uz: "" },
-            legalName: values.legalName ?? { ru: "", uz: "" },
-            tin: values.tin,
-            productGroups: values.productGroups ?? [],
-            isTest: Boolean(values.isTest),
-            businessPlaceId: Number(values.businessPlaceId),
-        };
-
-        if (values.director) {
-            payload.director = values.director;
-        }
-
-        if (values.address?.region || values.address?.district || values.address?.address) {
-            payload.address = {
-                region: values.address.region,
-                district: values.address.district,
-                address: values.address.address,
-            };
-        }
-
-        if (
-            values.bankDetails?.bankName ||
-            values.bankDetails?.account ||
-            values.bankDetails?.mfo
-        ) {
-            payload.bankDetails = {
-                bankName: values.bankDetails.bankName,
-                ccea: values.bankDetails.ccea,
-                account: values.bankDetails.account,
-                mfo: values.bankDetails.mfo,
-            };
-        }
-
-        if (
-            values.contacts?.phone ||
-            values.contacts?.email ||
-            values.contacts?.url ||
-            values.contacts?.person
-        ) {
-            payload.contacts = {
-                phone: values.contacts.phone,
-                email: values.contacts.email,
-                url: values.contacts.url,
-                person: values.contacts.person,
-            };
-        }
-
-        if (values.accessCodes?.xTrace?.token) {
-            payload.accessCodes = {
-                xTrace: {
-                    token: values.accessCodes.xTrace.token,
-                    expireDate: values.accessCodes.xTrace.expireDate,
-                },
-            };
-        }
+    const handleActivateCompany = async () => {
+        if (!searchedCompanyByTin) return;
 
         try {
-            const result = await dispatch(createOrganization(payload));
-
-            if (result.meta.requestStatus === "fulfilled") {
-                toast.success(t("organizations.messages.success.createUser"));
-                handleModal("addCompany", false);
-
-                // 🔄 Перезагрузка страницы
-                window.location.reload();
-            } else {
-                const errorMessage =
-                    typeof result.payload === "string"
-                        ? result.payload
-                        : t("organizations.messages.error.createUser");
-
-                toast.error(errorMessage);
-            }
+            setIsActivatingCompany(true);
+            const company = await dispatch(createOrganization({ companyId: searchedCompanyByTin.id })).unwrap();
+            toast.success(t("organizations.messages.success.activateCompany"));
+            setActivatedCompany(company);
+            setCreateCompanyStep("xTrace");
+            xTraceForm.setFieldsValue({ tin: company.tin });
+            await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
         } catch (error: any) {
             toast.error(
-                getBackendErrorMessage(error, t('organizations.messages.error.createUser'))
+                getBackendErrorMessage(error, t("organizations.messages.error.activateCompany"))
             );
+        } finally {
+            setIsActivatingCompany(false);
         }
     };
 
+    const isSuccessfulXTraceValidation =
+        xTraceValidation &&
+        "success" in xTraceValidation &&
+        xTraceValidation.success === true &&
+        "data" in xTraceValidation;
+    const xTraceValidationData =
+        xTraceValidation &&
+        "success" in xTraceValidation &&
+        xTraceValidation.success === true &&
+        "data" in xTraceValidation
+            ? xTraceValidation.data
+            : null;
+
+    const handleXTraceTokenChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const token = event.target.value.trim();
+        const requestId = ++xTraceValidationRequestRef.current;
+        dispatch(clearXTraceIntegrationValidation());
+
+        if (xTraceValidationTimeoutRef.current) {
+            window.clearTimeout(xTraceValidationTimeoutRef.current);
+        }
+
+        if (!activatedCompany || !token) {
+            return;
+        }
+
+        xTraceValidationTimeoutRef.current = window.setTimeout(async () => {
+            try {
+                await dispatch(
+                    validateCompanyXTraceIntegrationToken({
+                        companyId: activatedCompany.id,
+                        token,
+                    })
+                ).unwrap();
+
+                if (requestId !== xTraceValidationRequestRef.current) {
+                    dispatch(clearXTraceIntegrationValidation());
+                }
+            } catch (error: any) {
+                if (requestId === xTraceValidationRequestRef.current) {
+                    toast.error(getBackendErrorMessage(error, t("organizations.addUserForm.validation.xTrace.invalidToken")));
+                }
+            }
+        }, 450);
+    };
+
+    const finishCreateCompanyFlow = async () => {
+        handleModal("addCompany", false);
+        await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
+    };
+
+    const handleCreateXTraceIntegration = async () => {
+        if (!activatedCompany) return;
+
+        try {
+            const values = await xTraceForm.validateFields(["token", "businessPlaceId"]);
+            const token = String(values.token ?? "").trim();
+            const businessPlaceId = Number(values.businessPlaceId);
+
+            if (!isSuccessfulXTraceValidation) {
+                toast.error(t("organizations.addUserForm.validation.xTrace.invalidToken"));
+                return;
+            }
+
+            await dispatch(
+                createCompanyXTraceIntegration({
+                    companyId: activatedCompany.id,
+                    token,
+                    businessPlaceId,
+                })
+            ).unwrap();
+
+            toast.success(t("organizations.messages.success.createXTraceIntegration"));
+            setCreateCompanyStep("fakturaUz");
+        } catch (error: any) {
+            if (error?.errorFields) return;
+            toast.error(getBackendErrorMessage(error, t("organizations.messages.error.createXTraceIntegration")));
+        }
+    };
+
+    const handleCreateFakturaUzIntegration = async () => {
+        if (!activatedCompany) return;
+
+        try {
+            const values = await fakturaUzForm.validateFields([
+                "username",
+                "password",
+                "clientId",
+                "clientSecret",
+            ]);
+
+            await dispatch(
+                createCompanyFakturaUzIntegration({
+                    companyId: activatedCompany.id,
+                    username: String(values.username ?? "").trim(),
+                    password: String(values.password ?? ""),
+                    clientId: String(values.clientId ?? "").trim(),
+                    clientSecret: String(values.clientSecret ?? "").trim(),
+                })
+            ).unwrap();
+
+            toast.success(t("organizations.messages.success.createFakturaUzIntegration"));
+        } catch (error: any) {
+            if (error?.errorFields) return;
+            toast.error(getBackendErrorMessage(error, t("organizations.messages.error.createFakturaUzIntegration")));
+        }
+    };
     const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
 
     const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
@@ -310,18 +403,6 @@ const Organizations = () => {
         } else {
             dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: 'asc' }));
         }
-    };
-
-    const referencesProductGroups = useMemo(() => {
-        return productGroupReferences.reduce((acc, item) => {
-            acc[item.alias] = item.title[lang] ?? ""; // title is MultiLanguage, pick current lang
-            return acc;
-        }, {} as Record<string, string>);
-    }, [productGroupReferences, lang]);
-
-    const isFieldDisabled = (name: any) => {
-        const value = form.getFieldValue(name);
-        return isXTraceValidated && value !== undefined && value !== null && value !== "";
     };
 
     return (
@@ -390,498 +471,486 @@ const Organizations = () => {
                     </div>
                 </div>
             </div>
-            <ModalWindow maskClosable={false}  className="modal-large" titleAction={t('organizations.modalWindow.adding')} title={t('organizations.modalWindow.organization')} openModal={modalState.addCompany} closeModal={() => handleModal('addCompany', false)}>
-                <RequiredDataAlert
-                    endpoints={[
-                        endpointAccessMap.companiesValidateXTrace,
-                        endpointAccessMap.referencesRead,
-                    ]}
-                    errors={[xTraceError, referencesError]}
-                />
-                <FormComponent
-                    form={form}
-                    onFinish={handleCreateCompany}
-                >
-                    <XTraceFormSection
-                        form={form}
-                        setIsValidated={setIsXTraceValidated}
-                        isFieldDisabled={isFieldDisabled}
-                        referencesProductGroups={referencesProductGroups}
+            <ModalWindow
+                maskClosable={false}
+                className="modal-large"
+                titleAction={t('organizations.modalWindow.adding')}
+                title={createCompanyStep === "xTrace"
+                    ? t('organizations.integrations.xTrace.title')
+                    : createCompanyStep === "fakturaUz"
+                        ? t('organizations.integrations.fakturaUz.title')
+                    : t('organizations.modalWindow.organization')}
+                openModal={modalState.addCompany}
+                closeModal={() => handleModal('addCompany', false)}
+            >
+                <div className="organization-create-steps">
+                    <Steps
+                        size="small"
+                        current={createCompanyStepIndex[createCompanyStep]}
+                        items={[
+                            { title: t('organizations.integrations.steps.company') },
+                            { title: t('organizations.integrations.steps.xTrace') },
+                            { title: t('organizations.integrations.steps.fakturaUz') },
+                        ]}
                     />
-                    {isXTraceValidated && (
-                        <>
-                            <Form.Item name="isTest" hidden>
-                                <Input />
-                            </Form.Item>
+                </div>
+                {createCompanyStep === "company" && (
+                    <>
+                <FormComponent form={form}>
+                    <div className="form-inputs form-inputs-row organization-create-search-row">
+                        <Form.Item
+                            name="tin"
+                            className="input"
+                            label={t('organizations.addUserForm.label.tin')}
+                            getValueFromEvent={(event) => event.target.value.replace(/\D/g, '')}
+                            rules={[
+                                { required: true, message: t('organizations.addUserForm.validation.required.tin') },
+                                { pattern: /^[0-9]{9}$/, message: t('organizations.addUserForm.validation.pattern.tin') },
+                                {
+                                    validator: async (_, value) => {
+                                        const tin = String(value ?? "");
+
+                                        if (!tin || !/^0+$/.test(tin)) {
+                                            return Promise.resolve();
+                                        }
+
+                                        return Promise.reject(new Error(t('organizations.addUserForm.validation.pattern.tin')));
+                                    },
+                                },
+                            ]}
+                        >
+                            <Input
+                                size="large"
+                                className="input"
+                                inputMode="numeric"
+                                maxLength={9}
+                                placeholder={t('organizations.addUserForm.placeholder.tin')}
+                                disabled={isActivatingCompany}
+                                onChange={handleTinChange}
+                                suffix={isSearchingCompanyByTin ? <Spin size="small" /> : undefined}
+                            />
+                        </Form.Item>
+                        {searchedCompanyByTin && (
+                            <CustomButton
+                                className="organization-create-search-action"
+                                onClick={handleActivateCompany}
+                                disabled={isActivatingCompany}
+                            >
+                                {isActivatingCompany
+                                    ? t('common.loading', { defaultValue: 'Loading' })
+                                    : t('organizations.actions.activate', { defaultValue: 'Activate' })}
+                            </CustomButton>
+                        )}
+                    </div>
+                </FormComponent>
+
+                {searchedCompanyByTin && (
+                    <div className="detail-grid detail-grid-single organization-create-preview">
+                        <div className="route-overview-card">
+                            <div className="route-overview-head">
+                                <div className="route-overview-title">
+                                    <h2>{searchedCompanyByTin.displayName}</h2>
+                                </div>
+                            </div>
+                            <div className="route-overview-meta">
+                                <div className="route-meta-chip">
+                                    <span className="label">{t('organizations.addUserForm.label.legalName')}</span>
+                                    <span className="value" title={searchedCompanyByTin.legalName}>{searchedCompanyByTin.legalName || '-'}</span>
+                                </div>
+                                <div className="route-meta-chip">
+                                    <span className="label">{t('organizations.addUserForm.label.tin')}</span>
+                                    <span className="value">{searchedCompanyByTin.tin || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="detail-grid detail-grid-main">
+                            <div className="detail-card">
+                                <h4>{t('organizations.addUserForm.label.director')}</h4>
+                                <div className="detail-items">
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.name')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{formatEmployeeName(searchedCompanyByTin.responsibleEmployees.director) || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.tin')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.responsibleEmployees.director?.tin || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.pinfl')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.responsibleEmployees.director?.pinfl || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="detail-card">
+                                <h4>{t('organizations.addUserForm.label.accountant')}</h4>
+                                <div className="detail-items">
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.name')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{formatEmployeeName(searchedCompanyByTin.responsibleEmployees.accountant) || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.tin')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.responsibleEmployees.accountant?.tin || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.pinfl')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.responsibleEmployees.accountant?.pinfl || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="detail-grid detail-grid-main">
+                            <div className="detail-card">
+                                <h4>{t('organizations.subtitles.address')}</h4>
+                                <div className="detail-items">
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.region')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.address.region || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.district')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.address.district || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.address')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.address.address || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="detail-card">
+                                <h4>{t('organizations.subtitles.bankDetails')}</h4>
+                                <div className="detail-items">
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.bankName')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.bankDetails?.bankName || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.account')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.bankDetails?.account || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.ccea')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.bankDetails?.ccea || '-'}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label inline-label">{t('organizations.addUserForm.label.mfo')}</span>
+                                        <span className="detail-separator">:</span>
+                                        <span className="value">{searchedCompanyByTin.bankDetails?.mfo || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="btns-group">
+                            <CustomButton
+                                onClick={handleActivateCompany}
+                                disabled={isActivatingCompany}
+                            >
+                                {isActivatingCompany
+                                    ? t('common.loading', { defaultValue: 'Loading' })
+                                    : t('organizations.actions.activate', { defaultValue: 'Activate' })}
+                            </CustomButton>
+                        </div>
+                    </div>
+                )}
+                    </>
+                )}
+                {createCompanyStep === "xTrace" && activatedCompany && (
+                    <div className="organization-integration-step">
+                        <div className="route-overview-card">
+                            <div className="route-overview-meta">
+                                <div className="route-meta-chip">
+                                    <span className="label">{t('organizations.addUserForm.label.legalName')}</span>
+                                    <span className="value">{activatedCompany.displayName || activatedCompany.legalName}</span>
+                                </div>
+                                <div className="route-meta-chip">
+                                    <span className="label">{t('organizations.addUserForm.label.tin')}</span>
+                                    <span className="value">{activatedCompany.tin}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <FormComponent form={xTraceForm}>
                             <div className="form-inputs form-inputs-row">
                                 <Form.Item
-                                    name={["accessCodes", "xTrace", "expireDate"]} // для сабмита
-                                    label={t('organizations.addUserForm.label.expireDate')}
+                                    name="tin"
                                     className="input"
+                                    label={t('organizations.addUserForm.label.tin')}
                                 >
                                     <Input
                                         size="large"
                                         className="input"
                                         disabled
-                                        readOnly
-                                        placeholder={t('organizations.addUserForm.placeholder.expireDate')}
                                     />
                                 </Form.Item>
+
                                 <Form.Item
-                                    name="businessPlaceId"
-                                    label={t('organizations.addUserForm.label.businessPlaceId')}
+                                    name="token"
                                     className="input"
+                                    label={t('organizations.addUserForm.label.xTraceToken')}
                                     rules={[
-                                        {
-                                            required: true,
-                                            message: t("organizations.addUserForm.placeholder.businessPlaceId"),
-                                        },
+                                        { required: true, message: t('organizations.addUserForm.validation.required.token', { defaultValue: 'Token is required' }) },
                                     ]}
                                 >
                                     <Input
                                         size="large"
-                                        inputMode="numeric"
-                                        placeholder={t('organizations.addUserForm.placeholder.businessPlaceId')}
-                                        onChange={(e) => {
-                                            const value = e.target.value.replace(/\D/g, '');
-                                            form.setFieldsValue({ businessPlaceId: value });
-                                        }}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: t("organizations.addUserForm.validation.required.displayName"),
-                                               },
-                                           ]}>
-                                    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')} disabled={!isXTraceValidated} />
-                                </Form.Item>
-                                <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')}>
-                                    <Input
                                         className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.director')}
+                                        placeholder={t('organizations.addUserForm.placeholder.enterXTraceToken')}
+                                        onChange={handleXTraceTokenChange}
+                                        disabled={xTraceCreateLoading}
+                                        suffix={xTraceValidationLoading ? <Spin size="small" /> : undefined}
                                     />
                                 </Form.Item>
                             </div>
-                            <div className="form-inputs form-inputs-row form-inputs-product-groups">
-                                <Form.Item  name="productGroups" hidden />
-                                <Form.Item
-                                    className="input"
-                                    label={t("organizations.addUserForm.label.productGroup")}
-                                    shouldUpdate={(prev, cur) =>
-                                        prev.productGroups !== cur.productGroups
-                                    }
-                                >
-                                    {() => {
-                                        const productGroups = form.getFieldValue("productGroups");
 
-                                        if (!Array.isArray(productGroups) || productGroups.length === 0) {
-                                            return (
-                                                <Input size="large" className="input input-hidden" disabled hidden />
-                                            );
-                                        }
-                                        return (
+                            {xTraceValidationData && (
+                                <>
+                                    <div className="detail-grid detail-grid-main organization-create-preview">
+                                        <div className="detail-card detail-card-full organization-xtrace-validation-card">
+                                            <h4>{t('organizations.integrations.receivedData')}</h4>
+                                            <div className="detail-items">
+                                                <div className="detail-item">
+                                                    <span className="label inline-label">{t('organizations.addUserForm.label.expireDate')}</span>
+                                                    <span className="detail-separator">:</span>
+                                                    <span className="value">{dayjs(xTraceValidationData.expireDate).format('DD.MM.YYYY HH:mm')}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="label inline-label">{t('organizations.testFlag')}</span>
+                                                    <span className="detail-separator">:</span>
+                                                    <span className="value">
+                                                        {xTraceValidationData.isTest ? (
+                                                            <Tag className="test-flag" color="blue-inverse" style={{ margin: 0 }}>
+                                                                {t('organizations.testFlag')}
+                                                            </Tag>
+                                                        ) : '-'}
+                                                    </span>
+                                                </div>
+                                                <div className="organization-product-group-row">
+                                                    <span className="label">{t('organizations.addUserForm.label.productGroup')}</span>
+                                                    <div className="organization-product-group-pills">
+                                                        {xTraceValidationData.productGroups.length > 0
+                                                            ? xTraceValidationData.productGroups.map((productGroup) => {
+                                                                const normalizedProductGroup = productGroup.trim().toLowerCase();
+                                                                const productGroupTitle =
+                                                                    productGroupTitleByAlias.get(productGroup) ??
+                                                                    productGroupTitleByAlias.get(normalizedProductGroup) ??
+                                                                    productGroup;
+
+                                                                return (
+                                                                    <span key={productGroup} className="organization-product-group-pill">
+                                                                        {productGroupTitle}
+                                                                    </span>
+                                                                );
+                                                            })
+                                                            : <span className="value">-</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-inputs form-inputs-row">
+                                        <Form.Item
+                                            name="businessPlaceId"
+                                            className="input"
+                                            label={t('organizations.addUserForm.label.businessPlaceId')}
+                                            rules={[
+                                                { required: true, message: t('organizations.addUserForm.validation.required.businessPlaceId', { defaultValue: 'Business place is required' }) },
+                                                {
+                                                    validator: async (_, value) => {
+                                                        const businessPlaceId = Number(value);
+
+                                                        if (Number.isInteger(businessPlaceId) && businessPlaceId > 0) {
+                                                            return Promise.resolve();
+                                                        }
+
+                                                        return Promise.reject(new Error(t('organizations.addUserForm.validation.required.businessPlaceId', { defaultValue: 'Business place is required' })));
+                                                    },
+                                                },
+                                            ]}
+                                        >
                                             <Input
                                                 size="large"
                                                 className="input"
-                                                disabled
-                                                value={undefined} // 🔥 важно
-                                                prefix={
-                                                    <div className="product-groups-preview">
-                                                        {productGroups.map((alias: string) => {
-                                                            const ref = productGroupReferences.find(
-                                                                (r) => r.alias === alias
-                                                            );
-
-                                                            const title =
-                                                                ref?.title?.[lang] ??
-                                                                ref?.title?.ru ??
-                                                                "";
-
-                                                            return (
-                                                                <Tag
-                                                                    key={alias}
-                                                                    color="blue"
-                                                                    style={{
-                                                                        margin: 0,
-                                                                        fontSize: 12,
-                                                                        padding: "4px 6px",
-                                                                    }}
-                                                                >
-                                                                    {title}
-                                                                </Tag>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                }
+                                                inputMode="numeric"
+                                                placeholder={t('organizations.addUserForm.placeholder.businessPlaceId')}
+                                                disabled={xTraceCreateLoading}
+                                                onChange={(event) => {
+                                                    const value = event.target.value.replace(/\D/g, '');
+                                                    xTraceForm.setFieldsValue({ businessPlaceId: value });
+                                                }}
                                             />
-                                        );
-                                    }}
-                                </Form.Item>
-                            </div>
-                            <div className="form-divider-title">
-                                <h4 className="title">{t('organizations.subtitles.name')}</h4>
-                            </div>
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item className="input" name={["name", "ru"]} label={`${t('organizations.addUserForm.label.companyName')} RU`}
-                                    // rules={[
-                                    //     {
-                                    //         required: true,
-                                    //         message: t("organizations.addUserForm.validation.required.displayName"),
-                                    //     },
-                                    // ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.companyName')}
-                                        disabled={isFieldDisabled(["name", "ru"])}
-                                    />
-                                </Form.Item>
-                                <Form.Item className="input" name={["name", "en"]} label={`${t('organizations.addUserForm.label.companyName')} EN`}
-                                           // rules={[
-                                           //     {
-                                           //         required: true,
-                                           //         message: t("organizations.addUserForm.validation.required.displayName"),
-                                           //     },
-                                           // ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.companyName')}
-                                        disabled={isFieldDisabled(["name", "en"])}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="form-inputs form-inputs-row small">
-                                <Form.Item className="input" name={["name", "uz"]} label={`${t('organizations.addUserForm.label.companyName')} UZ`}
-                                    // rules={[
-                                    //     {
-                                    //         required: true,
-                                    //         message: t("organizations.addUserForm.validation.required.displayName"),
-                                    //     },
-                                    // ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.companyName')}
-                                        disabled={isFieldDisabled(["name", "uz"])}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="form-divider-title">
-                                <h4 className="title">{t('organizations.subtitles.legalName')}</h4>
-                            </div>
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item className="input" name={["legalName", "ru"]} label={`${t('organizations.addUserForm.label.legalName')} RU`}
-                                           // rules={[
-                                           //     {
-                                           //         required: true,
-                                           //         message: t("organizations.addUserForm.validation.required.legalName"),
-                                           //     },
-                                           // ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.legalName')}
-                                        disabled={isFieldDisabled(["legalName", "ru"])}
-                                    />
-                                </Form.Item>
-                                <Form.Item className="input" name={["legalName", "en"]} label={`${t('organizations.addUserForm.label.legalName')} EN`}
-                                           // rules={[
-                                           //     {
-                                           //         required: true,
-                                           //         message: t("organizations.addUserForm.validation.required.legalName"),
-                                           //     },
-                                           // ]}
-                                    >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.legalName')}
-                                        disabled={isFieldDisabled(["legalName", "en"])}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="form-inputs form-inputs-row small">
-                                <Form.Item className="input" name={["legalName", "uz"]} label={`${t('organizations.addUserForm.label.legalName')} UZ`}
-                                           // rules={[
-                                           //     {
-                                           //         required: true,
-                                           //         message: t("organizations.addUserForm.validation.required.legalName"),
-                                           //     },
-                                           // ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.legalName')}
-                                        disabled={isFieldDisabled(["legalName", "uz"])}
-                                    />
-                                </Form.Item>
+                                        </Form.Item>
+                                    </div>
+                                </>
+                            )}
+                        </FormComponent>
 
-                            </div>
-                            <div className="form-divider-title">
-                                <h4 className="title">{t('organizations.subtitles.address')}</h4>
-                            </div>
-
-                            {/* AddressDto */}
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')}>
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.region')}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-                                <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')}
-                                           rules={[
-                                               {
-                                                   required: false,
-                                                   message: t("organizations.addUserForm.validation.required.district"),
-                                               },
-                                           ]}>
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t('organizations.addUserForm.placeholder.district')}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item
-                                    className="input"
-                                    name={["address", "address"]}
-                                    label={t("organizations.addUserForm.label.address")}
-                                    >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.address")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                    </Form.Item>
-
-                            </div>
-
-                            <div className="form-divider-title">
-                                <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
-                            </div>
-
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item
-                                    className="input"
-                                    name={["bankDetails", "bankName"]}
-                                    label={t("organizations.addUserForm.label.bankName")}
-                                    rules={[
-                                        {
-                                            required: false,
-                                            message: t("organizations.addUserForm.validation.required.bankName"),
-                                        },
-                                    ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.bankName")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    className="input"
-                                    name={["bankDetails", "ccea"]}
-                                    label={t("organizations.addUserForm.label.ccea")}
-                                    rules={[
-                                        {
-                                            required: false,
-                                            message: t("organizations.addUserForm.validation.required.ccea"),
-                                        },
-                                        {
-                                            pattern: /^[0-9]{20}$/,
-                                            message: t("organizations.addUserForm.validation.pattern.ccea"),
-                                        },
-                                    ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.ccea")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-                                </div>
-
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item
-                                    className="input"
-                                    name={["bankDetails", "account"]}
-                                    label={t("organizations.addUserForm.label.account")}
-                                    rules={[
-                                        {
-                                            required: false,
-                                            message: t("organizations.addUserForm.validation.required.account"),
-                                        },
-                                        {
-                                            pattern: /^[0-9]{20}$/,
-                                            message: t("organizations.addUserForm.validation.pattern.account"),
-                                        },
-                                    ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.account")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    className="input"
-                                    name={["bankDetails", "mfo"]}
-                                    label={t("organizations.addUserForm.label.mfo")}
-                                    rules={[
-                                        {
-                                            required: false,
-                                            message: t("organizations.addUserForm.validation.required.mfo"),
-                                        },
-                                        {
-                                            pattern: /^[0-9]{5}$/,
-                                            message: t("organizations.addUserForm.validation.pattern.mfo"),
-                                        },
-                                    ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.mfo")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-                            </div>
-
-
-                             <div className="form-divider-title">
-                                <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
-                            </div>
-
-                            {/* ContactsDto */}
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item
-                                    className="input"
-                                    name={["contacts", "phone"]}
-                                    label={t("organizations.addUserForm.label.phone")}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.phone")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    className="input"
-                                    name={["contacts", "email"]}
-                                    label={t("organizations.addUserForm.label.email")}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.email")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-                                </div>
-
-
-                            <div className="form-inputs form-inputs-row">
-                                <Form.Item
-                                    className="input"
-                                    name={["contacts", "url"]}
-                                    label={t("organizations.addUserForm.label.url")}
-                                    rules={[
-                                        {
-                                            required: false,
-                                            message: t("organizations.addUserForm.validation.required.url"),
-                                        },
-                                        {
-                                            type: "url",
-                                            message: t("organizations.addUserForm.validation.pattern.url"),
-                                        },
-                                    ]}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.url")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    className="input"
-                                    name={["contacts", "person"]}
-                                    label={t("organizations.addUserForm.label.person")}
-                                >
-                                    <Input
-                                        className="input"
-                                        size="large"
-                                        placeholder={t("organizations.addUserForm.placeholder.person")}
-                                        disabled={!isXTraceValidated}
-                                    />
-                                </Form.Item>
-                                </div>
-
-
-                            {/* AccessCodesDto */}
-                            {/*<div className="form-inputs form-inputs-row">*/}
-                            {/*    <Form.Item*/}
-                            {/*        className="input"*/}
-                            {/*        name={["accessCodes", "gcpCode"]}*/}
-                            {/*        label={t("organizations.addUserForm.label.gcpCode")}*/}
-                            {/*        rules={[*/}
-                            {/*            {*/}
-                            {/*                required: true,*/}
-                            {/*                message: t("organizations.addUserForm.validation.required.gcpCode"),*/}
-                            {/*            },*/}
-                            {/*            {*/}
-                            {/*                min: 3,*/}
-                            {/*                message: t("organizations.addUserForm.validation.pattern.gcpCode"),*/}
-                            {/*            },*/}
-                            {/*        ]}*/}
-                            {/*    >*/}
-                            {/*        <Input*/}
-                            {/*            className="input"*/}
-                            {/*            size="large"*/}
-                            {/*            placeholder={t("organizations.addUserForm.placeholder.gcpCode")}*/}
-                            {/*            disabled={!isXTraceValidated}*/}
-                            {/*        />*/}
-                            {/*    </Form.Item>*/}
-                            {/*</div>*/}
+                        <div className="btns-group organization-integration-actions">
                             <CustomButton
-                                type="submit"
-                                disabled={
-                                    referencesLoading ||
-                                    xTraceLoading ||
-                                    Boolean(referencesError) ||
-                                    Boolean(xTraceError)
-                                }
+                                className="outline"
+                                onClick={() => setCreateCompanyStep("fakturaUz")}
+                                disabled={xTraceCreateLoading}
                             >
-                                {t('btn.create')}
+                                {t('btn.skip')}
                             </CustomButton>
-                        </>
-                    )}
-                </FormComponent>
+                            <CustomButton
+                                onClick={handleCreateXTraceIntegration}
+                                disabled={!isSuccessfulXTraceValidation || xTraceValidationLoading || xTraceCreateLoading}
+                            >
+                                {xTraceCreateLoading
+                                    ? t('common.loading', { defaultValue: 'Loading' })
+                                    : t('btn.save')}
+                            </CustomButton>
+                        </div>
+                    </div>
+                )}
+                {createCompanyStep === "fakturaUz" && activatedCompany && (
+                    <div className="organization-integration-step">
+                        <div className="route-overview-card">
+                            <div className="route-overview-meta">
+                                <div className="route-meta-chip">
+                                    <span className="label">{t('organizations.addUserForm.label.legalName')}</span>
+                                    <span className="value">{activatedCompany.displayName || activatedCompany.legalName}</span>
+                                </div>
+                                <div className="route-meta-chip">
+                                    <span className="label">{t('organizations.addUserForm.label.tin')}</span>
+                                    <span className="value">{activatedCompany.tin}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <FormComponent form={fakturaUzForm}>
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    name="username"
+                                    className="input"
+                                    label={t('organizations.integrations.fakturaUz.username')}
+                                    rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.username') }]}
+                                >
+                                    <Input
+                                        size="large"
+                                        className="input"
+                                        disabled={fakturaUzCreateLoading || Boolean(fakturaUzIntegration)}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    name="password"
+                                    className="input"
+                                    label={t('organizations.integrations.fakturaUz.password')}
+                                    rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.password') }]}
+                                >
+                                    <Input.Password
+                                        size="large"
+                                        className="input"
+                                        disabled={fakturaUzCreateLoading || Boolean(fakturaUzIntegration)}
+                                    />
+                                </Form.Item>
+                            </div>
+                            <div className="form-inputs form-inputs-row">
+                                <Form.Item
+                                    name="clientId"
+                                    className="input"
+                                    label={t('organizations.integrations.fakturaUz.clientId')}
+                                    rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.clientId') }]}
+                                >
+                                    <Input
+                                        size="large"
+                                        className="input"
+                                        disabled={fakturaUzCreateLoading || Boolean(fakturaUzIntegration)}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    name="clientSecret"
+                                    className="input"
+                                    label={t('organizations.integrations.fakturaUz.clientSecret')}
+                                    rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.clientSecret') }]}
+                                >
+                                    <Input.Password
+                                        size="large"
+                                        className="input"
+                                        disabled={fakturaUzCreateLoading || Boolean(fakturaUzIntegration)}
+                                    />
+                                </Form.Item>
+                            </div>
+                        </FormComponent>
+
+                        {fakturaUzIntegration && (
+                            <div className="detail-grid detail-grid-main organization-create-preview">
+                                <div className="detail-card detail-card-full organization-xtrace-validation-card">
+                                    <h4>{t('organizations.integrations.receivedData')}</h4>
+                                    <div className="detail-items">
+                                        <div className="detail-item">
+                                            <span className="label inline-label">{t('organizations.status')}</span>
+                                            <span className="detail-separator">:</span>
+                                            <span className={`status-badge ${fakturaUzIntegration.status}`}>
+                                                {t(`statuses.${fakturaUzIntegration.status}`, { defaultValue: fakturaUzIntegration.status })}
+                                            </span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="label inline-label">{t('organizations.testFlag')}</span>
+                                            <span className="detail-separator">:</span>
+                                            <span className="value">
+                                                {fakturaUzIntegration.isTest ? (
+                                                    <Tag className="test-flag" color="blue-inverse" style={{ margin: 0 }}>
+                                                        {t('organizations.testFlag')}
+                                                    </Tag>
+                                                ) : '-'}
+                                            </span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="label inline-label">{t('organizations.addUserForm.label.createdAt')}</span>
+                                            <span className="detail-separator">:</span>
+                                            <span className="value">{dayjs(fakturaUzIntegration.createdAt).format('DD.MM.YYYY HH:mm')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="btns-group organization-integration-actions">
+                            {fakturaUzIntegration ? (
+                                <CustomButton onClick={() => void finishCreateCompanyFlow()}>
+                                    {t('btn.finish')}
+                                </CustomButton>
+                            ) : (
+                                <>
+                                    <CustomButton
+                                        className="outline"
+                                        onClick={() => void finishCreateCompanyFlow()}
+                                        disabled={fakturaUzCreateLoading}
+                                    >
+                                        {t('btn.skip')}
+                                    </CustomButton>
+                                    <CustomButton
+                                        onClick={handleCreateFakturaUzIntegration}
+                                        disabled={fakturaUzCreateLoading}
+                                    >
+                                        {fakturaUzCreateLoading
+                                            ? t('common.loading', { defaultValue: 'Loading' })
+                                            : t('btn.save')}
+                                    </CustomButton>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
             </ModalWindow>
             <ModalWindow
                 titleAction={t('organizations.modalWindow.deletion')}
@@ -895,7 +964,7 @@ const Organizations = () => {
                         <p className='title'>
                             {t('organizations.deleteUserQuestion')}: {" "}
                         </p>
-                        <p className="subtitle">{modalState.companyData?.legalName?.[lang]} ? </p>
+                        <p className="subtitle">{modalState.companyData?.legalName} ? </p>
                     </div>
                     <div className="delete-modal-btns">
                         <CustomButton className="danger" onClick={confirmDeleteOrganization}>

@@ -3,7 +3,7 @@ import {
   type StaticEndpointAccess,
 } from 'shared/config/endpointAccessMap';
 
-export type RouteAccess = StaticEndpointAccess;
+export type RouteAccess = StaticEndpointAccess | readonly StaticEndpointAccess[];
 
 export const routeAccess = {
   usersList: endpointAccessMap.usersList,
@@ -42,5 +42,10 @@ export const routeAccess = {
 
   invoicesList: endpointAccessMap.invoicesList,
   invoicesRead: endpointAccessMap.invoicesRead,
+
+  integrationsRead: [
+    endpointAccessMap.integrationsXTraceRead,
+    endpointAccessMap.integrationsFakturaUzRead,
+  ],
 } as const satisfies Record<string, RouteAccess>;
 

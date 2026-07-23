@@ -41,6 +41,24 @@ export const OrganizationsTableColumns = (
         ),
     },
   {
+    title: t('organizations.addUserForm.label.tin'),
+    dataIndex: "tin",
+    flex: 2,
+    key: "tin",
+    render: (text) => <p className="table-text">{text}</p>
+  },
+  {
+    title: t('organizations.addUserForm.label.legalName'),
+    dataIndex: "legalName",
+    flex: 3,
+    key: "legalName",
+    render: (text) => <p className="table-text" style={{
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+    }}>{text}</p>
+  },
+  {
     title: t('organizations.addUserForm.label.director'),
     dataIndex: "director",
       flex: 2,
@@ -56,6 +74,13 @@ export const OrganizationsTableColumns = (
     dataIndex: "contacts",
       flex: 2,
     key: "contacts",
+    render: (text) => <p className="table-text">{text}</p>
+  },
+  {
+    title: t('organizations.addUserForm.label.vatCode'),
+    dataIndex: "vatCode",
+    flex: 2,
+    key: "vatCode",
     render: (text) => <p className="table-text">{text}</p>
   },
   {

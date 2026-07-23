@@ -9,6 +9,7 @@
                 missingPermissions: "Missing permissions",
                 dataNotFound: "Data not found",
                 total: "Total",
+                loading: "Loading",
                 create: "Create",
                 details: "Details",
                 backToList: "Back to list",
@@ -35,6 +36,7 @@
             statuses: {
                 active: "Active",
                 inactive: "Inactive",
+                prospective: "Prospective",
                 draft: "Draft",
                 assigned_to_warehouse: "Assigned to warehouse",
                 ready_for_loading: "Ready for loading",
@@ -146,6 +148,9 @@
                 delete: 'Delete',
                 cancel: 'Cancel',
                 save: 'Save',
+                search: 'Search',
+                skip: 'Skip',
+                finish: 'Finish',
                 back: 'Back',
                 toProducts: "Go to products",
                 enterCompany: "Enter company",
@@ -173,7 +178,8 @@
                 deliveryRoutes: "Delivery Routes",
                 deliveryTasks: "Delivery Tasks",
                 invoices: "Invoices",
-                companyMemberships: "Employees"
+                companyMemberships: "Employees",
+                integrations: "Integrations"
             },
             scanner: {
                 accepted: "Accepted",
@@ -890,9 +896,42 @@
                 status: 'Status',
                 assignToCompany: 'Assign to company',
                 deleteUserQuestion: "Are you sure you want to delete the organization",
+                actions: {
+                    activate: "Activate",
+                },
+                integrations: {
+                    receivedData: "Received data",
+                    notConfigured: "Not configured",
+                    steps: {
+                        company: "Company",
+                        xTrace: "X-Trace",
+                        fakturaUz: "Faktura.uz",
+                    },
+                    xTrace: {
+                        title: "X-Trace integration",
+                        cardTitle: "X-Trace",
+                    },
+                    fakturaUz: {
+                        title: "Faktura.uz integration",
+                        cardTitle: "Faktura.uz",
+                        username: "Username",
+                        password: "Password",
+                        clientId: "Client ID",
+                        clientSecret: "Client secret",
+                        validation: {
+                            username: "Username is required",
+                            password: "Password is required",
+                            clientId: "Client ID is required",
+                            clientSecret: "Client secret is required",
+                        },
+                    },
+                },
                 messages: {
                     success: {
                         createUser: "Organization successfully created",
+                        activateCompany: "Company activated",
+                        createXTraceIntegration: "X-Trace integration created",
+                        createFakturaUzIntegration: "Faktura.uz integration created",
                         updateUser: "Organization successfully updated",
                         deleteUser: "Organization successfully deleted",
                         assignOrganization: 'User successfully assigned to company',
@@ -900,6 +939,9 @@
                     },
                     error: {
                         createUser: "Error while creating organization",
+                        activateCompany: "Error while activating company",
+                        createXTraceIntegration: "Error while creating X-Trace integration",
+                        createFakturaUzIntegration: "Error while creating Faktura.uz integration",
                         updateUser: "Error while updating organization",
                         deleteUser: "Error while deleting organization",
                         unassignOrganization: 'Error while unassigning user from company'
@@ -908,12 +950,17 @@
                 addUserForm: {
                     label: {
                         companyName: "Company Name",
+                        name: "Name",
                         companyType: "Company type",
                         displayName: "Display name",
                         productGroup: "Product Groups",
                         tin: "TIN",
+                        pinfl: "PINFL",
+                        vatCode: "VAT code",
+                        createdAt: "Created at",
                         legalName: "Legal name of the organization",
                         director: "Director",
+                        accountant: "Accountant",
                         region: "Region",
                         district: "District",
                         address: "Address",
@@ -1438,6 +1485,7 @@
                 missingPermissions: "Недостающие разрешения",
                 dataNotFound: "Данные не найдены",
                 total: "Всего",
+                loading: "Загрузка",
                 create: "Создать",
                 details: "Детали",
                 backToList: "Назад к списку",
@@ -1464,6 +1512,7 @@
             statuses: {
                 active: "Активен",
                 inactive: "Неактивен",
+                prospective: "Потенциальный",
                 draft: "Черновик",
                 assigned_to_warehouse: "Назначен на склад",
                 ready_for_loading: "Готов к погрузке",
@@ -1575,6 +1624,9 @@
                 delete: 'Удалить',
                 cancel: 'Отмена',
                 save: 'Сохранить',
+                search: 'Найти',
+                skip: 'Пропустить',
+                finish: 'Завершить',
                 back: 'Назад',
                 toProducts: "Перейти к продуктам",
                 enterCompany: "Войти в компанию",
@@ -1603,6 +1655,7 @@
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
                 companyMemberships: "Сотрудники",
+                integrations: "Интеграции",
             },
             scanner: {
                 accepted: "Принято",
@@ -2319,9 +2372,42 @@
                 status: 'Статус',
                 assignToCompany: 'Назначить на компанию',
                 deleteUserQuestion: 'Вы уверены, что хотите удалить организацию',
+                actions: {
+                    activate: "Активировать",
+                },
+                integrations: {
+                    receivedData: "Полученные данные",
+                    notConfigured: "Не настроена",
+                    steps: {
+                        company: "Компания",
+                        xTrace: "X-Trace",
+                        fakturaUz: "Faktura.uz",
+                    },
+                    xTrace: {
+                        title: "интеграции X-Trace",
+                        cardTitle: "X-Trace",
+                    },
+                    fakturaUz: {
+                        title: "интеграции Faktura.uz",
+                        cardTitle: "Faktura.uz",
+                        username: "Логин",
+                        password: "Пароль",
+                        clientId: "Client ID",
+                        clientSecret: "Client secret",
+                        validation: {
+                            username: "Введите логин",
+                            password: "Введите пароль",
+                            clientId: "Введите Client ID",
+                            clientSecret: "Введите Client secret",
+                        },
+                    },
+                },
                 messages: {
                     success: {
                         createUser: "Организация успешно создан",
+                        activateCompany: "Компания активирована",
+                        createXTraceIntegration: "Интеграция X-Trace создана",
+                        createFakturaUzIntegration: "Интеграция Faktura.uz создана",
                         updateUser: "Организация успешно обновлён",
                         deleteUser: "Организация успешно удалён",
                         assignOrganization: 'Пользователь успешно назначен на компанию',
@@ -2329,6 +2415,9 @@
                     },
                     error: {
                         createUser: "Ошибка при создании организации",
+                        activateCompany: "Ошибка при активации компании",
+                        createXTraceIntegration: "Ошибка при создании интеграции X-Trace",
+                        createFakturaUzIntegration: "Ошибка при создании интеграции Faktura.uz",
                         updateUser: "Ошибка при обновлении организации",
                         deleteUser: "Ошибка при удалении организации",
                         unassignOrganization: 'Ошибка при отвязывании пользователя от компании'
@@ -2338,12 +2427,17 @@
                 addUserForm: {
                     label: {
                         companyName: "Название компании",
+                        name: "Имя",
                         companyType: 'Тип компании',
                         displayName: 'Отображаемое имя',
                         productGroup: 'Товарные группы',
                         tin: 'ИНН',
+                        pinfl: 'ПИНФЛ',
+                        vatCode: 'Код НДС',
+                        createdAt: 'Создано',
                         legalName: 'Юридическое название организации',
                         director: 'Директор',
+                        accountant: 'Бухгалтер',
                         region: 'Регион',
                         district: 'Район',
                         address: 'Адрес',
@@ -2868,6 +2962,7 @@
                 missingPermissions: "Yetishmayotgan ruxsatlar",
                 dataNotFound: "Ma'lumot topilmadi",
                 total: "Jami",
+                loading: "Yuklanmoqda",
                 create: "Yaratish",
                 details: "Batafsil",
                 backToList: "Roʻyxatga qaytish",
@@ -2884,6 +2979,7 @@
             statuses: {
                 active: "Faol",
                 inactive: "Faol emas",
+                prospective: "Istiqbolli",
                 draft: "Taslagi",
                 assigned_to_warehouse: "Omborga tayinlash",
                 ready_for_loading: "Yuklashga tayyor",
@@ -2996,6 +3092,9 @@
                 delete: 'Oʻchirish',
                 cancel: 'Bekor qilish',
                 save: 'Saqlash',
+                search: 'Qidirish',
+                skip: 'O‘tkazib yuborish',
+                finish: 'Yakunlash',
                 back: 'Orqaga',
                 toProducts: "Mahsulotlarga o‘tish",
                 enterCompany: "Kompaniyaga kirish",
@@ -3024,6 +3123,7 @@
                 deliveryTasks: "Yetkazib berish vazifalari",
                 invoices: "Hisob-fakturalar",
                 companyMemberships: "Xodimlar",
+                integrations: "Integratsiyalar",
             },
             scanner: {
                 accepted: "Qabul qilindi",
@@ -3711,9 +3811,42 @@
                 status: 'Holat',
                 assignToCompany: 'Kompaniyaga biriktirish',
                 deleteUserQuestion: "Tashkilotni o‘chirib tashlashni xohlaysizmi?",
+                actions: {
+                    activate: "Faollashtirish",
+                },
+                integrations: {
+                    receivedData: "Olingan ma'lumotlar",
+                    notConfigured: "Sozlanmagan",
+                    steps: {
+                        company: "Kompaniya",
+                        xTrace: "X-Trace",
+                        fakturaUz: "Faktura.uz",
+                    },
+                    xTrace: {
+                        title: "X-Trace integratsiyasi",
+                        cardTitle: "X-Trace",
+                    },
+                    fakturaUz: {
+                        title: "Faktura.uz integratsiyasi",
+                        cardTitle: "Faktura.uz",
+                        username: "Login",
+                        password: "Parol",
+                        clientId: "Client ID",
+                        clientSecret: "Client secret",
+                        validation: {
+                            username: "Loginni kiriting",
+                            password: "Parolni kiriting",
+                            clientId: "Client ID ni kiriting",
+                            clientSecret: "Client secret ni kiriting",
+                        },
+                    },
+                },
                 messages: {
                     success: {
                         createUser: "Tashkilot muvaffaqiyatli yaratildi",
+                        activateCompany: "Kompaniya faollashtirildi",
+                        createXTraceIntegration: "X-Trace integratsiyasi yaratildi",
+                        createFakturaUzIntegration: "Faktura.uz integratsiyasi yaratildi",
                         updateUser: "Tashkilot muvaffaqiyatli yangilandi",
                         deleteUser: "Tashkilot muvaffaqiyatli o‘chirildi",
                         assignOrganization: 'Foydalanuvchi muvaffaqiyatli kompaniyaga biriktirildi',
@@ -3721,6 +3854,9 @@
                     },
                     error: {
                         createUser: "Tashkilotni yaratishda xatolik",
+                        activateCompany: "Kompaniyani faollashtirishda xatolik",
+                        createXTraceIntegration: "X-Trace integratsiyasini yaratishda xatolik",
+                        createFakturaUzIntegration: "Faktura.uz integratsiyasini yaratishda xatolik",
                         updateUser: "Tashkilotni yangilashda xatolik",
                         deleteUser: "Tashkilotni o‘chirishda xatolik",
                         unassignOrganization: "Foydalanuvchini kompaniyadan ajratishda xatolik"
@@ -3729,12 +3865,17 @@
                 addUserForm: {
                     label: {
                         companyName: "Kompaniya nomi",
+                        name: "Ism",
                         companyType: "Kompaniya turi",
                         displayName: "Ko‘rsatiladigan nom",
                         productGroup: "Tovar guruhlari",
                         tin: "STIR",
+                        pinfl: "JSHSHIR",
+                        vatCode: "QQS kodi",
+                        createdAt: "Yaratilgan",
                         legalName: "Tashkilotning yuridik nomi",
                         director: "Direktor",
+                        accountant: "Buxgalter",
                         region: "Hudud",
                         district: "Tuman",
                         address: "Manzil",

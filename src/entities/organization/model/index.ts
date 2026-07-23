@@ -4,6 +4,7 @@ import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import type {CompanyResponse, OrganizationState} from "entities/organization/types";
 import type {
+    ActivateCompanyResponseDto,
     CompanyResponseDto,
     CreateCompanyDto,
     DeleteCompanyDto,
@@ -60,34 +61,34 @@ export const getAllOrganizations = createAsyncThunk(
 );
 
 
-function isCompanyCreateSuccessResponse(
-  res: CompanyResponseDto
-): res is CompanyResponseDto & { success: boolean; company: CompanyResponseDto } {
-  return "success" in res && res.success === true && "company" in res;
-}
-
 export const createOrganization = createAsyncThunk(
   "organizations/createOrganization",
   async (payload: CreateCompanyDto, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<CompanyResponseDto>(
+      const response = await axiosInstance.post<ActivateCompanyResponseDto>(
         `${BASE_URL}/companies`,
         payload
       );
 
-      if (isCompanyCreateSuccessResponse(response.data)) {
-        return mapCreateOrganizationDtoToEntity(response.data);
+      if (isActivateCompanySuccessResponse(response.data)) {
+        return mapCreateOrganizationDtoToEntity(response.data.company);
       }
 
-      return rejectWithValue("Ошибка регистрации компании");
+      return rejectWithValue(response.data);
     } catch (err: any) {
         return rejectWithValue({
-            errorMessage: { ru: err.message, uz: err.message, en: err.message },
+            errorMessage: { ru: err.response?.data?.errorMessage?.ru ?? err.message, uz: err.response?.data?.errorMessage?.uz ?? err.message, en: err.response?.data?.errorMessage?.en ?? err.message },
             errorCode: 0,
         });
     }
   }
 );
+
+function isActivateCompanySuccessResponse(
+  res: ActivateCompanyResponseDto
+): res is { success: true; company: CompanyResponseDto } {
+  return "success" in res && res.success === true && "company" in res;
+}
 
 
 function isGetCompanySuccessResponse(
@@ -187,11 +188,7 @@ export const getCompanyByTin = createAsyncThunk(
         `/companies/by-tin/${encodeURIComponent(tin)}`
       );
 
-      if ("errorCode" in response.data) {
-        return rejectWithValue(response.data);
-      }
-
-      return response.data;
+      return mapOrganizationDtoToEntity(response.data);
     } catch (err: any) {
       return rejectWithValue(err.response?.data ?? err.message ?? "Ошибка загрузки компании по ИНН");
     }
@@ -243,24 +240,7 @@ export const organizationsSlice = createSlice({
         const { data = [], total, page, limit } = action.payload;
 
         state.isLoading = false;
-        state.searchedOrganizations = data.map((organization: any) => ({
-            id: organization.id,
-            tin: organization.tin ?? "",
-            displayName: organization.displayName ?? "",
-            name: organization.name ?? { ru: "", uz: "", en: "" },
-            legalName: organization.legalName ?? { ru: "", uz: "", en: "" },
-            productGroups: organization.productGroups ?? [],
-            director: organization.director ?? "",
-            address: organization.address ?? {},
-            bankDetails: organization.bankDetails ?? {},
-            contacts: organization.contacts ?? {},
-            accessCodes: organization.accessCodes ?? { xTrace: { token: "", expireDate: "" } },
-            status: organization.status,
-            deleted: Boolean(organization.deleted),
-            deletedAt: organization.deletedAt ?? null,
-            isTest: Boolean(organization.isTest),
-            businessPlaceId: Number(organization.businessPlaceId) || 0,
-        }));
+        state.searchedOrganizations = data.map(mapOrganizationDtoToEntity);
 
         state.total = total;
         state.page = page;
@@ -325,6 +305,7 @@ export const organizationsSlice = createSlice({
 });
 
 export default organizationsSlice.reducer;
+
 
 
 

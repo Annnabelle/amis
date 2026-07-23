@@ -334,35 +334,33 @@ const OrderForm = () => {
                           shouldUpdate
                       >
                         {() => {
-                          const suggestedQuantity = getSuggestedQuantity(index);
-                          const inputNumber = (
-                              <InputNumber
-                                  min={1}
-                                  size="large"
-                                  style={{ width: "100%", minWidth: 50 }}
-                                  placeholder="0"
-                              />
-                          );
-
-                          return (
+                          const suggestedQuantity = getSuggestedQuantity(field.name);
+                          const quantityField = (
                               <Form.Item
                                   className="input"
                                   name={[field.name, "quantity"]}
                                   rules={[{ required: true, message: t("markingCodes.label.enterQuantity") }]}
                               >
-                                {suggestedQuantity !== null ? (
-                                    <Tooltip
-                                        title={suggestedQuantity}
-                                        placement="top"
-                                        styles={{ body: { paddingInline: 16 } }}
-                                    >
-                                      <span style={{ display: "inline-block", width: "100%" }}>
-                                        {inputNumber}
-                                      </span>
-                                    </Tooltip>
-                                ) : inputNumber}
+                                <InputNumber
+                                    min={1}
+                                    size="large"
+                                    style={{ width: "100%", minWidth: 50 }}
+                                    placeholder="0"
+                                />
                               </Form.Item>
-                          )
+                          );
+
+                          return suggestedQuantity !== null ? (
+                              <Tooltip
+                                  title={suggestedQuantity}
+                                  placement="top"
+                                  styles={{ body: { paddingInline: 16 } }}
+                              >
+                                <span style={{ display: "inline-block", width: "100%" }}>
+                                  {quantityField}
+                                </span>
+                              </Tooltip>
+                          ) : quantityField;
                         }}
                       </Form.Item>
 
