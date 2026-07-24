@@ -37,6 +37,7 @@ const DeliveryTasksDetails = lazy(() => import("pages/deliveryTasks/details"));
 const DeliveryTasksScan = lazy(() => import("pages/deliveryTasks/scan"));
 const InvoicesList = lazy(() => import("pages/invoices/list"));
 const InvoicesDetails = lazy(() => import("pages/invoices/details"));
+const CompanyIntegrations = lazy(() => import("pages/companyIntegrations"));
 
 const protectedPage = (access: RouteAccess, page: ReactNode) => (
   <PermissionRoute access={access}>{page}</PermissionRoute>
@@ -79,6 +80,7 @@ const Router: React.FC = () => {
         <Route path='/organization/:orgId/delivery-tasks/:id/scan' element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksScan/>)} />
         <Route path='/organization/:orgId/invoices' element={protectedPage(routeAccess.invoicesList, <InvoicesList/>)} />
         <Route path='/organization/:orgId/invoices/:id' element={protectedPage(routeAccess.invoicesRead, <InvoicesDetails/>)} />
+        <Route path='/organization/:orgId/integrations' element={protectedPage(routeAccess.integrationsRead, <CompanyIntegrations/>)} />
       </Routes>
     </Suspense>
   );

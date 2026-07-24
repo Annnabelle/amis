@@ -7,16 +7,18 @@ import type {
   ContactsDto,
   MultiLanguage
 } from "shared/types/dtos";
+import type { Employee } from "entities/organization/dtos";
 
 export type CompanyResponse = {
   id: string;
   tin: string;
-  // companyType: CompanyType;
   displayName: string;
   name: MultiLanguage;
-  legalName: MultiLanguage;
-  productGroups: string[];
-  director: string;
+  legalName: string;
+  responsibleEmployees: {
+    director?: Employee;
+    accountant?: Employee;
+  };
   address: {
     region?: string;
     district?: string;
@@ -34,20 +36,11 @@ export type CompanyResponse = {
     url?: string;
     person?: string;
   };
-  accessCodes: {
-    gcpCode?: string;
-    xTrace: {
-      id?: string;
-      token: string;
-      expireDate: string | Date; // ISO 8601
-      updateDate?: string; // ISO 8601
-    };
-  };
+  vatCode: string | null;
   status: CompanyStatus;
   deleted: boolean;
   deletedAt: Date | null;
   isTest: boolean;
-  businessPlaceId: number;
 };
 
 export type CreateCompany = {

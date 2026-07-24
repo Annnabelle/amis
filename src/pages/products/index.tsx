@@ -17,7 +17,6 @@ import type { CreateProduct, ProductResponse } from 'entities/products/types'
 import { useNavigate, useParams } from 'react-router-dom'
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
-import {getOrganizationById} from "entities/organization/model";
 import type {LangKey} from "shared/lib/consts.ts";
 import type {MultiLanguage} from "shared/types/dtos";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
@@ -51,17 +50,10 @@ const Products = () => {
         useAppSelector(state => state.references.references.productGroup) ?? [];
     type Lang = LangKey[number];
     const orgId = id
-    const company = useAppSelector(state => state.organizations.organizationById)
     const companyError = useAppSelector(state => state.organizations.error)
     const companyLoading = useAppSelector(state => state.organizations.isLoading)
     const referencesError = useAppSelector(state => state.references.error)
     const referencesLoading = useAppSelector(state => state.references.loading)
-
-    useEffect(() => {
-        if (id){
-            dispatch(getOrganizationById({id: id}))
-        }
-    }, [dispatch, id])
 
     const currentLang = (i18n.language as Lang) || 'en';
     const productGroupTitleByAlias = useMemo(() => {
@@ -78,12 +70,8 @@ const Products = () => {
     }, [productGroupReferences, currentLang]);
 
     const companyProductGroups = useMemo(() => {
-        if (!company?.productGroups?.length) return []
-
-        return productGroupReferences.filter(ref =>
-            company.productGroups.includes(ref.alias)
-        )
-    }, [company?.productGroups, productGroupReferences])
+        return productGroupReferences;
+    }, [productGroupReferences])
 
     useEffect(() => {
         dispatch(fetchReferencesByType("countryCode"));

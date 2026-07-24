@@ -25,6 +25,7 @@ export const AccessModules = {
   DeliveryTasks: "delivery-tasks",
   ScanSessions: "scan-sessions",
   Invoices: "invoices",
+  Integrations: "integrations",
   Reports: "reports",
   Audit: "audit",
 } as const;

@@ -11,6 +11,26 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import type { RouteAccess } from './accessMap';
 import { useIsMobile } from 'shared/lib';
 
+const canAccessRoute = ({
+  access,
+  routeAccess,
+  companyId,
+}: {
+  access: UserAccess;
+  routeAccess: RouteAccess;
+  companyId?: string | null;
+}) => {
+  const endpoints = Array.isArray(routeAccess) ? routeAccess : [routeAccess];
+
+  return endpoints.some((endpoint) =>
+    canAccessEndpoint({
+      access,
+      endpoint,
+      companyId,
+    })
+  );
+};
+
 const getCompanyIdFromPath = (pathname: string) => {
   const segments = pathname.split('/').filter(Boolean);
   return segments[0] === 'organization' && segments.length > 1
@@ -45,15 +65,16 @@ export const resolveFallbackPath = (
     [AccessModules.SalesOrders, endpointAccessMap.salesOrdersList, 'sales-orders'],
     [AccessModules.DeliveryRoutes, endpointAccessMap.deliveryRoutesList, 'delivery-routes'],
     [AccessModules.Invoices, endpointAccessMap.invoicesList, 'invoices'],
+    [AccessModules.Integrations, [endpointAccessMap.integrationsXTraceRead, endpointAccessMap.integrationsFakturaUzRead], 'integrations'],
   ] as const;
 
   for (const company of access.companies) {
     const section = companyCandidates.find(
       ([module, endpoint]) =>
         company.modules.includes(module) &&
-        canAccessEndpoint({
+        canAccessRoute({
           access,
-          endpoint,
+          routeAccess: endpoint,
           companyId: company.companyId,
         })
     )?.[2];
@@ -94,9 +115,9 @@ export const PermissionRoute = ({
     return <Navigate to="/" replace />;
   }
 
-  const allowed = canAccessEndpoint({
+  const allowed = canAccessRoute({
     access: userAccess,
-    endpoint: requiredAccess,
+    routeAccess: requiredAccess,
     companyId,
   });
 

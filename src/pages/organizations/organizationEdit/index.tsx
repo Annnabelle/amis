@@ -9,16 +9,15 @@ import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
 import {Form, Input} from "antd";
-import {type LanguageKey, useNavigationBack} from "shared/lib";
+import {useNavigationBack} from "shared/lib";
 
 const OrganizationsEdit = () => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const navigateBack = useNavigationBack();
     const dispatch = useAppDispatch()
     const { id } = useParams<{ id: string }>();
     const organizationById = useAppSelector((state) => state.organizations.organizationById)
     const [form] = Form.useForm()
-    const lang = i18n.language as LanguageKey;
     // const productGroupReferences = useAppSelector(
     //     (state) => state.references.references.productGroup
     // ) ?? [];
@@ -28,13 +27,17 @@ const OrganizationsEdit = () => {
             form.setFieldsValue({
                 displayName: organizationById.displayName,
 
-                productGroups: organizationById.productGroups,
-
                 tin: organizationById.tin,
 
-                legalName: organizationById.legalName[lang],
+                legalName: organizationById.legalName,
 
-                director: organizationById.director,
+                director: organizationById.responsibleEmployees.director?.name
+                    ? [
+                        organizationById.responsibleEmployees.director.name.last,
+                        organizationById.responsibleEmployees.director.name.first,
+                        organizationById.responsibleEmployees.director.name.middle,
+                    ].filter(Boolean).join(" ")
+                    : undefined,
 
                 address: {
                     region: organizationById.address?.region,
@@ -56,17 +59,6 @@ const OrganizationsEdit = () => {
                     person: organizationById.contacts?.person,
                 },
 
-                accessCodes: {
-                    gcpCode: organizationById.accessCodes?.gcpCode,
-                    xTrace: {
-                        token: organizationById.accessCodes?.xTrace?.token,
-                        expireDate: organizationById.accessCodes?.xTrace?.expireDate
-                            ? new Date(organizationById.accessCodes.xTrace.expireDate)
-                            : undefined,
-                        id: organizationById.accessCodes?.xTrace?.id,
-                    },
-                },
-
                 status: organizationById.status,
                 isTest: organizationById.isTest,
             })
@@ -78,6 +70,14 @@ const OrganizationsEdit = () => {
             dispatch(getOrganizationById({id: id}))
         }
     }, [dispatch, id])
+
+    const directorName = organizationById?.responsibleEmployees.director?.name
+        ? [
+            organizationById.responsibleEmployees.director.name.last,
+            organizationById.responsibleEmployees.director.name.first,
+            organizationById.responsibleEmployees.director.name.middle,
+        ].filter(Boolean).join(" ")
+        : "";
 
 
     const handleUpdateOrganization = async (values: any) => {
@@ -138,7 +138,7 @@ const OrganizationsEdit = () => {
                             {/*</Form.Item>*/}
                         </div>
                         <div className="form-inputs form-inputs-row">
-                            <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')} initialValue={organizationById.director}>
+                            <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')} initialValue={directorName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.director')}  />
                             </Form.Item>
                         </div>
@@ -194,19 +194,6 @@ const OrganizationsEdit = () => {
                             </Form.Item>
                             <Form.Item className="input" name={['contacts', 'person']} label={t('organizations.addUserForm.label.person')} initialValue={organizationById.contacts.person}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.person')}  />
-                            </Form.Item>
-                        </div>
-                        <div className="form-inputs form-inputs-row">
-                            <Form.Item className="input" name={['accessCodes', 'gcpCode']} label={t('organizations.addUserForm.label.gcpCode')} initialValue={organizationById.accessCodes.gcpCode}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.gcpCode')}  />
-                            </Form.Item>
-                            {/*<Form.Item className="input" name={['accessCodes', 'omsId']} label={t('organizations.addUserForm.label.omsId')} initialValue={organizationById.accessCodes.gcpCode}>*/}
-                            {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.omsId')}  />*/}
-                            {/*</Form.Item>*/}
-                        </div>
-                        <div className="form-inputs">
-                            <Form.Item className="input" name={['accessCodes', 'xTrace', 'token']} label={t('organizations.addUserForm.label.turonToken')} initialValue={organizationById.accessCodes.xTrace.token}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.turonToken')}  />
                             </Form.Item>
                         </div>
                         <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>

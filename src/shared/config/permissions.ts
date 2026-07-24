@@ -27,6 +27,13 @@ export const Permissions = {
   CompaniesValidateXTraceToken: "companies.validate-xtrace-token",
   CompaniesManageIntegrations: "companies.manage-integrations",
   CompaniesLegalInfoRead: "companies.legal-info.read",
+  CompanyXTraceIntegrationsRead: "company-xtrace-integrations.read",
+  CompanyXTraceIntegrationsValidateToken: "company-xtrace-integrations.validate-token",
+  CompanyXTraceIntegrationsCreate: "company-xtrace-integrations.create",
+  CompanyXTraceIntegrationsUpdate: "company-xtrace-integrations.update",
+  CompanyFakturaUzIntegrationsRead: "company-faktura-uz-integrations.read",
+  CompanyFakturaUzIntegrationsCreate: "company-faktura-uz-integrations.create",
+  CompanyFakturaUzIntegrationsUpdate: "company-faktura-uz-integrations.update",
 
   ProductsList: "products.list",
   ProductsRead: "products.read",

@@ -8,45 +8,34 @@ export const mapOrganizationDtoToEntity = (dto: CompanyResponseDto): CompanyResp
   id: dto.id,
   tin: dto.tin,
   displayName: dto.displayName,
-  businessPlaceId: dto.businessPlaceId,
   name: {
     ru: dto.name.ru,
     en: dto.name.en,
     uz: dto.name.uz
   },
-  legalName: {
-    ru: dto.legalName.ru,
-    en: dto.legalName.en,
-    uz: dto.legalName.uz
+  legalName: dto.legalName,
+  responsibleEmployees: {
+    director: dto.responsibleEmployees.director,
+    accountant: dto.responsibleEmployees.accountant
   },
-  productGroups: dto.productGroups,
-  director: dto.director,
-  address: dto.address ? {
+  address: {
     region: dto.address.region,
     district: dto.address.district,
     address: dto.address.address
-  } : {},
+  },
   bankDetails: dto.bankDetails ? {
     bankName: dto.bankDetails.bankName,
     ccea: dto.bankDetails.ccea,
     account: dto.bankDetails.account,
     mfo: dto.bankDetails.mfo
   } : {},
-  contacts: dto.contacts ? {
+  contacts: {
     phone: dto.contacts.phone,
     email: dto.contacts.email,
     url: dto.contacts.url,
     person: dto.contacts.person
-  } : {},
-  accessCodes: {
-    gcpCode: dto.accessCodes.gcpCode,
-    xTrace: {
-      id: dto.accessCodes.xTrace.id,
-      token: dto.accessCodes.xTrace.token,
-      expireDate: dto.accessCodes.xTrace.expireDate,
-      updateDate: dto.accessCodes.xTrace.updateDate
-    }
   },
+  vatCode: dto.vatCode,
   status: dto.status,
   deleted: dto.deleted,
   deletedAt: dto.deletedAt ? new Date(dto.deletedAt) : null,
@@ -119,50 +108,39 @@ export const mapUpdateCompanyResponseToUpdateEntity = (
 export const mapCreateOrganizationDtoToEntity = (dto: CompanyResponseDto): CompanyResponse => ({
   id: dto.id,
   tin: dto.tin,
-  displayName: dto.displayName ?? "",
-  businessPlaceId: dto.businessPlaceId ?? 12,
+  displayName: dto.displayName,
   name: {
-    ru: dto.name?.ru ?? "",
-    en: dto.name?.en ?? "",
-    uz: dto.name?.uz ?? ""
+    ru: dto.name.ru,
+    en: dto.name.en,
+    uz: dto.name.uz
   },
-  legalName: {
-    ru: dto.legalName?.ru ?? "",
-    en: dto.legalName?.en ?? "",
-    uz: dto.legalName?.uz ?? ""
+  legalName: dto.legalName,
+  responsibleEmployees: {
+    director: dto.responsibleEmployees.director,
+    accountant: dto.responsibleEmployees.accountant
   },
-  productGroups: dto.productGroups ?? [],
-  director: dto.director ?? "",
-  address: dto.address ? {
-    region: dto.address.region ?? "",
-    district: dto.address.district ?? "",
-    address: dto.address.address ?? ""
-  } : {},
+  address: {
+    region: dto.address.region,
+    district: dto.address.district,
+    address: dto.address.address
+  },
   bankDetails: dto.bankDetails ? {
-    bankName: dto.bankDetails.bankName ?? "",
-    ccea: dto.bankDetails.ccea ?? "",
-    account: dto.bankDetails.account ?? "",
-    mfo: dto.bankDetails.mfo ?? ""
+    bankName: dto.bankDetails.bankName,
+    ccea: dto.bankDetails.ccea,
+    account: dto.bankDetails.account,
+    mfo: dto.bankDetails.mfo
   } : {},
-  contacts: dto.contacts ? {
-    phone: dto.contacts.phone ?? "",
-    email: dto.contacts.email ?? "",
-    url: dto.contacts.url ?? "",
-    person: dto.contacts.person ?? ""
-  } : {},
-  accessCodes: {
-    gcpCode: dto.accessCodes?.gcpCode ?? "",
-    xTrace: {
-      id: dto.accessCodes?.xTrace?.id ?? "",
-      token: dto.accessCodes?.xTrace?.token ?? "",
-      expireDate: dto.accessCodes?.xTrace?.expireDate ?? "",
-      updateDate: dto.accessCodes?.xTrace?.updateDate ?? ""
-    }
+  contacts: {
+    phone: dto.contacts.phone,
+    email: dto.contacts.email,
+    url: dto.contacts.url,
+    person: dto.contacts.person
   },
-  status: dto.status ?? "",
-  deleted: dto.deleted ?? false,
+  vatCode: dto.vatCode,
+  status: dto.status,
+  deleted: dto.deleted,
   deletedAt: dto.deletedAt ? new Date(dto.deletedAt) : null,
-  isTest: dto.isTest ?? false
+  isTest: dto.isTest
 });
 
 

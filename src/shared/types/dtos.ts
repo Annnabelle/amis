@@ -63,6 +63,7 @@ export type UserSortField = typeof UserSortField[keyof typeof UserSortField];
 export const CompanyStatus = {
   Active: "active",
   Inactive: "inactive",
+  Prospective: "prospective",
 } as const;
 
 export const CompanyStatuses = Object.values(CompanyStatus);

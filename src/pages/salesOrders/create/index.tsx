@@ -16,14 +16,14 @@ import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
-import { SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
+import { isLanguage, SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
 
 const TIN_LENGTH = 9;
 
 const SalesOrdersCreate = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { products, isLoading: productsLoading, error: productsError } =
     useAppSelector((state) => state.products);
@@ -32,6 +32,7 @@ const SalesOrdersCreate = () => {
   const [isCompanyFound, setIsCompanyFound] = useState(false);
   const [companyLookupError, setCompanyLookupError] = useState<string | null>(null);
   const companyLookupRequestRef = useRef(0);
+  const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
     : '/sales-orders';
@@ -156,8 +157,8 @@ const SalesOrdersCreate = () => {
         customer: {
           companyId: undefined,
           tin: normalized,
-          name: company.name,
-          address: company.address,
+          name: company.name[currentLanguage] || company.displayName || company.legalName,
+          address: company.address.address,
         },
       });
       setIsCompanyFound(true);
