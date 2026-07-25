@@ -25,6 +25,7 @@ import FormComponent from 'shared/ui/formComponent';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ModalWindow from 'shared/ui/modalWindow';
+import StatusBadge from 'shared/ui/statusBadge';
 
 type DetailItem = {
   label: string;
@@ -35,9 +36,9 @@ const formatDate = (value?: string | null) =>
   value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-';
 
 const renderStatus = (status: string, t: ReturnType<typeof useTranslation>['t']) => (
-  <span className={`status-badge ${status}`}>
+  <StatusBadge status={status}>
     {t(`statuses.${status}`, { defaultValue: status })}
-  </span>
+  </StatusBadge>
 );
 
 const renderTestFlag = (isTest?: boolean, t?: ReturnType<typeof useTranslation>['t']) =>

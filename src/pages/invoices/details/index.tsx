@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Empty, Pagination, Spin, Tag } from 'antd';
+import { Empty, Pagination, Spin } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -10,10 +10,10 @@ import type { InvoiceItemsTableDataType } from 'entities/invoices/ui/tableData/i
 import { getSalesOrderById } from 'entities/salesOrders/model';
 import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
 import { getDeliveryTaskById } from 'entities/deliveryTasks/model';
-import { statusColors } from 'shared/ui/statuses.tsx';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
+import StatusBadge from 'shared/ui/statusBadge';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -211,9 +211,9 @@ const InvoicesDetails = () => {
     <MainLayout>
       <Heading title={`${t('invoices.detailsTitle')} - ${invoice.invoiceNumber}`} subtitle={t('common.details')}>
         <div className="btns-group">
-          <Tag color={statusColors[invoiceStatusKey] ?? statusColors[invoice.status] ?? 'blue'} style={{ margin: 0 }}>
+          <StatusBadge status={invoiceStatusKey}>
             {t(`invoices.statuses.${invoiceStatusKey}`, { defaultValue: invoice.status })}
-          </Tag>
+          </StatusBadge>
           <CustomButton className="outline" onClick={() => navigate(listPath)}>
             {t('common.backToList')}
           </CustomButton>
@@ -229,9 +229,9 @@ const InvoicesDetails = () => {
                   <h2>{invoice.invoiceNumber}</h2>
                 </div>
                 <div className="route-overview-status">
-                  <Tag color={statusColors[externalStatus ?? ''] ?? 'blue'} style={{ margin: 0 }} title={externalStatusLabel}>
+                  <StatusBadge status={externalStatus} title={externalStatusLabel}>
                     {externalStatusLabel}
-                  </Tag>
+                  </StatusBadge>
                 </div>
               </div>
               <div className="route-overview-meta">

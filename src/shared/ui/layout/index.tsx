@@ -31,6 +31,7 @@ import UserInfo from 'widgets/userInfo';
 import Session from 'widgets/session';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
+import StatusBadge from '../statusBadge';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -816,7 +817,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       {item.status ? (
                         <div className="mobile-sider-item-row">
                           <span className="mobile-sider-item-label">{item.label}</span>
-                          <span className={`status-badge ${item.status}`}>{item.meta}</span>
+                          <StatusBadge status={item.status}>{item.meta}</StatusBadge>
                         </div>
                       ) : (
                         <span className="mobile-sider-item-label">{item.label}</span>
