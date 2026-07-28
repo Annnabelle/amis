@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import { DownloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Empty, Pagination, Spin, Tag } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { getInvoiceById, getInvoiceItems } from 'entities/invoices/model';
+import { getInvoiceById, getInvoiceCodes, getInvoiceItems } from 'entities/invoices/model';
 import { getInvoiceStatusKey } from 'entities/invoices/lib/status';
 import type { InvoiceItemsTableDataType } from 'entities/invoices/ui/tableData/invoiceItems/types';
 import { getSalesOrderById } from 'entities/salesOrders/model';
@@ -17,6 +19,8 @@ import CustomButton from 'shared/ui/button';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import axiosInstance from 'shared/lib/axiosInstance';
+import { BASE_URL, getFileNameFromDisposition } from 'shared/lib';
 
 const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
 const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
@@ -31,6 +35,8 @@ const InvoicesDetails = () => {
   const canReadDeliveryRoute = useCan(endpointAccessMap.deliveryRoutesRead);
   const canReadDeliveryTask = useCan(endpointAccessMap.deliveryTasksRead);
   const canReadCompany = useCan(endpointAccessMap.companiesRead);
+  const [expandedCodesProductIds, setExpandedCodesProductIds] = useState<Set<string>>(new Set());
+  const [invoiceFileLoading, setInvoiceFileLoading] = useState(false);
 
   const invoice = useAppSelector((state) => state.invoices.invoiceById);
   const isLoading = useAppSelector((state) => state.invoices.loadingById);
@@ -42,10 +48,12 @@ const InvoicesDetails = () => {
   const invoiceItemsPage = useAppSelector((state) => state.invoices.itemsPage);
   const invoiceItemsLimit = useAppSelector((state) => state.invoices.itemsLimit);
   const invoiceItemsLoading = useAppSelector((state) => state.invoices.itemsLoading);
+  const invoiceCodesByProductId = useAppSelector((state) => state.invoices.codesByProductId);
   const listPath = orgId ? `/organization/${orgId}/invoices` : '/organization';
 
   useEffect(() => {
     if (!id) return;
+    setExpandedCodesProductIds(new Set());
     dispatch(getInvoiceById({ id }));
     dispatch(getInvoiceItems({ id, page: 1, limit: 10 }));
   }, [dispatch, id]);
@@ -83,6 +91,7 @@ const InvoicesDetails = () => {
   const invoiceItemsData = useMemo<InvoiceItemsTableDataType[]>(() => {
     return invoiceItems.map((item) => ({
       key: item.id,
+      productId: item.productId,
       productName: item.productName,
       quantity: formatNumber(item.quantity),
       measurementUnit: item.measurementUnitCode
@@ -96,6 +105,77 @@ const InvoicesDetails = () => {
       reliefId: item.reliefId || '-',
     }));
   }, [invoiceItems, t]);
+
+  const toggleCodesExpanded = (productId: string) => {
+    if (!id) return;
+
+    setExpandedCodesProductIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(productId)) {
+        next.delete(productId);
+        return next;
+      }
+
+      next.add(productId);
+
+      if (!invoiceCodesByProductId[productId]) {
+        dispatch(getInvoiceCodes({ id, productId, page: 1, limit: 10 }));
+      }
+
+      return next;
+    });
+  };
+
+  const handleCodesPageChange = (productId: string, page: number, limit: number) => {
+    if (!id) return;
+    dispatch(getInvoiceCodes({ id, productId, page, limit }));
+  };
+
+  const handleInvoiceFile = async (download: boolean) => {
+    if (!id || invoiceFileLoading) return;
+
+    setInvoiceFileLoading(true);
+
+    try {
+      const response = await axiosInstance.get(`${BASE_URL}/invoices/${id}/file`, {
+        params: { download },
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], {
+        type: response.data.type || 'application/pdf',
+      });
+      const url = window.URL.createObjectURL(blob);
+
+      if (download) {
+        const filename =
+          getFileNameFromDisposition(response.headers['content-disposition']) ??
+          `${invoice?.invoiceNumber || id}.pdf`;
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        const openedWindow = window.open(url, '_blank');
+
+        if (openedWindow) {
+          openedWindow.opener = null;
+          window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+        } else {
+          window.URL.revokeObjectURL(url);
+          toast.error(t('invoices.file.openError'));
+        }
+      }
+    } catch {
+      toast.error(t('invoices.file.loadError'));
+    } finally {
+      setInvoiceFileLoading(false);
+    }
+  };
 
   if (isLoading && invoice?.id !== id) {
     return null;
@@ -211,9 +291,26 @@ const InvoicesDetails = () => {
     <MainLayout>
       <Heading title={`${t('invoices.detailsTitle')} - ${invoice.invoiceNumber}`} subtitle={t('common.details')}>
         <div className="btns-group">
-          <Tag color={statusColors[invoiceStatusKey] ?? statusColors[invoice.status] ?? 'blue'} style={{ margin: 0 }}>
-            {t(`invoices.statuses.${invoiceStatusKey}`, { defaultValue: invoice.status })}
-          </Tag>
+          <div className="invoice-file-actions">
+            <button
+              type="button"
+              className="invoice-file-action invoice-file-action-main"
+              disabled={invoiceFileLoading}
+              onClick={() => void handleInvoiceFile(false)}
+            >
+              {t('invoices.sections.file')}
+            </button>
+            <button
+              type="button"
+              className="invoice-file-action invoice-file-action-icon"
+              disabled={invoiceFileLoading}
+              onClick={() => void handleInvoiceFile(true)}
+              aria-label={t('invoices.file.download')}
+              title={t('invoices.file.download')}
+            >
+              <DownloadOutlined />
+            </button>
+          </div>
           <CustomButton className="outline" onClick={() => navigate(listPath)}>
             {t('common.backToList')}
           </CustomButton>
@@ -229,9 +326,18 @@ const InvoicesDetails = () => {
                   <h2>{invoice.invoiceNumber}</h2>
                 </div>
                 <div className="route-overview-status">
-                  <Tag color={statusColors[externalStatus ?? ''] ?? 'blue'} style={{ margin: 0 }} title={externalStatusLabel}>
-                    {externalStatusLabel}
-                  </Tag>
+                  <div className="invoice-status-pair-item">
+                    <span className="invoice-status-pair-label">{t('invoices.fields.internalStatus')}</span>
+                    <Tag color={statusColors[invoiceStatusKey] ?? statusColors[invoice.status] ?? 'blue'} style={{ margin: 0 }}>
+                      {t(`invoices.statuses.${invoiceStatusKey}`, { defaultValue: invoice.status })}
+                    </Tag>
+                  </div>
+                  <div className="invoice-status-pair-item">
+                    <span className="invoice-status-pair-label">{t('invoices.fields.externalStatus')}</span>
+                    <Tag color={statusColors[externalStatus ?? ''] ?? 'blue'} style={{ margin: 0 }} title={externalStatusLabel}>
+                      {externalStatusLabel}
+                    </Tag>
+                  </div>
                 </div>
               </div>
               <div className="route-overview-meta">
@@ -403,6 +509,68 @@ const InvoicesDetails = () => {
                               <span className="value">{item.reliefId}</span>
                             </div>
                           </div>
+
+                          <button
+                            type="button"
+                            className="invoice-item-codes-toggle"
+                            onClick={() => toggleCodesExpanded(item.productId)}
+                            aria-expanded={expandedCodesProductIds.has(item.productId)}
+                            aria-label={t('invoices.codes.toggle')}
+                            title={t('invoices.codes.toggle')}
+                          >
+                            <span>
+                              {expandedCodesProductIds.has(item.productId)
+                                ? t('invoices.codes.hideShort')
+                                : t('invoices.codes.showShort')}
+                            </span>
+                            {expandedCodesProductIds.has(item.productId) ? <UpOutlined /> : <DownOutlined />}
+                          </button>
+
+                          {expandedCodesProductIds.has(item.productId) && (
+                            <div className="invoice-item-codes-panel">
+                              <div className="invoice-item-codes-head">
+                                <span>{t('invoices.codes.title')}</span>
+                                <span className="invoice-item-codes-total">
+                                  {invoiceCodesByProductId[item.productId]?.total ?? 0}
+                                </span>
+                              </div>
+                              <Spin spinning={invoiceCodesByProductId[item.productId]?.loading ?? false}>
+                                {invoiceCodesByProductId[item.productId]?.error ? (
+                                  <Empty description={invoiceCodesByProductId[item.productId]?.error} />
+                                ) : invoiceCodesByProductId[item.productId]?.data.length ? (
+                                  <div className="invoice-item-codes-list">
+                                    {invoiceCodesByProductId[item.productId].data.map((code) => (
+                                      <div className="invoice-item-codes-row" key={code.id}>
+                                        <span className="invoice-item-code-value" title={code.code}>{code.code}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <Empty description={t('invoices.codes.empty')} />
+                                )}
+
+                                {(invoiceCodesByProductId[item.productId]?.total ?? 0) > 0 && (
+                                  <Pagination
+                                    className="invoice-item-codes-pagination"
+                                    size="small"
+                                    current={invoiceCodesByProductId[item.productId]?.page ?? 1}
+                                    pageSize={invoiceCodesByProductId[item.productId]?.limit ?? 10}
+                                    total={invoiceCodesByProductId[item.productId]?.total ?? 0}
+                                    showSizeChanger={{ showSearch: false }}
+                                    pageSizeOptions={['10', '20', '30', '40', '50']}
+                                    locale={{ items_per_page: '' }}
+                                    onChange={(newPage, newLimit) => {
+                                      handleCodesPageChange(
+                                        item.productId,
+                                        newPage,
+                                        newLimit || invoiceCodesByProductId[item.productId]?.limit || 10
+                                      );
+                                    }}
+                                  />
+                                )}
+                              </Spin>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

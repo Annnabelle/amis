@@ -150,9 +150,22 @@ input:-webkit-autofill:active
 
 .route-overview-status
   display: flex
-  align-items: center
-  gap: 6px
+  align-items: flex-start
+  gap: 10px
   flex-wrap: wrap
+
+.invoice-status-pair-item
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  gap: 6px
+
+.invoice-status-pair-label
+  font-size: 11px
+  font-weight: 700
+  color: map.get(vars.$text, 'secondary')
+  text-transform: uppercase
+  letter-spacing: 0.04em
 
 .route-overview-meta
   display: grid
@@ -323,10 +336,144 @@ input:-webkit-autofill:active
     font-weight: 600
     color: map.get(vars.$text, 'primary')
 
+.invoice-item-codes-toggle
+  width: 100%
+  min-height: 34px
+  margin-top: 12px
+  padding: 0 12px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.12)
+  border-radius: 8px
+  background: rgba(var(--main-primary-rgb), 0.04)
+  color: map.get(vars.$main, 'main')
+  cursor: pointer
+  display: grid
+  grid-template-columns: 24px minmax(0, 1fr) 24px
+  align-items: center
+  transition: background 0.2s ease, border-color 0.2s ease
+
+  &:hover
+    background: rgba(var(--main-primary-rgb), 0.08)
+    border-color: rgba(var(--main-primary-rgb), 0.24)
+
+  .anticon
+    grid-column: 3
+    justify-self: end
+
+  span
+    grid-column: 2
+    justify-self: center
+
+.invoice-item-codes-panel
+  margin-top: 12px
+  padding-top: 12px
+  border-top: 1px solid rgba(var(--main-primary-rgb), 0.10)
+
+.invoice-item-codes-head
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 12px
+  margin-bottom: 10px
+  font-size: 12px
+  font-weight: 700
+  color: map.get(vars.$text, 'secondary')
+  text-transform: uppercase
+  letter-spacing: 0.04em
+
+.invoice-item-codes-total
+  min-width: 28px
+  min-height: 24px
+  padding: 3px 8px
+  border-radius: 999px
+  background: rgba(var(--main-primary-rgb), 0.08)
+  color: map.get(vars.$main, 'main')
+  display: inline-flex
+  align-items: center
+  justify-content: center
+
+.invoice-item-codes-list
+  display: flex
+  flex-direction: column
+  border: 1px solid rgba(var(--main-primary-rgb), 0.08)
+  border-radius: 8px
+  overflow: hidden
+
+.invoice-item-codes-row
+  display: block
+  padding: 9px 12px
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.06)
+  color: map.get(vars.$text, 'primary')
+  font-size: 12px
+  line-height: 1.35
+
+  &:last-child
+    border-bottom: none
+
+.invoice-item-code-value
+  min-width: 0
+  display: block
+  word-break: break-all
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace
+
+.invoice-item-codes-pagination
+  display: flex
+  justify-content: flex-end
+  margin-top: 12px
+
 .invoice-items-pagination
   display: flex
   justify-content: flex-end
   margin-top: 16px
+
+.invoice-file-actions
+  display: inline-flex
+  align-items: stretch
+  min-height: 42px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.22)
+  border-radius: 8px
+  overflow: hidden
+  background: var(--basic-white)
+  flex: 0 0 auto
+
+.invoice-file-action
+  border: none
+  background: transparent
+  color: map.get(vars.$main, 'main')
+  font: inherit
+  font-size: 14px
+  font-weight: 600
+  line-height: 1
+  cursor: pointer
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  min-width: 0
+  transition: background 0.2s ease, color 0.2s ease
+
+  &:hover:not(:disabled)
+    background: rgba(var(--main-primary-rgb), 0.07)
+
+  &:disabled
+    opacity: 0.55
+    cursor: not-allowed
+
+.invoice-file-action-main
+  min-width: 88px
+  padding: 0 16px
+
+.invoice-file-action-icon
+  flex: 0 0 48px
+  width: 48px
+  min-width: 48px
+  border-left: 1px solid rgba(var(--main-primary-rgb), 0.24)
+  background: rgba(var(--main-primary-rgb), 0.08)
+  font-size: 16px
+
+  .anticon
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    font-size: 16px
 
 .detail-items
   display: flex
@@ -777,6 +924,43 @@ input:-webkit-autofill:active
     background: rgba(var(--white-rgb), 0.03)
     border-color: rgba(var(--main-primary-soft-rgb), 0.10)
 
+  .invoice-item-codes-toggle
+    background: rgba(var(--main-primary-soft-rgb), 0.08)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.14)
+    color: map.get(vars.$main, 'main-hover')
+
+    &:hover
+      background: rgba(var(--main-primary-soft-rgb), 0.12)
+      border-color: rgba(var(--main-primary-soft-rgb), 0.24)
+
+  .invoice-item-codes-panel
+    border-top-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+  .invoice-item-codes-total
+    background: rgba(var(--main-primary-soft-rgb), 0.10)
+    color: map.get(vars.$main, 'main-hover')
+
+  .invoice-item-codes-list
+    border-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+  .invoice-item-codes-row
+    border-bottom-color: rgba(var(--main-primary-soft-rgb), 0.08)
+    color: map.get(vars.$text, 'primary')
+
+  .invoice-file-actions
+    background: map.get(vars.$surface, 'muted')
+    border-color: rgba(var(--main-primary-soft-rgb), 0.22)
+
+  .invoice-file-action
+    color: map.get(vars.$main, 'main-hover')
+
+    &:hover:not(:disabled)
+      background: rgba(var(--main-primary-soft-rgb), 0.10)
+
+  .invoice-file-action-icon
+    border-left-color: rgba(var(--main-primary-soft-rgb), 0.16)
+    background: rgba(var(--main-primary-soft-rgb), 0.12)
+
   .detail-note
     color: map.get(vars.$text, 'secondary')
 
@@ -893,6 +1077,12 @@ input:-webkit-autofill:active
     .status-badge
       flex-shrink: 0
 
+  .invoice-status-pair-item
+    gap: 4px
+
+  .invoice-status-pair-label
+    font-size: 10px
+
   .route-overview-inline-row
     .status-badge
       flex-shrink: 0
@@ -943,6 +1133,12 @@ input:-webkit-autofill:active
 
   .invoice-item-card-grid
     grid-template-columns: repeat(2, minmax(0, 1fr))
+
+  .invoice-file-actions
+    width: 100%
+
+  .invoice-file-action-main
+    flex: 1
 
   .route-task-control-btn
     flex: 0 1 auto

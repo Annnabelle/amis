@@ -120,7 +120,9 @@ export const endpointAccessMap = {
 
   invoicesList: endpoint({ method: "GET", path: "/invoices", permission: Permissions.InvoicesList, scope: EndpointScopes.Company }),
   invoicesRead: endpoint({ method: "GET", path: "/invoices/:id", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
+  invoiceFileRead: endpoint({ method: "GET", path: "/invoices/:id/file", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
   invoiceItemsRead: endpoint({ method: "GET", path: "/invoices/:id/items", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
+  invoiceCodesRead: endpoint({ method: "GET", path: "/invoices/:id/codes", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
 
   utilizationReportsCreate: endpoint({ method: "POST", path: "/reports/utilization", permission: Permissions.ReportsCreateUtilization, scope: EndpointScopes.Company }),
   aggregationReportsCreate: endpoint({ method: "POST", path: "/reports/aggregation", permission: Permissions.ReportsCreateAggregation, scope: EndpointScopes.Company }),

@@ -1,4 +1,5 @@
 import type { InvoiceStatus } from "entities/invoices/dtos";
+import type { AvailablePackageType, MarkingCodeStatus } from "shared/types/dtos";
 
 export type InvoiceParticipant = {
   tin?: string;
@@ -62,10 +63,27 @@ export type InvoiceItemResponse = {
   reliefId?: string;
 };
 
+export type InvoiceMarkingCodeResponse = {
+  id: string;
+  code: string;
+  status: MarkingCodeStatus;
+  packageType: AvailablePackageType | string;
+};
+
+export type InvoiceMarkingCodesState = {
+  data: InvoiceMarkingCodeResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  loading: boolean;
+  error: string | null;
+};
+
 export type InvoicesState = {
   invoices: InvoiceResponse[];
   invoiceById: InvoiceResponse | null;
   items: InvoiceItemResponse[];
+  codesByProductId: Record<string, InvoiceMarkingCodesState>;
   itemsTotal: number;
   itemsPage: number;
   itemsLimit: number;

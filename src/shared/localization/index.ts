@@ -589,6 +589,21 @@
                     psic: "PSIC",
                     reliefId: "Relief"
                 },
+                codes: {
+                    title: "Marking codes",
+                    toggle: "Show marking codes",
+                    showShort: "Show MC",
+                    hideShort: "Hide MC",
+                    empty: "No marking codes",
+                    code: "Code",
+                    status: "Status",
+                    packageType: "Package type"
+                },
+                file: {
+                    download: "Download file",
+                    loadError: "Could not load invoice file",
+                    openError: "Could not open file in a new tab"
+                },
                 statuses: {
                     created: "Created",
                     in_review: "In review",
@@ -645,6 +660,7 @@
                     invoiceDate: "Invoice date",
                     createdAt: "Created at",
                     currency: "Currency",
+                    internalStatus: "Internal status",
                     externalStatus: "External status",
                     amountWithoutVat: "Amount without VAT",
                     itemsQuantity: "Items",
@@ -2018,6 +2034,21 @@
                     psic: "ИКПУ",
                     reliefId: "Льгота"
                 },
+                codes: {
+                    title: "Коды маркировки",
+                    toggle: "Показать коды маркировки",
+                    showShort: "Показать КМ",
+                    hideShort: "Скрыть КМ",
+                    empty: "Коды маркировки не найдены",
+                    code: "Код",
+                    status: "Статус",
+                    packageType: "Тип упаковки"
+                },
+                file: {
+                    download: "Скачать файл",
+                    loadError: "Не удалось загрузить файл инвойса",
+                    openError: "Не удалось открыть файл в новой вкладке"
+                },
                 statuses: {
                     created: "Создан",
                     in_review: "На проверке",
@@ -2074,6 +2105,7 @@
                     invoiceDate: "Дата инвойса",
                     createdAt: "Создан",
                     currency: "Валюта",
+                    internalStatus: "Статус",
                     externalStatus: "Внешний статус",
                     amountWithoutVat: "Сумма без НДС",
                     itemsQuantity: "Позиций",
@@ -3410,6 +3442,21 @@
                     psic: "IKPU",
                     reliefId: "Imtiyoz"
                 },
+                codes: {
+                    title: "Markirovka kodlari",
+                    toggle: "Markirovka kodlarini ko'rsatish",
+                    showShort: "KMni ko'rsatish",
+                    hideShort: "KMni yashirish",
+                    empty: "Markirovka kodlari topilmadi",
+                    code: "Kod",
+                    status: "Holat",
+                    packageType: "Qadoq turi"
+                },
+                file: {
+                    download: "Faylni yuklab olish",
+                    loadError: "Hisob-faktura faylini yuklab bo'lmadi",
+                    openError: "Faylni yangi oynada ochib bo'lmadi"
+                },
                 statuses: {
                     created: "Yaratilgan",
                     in_review: "Tekshiruvda",
@@ -3466,6 +3513,7 @@
                     invoiceDate: "Hisob-faktura sanasi",
                     createdAt: "Yaratilgan",
                     currency: "Valyuta",
+                    internalStatus: "Ichki holat",
                     externalStatus: "Tashqi holat",
                     amountWithoutVat: "QQSsiz summa",
                     itemsQuantity: "Pozitsiyalar",
