@@ -135,6 +135,10 @@ export const endpointAccessMap = {
   aggregationReportsRead: endpoint({ method: "GET", path: "/reports/aggregation/:id", permission: Permissions.ReportsRead, scope: EndpointScopes.Company }),
   aggregationReportUnitsRead: endpoint({ method: "GET", path: "/reports/aggregation/:id/units", permission: Permissions.ReportsRead, scope: EndpointScopes.Company }),
   aggregationReportsExport: endpoint({ method: "GET", path: "/reports/aggregation/:id/export", permission: Permissions.ReportsExportAggregation, scope: EndpointScopes.Company }),
+  customsCodesCreate: endpoint({ method: "POST", path: "/customs-code-orders", permission: Permissions.CustomsCodeOrderCreate, scope: EndpointScopes.Company }),
+  customsCodesList: endpoint({ method: "GET", path: "/customs-code-orders", permission: Permissions.CustomsCodeOrdersList, scope: EndpointScopes.Company }),
+  customsCodesRead: endpoint({ method: "GET", path: "/customs-code-orders/:id", permission: Permissions.CustomsCodeOrderRead, scope: EndpointScopes.Company }),
+  customsCodesSign: endpoint({ method: "POST", path: "/customs-code-orders/sign", permission: Permissions.CustomsCodeOrderSign, scope: EndpointScopes.Company }),
 
   auditList: endpoint({ method: "GET", path: "/audit", permission: Permissions.AuditList, scope: EndpointScopes.Global }),
   auditRead: endpoint({ method: "GET", path: "/audit/:id", permission: Permissions.AuditRead, scope: EndpointScopes.Global }),
