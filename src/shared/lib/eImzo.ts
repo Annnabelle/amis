@@ -49,14 +49,14 @@ const getSocketUrl = () => {
 };
 
 const normalizeReason = (reason?: string) => {
-  if (!reason) return 'E-IMZO did not return an error description';
+  if (!reason) return 'customsCodes.eImzoErrors.noDescription';
 
   if (reason.includes('DISK I/O')) {
-    return 'Key was not found. Check that the key file is in the DSKEYS folder.';
+    return 'customsCodes.eImzoErrors.keyNotFound';
   }
 
   if (reason.includes('Bad password')) {
-    return 'Invalid key password.';
+    return 'customsCodes.eImzoErrors.badPassword';
   }
 
   return reason;
@@ -86,7 +86,7 @@ class EImzoClient {
       };
 
       const timeoutId = window.setTimeout(() => {
-        finish(() => reject(new Error('E-IMZO is not responding. Try again.')));
+        finish(() => reject(new Error('customsCodes.eImzoErrors.notResponding')));
       }, REQUEST_TIMEOUT_MS);
 
       socket.onopen = () => {
@@ -94,12 +94,12 @@ class EImzoClient {
       };
 
       socket.onerror = () => {
-        finish(() => reject(new Error('E-IMZO is unavailable. Start e-imzo.exe and try again.')));
+        finish(() => reject(new Error('customsCodes.eImzoErrors.unavailable')));
       };
 
       socket.onclose = (event) => {
         if (!settled && event.code !== 1000) {
-          finish(() => reject(new Error('E-IMZO connection was closed. Start e-imzo.exe and try again.')));
+          finish(() => reject(new Error('customsCodes.eImzoErrors.connectionClosed')));
         }
       };
 
@@ -154,7 +154,7 @@ class EImzoClient {
     });
 
     if (!response.keyId) {
-      throw new Error('E-IMZO did not return a key id.');
+      throw new Error('customsCodes.eImzoErrors.keyIdMissing');
     }
 
     return response.keyId;
@@ -174,7 +174,7 @@ class EImzoClient {
     });
 
     if (!response.pkcs7_64) {
-      throw new Error('E-IMZO did not return a signed document.');
+      throw new Error('customsCodes.eImzoErrors.signedDocumentMissing');
     }
 
     return response.pkcs7_64;

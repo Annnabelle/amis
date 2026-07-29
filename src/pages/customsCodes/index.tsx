@@ -61,6 +61,7 @@ const canSignRegistration = (order: CustomsCodeOrder) =>
   Boolean(order.external.registration.documentBase64);
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+const E_IMZO_ERROR_KEY_PREFIX = 'customsCodes.eImzoErrors.';
 
 const CustomsCodesPage = () => {
   const { t } = useTranslation();
@@ -84,6 +85,17 @@ const CustomsCodesPage = () => {
   const [eImzoError, setEImzoError] = useState<string | null>(null);
   const [localSigning, setLocalSigning] = useState(false);
 
+  const getEImzoErrorMessage = useCallback(
+    (err: unknown, fallback: string) => {
+      if (err instanceof Error && err.message.startsWith(E_IMZO_ERROR_KEY_PREFIX)) {
+        return t(err.message);
+      }
+
+      return err instanceof Error ? err.message : fallback;
+    },
+    [t]
+  );
+
   useEffect(() => {
     if (!orgId) return;
 
@@ -106,14 +118,14 @@ const CustomsCodesPage = () => {
         setSelectedCertificateIndex(items.length > 0 ? '0' : undefined);
       })
       .catch((err: Error) => {
-        setEImzoError(err.message);
+        setEImzoError(getEImzoErrorMessage(err, t('customsCodes.messages.signError')));
         setCertificates([]);
         setSelectedCertificateIndex(undefined);
       })
       .finally(() => {
         setCertificatesLoading(false);
       });
-  }, []);
+  }, [getEImzoErrorMessage, t]);
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -242,10 +254,10 @@ const CustomsCodesPage = () => {
       closeSignModal();
       dispatch(fetchCustomsCodes({ page, limit }));
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : getBackendErrorMessage(err, t('customsCodes.messages.signError'));
+      const message = getEImzoErrorMessage(
+        err,
+        getBackendErrorMessage(err, t('customsCodes.messages.signError'))
+      );
 
       toast.error(message);
     } finally {
@@ -294,20 +306,25 @@ const CustomsCodesPage = () => {
       key: 'actions',
       width: 150,
       minWidth: 140,
-      render: (_value, row) => (
-        <CustomButton
-          type="button"
-          className="outline table-action-btn"
-          disabled={!canSignRegistration(row.order)}
-          onClick={(event) => {
-            event.stopPropagation();
-            openSignModal(row.order);
-          }}
-        >
-          <SafetyCertificateOutlined />
-          {t('customsCodes.actions.sign')}
-        </CustomButton>
-      ),
+      render: (_value, row) => {
+        if (!canSignRegistration(row.order)) {
+          return null;
+        }
+
+        return (
+          <CustomButton
+            type="button"
+            className="outline table-action-btn"
+            onClick={(event) => {
+              event.stopPropagation();
+              openSignModal(row.order);
+            }}
+          >
+            <SafetyCertificateOutlined />
+            {t('customsCodes.actions.sign')}
+          </CustomButton>
+        );
+      },
     },
   ], [t]);
 
@@ -418,12 +435,6 @@ const CustomsCodesPage = () => {
         maskClosable={!creating}
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Alert
-            type="info"
-            showIcon
-            message={t('customsCodes.createModal.hint')}
-          />
-
           <Select
             size="large"
             style={{ width: '100%' }}

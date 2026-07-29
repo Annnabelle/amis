@@ -6,8 +6,12 @@ import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { AvailablePackageType, BatchStatus } from 'shared/types/dtos';
 
-export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, handleAppoint: (
+export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, canCreateCustomsCode: boolean, customsCodeBatchIds: ReadonlySet<string>, creatingCustomsCodeBatchIds: ReadonlySet<string>, handleAppoint: (
+    e: React.MouseEvent,
+    record: MarkingCodesTableDataType,
+) => void, handleCreateCustomsCode: (
     e: React.MouseEvent,
     record: MarkingCodesTableDataType,
 ) => void): AdaptiveColumn<MarkingCodesTableDataType>[] => [
@@ -179,22 +183,37 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     key: 'action',
       flex: 1,
     render: (_, record) => {
-      if (!canCreateUtilization) {
+      const canCreateAik =
+        canCreateCustomsCode &&
+        !customsCodeBatchIds.has(record.batchId) &&
+        record.packageType?.toLowerCase() === AvailablePackageType.Unit &&
+        record.status === BatchStatus.CodesAggregated;
+      const isCreatingAik = creatingCustomsCodeBatchIds.has(record.batchId);
+
+      if (!canCreateUtilization && !canCreateAik) {
         return null;
       }
 
       // Показываем кнопку "Нанести" только если статус === 'codes_received'
-      if (record.status !== 'codes_received') {
+      if (record.status !== BatchStatus.CodesReceived && !canCreateAik) {
         return null; // или можно вернуть <span>—</span> или другой плейсхолдер
       }
 
       return (
           <CustomButton
               type="button"
-              className="outline"
-              onClick={(e) => handleAppoint(e, record)}
+              className="outline table-action-btn"
+              disabled={isCreatingAik}
+              onClick={(e) => {
+                if (canCreateAik) {
+                  handleCreateCustomsCode(e, record);
+                  return;
+                }
+
+                handleAppoint(e, record);
+              }}
           >
-            {t('btn.apply')}
+            {canCreateAik ? t('customsCodes.actions.create') : t('btn.apply')}
           </CustomButton>
       );
     },
