@@ -324,6 +324,7 @@ const MarkingCodes = () => {
                             handleCreateCustomsCode
                         )}
                         data={MarkingCodesData}
+                        scroll={{ x: 1620 }}
                         pagination={{
                             current: queryParams.page,
                             pageSize: queryParams.limit,

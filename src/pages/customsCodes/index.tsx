@@ -18,6 +18,7 @@ import {
   type CustomsCodeOrder,
 } from 'entities/customsCodes/types';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { AvailablePackageType } from 'shared/types/dtos';
 import { useCan } from 'entities/access/lib';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -141,6 +142,7 @@ const CustomsCodesPage = () => {
         page: 1,
         limit: 50,
         status: OrderStatusType.CodesAggregated,
+        packageType: AvailablePackageType.Unit,
       })
     );
   }, [canListOrders, createModalOpen, dispatch]);
@@ -329,10 +331,12 @@ const CustomsCodesPage = () => {
   ], [t]);
 
   const batchOptions = useMemo(() => {
-    return batches.map((batch) => ({
-      value: batch.batchId,
-      label: `${batch.batchNumber} | ${batch.orderNumber} | ${batch.productName}`,
-    }));
+    return batches
+      .filter((batch) => batch.packageType?.toLowerCase() === AvailablePackageType.Unit)
+      .map((batch) => ({
+        value: batch.batchId,
+        label: `${batch.batchNumber} | ${batch.orderNumber} | ${batch.productName}`,
+      }));
   }, [batches]);
 
   return (
