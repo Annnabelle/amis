@@ -12,11 +12,6 @@ type EImzoResponse<T = unknown> = {
   certificates?: EImzoCertificate[];
 } & T;
 
-type EImzoApiKey = {
-  domain: string;
-  key: string;
-};
-
 export type EImzoCertificate = {
   disk: string;
   path: string;
@@ -35,17 +30,14 @@ export type EImzoCertificate = {
 const E_IMZO_HOST = '127.0.0.1';
 const E_IMZO_HTTPS_PORT = 64443;
 const E_IMZO_HTTP_PORT = 64646;
+const E_IMZO_LAUNCH_URL = 'eimzo://';
 const REQUEST_TIMEOUT_MS = 30_000;
 
-const apiKeys: EImzoApiKey[] = [
-  {
-    domain: 'localhost',
-    key: '4a5f33b0f0e1a4f8c8cb93a5f80b9f2d1436df8dd9e31ef0f0ad390af8bd25e0',
-  },
-  {
-    domain: '127.0.0.1',
-    key: '4a5f33b0f0e1a4f8c8cb93a5f80b9f2d1436df8dd9e31ef0f0ad390af8bd25e0',
-  },
+const apiKeys = [
+  'localhost',
+  '96D0C1491615C82B9A54D9989779DF825B690748224C2B04F500F370D51827CE2644D8D4A82C18184D73AB8530BB8ED537269603F61DB0D03D2104ABF789970B',
+  '127.0.0.1',
+  'A7BCFA5D490B351BE0754130DF03A068F855DB4333D43921125B9CF2670EF6A40370C646B90401955E1F7BC9CDBF59CE0B2C5467D820BE189C845D0B79CFC96F',
 ];
 
 const getSocketUrl = () => {
@@ -71,59 +63,47 @@ const normalizeReason = (reason?: string) => {
 };
 
 class EImzoClient {
-  private socket: WebSocket | null = null;
-  private connectedPromise: Promise<WebSocket> | null = null;
-  private requestId = 0;
   private apiKeysInstalled = false;
 
-  private connect() {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      return Promise.resolve(this.socket);
-    }
-
-    if (this.connectedPromise) {
-      return this.connectedPromise;
-    }
-
-    this.connectedPromise = new Promise<WebSocket>((resolve, reject) => {
+  private request<T = unknown>(payload: EImzoRequest): Promise<EImzoResponse<T>> {
+    return new Promise((resolve, reject) => {
       const socket = new WebSocket(getSocketUrl());
+      let settled = false;
+
+      const finish = (callback: () => void) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timeoutId);
+
+        if (
+          socket.readyState === WebSocket.OPEN ||
+          socket.readyState === WebSocket.CONNECTING
+        ) {
+          socket.close();
+        }
+
+        callback();
+      };
+
       const timeoutId = window.setTimeout(() => {
-        socket.close();
-        reject(new Error('Could not connect to E-IMZO. Check that the app is running.'));
+        finish(() => reject(new Error('E-IMZO is not responding. Try again.')));
       }, REQUEST_TIMEOUT_MS);
 
       socket.onopen = () => {
-        window.clearTimeout(timeoutId);
-        this.socket = socket;
-        resolve(socket);
+        socket.send(JSON.stringify(payload));
       };
 
       socket.onerror = () => {
-        window.clearTimeout(timeoutId);
-        reject(new Error('E-IMZO is unavailable. Start e-imzo.exe and try again.'));
+        finish(() => reject(new Error('E-IMZO is unavailable. Start e-imzo.exe and try again.')));
       };
 
-      socket.onclose = () => {
-        this.socket = null;
-        this.connectedPromise = null;
-        this.apiKeysInstalled = false;
+      socket.onclose = (event) => {
+        if (!settled && event.code !== 1000) {
+          finish(() => reject(new Error('E-IMZO connection was closed. Start e-imzo.exe and try again.')));
+        }
       };
-    });
 
-    return this.connectedPromise;
-  }
-
-  private async request<T = unknown>(payload: EImzoRequest): Promise<EImzoResponse<T>> {
-    const socket = await this.connect();
-    const id = String(++this.requestId);
-
-    return new Promise((resolve, reject) => {
-      const timeoutId = window.setTimeout(() => {
-        socket.removeEventListener('message', handleMessage);
-        reject(new Error('E-IMZO is not responding. Try again.'));
-      }, REQUEST_TIMEOUT_MS);
-
-      const handleMessage = (event: MessageEvent<string>) => {
+      socket.onmessage = (event: MessageEvent<string>) => {
         let response: EImzoResponse<T> & { id?: string };
 
         try {
@@ -132,21 +112,13 @@ class EImzoClient {
           return;
         }
 
-        if (response.id !== id) return;
-
-        window.clearTimeout(timeoutId);
-        socket.removeEventListener('message', handleMessage);
-
         if (response.success === false) {
-          reject(new Error(normalizeReason(response.reason)));
+          finish(() => reject(new Error(normalizeReason(response.reason))));
           return;
         }
 
-        resolve(response);
+        finish(() => resolve(response));
       };
-
-      socket.addEventListener('message', handleMessage);
-      socket.send(JSON.stringify({ ...payload, id }));
     });
   }
 
@@ -155,7 +127,7 @@ class EImzoClient {
 
     await this.request({
       name: 'apikey',
-      arguments: [apiKeys],
+      arguments: apiKeys,
     });
 
     this.apiKeysInstalled = true;
@@ -188,13 +160,17 @@ class EImzoClient {
     return response.keyId;
   }
 
-  async createDetachedPkcs7(documentBase64: string, keyId: string) {
+  async createPkcs7(
+    documentBase64: string,
+    keyId: string,
+    options: { detached?: boolean } = {}
+  ) {
     await this.installApiKeys();
 
     const response = await this.request<{ pkcs7_64: string }>({
       plugin: 'pkcs7',
       name: 'create_pkcs7',
-      arguments: [documentBase64, keyId, 'yes'],
+      arguments: [documentBase64, keyId, options.detached ? 'yes' : 'no'],
     });
 
     if (!response.pkcs7_64) {
@@ -203,12 +179,20 @@ class EImzoClient {
 
     return response.pkcs7_64;
   }
+
+  openApplication() {
+    window.location.href = E_IMZO_LAUNCH_URL;
+  }
+
+  async createDetachedPkcs7(documentBase64: string, keyId: string) {
+    return this.createPkcs7(documentBase64, keyId, { detached: true });
+  }
 }
 
 export const eImzoClient = new EImzoClient();
 
 export const getCertificateTitle = (certificate: EImzoCertificate) => {
-  const owner = certificate.CN || certificate.O || certificate.subjectName || certificate.alias;
+  const owner = certificate.name || certificate.CN || certificate.O || certificate.subjectName || certificate.alias;
   const tin = certificate.TIN ? `TIN ${certificate.TIN}` : null;
   const serial = certificate.serialNumber ? `serial ${certificate.serialNumber}` : null;
 

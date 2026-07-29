@@ -1464,6 +1464,8 @@
                 signModal: {
                     title: "ACC signing",
                     hint: "Before signing, start e-imzo.exe and put the key into the DSKEYS folder.",
+                    openApp: "Open E-IMZO",
+                    openAppHint: "If the browser asks for permission, allow opening E-IMZO, then wait a few seconds.",
                     document: "Document",
                     selectKey: "Select an E-IMZO key",
                     keysNotFound: "No keys found",
@@ -3007,6 +3009,8 @@
                 signModal: {
                     title: "Подписание АИК",
                     hint: "Перед подписью запустите e-imzo.exe и положите ключ в папку DSKEYS.",
+                    openApp: "Открыть E-IMZO",
+                    openAppHint: "Если браузер спросит разрешение, разрешите открыть E-IMZO и подождите несколько секунд.",
                     document: "Документ",
                     selectKey: "Выберите ключ E-IMZO",
                     keysNotFound: "Ключи не найдены",
@@ -4510,6 +4514,8 @@
                 signModal: {
                     title: "AIK imzolash",
                     hint: "Imzolashdan oldin e-imzo.exe ni ishga tushiring va kalitni DSKEYS papkasiga joylang.",
+                    openApp: "E-IMZO ni ochish",
+                    openAppHint: "Brauzer ruxsat so‘rasa, E-IMZO ni ochishga ruxsat bering va bir necha soniya kuting.",
                     document: "Hujjat",
                     selectKey: "E-IMZO kalitini tanlang",
                     keysNotFound: "Kalitlar topilmadi",

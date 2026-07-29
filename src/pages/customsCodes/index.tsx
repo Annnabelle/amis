@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Select, Space, Tag, Typography } from 'antd';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, Button, Select, Space, Tag } from 'antd';
 import { SafetyCertificateOutlined, SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
@@ -42,7 +42,6 @@ type CustomsCodeTableRow = {
   quantity: number;
   customsCode: string;
   measurement: string;
-  documentId: string;
   status: AggregatedCustomsCodeOrderStatus;
   order: CustomsCodeOrder;
 };
@@ -82,6 +81,7 @@ const CustomsCodesPage = () => {
   const [certificates, setCertificates] = useState<EImzoCertificate[]>([]);
   const [selectedCertificateIndex, setSelectedCertificateIndex] = useState<string>();
   const [certificatesLoading, setCertificatesLoading] = useState(false);
+  const [eImzoError, setEImzoError] = useState<string | null>(null);
   const [localSigning, setLocalSigning] = useState(false);
 
   useEffect(() => {
@@ -96,10 +96,9 @@ const CustomsCodesPage = () => {
     toast.error(getBackendErrorMessage(error, t('customsCodes.messages.loadError')));
   }, [error, t]);
 
-  useEffect(() => {
-    if (!modalOpen) return;
-
+  const loadCertificates = useCallback(() => {
     setCertificatesLoading(true);
+    setEImzoError(null);
     eImzoClient
       .listCertificates()
       .then((items) => {
@@ -107,14 +106,20 @@ const CustomsCodesPage = () => {
         setSelectedCertificateIndex(items.length > 0 ? '0' : undefined);
       })
       .catch((err: Error) => {
-        toast.error(err.message);
+        setEImzoError(err.message);
         setCertificates([]);
         setSelectedCertificateIndex(undefined);
       })
       .finally(() => {
         setCertificatesLoading(false);
       });
-  }, [modalOpen]);
+  }, []);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+
+    loadCertificates();
+  }, [loadCertificates, modalOpen]);
 
   useEffect(() => {
     if (!createModalOpen || !canListOrders) return;
@@ -139,7 +144,6 @@ const CustomsCodesPage = () => {
       quantity: order.quantity,
       customsCode: order.customsCode ?? '-',
       measurement: order.measurement ?? '-',
-      documentId: order.external.registration.documentId ?? '-',
       status: order.status,
       order,
     }));
@@ -156,6 +160,7 @@ const CustomsCodesPage = () => {
     setSelectedOrder(null);
     setCertificates([]);
     setSelectedCertificateIndex(undefined);
+    setEImzoError(null);
   };
 
   const closeCreateModal = () => {
@@ -195,6 +200,12 @@ const CustomsCodesPage = () => {
     }
   };
 
+  const handleOpenEImzo = async () => {
+    eImzoClient.openApplication();
+    await wait(3000);
+    loadCertificates();
+  };
+
   const handleSign = async () => {
     if (!selectedOrder) return;
 
@@ -216,10 +227,9 @@ const CustomsCodesPage = () => {
     try {
       setLocalSigning(true);
       const keyId = await eImzoClient.loadKey(certificate);
-      const signedDocumentBase64 = await eImzoClient.createDetachedPkcs7(
-        documentBase64,
-        keyId
-      );
+      const signedDocumentBase64 = await eImzoClient.createPkcs7(documentBase64, keyId, {
+        detached: true,
+      });
 
       await dispatch(
         signCustomsCode({
@@ -271,13 +281,6 @@ const CustomsCodesPage = () => {
       minWidth: 110,
     },
     {
-      title: t('customsCodes.table.document'),
-      dataIndex: 'documentId',
-      key: 'documentId',
-      minWidth: 170,
-      flex: 1,
-    },
-    {
       title: t('customsCodes.table.status'),
       dataIndex: 'status',
       key: 'status',
@@ -292,18 +295,18 @@ const CustomsCodesPage = () => {
       width: 150,
       minWidth: 140,
       render: (_value, row) => (
-        <Button
-          type="primary"
-          size="small"
-          icon={<SafetyCertificateOutlined />}
+        <CustomButton
+          type="button"
+          className="outline table-action-btn"
           disabled={!canSignRegistration(row.order)}
           onClick={(event) => {
             event.stopPropagation();
             openSignModal(row.order);
           }}
         >
+          <SafetyCertificateOutlined />
           {t('customsCodes.actions.sign')}
-        </Button>
+        </CustomButton>
       ),
     },
   ], [t]);
@@ -357,17 +360,18 @@ const CustomsCodesPage = () => {
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <Alert
-            type="info"
+            type={eImzoError ? 'warning' : 'info'}
             showIcon
-            message={t('customsCodes.signModal.hint')}
+            message={eImzoError ?? t('customsCodes.signModal.hint')}
+            description={eImzoError ? t('customsCodes.signModal.openAppHint') : undefined}
+            action={
+              eImzoError ? (
+                <Button size="small" type="primary" onClick={handleOpenEImzo}>
+                  {t('customsCodes.signModal.openApp')}
+                </Button>
+              ) : undefined
+            }
           />
-
-          <div>
-            <Typography.Text type="secondary">{t('customsCodes.signModal.document')}</Typography.Text>
-            <Typography.Paragraph copyable={{ text: selectedOrder?.external.registration.documentId ?? '' }}>
-              {selectedOrder?.external.registration.documentId ?? '-'}
-            </Typography.Paragraph>
-          </div>
 
           <Select
             size="large"
