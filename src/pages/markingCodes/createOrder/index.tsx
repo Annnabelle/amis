@@ -15,6 +15,7 @@ import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import { AvailablePackageType } from "shared/types/dtos";
 import "./styles.sass";
 
 type OrderFormItem = {
@@ -34,6 +35,16 @@ type Product = {
   packageTypes?: string[];
   aggregationQuantity?: number;
 };
+
+const packageTypeOrder: Record<string, number> = {
+  [AvailablePackageType.BoxLv2]: 0,
+  [AvailablePackageType.BoxLv1]: 1,
+  [AvailablePackageType.Group]: 2,
+  [AvailablePackageType.Unit]: 3,
+};
+
+const getPackageTypeOrder = (packageType: string) =>
+    packageTypeOrder[packageType.toLowerCase()] ?? Number.MAX_SAFE_INTEGER;
 
 const OrderForm = () => {
   const [form] = Form.useForm<OrderFormValues>();
@@ -288,6 +299,9 @@ const OrderForm = () => {
 
                           const packTypeOptions = packTypeReferences
                               .filter((ref) => normalizedAllowed.includes(ref.alias.toUpperCase()))
+                              .sort((left, right) =>
+                                  getPackageTypeOrder(left.alias) - getPackageTypeOrder(right.alias)
+                              )
                               .map((ref) => ({
                                 value: ref.alias,
                                 label:
