@@ -6,8 +6,12 @@ import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { AvailablePackageType, BatchStatus } from 'shared/types/dtos';
 
-export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, handleAppoint: (
+export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, canCreateCustomsCode: boolean, customsCodeBatchIds: ReadonlySet<string>, creatingCustomsCodeBatchIds: ReadonlySet<string>, handleAppoint: (
+    e: React.MouseEvent,
+    record: MarkingCodesTableDataType,
+) => void, handleCreateCustomsCode: (
     e: React.MouseEvent,
     record: MarkingCodesTableDataType,
 ) => void): AdaptiveColumn<MarkingCodesTableDataType>[] => [
@@ -15,7 +19,8 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.batchNumber"),
     dataIndex: "batchNumber",
     ellipsis: true,
-      flex: 1,
+    width: 150,
+    minWidth: 140,
     key: "batchNumber",
     render: (_, record) => (
       <PermissionLink
@@ -31,7 +36,8 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.orderNumber"),
     dataIndex: "orderNumber",
     ellipsis: true,
-      flex: 1,
+    width: 140,
+    minWidth: 130,
     key: "orderNumber",
     render: (_, record) => (
       <PermissionLink
@@ -46,19 +52,14 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: t("markingCodes.tableTitles.products"),
     dataIndex: "productName",
-       flex: 2,
+    width: 280,
+    minWidth: 240,
     key: "productName",
     render: (_, record) => (
       <PermissionLink
         endpoint={endpointAccessMap.productsRead}
         className="table-text link"
         to={`/organization/${orgId}/products/${record?.productId}`}
-        style={{
-          maxWidth: 100,
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-        }}
       >
         {record.productName}
       </PermissionLink>
@@ -68,7 +69,8 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.gtin"),
     dataIndex: "gtin",
     ellipsis: true,
-    flex: 1,
+    width: 150,
+    minWidth: 140,
     key: "gtin",
     render: (text?: string) => <p className="table-text">{text || "-"}</p>,
   },
@@ -77,7 +79,8 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     dataIndex: "totalQuantity",
     ellipsis: true,
     align: "center",
-      flex: 1,
+    width: 90,
+    minWidth: 80,
     key: "totalQuantity",
     render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>,
   },
@@ -99,7 +102,8 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.orderDate"),
     dataIndex: "orderedAt",
     ellipsis: true,
-      flex: 1,
+    width: 170,
+    minWidth: 160,
     key: "orderedAt",
     render: (text) => <p className="table-text">{text}</p>,
   },
@@ -107,12 +111,12 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     title: t("markingCodes.tableTitles.packageType"),
     dataIndex: "packageType",
     ellipsis: true,
-      flex: 1,
+    width: 150,
+    minWidth: 140,
     key: "packageType",
     render: (text: string) => (
         <p
             style={{
-              maxWidth: 100,
               overflow: "hidden",
               whiteSpace: "nowrap",
               textOverflow: "ellipsis",
@@ -135,8 +139,9 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: t("markingCodes.tableTitles.status"),
     dataIndex: "status",
-      className: "no-ellipsis",
-      flex: 2,
+    className: "no-ellipsis",
+    width: 190,
+    minWidth: 180,
     key: "status",
     render: (status: string) => (
       status && (
@@ -156,8 +161,9 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: t("markingCodes.tableTitles.externalStatus"),
     dataIndex: "externalStatus",
-      className: "no-ellipsis",
-      flex: 1,
+    className: "no-ellipsis",
+    width: 150,
+    minWidth: 140,
     key: "externalStatus",
     render: (status: string) => (
         status && (
@@ -177,24 +183,40 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
   {
     title: '', // или t('table.actions') если нужно заголовок
     key: 'action',
-      flex: 1,
+    width: 150,
+    minWidth: 150,
     render: (_, record) => {
-      if (!canCreateUtilization) {
+      const canCreateAik =
+        canCreateCustomsCode &&
+        !customsCodeBatchIds.has(record.batchId) &&
+        record.packageType?.toLowerCase() === AvailablePackageType.Unit &&
+        record.status === BatchStatus.CodesAggregated;
+      const isCreatingAik = creatingCustomsCodeBatchIds.has(record.batchId);
+
+      if (!canCreateUtilization && !canCreateAik) {
         return null;
       }
 
       // Показываем кнопку "Нанести" только если статус === 'codes_received'
-      if (record.status !== 'codes_received') {
+      if (record.status !== BatchStatus.CodesReceived && !canCreateAik) {
         return null; // или можно вернуть <span>—</span> или другой плейсхолдер
       }
 
       return (
           <CustomButton
               type="button"
-              className="outline"
-              onClick={(e) => handleAppoint(e, record)}
+              className="outline table-action-btn"
+              disabled={isCreatingAik}
+              onClick={(e) => {
+                if (canCreateAik) {
+                  handleCreateCustomsCode(e, record);
+                  return;
+                }
+
+                handleAppoint(e, record);
+              }}
           >
-            {t('btn.apply')}
+            {canCreateAik ? t('customsCodes.actions.create') : t('btn.apply')}
           </CustomButton>
       );
     },
