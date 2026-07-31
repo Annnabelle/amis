@@ -14,6 +14,7 @@ import { toast } from 'react-toastify'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
+import StatusBadge from 'shared/ui/statusBadge'
 import { useNavigate } from 'react-router-dom'
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
@@ -899,9 +900,9 @@ const Organizations = () => {
                                         <div className="detail-item">
                                             <span className="label inline-label">{t('organizations.status')}</span>
                                             <span className="detail-separator">:</span>
-                                            <span className={`status-badge ${fakturaUzIntegration.status}`}>
+                                            <StatusBadge status={fakturaUzIntegration.status}>
                                                 {t(`statuses.${fakturaUzIntegration.status}`, { defaultValue: fakturaUzIntegration.status })}
-                                            </span>
+                                            </StatusBadge>
                                         </div>
                                         <div className="detail-item">
                                             <span className="label inline-label">{t('organizations.testFlag')}</span>

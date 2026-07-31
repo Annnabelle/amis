@@ -12,10 +12,10 @@ import type { InvoiceItemsTableDataType } from 'entities/invoices/ui/tableData/i
 import { getSalesOrderById } from 'entities/salesOrders/model';
 import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
 import { getDeliveryTaskById } from 'entities/deliveryTasks/model';
-import { statusColors } from 'shared/ui/statuses.tsx';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
+import StatusBadge from 'shared/ui/statusBadge';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
