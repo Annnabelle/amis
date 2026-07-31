@@ -21,8 +21,19 @@ const shortenMiddle = (value: string, maxLength = 18) => {
 };
 
 const getStatusLabel = (t: TFunction, status: string, prefix: string) => {
-  const key = prefix.includes("external") ? status : getInvoiceStatusKey(status);
-  return t(`${prefix}.${key}`, { defaultValue: status });
+  const normalizedKey = getInvoiceStatusKey(status);
+
+  if (prefix.includes("external")) {
+    const externalLabel = t(`${prefix}.${status}`, { defaultValue: "" });
+    if (externalLabel) return externalLabel;
+
+    const normalizedExternalLabel = t(`${prefix}.${normalizedKey}`, { defaultValue: "" });
+    if (normalizedExternalLabel) return normalizedExternalLabel;
+
+    return t(`invoices.statuses.${normalizedKey}`, { defaultValue: status });
+  }
+
+  return t(`${prefix}.${normalizedKey}`, { defaultValue: status });
 };
 
 const renderStatus = (t: TFunction, status: string, prefix: string) => {
