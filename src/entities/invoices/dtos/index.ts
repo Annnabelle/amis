@@ -1,6 +1,8 @@
 import type {
+  AvailablePackageType,
   ErrorDto,
   HexString,
+  MarkingCodeStatus,
   PaginatedDto,
   PaginatedResponseDto,
 } from "shared/types/dtos";
@@ -183,4 +185,20 @@ export type GetInvoiceItemsDto = Partial<PaginatedDto> & {
 
 export type GetInvoiceItemsResponseDto =
   | ({ success: boolean } & PaginatedResponseDto<InvoiceItemResponseDto>)
+  | ErrorDto;
+
+export type MarkingCodeRowDto = {
+  id: string;
+  code: string;
+  status: MarkingCodeStatus;
+  packageType: AvailablePackageType | string;
+};
+
+export type GetInvoiceCodesDto = Partial<PaginatedDto> & {
+  id: HexString;
+  productId: HexString;
+};
+
+export type GetInvoiceCodesResponseDto =
+  | ({ success: true } & PaginatedResponseDto<MarkingCodeRowDto>)
   | ErrorDto;

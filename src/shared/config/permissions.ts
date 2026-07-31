@@ -90,6 +90,11 @@ export const Permissions = {
   ReportsCreateAggregation: "reports.create-aggregation",
   ReportsExportAggregation: "reports.export-aggregation",
 
+  CustomsCodeOrdersList: "customs-code-orders.list",
+  CustomsCodeOrderRead: "customs-code-order.read",
+  CustomsCodeOrderCreate: "customs-code-order.create",
+  CustomsCodeOrderSign: "customs-code-order.sign",
+
   AuditList: "audit.list",
   AuditRead: "audit.read",
 } as const;

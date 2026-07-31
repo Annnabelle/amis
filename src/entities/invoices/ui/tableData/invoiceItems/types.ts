@@ -1,5 +1,6 @@
 export interface InvoiceItemsTableDataType {
   key: string;
+  productId: string;
   productName: string;
   quantity: number | string;
   measurementUnit: string;

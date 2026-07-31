@@ -125,7 +125,9 @@ export const endpointAccessMap = {
 
   invoicesList: endpoint({ method: "GET", path: "/invoices", permission: Permissions.InvoicesList, scope: EndpointScopes.Company }),
   invoicesRead: endpoint({ method: "GET", path: "/invoices/:id", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
+  invoiceFileRead: endpoint({ method: "GET", path: "/invoices/:id/file", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
   invoiceItemsRead: endpoint({ method: "GET", path: "/invoices/:id/items", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
+  invoiceCodesRead: endpoint({ method: "GET", path: "/invoices/:id/codes", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
 
   utilizationReportsCreate: endpoint({ method: "POST", path: "/reports/utilization", permission: Permissions.ReportsCreateUtilization, scope: EndpointScopes.Company }),
   aggregationReportsCreate: endpoint({ method: "POST", path: "/reports/aggregation", permission: Permissions.ReportsCreateAggregation, scope: EndpointScopes.Company }),
@@ -133,6 +135,10 @@ export const endpointAccessMap = {
   aggregationReportsRead: endpoint({ method: "GET", path: "/reports/aggregation/:id", permission: Permissions.ReportsRead, scope: EndpointScopes.Company }),
   aggregationReportUnitsRead: endpoint({ method: "GET", path: "/reports/aggregation/:id/units", permission: Permissions.ReportsRead, scope: EndpointScopes.Company }),
   aggregationReportsExport: endpoint({ method: "GET", path: "/reports/aggregation/:id/export", permission: Permissions.ReportsExportAggregation, scope: EndpointScopes.Company }),
+  customsCodesCreate: endpoint({ method: "POST", path: "/customs-code-orders", permission: Permissions.CustomsCodeOrderCreate, scope: EndpointScopes.Company }),
+  customsCodesList: endpoint({ method: "GET", path: "/customs-code-orders", permission: Permissions.CustomsCodeOrdersList, scope: EndpointScopes.Company }),
+  customsCodesRead: endpoint({ method: "GET", path: "/customs-code-orders/:id", permission: Permissions.CustomsCodeOrderRead, scope: EndpointScopes.Company }),
+  customsCodesSign: endpoint({ method: "POST", path: "/customs-code-orders/sign", permission: Permissions.CustomsCodeOrderSign, scope: EndpointScopes.Company }),
 
   auditList: endpoint({ method: "GET", path: "/audit", permission: Permissions.AuditList, scope: EndpointScopes.Global }),
   auditRead: endpoint({ method: "GET", path: "/audit/:id", permission: Permissions.AuditRead, scope: EndpointScopes.Global }),

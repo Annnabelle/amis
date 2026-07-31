@@ -3,18 +3,30 @@ import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL } from "shared/lib/consts";
 import type { GetInvoicesDto, GetInvoicesResponseDto } from "entities/invoices/dtos";
 import type {
+  GetInvoiceCodesDto,
+  GetInvoiceCodesResponseDto,
   GetInvoiceDto,
   GetInvoiceItemsDto,
   GetInvoiceItemsResponseDto,
   GetInvoiceResponseDto,
 } from "entities/invoices/dtos";
-import { mapInvoiceDtoToEntity, mapInvoiceItemDtoToEntity } from "entities/invoices/mappers";
-import type { InvoiceItemResponse, InvoiceResponse, InvoicesState } from "entities/invoices/types";
+import {
+  mapInvoiceDtoToEntity,
+  mapInvoiceItemDtoToEntity,
+  mapInvoiceMarkingCodeDtoToEntity,
+} from "entities/invoices/mappers";
+import type {
+  InvoiceItemResponse,
+  InvoiceMarkingCodeResponse,
+  InvoiceResponse,
+  InvoicesState,
+} from "entities/invoices/types";
 
 const initialState: InvoicesState = {
   invoices: [],
   invoiceById: null,
   items: [],
+  codesByProductId: {},
   itemsTotal: 0,
   itemsPage: 1,
   itemsLimit: 10,
@@ -114,6 +126,38 @@ export const getInvoiceItems = createAsyncThunk(
   }
 );
 
+function isInvoiceCodesSuccess(
+  res: GetInvoiceCodesResponseDto
+): res is { success: true; data: any[]; total: number; page: number; limit: number } {
+  return "success" in res && res.success === true && "data" in res;
+}
+
+export const getInvoiceCodes = createAsyncThunk(
+  "invoices/getInvoiceCodes",
+  async ({ id, productId, ...params }: GetInvoiceCodesDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get<GetInvoiceCodesResponseDto>(
+        `${BASE_URL}/invoices/${id}/codes`,
+        { params: { ...params, productId } }
+      );
+
+      if (isInvoiceCodesSuccess(response.data)) {
+        return {
+          productId,
+          data: response.data.data.map(mapInvoiceMarkingCodeDtoToEntity),
+          total: response.data.total,
+          page: response.data.page,
+          limit: response.data.limit,
+        };
+      }
+
+      return rejectWithValue({ productId, error: "Error loading invoice codes" });
+    } catch (err: any) {
+      return rejectWithValue({ productId, error: err.message || "Server error" });
+    }
+  }
+);
+
 export const invoicesSlice = createSlice({
   name: "invoices",
   initialState,
@@ -154,6 +198,7 @@ export const invoicesSlice = createSlice({
       .addCase(getInvoiceById.fulfilled, (state, action: PayloadAction<InvoiceResponse>) => {
         state.loadingById = false;
         state.invoiceById = action.payload;
+        state.codesByProductId = {};
       })
       .addCase(getInvoiceById.rejected, (state, action) => {
         state.loadingById = false;
@@ -187,6 +232,55 @@ export const invoicesSlice = createSlice({
         state.error = action.payload as string;
         state.items = [];
         state.itemsTotal = 0;
+      })
+      .addCase(getInvoiceCodes.pending, (state, action) => {
+        const productId = action.meta.arg.productId;
+        const current = state.codesByProductId[productId];
+
+        state.codesByProductId[productId] = {
+          data: current?.data ?? [],
+          total: current?.total ?? 0,
+          page: current?.page ?? action.meta.arg.page ?? 1,
+          limit: current?.limit ?? action.meta.arg.limit ?? 10,
+          loading: true,
+          error: null,
+        };
+      })
+      .addCase(
+        getInvoiceCodes.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            productId: string;
+            data: InvoiceMarkingCodeResponse[];
+            total: number;
+            page: number;
+            limit: number;
+          }>
+        ) => {
+          state.codesByProductId[action.payload.productId] = {
+            data: action.payload.data,
+            total: action.payload.total,
+            page: action.payload.page,
+            limit: action.payload.limit,
+            loading: false,
+            error: null,
+          };
+        }
+      )
+      .addCase(getInvoiceCodes.rejected, (state, action) => {
+        const payload = action.payload as { productId?: string; error?: string } | undefined;
+        const productId = payload?.productId ?? action.meta.arg.productId;
+        const current = state.codesByProductId[productId];
+
+        state.codesByProductId[productId] = {
+          data: current?.data ?? [],
+          total: current?.total ?? 0,
+          page: current?.page ?? 1,
+          limit: current?.limit ?? 10,
+          loading: false,
+          error: payload?.error ?? "Error loading invoice codes",
+        };
       });
   },
 });

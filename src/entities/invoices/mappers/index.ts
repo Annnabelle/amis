@@ -2,9 +2,14 @@ import type {
   ExternalInvoiceStatus,
   InvoiceItemResponseDto,
   InvoiceResponseDto,
+  MarkingCodeRowDto,
 } from "entities/invoices/dtos";
 import { ExternalInvoiceStatusNumericToSymbol } from "entities/invoices/dtos";
-import type { InvoiceItemResponse, InvoiceResponse } from "entities/invoices/types";
+import type {
+  InvoiceItemResponse,
+  InvoiceMarkingCodeResponse,
+  InvoiceResponse,
+} from "entities/invoices/types";
 
 const toDate = (value: string | Date | undefined): Date => {
   if (!value) return new Date();
@@ -89,4 +94,13 @@ export const mapInvoiceItemDtoToEntity = (
     name: dto.psic.name,
   },
   reliefId: dto.reliefId,
+});
+
+export const mapInvoiceMarkingCodeDtoToEntity = (
+  dto: MarkingCodeRowDto
+): InvoiceMarkingCodeResponse => ({
+  id: dto.id,
+  code: dto.code,
+  status: dto.status,
+  packageType: dto.packageType,
 });

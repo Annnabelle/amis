@@ -83,12 +83,12 @@ const OrderForm = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc" }));
-  }, [dispatch]);
+    dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
+  }, [dispatch, orgId]);
 
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
-      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
+      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
     }
   };
 
@@ -346,7 +346,7 @@ const OrderForm = () => {
                                     size="large"
                                     style={{ width: "100%", minWidth: 50 }}
                                     placeholder="0"
-                                />
+                                  />
                               </Form.Item>
                           );
 
