@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Select, Space, Tag } from 'antd';
-import { SafetyCertificateOutlined, SyncOutlined } from '@ant-design/icons';
+import { SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,9 @@ import {
   createCustomsCode,
   fetchCustomsCodeById,
   fetchCustomsCodes,
-  signCustomsCode,
+  initiateDissolutionAggregatedCustomsCodeOrder,
+  signDissolutionAggregatedCustomsCodeOrder,
+  signRegistrationAggregatedCustomsCodeOrder,
 } from 'entities/customsCodes/model';
 import { fetchMarkingCodes } from 'entities/markingCodes/model';
 import { OrderStatusType } from 'entities/markingCodes/types';
@@ -37,6 +39,7 @@ type CustomsCodeTableRow = {
   key: string;
   number: number;
   id: string;
+  accOrderNumber: string;
   orderId: string;
   batchId: string;
   productId: string;
@@ -47,19 +50,32 @@ type CustomsCodeTableRow = {
   order: CustomsCodeOrder;
 };
 
+type SignMode = 'registration' | 'dissolution';
+
 const statusColors: Partial<Record<AggregatedCustomsCodeOrderStatus, string>> = {
   [AggregatedCustomsCodeOrderStatus.New]: 'default',
   [AggregatedCustomsCodeOrderStatus.Generated]: 'geekblue',
   [AggregatedCustomsCodeOrderStatus.ReadyForSign]: 'processing',
   [AggregatedCustomsCodeOrderStatus.SignedForRegistration]: 'blue',
   [AggregatedCustomsCodeOrderStatus.Verified]: 'cyan',
+  [AggregatedCustomsCodeOrderStatus.VerifiedForRegistration]: 'cyan',
   [AggregatedCustomsCodeOrderStatus.Registered]: 'success',
+  [AggregatedCustomsCodeOrderStatus.DissolutionInitialized]: 'warning',
+  [AggregatedCustomsCodeOrderStatus.SignedForDissolution]: 'orange',
+  [AggregatedCustomsCodeOrderStatus.VerifiedForDissolution]: 'magenta',
   [AggregatedCustomsCodeOrderStatus.Dissolved]: 'purple',
 };
 
 const canSignRegistration = (order: CustomsCodeOrder) =>
   order.status === AggregatedCustomsCodeOrderStatus.ReadyForSign &&
   Boolean(order.external.registration.documentBase64);
+
+const canInitiateDissolution = (order: CustomsCodeOrder) =>
+  order.status === AggregatedCustomsCodeOrderStatus.Registered;
+
+const canSignDissolution = (order: CustomsCodeOrder) =>
+  order.status === AggregatedCustomsCodeOrderStatus.DissolutionInitialized &&
+  Boolean(order.external.dissolution.documentBase64);
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const E_IMZO_ERROR_KEY_PREFIX = 'customsCodes.eImzoErrors.';
@@ -69,8 +85,11 @@ const CustomsCodesPage = () => {
   const { orgId } = useParams();
   const dispatch = useAppDispatch();
   const canCreate = useCan(endpointAccessMap.customsCodesCreate);
+  const canSignRegistrationOrder = useCan(endpointAccessMap.customsCodesSignRegistration);
+  const canDissolve = useCan(endpointAccessMap.customsCodesInitiateDissolution);
+  const canSignDissolutionOrder = useCan(endpointAccessMap.customsCodesSignDissolution);
   const canListOrders = useCan(endpointAccessMap.ordersList);
-  const { data, total, page, limit, loading, creating, signing, error } = useAppSelector(
+  const { data, total, page, limit, loading, creating, dissolving, signing, error } = useAppSelector(
     (state) => state.customsCodes
   );
   const batches = useAppSelector((state) => state.markingCodes.data);
@@ -79,6 +98,7 @@ const CustomsCodesPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<CustomsCodeOrder | null>(null);
+  const [signMode, setSignMode] = useState<SignMode>('registration');
   const [selectedBatchId, setSelectedBatchId] = useState<string>();
   const [certificates, setCertificates] = useState<EImzoCertificate[]>([]);
   const [selectedCertificateIndex, setSelectedCertificateIndex] = useState<string>();
@@ -152,6 +172,7 @@ const CustomsCodesPage = () => {
       key: order.id,
       number: (page - 1) * limit + index + 1,
       id: order.id,
+      accOrderNumber: order.accOrderNumber ?? '-',
       orderId: order.orderId,
       batchId: order.batchId,
       productId: order.productId,
@@ -163,15 +184,17 @@ const CustomsCodesPage = () => {
     }));
   }, [data, limit, page]);
 
-  const openSignModal = (order: CustomsCodeOrder) => {
+  const openSignModal = useCallback((order: CustomsCodeOrder, mode: SignMode) => {
     setSelectedOrder(order);
+    setSignMode(mode);
     setSelectedCertificateIndex(undefined);
     setModalOpen(true);
-  };
+  }, []);
 
   const closeSignModal = () => {
     setModalOpen(false);
     setSelectedOrder(null);
+    setSignMode('registration');
     setCertificates([]);
     setSelectedCertificateIndex(undefined);
     setEImzoError(null);
@@ -220,10 +243,40 @@ const CustomsCodesPage = () => {
     loadCertificates();
   };
 
+  const handleInitiateDissolution = useCallback(async (order: CustomsCodeOrder) => {
+    try {
+      const initiatedOrder = await dispatch(
+        initiateDissolutionAggregatedCustomsCodeOrder(order.id)
+      ).unwrap();
+
+      toast.success(t('customsCodes.messages.dissolutionInitiated'));
+
+      let orderForSigning = initiatedOrder;
+
+      for (let attempt = 0; attempt < 5 && !canSignDissolution(orderForSigning); attempt += 1) {
+        if (attempt > 0) {
+          await wait(2000);
+        }
+
+        orderForSigning = await dispatch(fetchCustomsCodeById(order.id)).unwrap();
+      }
+
+      dispatch(fetchCustomsCodes({ page, limit }));
+
+      if (canSignDissolution(orderForSigning)) {
+        openSignModal(orderForSigning, 'dissolution');
+      }
+    } catch (err) {
+      toast.error(getBackendErrorMessage(err, t('customsCodes.messages.dissolutionError')));
+    }
+  }, [dispatch, limit, openSignModal, page, t]);
+
   const handleSign = async () => {
     if (!selectedOrder) return;
 
-    const documentBase64 = selectedOrder.external.registration.documentBase64;
+    const documentBase64 = signMode === 'registration'
+      ? selectedOrder.external.registration.documentBase64
+      : selectedOrder.external.dissolution.documentBase64;
     const certificate = selectedCertificateIndex
       ? certificates[Number(selectedCertificateIndex)]
       : undefined;
@@ -245,12 +298,16 @@ const CustomsCodesPage = () => {
         detached: true,
       });
 
-      await dispatch(
-        signCustomsCode({
-          accOrderId: selectedOrder.id,
-          signedDocumentBase64,
-        })
-      ).unwrap();
+      const payload = {
+        accOrderId: selectedOrder.id,
+        signedDocumentBase64,
+      };
+
+      if (signMode === 'registration') {
+        await dispatch(signRegistrationAggregatedCustomsCodeOrder(payload)).unwrap();
+      } else {
+        await dispatch(signDissolutionAggregatedCustomsCodeOrder(payload)).unwrap();
+      }
 
       toast.success(t('customsCodes.messages.signSuccess'));
       closeSignModal();
@@ -274,6 +331,12 @@ const CustomsCodesPage = () => {
       key: 'number',
       width: 70,
       minWidth: 64,
+    },
+    {
+      title: t('customsCodes.table.accOrderNumber'),
+      dataIndex: 'accOrderNumber',
+      key: 'accOrderNumber',
+      minWidth: 150,
     },
     {
       title: t('customsCodes.table.customsCode'),
@@ -306,10 +369,42 @@ const CustomsCodesPage = () => {
     {
       title: '',
       key: 'actions',
-      width: 150,
-      minWidth: 140,
+      width: 190,
+      minWidth: 180,
       render: (_value, row) => {
-        if (!canSignRegistration(row.order)) {
+        if (canSignRegistrationOrder && canSignRegistration(row.order)) {
+          return (
+            <CustomButton
+              type="button"
+              className="outline table-action-btn"
+              onClick={(event) => {
+                event.stopPropagation();
+                openSignModal(row.order, 'registration');
+            }}
+          >
+              {t('customsCodes.actions.sign')}
+            </CustomButton>
+          );
+        }
+
+        if (canDissolve && canInitiateDissolution(row.order)) {
+          return (
+            <CustomButton
+              type="button"
+              className="outline table-action-btn"
+              disabled={dissolving}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleInitiateDissolution(row.order);
+              }}
+            >
+              {dissolving && <SyncOutlined spin />}
+              {t('customsCodes.actions.dissolve')}
+            </CustomButton>
+          );
+        }
+
+        if (!canSignDissolutionOrder || !canSignDissolution(row.order)) {
           return null;
         }
 
@@ -319,16 +414,23 @@ const CustomsCodesPage = () => {
             className="outline table-action-btn"
             onClick={(event) => {
               event.stopPropagation();
-              openSignModal(row.order);
+              openSignModal(row.order, 'dissolution');
             }}
           >
-            <SafetyCertificateOutlined />
             {t('customsCodes.actions.sign')}
           </CustomButton>
         );
       },
     },
-  ], [t]);
+  ], [
+    canDissolve,
+    canSignDissolutionOrder,
+    canSignRegistrationOrder,
+    dissolving,
+    handleInitiateDissolution,
+    openSignModal,
+    t,
+  ]);
 
   const batchOptions = useMemo(() => {
     return batches
@@ -373,7 +475,7 @@ const CustomsCodesPage = () => {
       </div>
 
       <ModalWindow
-        title={t('customsCodes.signModal.title')}
+        title={t(`customsCodes.signModal.${signMode}Title`)}
         openModal={modalOpen}
         closeModal={closeSignModal}
         width="640px"

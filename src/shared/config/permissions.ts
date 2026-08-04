@@ -93,7 +93,9 @@ export const Permissions = {
   CustomsCodeOrdersList: "customs-code-orders.list",
   CustomsCodeOrderRead: "customs-code-order.read",
   CustomsCodeOrderCreate: "customs-code-order.create",
-  CustomsCodeOrderSign: "customs-code-order.sign",
+  CustomsCodeOrderSignRegistration: "customs-code-order.sign-registration",
+  CustomsCodeOrderInitiateDissolution: "customs-code-order.initiate-dissolution",
+  CustomsCodeOrderSignDissolution: "customs-code-order.sign-dissolution",
 
   AuditList: "audit.list",
   AuditRead: "audit.read",

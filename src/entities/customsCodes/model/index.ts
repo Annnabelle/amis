@@ -9,8 +9,11 @@ import type {
   GetCustomsCodeResponseDto,
   GetCustomsCodesParams,
   GetCustomsCodesResponseDto,
-  SignCustomsCodePayload,
-  SignCustomsCodeResponseDto,
+  InitiateDissolutionAggregatedCustomsCodeOrderResponseDto,
+  SignDissolutionAggregatedCustomsCodeOrderPayload,
+  SignDissolutionAggregatedCustomsCodeOrderResponseDto,
+  SignRegistrationAggregatedCustomsCodeOrderPayload,
+  SignRegistrationAggregatedCustomsCodeOrderResponseDto,
 } from 'entities/customsCodes/types';
 
 type CustomsCodesState = {
@@ -21,6 +24,7 @@ type CustomsCodesState = {
   limit: number;
   loading: boolean;
   creating: boolean;
+  dissolving: boolean;
   signing: boolean;
   error: ApiErrorResponse | null;
 };
@@ -33,6 +37,7 @@ const initialState: CustomsCodesState = {
   limit: 10,
   loading: false,
   creating: false,
+  dissolving: false,
   signing: false,
   error: null,
 };
@@ -124,14 +129,55 @@ export const createCustomsCode = createAsyncThunk<
   }
 });
 
-export const signCustomsCode = createAsyncThunk<
+export const signRegistrationAggregatedCustomsCodeOrder = createAsyncThunk<
   CustomsCodeOrder,
-  SignCustomsCodePayload,
+  SignRegistrationAggregatedCustomsCodeOrderPayload,
   { rejectValue: ApiErrorResponse }
->('customsCodes/signCustomsCode', async (payload, { rejectWithValue }) => {
+>('customsCodes/signRegistrationAggregatedCustomsCodeOrder', async (payload, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post<SignCustomsCodeResponseDto>(
-      `${BASE_URL}/customs-code-orders/sign`,
+    const response = await axiosInstance.post<SignRegistrationAggregatedCustomsCodeOrderResponseDto>(
+      `${BASE_URL}/customs-code-orders/registration/sign`,
+      payload
+    );
+
+    if (response.data.success) {
+      return response.data.aggregatedCustomsCode;
+    }
+
+    return rejectWithValue(fallbackError(-1));
+  } catch (err) {
+    return rejectWithValue(getErrorPayload(err));
+  }
+});
+
+export const initiateDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
+  CustomsCodeOrder,
+  string,
+  { rejectValue: ApiErrorResponse }
+>('customsCodes/initiateDissolutionAggregatedCustomsCodeOrder', async (id, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post<InitiateDissolutionAggregatedCustomsCodeOrderResponseDto>(
+      `${BASE_URL}/customs-code-orders/${id}/dissolve`
+    );
+
+    if (response.data.success) {
+      return response.data.aggregatedCustomsCode;
+    }
+
+    return rejectWithValue(fallbackError(-1));
+  } catch (err) {
+    return rejectWithValue(getErrorPayload(err));
+  }
+});
+
+export const signDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
+  CustomsCodeOrder,
+  SignDissolutionAggregatedCustomsCodeOrderPayload,
+  { rejectValue: ApiErrorResponse }
+>('customsCodes/signDissolutionAggregatedCustomsCodeOrder', async (payload, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post<SignDissolutionAggregatedCustomsCodeOrderResponseDto>(
+      `${BASE_URL}/customs-code-orders/dissolution/sign`,
       payload
     );
 
@@ -182,18 +228,48 @@ export const customsCodesSlice = createSlice({
         state.creating = false;
         if (!action.payload) return;
       })
-      .addCase(signCustomsCode.pending, (state) => {
+      .addCase(signRegistrationAggregatedCustomsCodeOrder.pending, (state) => {
         state.signing = true;
         state.error = null;
       })
-      .addCase(signCustomsCode.fulfilled, (state, action) => {
+      .addCase(signRegistrationAggregatedCustomsCodeOrder.fulfilled, (state, action) => {
         state.signing = false;
         state.selected = action.payload;
         state.data = state.data.map((item) =>
           item.id === action.payload.id ? action.payload : item
         );
       })
-      .addCase(signCustomsCode.rejected, (state, action) => {
+      .addCase(signRegistrationAggregatedCustomsCodeOrder.rejected, (state, action) => {
+        state.signing = false;
+        if (!action.payload) return;
+      })
+      .addCase(initiateDissolutionAggregatedCustomsCodeOrder.pending, (state) => {
+        state.dissolving = true;
+        state.error = null;
+      })
+      .addCase(initiateDissolutionAggregatedCustomsCodeOrder.fulfilled, (state, action) => {
+        state.dissolving = false;
+        state.selected = action.payload;
+        state.data = state.data.map((item) =>
+          item.id === action.payload.id ? action.payload : item
+        );
+      })
+      .addCase(initiateDissolutionAggregatedCustomsCodeOrder.rejected, (state, action) => {
+        state.dissolving = false;
+        if (!action.payload) return;
+      })
+      .addCase(signDissolutionAggregatedCustomsCodeOrder.pending, (state) => {
+        state.signing = true;
+        state.error = null;
+      })
+      .addCase(signDissolutionAggregatedCustomsCodeOrder.fulfilled, (state, action) => {
+        state.signing = false;
+        state.selected = action.payload;
+        state.data = state.data.map((item) =>
+          item.id === action.payload.id ? action.payload : item
+        );
+      })
+      .addCase(signDissolutionAggregatedCustomsCodeOrder.rejected, (state, action) => {
         state.signing = false;
         if (!action.payload) return;
       });

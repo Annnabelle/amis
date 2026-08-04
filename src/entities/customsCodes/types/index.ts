@@ -4,7 +4,11 @@ export const AggregatedCustomsCodeOrderStatus = {
   ReadyForSign: 'ready_for_sign',
   SignedForRegistration: 'signed_for_registration',
   Verified: 'verified',
+  VerifiedForRegistration: 'verified_for_registration',
   Registered: 'registered',
+  DissolutionInitialized: 'dissolution_initialized',
+  SignedForDissolution: 'signed_for_dissolution',
+  VerifiedForDissolution: 'verified_for_dissolution',
   Dissolved: 'dissolved',
 } as const;
 
@@ -23,6 +27,7 @@ export type CustomsCodeExternal = {
 
 export type CustomsCodeOrder = {
   id: string;
+  accOrderNumber?: string;
   userId: string;
   productId: string;
   orderId: string;
@@ -62,12 +67,27 @@ export type CreateCustomsCodeResponseDto = {
   aggregatedCustomsCode: CustomsCodeOrder;
 };
 
-export type SignCustomsCodePayload = {
+export type SignRegistrationAggregatedCustomsCodeOrderPayload = {
   accOrderId: string;
   signedDocumentBase64: string;
 };
 
-export type SignCustomsCodeResponseDto = {
+export type SignRegistrationAggregatedCustomsCodeOrderResponseDto = {
+  success: true;
+  aggregatedCustomsCode: CustomsCodeOrder;
+};
+
+export type InitiateDissolutionAggregatedCustomsCodeOrderResponseDto = {
+  success: true;
+  aggregatedCustomsCode: CustomsCodeOrder;
+};
+
+export type SignDissolutionAggregatedCustomsCodeOrderPayload = {
+  accOrderId: string;
+  signedDocumentBase64: string;
+};
+
+export type SignDissolutionAggregatedCustomsCodeOrderResponseDto = {
   success: true;
   aggregatedCustomsCode: CustomsCodeOrder;
 };
