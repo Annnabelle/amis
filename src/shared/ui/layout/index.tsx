@@ -23,7 +23,6 @@ import {
   SunOutlined,
   MoonOutlined,
   TeamOutlined,
-  SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
@@ -317,13 +316,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         icon: <ClusterOutlined />,
         path: `/organization/${companyId}/agregations`,
         label: t('navigation.agregations'),
-      },
-      {
-        module: AccessModules.Reports,
-        key: 'customs-codes',
-        icon: <SafetyCertificateOutlined />,
-        path: `/organization/${companyId}/customs-codes`,
-        label: 'АИК',
       },
       {
         module: AccessModules.SalesOrders,
