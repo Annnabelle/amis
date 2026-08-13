@@ -1,3 +1,5 @@
+import {config} from "shared/config/runtime.ts";
+
 type EImzoRequest = {
   name?: string;
   plugin?: string;
@@ -33,7 +35,8 @@ const E_IMZO_HTTP_PORT = 64646;
 const E_IMZO_LAUNCH_URL = 'eimzo://';
 const REQUEST_TIMEOUT_MS = 30_000;
 
-const apiKeys = [
+console.log(config.eImzoApiKeys)
+const apiKeys = config.eImzoApiKeys?.length > 0 ? config.eImzoApiKeys : [
   'localhost',
   '96D0C1491615C82B9A54D9989779DF825B690748224C2B04F500F370D51827CE2644D8D4A82C18184D73AB8530BB8ED537269603F61DB0D03D2104ABF789970B',
   '127.0.0.1',
