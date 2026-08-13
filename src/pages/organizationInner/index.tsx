@@ -12,6 +12,7 @@ import { useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
+import StatusBadge from 'shared/ui/statusBadge';
 
 type DetailItem = {
   label: string;
@@ -248,9 +249,9 @@ const OrganizationsInner = () => {
                 <div className="route-overview-status">
                   <span className="label inline-label">{t('organizations.status')}</span>
                   <span className="detail-separator">:</span>
-                  <span className={`status-badge ${organization.status}`}>
+                  <StatusBadge status={organization.status}>
                     {statusLabel}
-                  </span>
+                  </StatusBadge>
                 </div>
               </div>
 

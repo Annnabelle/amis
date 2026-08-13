@@ -16,7 +16,6 @@ import type { OrderBatchPopulatedResponse } from 'entities/markingCodes/types'
 import {type OrderListQueryParams} from 'entities/markingCodes/dtos'
 import { searchProducts } from 'entities/products/model'
 import {createUtilizationReport} from "entities/utilization/model";
-import { createCustomsCode, fetchCustomsCodes } from "entities/customsCodes/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import {searchCompanyMemberships} from "entities/companyMemberships/model";
@@ -35,11 +34,9 @@ const MarkingCodes = () => {
     const dispatch = useAppDispatch()
     const canCreateOrder = useCan(endpointAccessMap.ordersCreate);
     const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
-    const canCreateCustomsCode = useCan(endpointAccessMap.customsCodesCreate);
     const canSearchCompanyMemberships = useCan(endpointAccessMap.companyMembershipsSearch);
     const canListProducts = useCan(endpointAccessMap.productsList);
     const markingCodes = useAppSelector((state) => state.markingCodes.data)
-    const customsCodes = useAppSelector((state) => state.customsCodes.data)
     const dataLimit = useAppSelector((state) => state.markingCodes.limit)
     const dataPage = useAppSelector((state) => state.markingCodes.page)
     const dataTotal = useAppSelector((state) => state.markingCodes.total)
@@ -54,18 +51,9 @@ const MarkingCodes = () => {
         page: dataPage || 1,
         limit: dataLimit || 10,
     });
-    const [createdCustomsCodeBatchIds, setCreatedCustomsCodeBatchIds] = useState<Set<string>>(new Set());
-    const [creatingCustomsCodeBatchIds, setCreatingCustomsCodeBatchIds] = useState<Set<string>>(new Set());
-
     useEffect(() => {
         dispatch(fetchMarkingCodes(queryParams));
     }, [dispatch, queryParams]);
-
-    useEffect(() => {
-        if (!orgId || !canCreateCustomsCode) return;
-
-        dispatch(fetchCustomsCodes({ page: 1, limit: 1000 }));
-    }, [canCreateCustomsCode, dispatch, orgId]);
 
     useEffect(() => {
         dispatch(fetchReferencesByType("cisType"));
@@ -105,14 +93,6 @@ const MarkingCodes = () => {
             externalStatus: markingCode.externalStatus ?? null,
         }))
     }, [markingCodes, dataPage, dataLimit, packageTypeMap])
-
-    const customsCodeBatchIds = useMemo(() => {
-        const batchIds = new Set(customsCodes.map((item) => item.batchId));
-
-        createdCustomsCodeBatchIds.forEach((batchId) => batchIds.add(batchId));
-
-        return batchIds;
-    }, [createdCustomsCodeBatchIds, customsCodes]);
 
     const [modalState, setModalState] = useState<{
         addMarkingCodes: boolean;
@@ -181,46 +161,6 @@ const MarkingCodes = () => {
             );
         }
     };
-
-    const handleCreateCustomsCode = async (
-        e: React.MouseEvent,
-        record: MarkingCodesTableDataType
-    ) => {
-        e.stopPropagation();
-
-        if (!orgId) return;
-        if (
-            creatingCustomsCodeBatchIds.has(record.batchId) ||
-            customsCodeBatchIds.has(record.batchId)
-        ) return;
-
-        try {
-            setCreatingCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
-
-            await dispatch(
-                createCustomsCode({
-                    companyId: orgId,
-                    batchId: record.batchId,
-                })
-            ).unwrap();
-
-            setCreatedCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
-            toast.success(t('customsCodes.messages.createSuccess'));
-            dispatch(fetchMarkingCodes(queryParams));
-            dispatch(fetchCustomsCodes({ page: 1, limit: 1000 }));
-        } catch (error: unknown) {
-            toast.error(
-                getBackendErrorMessage(error, t('customsCodes.messages.createError'))
-            );
-        } finally {
-            setCreatingCustomsCodeBatchIds((prev) => {
-                const next = new Set(prev);
-                next.delete(record.batchId);
-                return next;
-            });
-        }
-    };
-
 
     return (
     <MainLayout>
@@ -317,11 +257,7 @@ const MarkingCodes = () => {
                             t,
                             orgId,
                             canCreateUtilization,
-                            canCreateCustomsCode,
-                            customsCodeBatchIds,
-                            creatingCustomsCodeBatchIds,
-                            handleAppoint,
-                            handleCreateCustomsCode
+                            handleAppoint
                         )}
                         data={MarkingCodesData}
                         scroll={{ x: 1620 }}

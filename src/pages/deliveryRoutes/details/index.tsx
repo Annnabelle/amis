@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
+import StatusBadge from 'shared/ui/statusBadge';
 import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -431,9 +432,9 @@ const DeliveryRoutesDetails = () => {
                       <span className="detail-separator">:</span>
                       <h2>{route.routeNumber}</h2>
                     </div>
-                    <span className={`status-badge ${route.status}`}>
+                    <StatusBadge status={route.status}>
                       {t(`deliveryRoutes.status.${route.status}`)}
-                    </span>
+                    </StatusBadge>
                   </div>
                 ) : (
                   <>
@@ -444,9 +445,9 @@ const DeliveryRoutesDetails = () => {
                     <div className="route-overview-status">
                       <span className="label inline-label">{t('deliveryRoutes.fields.status')}</span>
                       <span className="detail-separator">:</span>
-                      <span className={`status-badge ${route.status}`}>
+                      <StatusBadge status={route.status}>
                         {t(`deliveryRoutes.status.${route.status}`)}
-                      </span>
+                      </StatusBadge>
                     </div>
                   </>
                 )}
@@ -614,9 +615,9 @@ const DeliveryRoutesDetails = () => {
                             </div>
 
                             <div className="route-task-side">
-                              <span className={`status-badge ${task.status}`}>
+                              <StatusBadge status={task.status}>
                                 {t(`statuses.${task.status}`, { defaultValue: task.status })}
-                              </span>
+                              </StatusBadge>
                               <span className="route-task-invoice">
                                 {task.invoice?.externalId || task.invoice?.status || task.invoice?.invoiceId || '-'}
                               </span>

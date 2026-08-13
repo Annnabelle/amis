@@ -1,15 +1,15 @@
 import { useEffect, useMemo } from 'react';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
-import { Form, Input, Tag } from 'antd';
+import { Form, Input } from 'antd';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
+import StatusBadge from 'shared/ui/statusBadge';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getSalesOrderById } from 'entities/salesOrders/model';
-import { statusColors } from 'shared/ui/statuses.tsx';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 
 const SalesOrdersDetails = () => {
@@ -29,16 +29,14 @@ const SalesOrdersDetails = () => {
 
   const items = useMemo(() => order?.items ?? [], [order]);
   const hasOrderComment = Boolean(order?.comment?.trim());
-  const statusKey = order?.status?.toLowerCase() ?? '';
-
   return (
     <MainLayout>
       <Heading title={t('salesOrders.detailsTitle')} subtitle={t('common.details')}>
         <div className="btns-group">
           {order && (
-            <Tag color={statusColors[statusKey] ?? statusColors[order.status] ?? 'blue'} style={{ margin: 0 }}>
+            <StatusBadge status={order.status}>
               {t(`salesOrders.statuses.${order.status}`)}
-            </Tag>
+            </StatusBadge>
           )}
           <CustomButton className="outline" onClick={() => navigate(listPath)}>
             {t('common.backToList')}

@@ -24,7 +24,6 @@ const Batches = lazy(() => import("pages/batches"));
 const MarkingCodeProduct = lazy(() => import("pages/markingCodeProduct"));
 const Aggregations = lazy(() => import("pages/aggregation"));
 const AggregationReportPage = lazy(() => import("pages/aggregation/viewAgregation"))
-const CustomsCodesPage = lazy(() => import("pages/customsCodes"));
 const SalesOrdersList = lazy(() => import("pages/salesOrders/list"));
 const SalesOrdersCreate = lazy(() => import("pages/salesOrders/create"));
 const SalesOrdersDetails = lazy(() => import("pages/salesOrders/details"));
@@ -68,7 +67,6 @@ const Router: React.FC = () => {
         <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={protectedPage(routeAccess.codesRead, <MarkingCodeProduct/>)}/>
         <Route path='/organization/:id/agregations' element={protectedPage(routeAccess.reportsList, <Aggregations/>)}/>
         <Route path='/organization/:orgId/aggregations/:id' element={protectedPage(routeAccess.reportsRead, <AggregationReportPage/>)}/>
-        <Route path='/organization/:orgId/customs-codes' element={protectedPage(routeAccess.customsCodesList, <CustomsCodesPage/>)} />
         <Route path='/organization/:orgId/sales-orders' element={protectedPage(routeAccess.salesOrdersList, <SalesOrdersList/>)} />
         <Route path='/organization/:orgId/sales-orders/create' element={protectedPage(routeAccess.salesOrdersCreate, <SalesOrdersCreate/>)} />
         <Route path='/organization/:orgId/sales-orders/:id' element={protectedPage(routeAccess.salesOrdersRead, <SalesOrdersDetails/>)} />

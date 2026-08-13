@@ -12,10 +12,10 @@ import type { InvoiceItemsTableDataType } from 'entities/invoices/ui/tableData/i
 import { getSalesOrderById } from 'entities/salesOrders/model';
 import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
 import { getDeliveryTaskById } from 'entities/deliveryTasks/model';
-import { statusColors } from 'shared/ui/statuses.tsx';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
+import { statusColors } from 'shared/ui/statuses';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -25,6 +25,21 @@ import { BASE_URL, getFileNameFromDisposition } from 'shared/lib';
 const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
 const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
 const formatNumber = (value?: number) => (value != null ? value.toLocaleString() : '-');
+const getExternalStatusLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  status?: string
+) => {
+  if (!status) return '-';
+
+  const externalLabel = t(`invoices.externalStatuses.${status}`, { defaultValue: '' });
+  if (externalLabel) return externalLabel;
+
+  const normalizedStatus = getInvoiceStatusKey(status);
+  const normalizedExternalLabel = t(`invoices.externalStatuses.${normalizedStatus}`, { defaultValue: '' });
+  if (normalizedExternalLabel) return normalizedExternalLabel;
+
+  return t(`invoices.statuses.${normalizedStatus}`, { defaultValue: status });
+};
 
 const InvoicesDetails = () => {
   const navigate = useNavigate();
@@ -200,9 +215,7 @@ const InvoicesDetails = () => {
     );
   }
 
-  const externalStatusLabel = externalStatus
-    ? t(`invoices.externalStatuses.${externalStatus}`, { defaultValue: externalStatus })
-    : '-';
+  const externalStatusLabel = getExternalStatusLabel(t, externalStatus);
 
   const metaItems = [
     { label: t('invoices.fields.invoiceDate'), value: formatDate(invoice.invoice.date) },

@@ -16,7 +16,7 @@ import type {CreateAggregationReport} from "entities/aggregation/types";
 import {fetchMarkingCodes} from "entities/markingCodes/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import type {AggregationReportStatus} from "shared/types/dtos";
+import { AvailablePackageType, type AggregationReportStatus } from "shared/types/dtos";
 import { searchProducts} from "entities/products/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
@@ -25,7 +25,18 @@ import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 
+const packageTypeOrder: Record<string, number> = {
+    [AvailablePackageType.BoxLv2]: 0,
+    [AvailablePackageType.BoxLv1]: 1,
+    [AvailablePackageType.Group]: 2,
+    [AvailablePackageType.Unit]: 3,
+};
+
+const getPackageTypeOrder = (packageType?: string) =>
+    packageType ? packageTypeOrder[packageType.toLowerCase()] ?? Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+
 const Aggregations = () => {
+    const [aggregationForm] = Form.useForm();
     const { t } = useTranslation();
     const params = useParams();
     const orgId = params.id;
@@ -127,12 +138,20 @@ const Aggregations = () => {
     const childOptions = useMemo(() => {
         if (!chosenParentOrderId || !chosenParentBatchId) return [];
 
+        const parentBatch = orders.find(
+            (item) =>
+                item.orderId === chosenParentOrderId &&
+                item.batchId === chosenParentBatchId
+        );
+        const parentPackageTypeOrder = getPackageTypeOrder(parentBatch?.packageType);
+
         return orders
             .map((item, index) => ({ item, index }))
             .filter(
                 ({ item }) =>
                     item.status === 'codes_utilized' &&
-                    item.batchId !== chosenParentBatchId
+                    item.batchId !== chosenParentBatchId &&
+                    getPackageTypeOrder(item.packageType) > parentPackageTypeOrder
             )
             .sort((a, b) => {
                 const aMatchesParentOrder = a.item.orderId === chosenParentOrderId;
@@ -359,7 +378,7 @@ const Aggregations = () => {
                         endpoints={[endpointAccessMap.ordersList]}
                         errors={[ordersError]}
                     />
-                    <FormComponent onFinish={handleCreateAggregation}>
+                    <FormComponent form={aggregationForm} onFinish={handleCreateAggregation}>
                         <div className="form-inputs">
                             <Form.Item
                                 name="parent"
@@ -375,6 +394,7 @@ const Aggregations = () => {
                                         const [orderId, batchId] = value.split('|');
                                         setChosenParentOrderId(orderId);
                                         setChosenParentBatchId(batchId);
+                                        aggregationForm.setFieldValue("child", undefined);
                                     }}
                                 />
                             </Form.Item>

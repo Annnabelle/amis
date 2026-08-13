@@ -1,0 +1,62 @@
+@use "sass:map"
+@use "../../styles/variables" as vars
+
+.status-badge
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  min-height: 28px
+  padding: 4px 10px
+  border-radius: map.get(vars.$border, 'r-6')
+  border: 1px solid var(--status-border, #{map.get(vars.$status, 'default-border')})
+  background: var(--status-bg, #{map.get(vars.$status, 'default-bg')})
+  color: var(--status-color, #{map.get(vars.$status, 'default-color')})
+  font-size: 12px
+  font-weight: 600
+  line-height: 16px
+  text-transform: none
+  letter-spacing: 0
+  white-space: nowrap
+  gap: 4px
+  width: fit-content
+  box-sizing: border-box
+
+  &[data-variant='neutral']
+    --status-bg: #{map.get(vars.$status, 'neutral-bg')}
+    --status-color: #{map.get(vars.$status, 'neutral-color')}
+    --status-border: #{map.get(vars.$status, 'neutral-border')}
+
+  &[data-variant='warning']
+    --status-bg: #{map.get(vars.$status, 'warning-bg')}
+    --status-color: #{map.get(vars.$status, 'warning-color')}
+    --status-border: #{map.get(vars.$status, 'warning-border')}
+
+  &[data-variant='info']
+    --status-bg: #{map.get(vars.$status, 'info-bg')}
+    --status-color: #{map.get(vars.$status, 'info-color')}
+    --status-border: #{map.get(vars.$status, 'info-border')}
+
+  &[data-variant='success']
+    --status-bg: #{map.get(vars.$status, 'success-bg')}
+    --status-color: #{map.get(vars.$status, 'success-color')}
+    --status-border: #{map.get(vars.$status, 'success-border')}
+
+  &[data-variant='cyan']
+    --status-bg: #{map.get(vars.$status, 'cyan-bg')}
+    --status-color: #{map.get(vars.$status, 'cyan-color')}
+    --status-border: #{map.get(vars.$status, 'cyan-border')}
+
+  &[data-variant='orange']
+    --status-bg: #{map.get(vars.$status, 'orange-bg')}
+    --status-color: #{map.get(vars.$status, 'orange-color')}
+    --status-border: #{map.get(vars.$status, 'orange-border')}
+
+  &[data-variant='purple']
+    --status-bg: #{map.get(vars.$status, 'purple-bg')}
+    --status-color: #{map.get(vars.$status, 'purple-color')}
+    --status-border: #{map.get(vars.$status, 'purple-border')}
+
+  &[data-variant='danger']
+    --status-bg: #{map.get(vars.$status, 'danger-bg')}
+    --status-color: #{map.get(vars.$status, 'danger-color')}
+    --status-border: #{map.get(vars.$status, 'danger-border')}
