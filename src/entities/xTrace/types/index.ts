@@ -50,6 +50,8 @@ export type CreateCompanyXTraceIntegration = {
     businessPlaceId: number;
 };
 
+export type UpdateCompanyXTraceIntegration = CreateCompanyXTraceIntegration;
+
 export type CompanyXTraceIntegrationStatus = string;
 
 export type CompanyXTraceIntegrationResponse = {

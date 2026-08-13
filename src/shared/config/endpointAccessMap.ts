@@ -72,6 +72,7 @@ export const endpointAccessMap = {
   integrationsXTraceValidate: endpoint({ method: "GET", path: "/integrations/x-trace/validate", permission: Permissions.CompanyXTraceIntegrationsValidateToken, scope: EndpointScopes.Company }),
   integrationsXTraceRead: endpoint({ method: "GET", path: "/integrations/x-trace", permission: Permissions.CompanyXTraceIntegrationsRead, scope: EndpointScopes.Company }),
   integrationsXTraceCreate: endpoint({ method: "POST", path: "/integrations/x-trace", permission: Permissions.CompanyXTraceIntegrationsCreate, scope: EndpointScopes.Company }),
+  integrationsXTraceUpdate: endpoint({ method: "PATCH", path: "/integrations/x-trace", permission: Permissions.CompanyXTraceIntegrationsUpdate, scope: EndpointScopes.Company }),
   integrationsFakturaUzRead: endpoint({ method: "GET", path: "/integrations/faktura-uz", permission: Permissions.CompanyFakturaUzIntegrationsRead, scope: EndpointScopes.Company }),
   integrationsFakturaUzCreate: endpoint({ method: "POST", path: "/integrations/faktura-uz", permission: Permissions.CompanyFakturaUzIntegrationsCreate, scope: EndpointScopes.Company }),
   companyMembershipsList: endpoint({ method: "GET", path: "/company-memberships", permission: Permissions.CompanyMembershipsList, scope: EndpointScopes.Company }),

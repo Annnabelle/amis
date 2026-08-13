@@ -5,6 +5,7 @@ import type {
     CompanyFakturaUzIntegrationResponse,
     CreateCompanyFakturaUzIntegration,
     CreateCompanyXTraceIntegration,
+    UpdateCompanyXTraceIntegration,
     ValidateCompanyXTraceIntegrationToken,
     ValidateCompanyXTraceIntegrationTokenResponse,
     ValidateCompanyXTraceToken,
@@ -168,6 +169,32 @@ export const createCompanyXTraceIntegration = createAsyncThunk<
     }
 );
 
+export const updateCompanyXTraceIntegration = createAsyncThunk<
+    CompanyXTraceIntegrationResponse,
+    UpdateCompanyXTraceIntegration
+>(
+    "xTraceSlice/updateIntegration",
+    async (
+        params: UpdateCompanyXTraceIntegration,
+        { rejectWithValue }
+    ) => {
+        try {
+            const res = await axiosInstance.patch<CompanyXTraceIntegrationResponseDto>(
+                `/integrations/x-trace`,
+                {
+                    token: params.token,
+                    businessPlaceId: params.businessPlaceId,
+                },
+                { headers: { "x-company-id": String(params.companyId) } }
+            );
+
+            return res.data as CompanyXTraceIntegrationResponse;
+        } catch (err: any) {
+            return rejectWithValue(err.response?.data ?? err.message);
+        }
+    }
+);
+
 export const createCompanyFakturaUzIntegration = createAsyncThunk<
     CompanyFakturaUzIntegrationResponse,
     CreateCompanyFakturaUzIntegration
@@ -284,6 +311,21 @@ export const xTraceSlice = createSlice({
                 }
             )
             .addCase(createCompanyXTraceIntegration.rejected, (state, action) => {
+                state.integrationCreateLoading = false;
+                state.error = (action.payload as string) || "Unknown error";
+            })
+            .addCase(updateCompanyXTraceIntegration.pending, (state) => {
+                state.integrationCreateLoading = true;
+                state.error = null;
+            })
+            .addCase(
+                updateCompanyXTraceIntegration.fulfilled,
+                (state, action: PayloadAction<CompanyXTraceIntegrationResponse>) => {
+                    state.integrationCreateLoading = false;
+                    state.integration = action.payload;
+                }
+            )
+            .addCase(updateCompanyXTraceIntegration.rejected, (state, action) => {
                 state.integrationCreateLoading = false;
                 state.error = (action.payload as string) || "Unknown error";
             })

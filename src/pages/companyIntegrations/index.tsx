@@ -11,6 +11,7 @@ import {
   createCompanyXTraceIntegration,
   getCompanyFakturaUzIntegration,
   getCompanyXTraceIntegration,
+  updateCompanyXTraceIntegration,
   validateCompanyXTraceIntegrationToken,
 } from 'entities/xTrace/model';
 import { fetchReferencesByType } from 'entities/references/model';
@@ -207,8 +208,12 @@ const CompanyIntegrations = () => {
 
     try {
       const values = await xTraceForm.validateFields(['token', 'businessPlaceId']);
+      const saveXTraceIntegration = xTraceIntegration
+        ? updateCompanyXTraceIntegration
+        : createCompanyXTraceIntegration;
+
       await dispatch(
-        createCompanyXTraceIntegration({
+        saveXTraceIntegration({
           companyId: orgId,
           token: String(values.token ?? '').trim(),
           businessPlaceId: Number(values.businessPlaceId),
