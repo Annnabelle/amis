@@ -61,6 +61,10 @@ export const endpointAccessMap = {
   systemEmployeesUpdate: endpoint({ method: "PATCH", path: "/system/employees/:id", permission: Permissions.SystemEmployeesUpdate, scope: EndpointScopes.Global }),
   systemEmployeesDelete: endpoint({ method: "DELETE", path: "/system/employees/:id", permission: Permissions.SystemEmployeesDelete, scope: EndpointScopes.Global }),
 
+  leadsList: endpoint({ method: "GET", path: "/leads", permission: Permissions.LeadsList, scope: EndpointScopes.Global }),
+  leadsRead: endpoint({ method: "GET", path: "/leads/:id", permission: Permissions.LeadsRead, scope: EndpointScopes.Global }),
+  leadsUpdateStatus: endpoint({ method: "PATCH", path: "/leads/:id/status", permission: Permissions.LeadsUpdateStatus, scope: EndpointScopes.Global }),
+
   companiesCreate: endpoint({ method: "POST", path: "/companies", permission: Permissions.CompaniesCreate, scope: EndpointScopes.Global }),
   companiesList: endpoint({ method: "GET", path: "/companies", permission: Permissions.CompaniesList, scope: EndpointScopes.Global }),
   companiesSearch: endpoint({ method: "GET", path: "/companies/search", permission: Permissions.CompaniesList, scope: EndpointScopes.Global }),

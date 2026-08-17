@@ -45,6 +45,7 @@ export const resolveFallbackPath = (
   const systemCandidates = [
     [AccessModules.Users, endpointAccessMap.usersList, '/users'],
     [AccessModules.Companies, endpointAccessMap.companiesList, '/organization'],
+    [AccessModules.Leads, endpointAccessMap.leadsList, '/leads'],
     [AccessModules.Audit, endpointAccessMap.auditList, '/audit-logs'],
   ] as const;
   const systemPath = systemCandidates.find(

@@ -1,0 +1,104 @@
+.leads
+    &-filters
+        justify-content: flex-start
+        align-items: flex-start
+        flex-wrap: wrap
+
+        .form-inputs
+            flex: 0 0 220px
+            width: 220px
+            max-width: 100%
+
+    &-status-filter
+        width: 220px
+        max-width: 100%
+
+    &-status-filter-popup
+        min-width: 220px !important
+
+    &-overview-card
+        .route-overview-title
+            min-width: 0
+
+    &-overview-person
+        display: flex
+        align-items: center
+        gap: 14px
+        min-width: 0
+
+        h2
+            min-width: 0
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+
+    &-overview-avatar
+        width: 48px
+        height: 48px
+        border-radius: 50%
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        flex: 0 0 auto
+        background: rgba(var(--main-primary-rgb), 0.12)
+        color: var(--main-primary)
+        font-size: 18px
+        font-weight: 700
+
+    &-status-tag.ant-tag
+        width: auto
+        max-width: max-content
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        align-self: flex-start
+        padding: 2px 10px
+        line-height: 1.35
+        white-space: nowrap
+
+    &-processing-card
+        width: 100%
+
+        .form
+            width: 100%
+            row-gap: 14px
+
+            .ant-form-item
+                margin-bottom: 0
+
+            .input,
+            .ant-select
+                width: 100%
+
+            .btn
+                width: auto
+
+    &-processing-form-grid
+        display: grid
+        grid-template-columns: minmax(220px, 320px) minmax(280px, 1fr)
+        gap: 18px
+        align-items: flex-start
+        width: 100%
+
+    &-processing-textarea
+        resize: none !important
+        min-height: 96px
+        max-height: 96px
+
+    &-processing-actions
+        display: flex
+        justify-content: flex-end
+        width: 100%
+
+    @media (max-width: 640px)
+        &-overview-person
+            align-items: flex-start
+
+            h2
+                white-space: normal
+
+        &-processing-form-grid
+            grid-template-columns: minmax(0, 1fr)
+
+        &-processing-actions
+            justify-content: flex-start

@@ -6,6 +6,7 @@ export const statusColors: Record<string, string> = {
     disabled: "gray",
     inactive: "red",
     new: "blue",
+    in_progress: "gold",
     requested: "yellow",
     created: 'green',
     in_review: "gold",

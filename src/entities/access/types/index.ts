@@ -16,6 +16,7 @@ export const AccessModules = {
   Companies: "companies",
   Users: "users",
   Employees: "system-employees",
+  Leads: "leads",
   CompanyMemberships: "company-memberships",
   Products: "products",
   Orders: "orders",
