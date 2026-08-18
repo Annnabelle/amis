@@ -1,4 +1,16 @@
+@use "../../shared/ui/details/styles"
+
 .leads
+    &-heading-actions
+        display: flex
+        align-items: center
+        justify-content: flex-end
+        gap: 10px
+        flex-wrap: wrap
+
+        .btn
+            width: auto
+
     &-filters
         justify-content: flex-start
         align-items: flex-start
@@ -56,6 +68,78 @@
         line-height: 1.35
         white-space: nowrap
 
+    &-status-cell
+        display: inline-flex
+        max-width: 100%
+
+    &-status-select
+        width: 168px
+        max-width: 100%
+
+        .ant-select-selector
+            min-height: 34px !important
+            border-radius: 8px !important
+            border-color: rgba(var(--main-primary-rgb), 0.35) !important
+            background: rgba(var(--main-primary-rgb), 0.04) !important
+            box-shadow: none !important
+
+        .ant-select-selection-item
+            font-size: 13px
+            font-weight: 500
+
+    &-status-select-popup
+        min-width: 168px !important
+
+    &-status-modal
+        display: flex
+        flex-direction: column
+        gap: 14px
+
+        .ant-form-item
+            margin-bottom: 0
+
+    &-status-modal-summary
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 12px
+        padding: 10px 12px
+        border-radius: 8px
+        background: var(--status-info-bg)
+        color: var(--text-primary)
+
+        span,
+        strong
+            min-width: 0
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+
+        strong
+            flex: 0 0 auto
+            color: var(--main-primary)
+
+    &-status-comment
+        resize: none !important
+
+    &-status-card
+        align-self: start
+        padding: 12px
+
+        h4
+            margin-bottom: 10px
+            padding-bottom: 8px
+
+        .detail-items
+            gap: 8px
+
+    &-details-info-grid
+        grid-template-columns: minmax(220px, 0.9fr) minmax(240px, 1fr) minmax(280px, 1.4fr)
+        align-items: stretch
+
+        .detail-card
+            margin-bottom: 0
+
     &-processing-card
         width: 100%
 
@@ -102,3 +186,9 @@
 
         &-processing-actions
             justify-content: flex-start
+
+        &-heading-actions
+            justify-content: flex-start
+
+        &-details-info-grid
+            grid-template-columns: minmax(0, 1fr)
