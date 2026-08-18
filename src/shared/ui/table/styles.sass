@@ -49,10 +49,31 @@
                 +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
                 display: block
                 width: 100%
+                min-width: 0
                 margin: 0
                 white-space: nowrap
                 overflow: hidden
                 text-overflow: ellipsis
+            .table-link
+                +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
+                display: block
+                width: 100%
+                min-width: 0
+                overflow: hidden
+                text-overflow: ellipsis
+                white-space: nowrap
+                text-decoration: none
+                transition: color 0.3s ease
+                &:hover
+                    +mix.typography(14px, 400, map.get(vars.$main, 'main'))
+            .table-centered-cell
+                display: flex
+                justify-content: center
+                width: 100%
+            .table-action-trigger
+                width: 100%
+                display: flex
+                justify-content: center
             .link
                 text-decoration: none
                 +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
