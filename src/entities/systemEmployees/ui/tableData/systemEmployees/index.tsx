@@ -1,6 +1,6 @@
 import { Tag, type TableProps } from "antd";
 import type { SystemEmployeeTableDataType } from "./types";
-import CustomButton from "shared/ui/button";
+import { ActionDropdownButton } from "shared/ui/table/cells";
 import { statusColors } from "shared/ui/statuses";
 import type { TFunction } from "i18next";
 import UserPreviewCard from "entities/users/ui/userPreviewCard";
@@ -23,6 +23,7 @@ export const SystemEmployeesTableColumns = (
     dataIndex: "user",
     key: "user",
     className: "no-ellipsis",
+    width: "30%",
     render: (user: UserPreview) => <UserPreviewCard user={user} />,
   },
   {
@@ -30,6 +31,7 @@ export const SystemEmployeesTableColumns = (
     dataIndex: "roles",
     key: "roles",
     className: "no-ellipsis",
+    width: "30%",
     render: (roles: SystemRole[]) => (
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         {roles.map((role) => (
@@ -45,7 +47,7 @@ export const SystemEmployeesTableColumns = (
     dataIndex: "state",
     key: "state",
     className: "no-ellipsis",
-    width: 120,
+    width: "18%",
     render: (state: UserSystemAccessState) => (
       <Tag color={statusColors[state] ?? "default"}>
         {t(`systemEmployees.states.${state}`)}
@@ -56,14 +58,14 @@ export const SystemEmployeesTableColumns = (
     title: t("systemEmployees.fields.createdAt"),
     dataIndex: "createdAt",
     key: "createdAt",
-    width: 110,
+    width: "14%",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: "",
     key: "action",
     className: "no-ellipsis",
-    width: 320,
+    width: 72,
     render: (_, record) => {
       const isTerminalState =
         record.state === UserSystemAccessState.Declined ||
@@ -87,44 +89,28 @@ export const SystemEmployeesTableColumns = (
       }
 
       return (
-        <div className="system-employees-table-actions">
-          {permissions.canRead && (
-            <CustomButton
-              type="button"
-              variant="outline"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleAction("read", record);
-              }}
-            >
-              {t("common.details")}
-            </CustomButton>
-          )}
-          {canEdit && (
-            <CustomButton
-              type="button"
-              variant="outline"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleAction("edit", record);
-              }}
-            >
-              {t("systemEmployees.actions.editRoles")}
-            </CustomButton>
-          )}
-          {canRevoke && (
-            <CustomButton
-              type="button"
-              variant="danger"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleAction("delete", record);
-              }}
-            >
-              {t("systemEmployees.actions.revoke")}
-            </CustomButton>
-          )}
-        </div>
+        <ActionDropdownButton
+          actions={[
+            permissions.canRead && {
+              key: "read",
+              label: t("common.details"),
+              variant: "outline",
+              onClick: () => handleAction("read", record),
+            },
+            canEdit && {
+              key: "edit",
+              label: t("systemEmployees.actions.editRoles"),
+              variant: "outline",
+              onClick: () => handleAction("edit", record),
+            },
+            canRevoke && {
+              key: "delete",
+              label: t("systemEmployees.actions.revoke"),
+              variant: "danger",
+              onClick: () => handleAction("delete", record),
+            },
+          ]}
+        />
       );
     },
   },
