@@ -67,13 +67,13 @@ export const UsersTableColumns = (
           permissions.canUpdate && {
             key: "edit",
             label: t('btn.edit'),
-            className: "outline",
+            variant: "outline",
             onClick: () => handleRowClick("User", "edit", record),
           },
           permissions.canDelete && {
             key: "delete",
             label: t('btn.delete'),
-            className: "danger",
+            variant: "danger",
             onClick: () => handleRowClick("User", "delete", record),
           },
         ]}

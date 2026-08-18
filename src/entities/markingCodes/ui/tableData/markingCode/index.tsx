@@ -81,7 +81,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
   //   render: (_, record) => (
   //     <CustomButton
   //       type="button"
-  //       className="outline"
+  //       variant="outline"
   //       onClick={(e) =>  {e.stopPropagation(); handleRowClick("MarkingCode", "edit", record);}}
   //     >
   //       {t("btn.sendToTuron")}

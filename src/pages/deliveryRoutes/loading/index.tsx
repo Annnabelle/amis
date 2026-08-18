@@ -475,7 +475,7 @@ const DeliveryRoutesLoading = () => {
           <div className="box-container">
             <div className="box-container-items loading-page-state">
               <Empty description={t('common.dataNotFound')} />
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
                 {t('common.backToList')}
               </CustomButton>
             </div>
@@ -500,7 +500,7 @@ const DeliveryRoutesLoading = () => {
           )}
           {canCancelScan && (
             <CustomButton
-              className="danger"
+              variant="danger"
               onClick={handleStartDeleteScanning}
               disabled={isCreating || isCompleting || isClosingSession || scannerMode === 'loading'}
             >
@@ -511,14 +511,14 @@ const DeliveryRoutesLoading = () => {
             scannerMode !== 'delete' &&
             canCompleteOperation && (
             <CustomButton
-              className="outline"
+              variant="outline"
               onClick={() => void handleComplete()}
               disabled={isCreating || isCompleting || isClosingSession}
             >
               {isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading')}
             </CustomButton>
           )}
-          <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
+          <CustomButton variant="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
         </div>

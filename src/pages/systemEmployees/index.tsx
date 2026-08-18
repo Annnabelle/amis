@@ -564,10 +564,10 @@ const SystemEmployees = () => {
             <p className="subtitle">{selectedEmployee ? getEmployeeName(selectedEmployee) : ""}</p>
           </div>
           <div className="delete-modal-btns">
-            <CustomButton className="danger" onClick={handleDelete}>
+            <CustomButton variant="danger" onClick={handleDelete}>
               {t("systemEmployees.actions.revoke")}
             </CustomButton>
-            <CustomButton className="outline" onClick={() => openModal("delete", false)}>
+            <CustomButton variant="outline" onClick={() => openModal("delete", false)}>
               {t("btn.cancel")}
             </CustomButton>
           </div>

@@ -2,26 +2,77 @@
 @use "../../styles/mixins.sass" as mix
 @use "../../styles/variables.sass" as vars
 .btn
-    +mix.typography(14px, 500, map.get(vars.$static, 'white'))
     @include mix.flex-content(center)
+    +mix.typography(14px, 500, map.get(vars.$static, 'white'))
     text-align: center
-    background: map.get(vars.$main, 'main' )
-    padding: 12px 24px
-    border: none
-    cursor: pointer
-    width: 100%
-    border: 1px solid map.get(vars.$main, 'main')
-    transition: all 0.5s ease
+    width: auto
+    border: 1px solid transparent
     border-radius: 6px
+    cursor: pointer
     column-gap: 10px
-    &:hover
-        background: transparent
-        border: 1px solid map.get(vars.$main, 'main')
-        color: map.get(vars.$basic, 'black')
+    transition: all 0.5s ease
     &:disabled
         background: map.get(vars.$main, "box-shadow")
         color: map.get(vars.$static, 'white')
         cursor: not-allowed
+    &__icon
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        line-height: 0
+    &--full-width
+        width: 100%
+    &--sm
+        padding: 8px 12px
+    &--md
+        padding: 12px 24px
+    &--lg
+        padding: 14px 28px
+        +mix.typography(16px, 500, map.get(vars.$static, 'white'))
+    &--primary
+        background: map.get(vars.$main, 'main' )
+        border-color: map.get(vars.$main, 'main')
+        color: map.get(vars.$static, 'white')
+        &:hover
+            background: transparent
+            border-color: map.get(vars.$main, 'main')
+            color: map.get(vars.$basic, 'black')
+    &--outline
+        +mix.typography(14px, 400, map.get(vars.$main, 'main'))
+        background: transparent
+        border-color: map.get(vars.$main, 'main')
+        &:hover
+            background: map.get(vars.$main, 'main' )
+            border-color: map.get(vars.$main, 'main')
+            color: map.get(vars.$static, 'white')
+        &:disabled
+            background: transparent
+            color: map.get(vars.$main, 'main')
+            border-color: map.get(vars.$main, 'main')
+            opacity: 0.45
+    &--danger
+        +mix.typography(14px, 500, map.get(vars.$events, 'red'))
+        background: transparent
+        border-color: map.get(vars.$events, 'red')
+        &:hover
+            background: map.get(vars.$events, 'red')
+            border-color: map.get(vars.$events, 'red')
+            color: map.get(vars.$static, 'white')
+    &--ghost
+        color: map.get(vars.$basic, 'black')
+        background: transparent
+        border-color: transparent
+        &:hover
+            color: map.get(vars.$main, 'main')
+            background: map.get(vars.$main, 'main-light')
+    &--text
+        width: auto
+        padding: 0
+        color: map.get(vars.$main, 'main')
+        background: transparent
+        border-color: transparent
+        &:hover
+            color: map.get(vars.$basic, 'black')
 .outline
     +mix.typography(14px, 400, map.get(vars.$main, 'main'))
     background: transparent

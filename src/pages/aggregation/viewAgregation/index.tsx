@@ -179,7 +179,7 @@ const AggregationReportPage: React.FC = () => {
                             )}
 
                             <CustomButton
-                                className="outline"
+                                variant="outline"
                                 onClick={() => navigateBack(`/organization/${orgId}/agregations`)}
                             >
                                 {t("btn.back")}

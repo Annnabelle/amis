@@ -92,7 +92,7 @@ const LeadDetails = () => {
     return (
       <MainLayout>
         <Heading title={t("leads.detailsTitle")} subtitle={t("common.details")}>
-          <CustomButton className="outline" onClick={() => navigate("/leads")}>
+          <CustomButton variant="outline" onClick={() => navigate("/leads")}>
             {t("common.backToList")}
           </CustomButton>
         </Heading>
@@ -122,7 +122,7 @@ const LeadDetails = () => {
   return (
     <MainLayout>
       <Heading title={t("leads.detailsTitle")} subtitle={t("common.details")}>
-        <CustomButton className="outline" onClick={() => navigate("/leads")}>
+        <CustomButton variant="outline" onClick={() => navigate("/leads")}>
           {t("common.backToList")}
         </CustomButton>
       </Heading>

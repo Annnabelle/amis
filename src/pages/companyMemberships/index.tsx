@@ -713,10 +713,10 @@ const CompanyMemberships = () => {
             </p>
           </div>
           <div className="delete-modal-btns">
-            <CustomButton className="danger" onClick={handleDelete}>
+            <CustomButton variant="danger" onClick={handleDelete}>
               {t("companyMemberships.actions.revoke")}
             </CustomButton>
-            <CustomButton className="outline" onClick={() => openModal("delete", false)}>
+            <CustomButton variant="outline" onClick={() => openModal("delete", false)}>
               {t("btn.cancel")}
             </CustomButton>
           </div>

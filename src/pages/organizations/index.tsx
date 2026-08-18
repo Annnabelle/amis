@@ -413,7 +413,7 @@ const Organizations = () => {
             <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
                     {canReadAudit && (
-                        <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                        <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                     )}
                     {canCreateCompany && (
                         <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>
@@ -805,7 +805,7 @@ const Organizations = () => {
 
                         <div className="btns-group organization-integration-actions">
                             <CustomButton
-                                className="outline"
+                                variant="outline"
                                 onClick={() => setCreateCompanyStep("fakturaUz")}
                                 disabled={xTraceCreateLoading}
                             >
@@ -933,7 +933,7 @@ const Organizations = () => {
                             ) : (
                                 <>
                                     <CustomButton
-                                        className="outline"
+                                        variant="outline"
                                         onClick={() => void finishCreateCompanyFlow()}
                                         disabled={fakturaUzCreateLoading}
                                     >
@@ -968,10 +968,10 @@ const Organizations = () => {
                         <p className="subtitle">{modalState.companyData?.legalName} ? </p>
                     </div>
                     <div className="delete-modal-btns">
-                        <CustomButton className="danger" onClick={confirmDeleteOrganization}>
+                        <CustomButton variant="danger" onClick={confirmDeleteOrganization}>
                             {t('btn.delete')}
                         </CustomButton>
-                        <CustomButton onClick={() => handleModal("deleteUser", false)} className="outline">
+                        <CustomButton onClick={() => handleModal("deleteUser", false)} variant="outline">
                             {t('btn.cancel')}
                         </CustomButton>
                     </div>

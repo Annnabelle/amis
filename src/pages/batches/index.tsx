@@ -120,7 +120,7 @@ const Batches = () => {
                         {t('btn.applyAll')}
                     </CustomButton>
                 )}
-                <CustomButton className='outline' onClick={() => navigate(`/organization/${orgId}/orders`)}>{t("markingCodes.backToOrders")}</CustomButton>
+                <CustomButton variant='outline' onClick={() => navigate(`/organization/${orgId}/orders`)}>{t("markingCodes.backToOrders")}</CustomButton>
             </div>
         </Heading>
         <div className="box">

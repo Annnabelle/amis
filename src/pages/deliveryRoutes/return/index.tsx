@@ -418,7 +418,7 @@ const DeliveryRoutesReturn = () => {
           <div className="box-container">
             <div className="box-container-items loading-page-state">
               <Empty description={t('common.dataNotFound')} />
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
                 {t('common.backToRoute')}
               </CustomButton>
             </div>
@@ -443,14 +443,14 @@ const DeliveryRoutesReturn = () => {
           )}
           {scanSession?.status === 'active' && canCompleteOperation && (
             <CustomButton
-              className="outline"
+              variant="outline"
               onClick={() => void handleComplete()}
               disabled={isCreating || isCompletingSession || isClosingSession}
             >
               {isCompletingSession ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeReturn')}
             </CustomButton>
           )}
-          <CustomButton className="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
+          <CustomButton variant="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
             {t('common.backToRoute')}
           </CustomButton>
         </div>

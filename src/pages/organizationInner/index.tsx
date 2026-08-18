@@ -106,7 +106,7 @@ const OrganizationsInner = () => {
         {isMobile && (
           <div className="mobile-route-toolbar">
             <div className="mobile-route-toolbar-back">
-              <CustomButton className="outline" onClick={() => navigateBack('/organization')}>
+              <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
                 <LeftOutlined />
               </CustomButton>
             </div>
@@ -114,7 +114,7 @@ const OrganizationsInner = () => {
         )}
         {!isMobile && (
           <Heading title={t('organizations.title')} subtitle={t('common.details')}>
-            <CustomButton className="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
               {t('common.backToList')}
             </CustomButton>
           </Heading>
@@ -210,7 +210,7 @@ const OrganizationsInner = () => {
       {isMobile && (
         <div className="mobile-route-toolbar">
           <div className="mobile-route-toolbar-back">
-            <CustomButton className="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
               <LeftOutlined />
             </CustomButton>
           </div>
@@ -228,7 +228,7 @@ const OrganizationsInner = () => {
           subtitle={t('common.details')}
         >
           <div className="btns-group">
-            <CustomButton className="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
               {t('common.backToList')}
             </CustomButton>
             <CustomButton onClick={handleEnterCompany}>
@@ -313,7 +313,7 @@ const OrganizationsInner = () => {
             )}
 
             <div className="btns-group">
-              <CustomButton className="outline" onClick={() => navigateBack('/organization')}>
+              <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
                 {t('common.backToList')}
               </CustomButton>
             </div>

@@ -38,7 +38,7 @@ const SalesOrdersDetails = () => {
               {t(`salesOrders.statuses.${order.status}`)}
             </StatusBadge>
           )}
-          <CustomButton className="outline" onClick={() => navigate(listPath)}>
+          <CustomButton variant="outline" onClick={() => navigate(listPath)}>
             {t('common.backToList')}
           </CustomButton>
         </div>

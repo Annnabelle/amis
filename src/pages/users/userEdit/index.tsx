@@ -133,7 +133,7 @@ const UsersEdit = () => {
                                     </Form.Item>
                                 </div>
                                 )}
-                                <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
+                                <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>
                             </>
                         )}
                     </div>

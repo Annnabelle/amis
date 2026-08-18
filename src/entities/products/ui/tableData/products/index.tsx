@@ -46,13 +46,13 @@ export const ProductsTableColumns = (
           permissions.canUpdate && {
             key: "edit",
             label: t('btn.edit'),
-            className: "outline",
+            variant: "outline",
             onClick: () => handleRowClick("Product", "edit", record),
           },
           permissions.canDelete && {
             key: "delete",
             label: t('btn.delete'),
-            className: "danger",
+            variant: "danger",
             onClick: () => onDelete(record),
           },
         ]}

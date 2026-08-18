@@ -145,10 +145,10 @@ const UserSettings = () => {
             <p className="title">{t('changePwd.confirmModal.subtitle')}</p>
           </div>
           <div className="delete-modal-btns">
-            <CustomButton className="danger" onClick={confirmChangePassword}>
+            <CustomButton variant="danger" onClick={confirmChangePassword}>
               {t('changePwd.confirmModal.btn.confirm')}
             </CustomButton>
-            <CustomButton onClick={() => setModalOpen(false)} className="outline">
+            <CustomButton onClick={() => setModalOpen(false)} variant="outline">
               {t('changePwd.confirmModal.btn.cancel')}
             </CustomButton>
           </div>

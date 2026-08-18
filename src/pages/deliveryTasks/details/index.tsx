@@ -33,7 +33,7 @@ const DeliveryTasksDetails = () => {
               <div className="detail-card">
                 <h4>{t('deliveryTasks.sections.session')}</h4>
                 <Empty description={t('deliveryTasks.details.sessionEmpty')} />
-                <CustomButton className="outline" onClick={() => navigate(scanPath)}>
+                <CustomButton variant="outline" onClick={() => navigate(scanPath)}>
                   {t('deliveryTasks.actions.openScan')}
                 </CustomButton>
               </div>
@@ -43,7 +43,7 @@ const DeliveryTasksDetails = () => {
               </div>
             </div>
             <div className="btns-group">
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
                 {t('common.backToList')}
               </CustomButton>
             </div>
