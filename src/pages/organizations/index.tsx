@@ -30,6 +30,7 @@ import {
 } from 'entities/xTrace/model';
 import { fetchReferencesByType } from 'entities/references/model';
 import dayjs from 'dayjs';
+import './styles.sass';
 
 const TIN_LENGTH = 9;
 type CreateCompanyStep = "company" | "xTrace" | "fakturaUz";

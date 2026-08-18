@@ -31,6 +31,7 @@ import {
   DetailStatsGrid,
   RouteMetaChip,
 } from 'shared/ui/details';
+import './styles.sass';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();

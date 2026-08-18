@@ -8,6 +8,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
 import CustomButton from 'shared/ui/button';
+import 'shared/ui/details/styles.sass';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import {
   clearDeliveryTaskById,
