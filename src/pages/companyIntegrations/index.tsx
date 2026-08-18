@@ -27,6 +27,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ModalWindow from 'shared/ui/modalWindow';
 import StatusBadge from 'shared/ui/statusBadge';
+import '../organizations/styles.sass';
 
 type DetailItem = {
   label: string;

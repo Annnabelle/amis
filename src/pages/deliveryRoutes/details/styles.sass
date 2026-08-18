@@ -1,0 +1,495 @@
+@use "sass:map"
+@use "../../../shared/styles/variables" as vars
+
+.delivery-task-items-grid
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
+  gap: 16px
+
+.delivery-task-item-card
+  display: flex
+  flex-direction: column
+  gap: 14px
+  padding: 16px
+  border-radius: 16px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.12)
+  background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.05) 0%, rgba(var(--white-rgb), 1) 100%)
+
+.delivery-task-item-title
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+  h5
+    margin: 0
+    font-size: 16px
+    line-height: 1.3
+    color: map.get(vars.$text, 'primary')
+
+.delivery-task-item-shortname
+  font-size: 12px
+  font-weight: 600
+  color: map.get(vars.$text, 'secondary')
+
+.delivery-task-item-stats
+  display: grid
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: 10px
+
+  .detail-stat
+    min-height: unset
+    padding: 12px
+
+    .value
+      font-size: 22px
+
+.route-preview-orders-details
+  display: flex
+  flex-direction: column
+  gap: 14px
+
+.route-task-controls
+  display: flex
+  gap: 10px
+  margin-bottom: 16px
+  flex-wrap: wrap
+
+.route-task-control-btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 8px
+  padding: 7px 14px
+  border-radius: 14px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.14)
+  background: rgba(var(--main-primary-rgb), 0.04)
+  color: map.get(vars.$text, 'slate')
+  font-size: 12px
+  font-weight: 600
+  line-height: 1.1
+  text-align: center
+  cursor: pointer
+  transition: all 0.2s ease
+  white-space: nowrap
+
+  .anticon
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    flex: 0 0 14px
+    width: 14px
+    height: 14px
+    line-height: 1
+    transform: translateY(-1px)
+
+    svg
+      display: block
+
+  &:hover
+    border-color: rgba(var(--main-primary-rgb), 0.35)
+    background: rgba(var(--main-primary-rgb), 0.08)
+
+.route-task-card
+  border: 1px solid rgba(var(--main-primary-rgb), 0.10)
+  border-radius: 18px
+  background: linear-gradient(180deg, rgba(var(--white-rgb), 1) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
+  box-shadow: 0 6px 18px rgba(var(--slate-rgb), 0.05)
+  transition: box-shadow 0.2s ease, border-color 0.2s ease
+  overflow: hidden
+
+  &:hover
+    border-color: rgba(var(--main-primary-rgb), 0.20)
+    box-shadow: 0 10px 24px rgba(var(--slate-rgb), 0.08)
+
+.route-task-header
+  position: relative
+  display: grid
+  grid-template-columns: minmax(0, 1fr) auto
+  gap: 16px
+  align-items: start
+  padding: 18px 20px
+  padding-right: 56px
+
+.route-task-expand-icon
+  position: absolute
+  top: 18px
+  right: 20px
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  border-radius: 999px
+  background: rgba(var(--main-primary-rgb), 0.08)
+  color: map.get(vars.$main, 'main')
+  font-size: 12px
+
+.route-task-main
+  display: flex
+  flex-direction: column
+  gap: 12px
+  min-width: 0
+
+.route-task-topline
+  display: grid
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr)
+  gap: 14px
+  align-items: start
+
+.route-task-number
+  margin: 0
+  font-size: 28px
+  line-height: 1.05
+  font-weight: 700
+  color: map.get(vars.$text, 'primary')
+  align-self: start
+
+.route-task-customer-block
+  display: flex
+  flex-direction: column
+  gap: 4px
+  min-width: 0
+  padding-top: 2px
+
+.route-task-customer-name
+  font-size: 16px
+  font-weight: 600
+  color: map.get(vars.$text, 'slate')
+  line-height: 1.3
+  word-break: break-word
+
+.route-task-customer-meta
+  font-size: 13px
+  line-height: 1.35
+  color: map.get(vars.$text, 'secondary')
+  word-break: break-word
+
+.route-task-metrics
+  display: grid
+  grid-template-columns: repeat(4, minmax(0, 1fr))
+  gap: 12px
+
+.route-task-metric
+  display: flex
+  flex-direction: column
+  gap: 6px
+  min-width: 0
+
+.route-task-metric-label
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: map.get(vars.$text, 'tertiary')
+
+.route-task-metric-value
+  font-size: 22px
+  line-height: 1.1
+  font-weight: 700
+  color: map.get(vars.$text, 'slate')
+
+.route-task-card.collapsed
+  .route-task-header
+    align-items: center
+
+  .route-task-main
+    gap: 0
+
+  .route-task-metrics
+    display: none
+
+  .route-task-customer-block
+    justify-content: center
+
+.route-task-side
+  display: flex
+  flex-direction: column
+  align-items: flex-end
+  gap: 10px
+
+.route-task-invoice
+  font-size: 13px
+  font-weight: 600
+  color: map.get(vars.$text, 'secondary')
+
+.route-task-expanded
+  border-top: 1px solid rgba(var(--main-primary-rgb), 0.10)
+  padding: 0 20px 18px
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.route-task-expanded-meta
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: 12px
+  padding-top: 16px
+
+.route-task-expanded-item
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.route-task-expanded-label
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: map.get(vars.$text, 'tertiary')
+
+.route-task-expanded-value
+  font-size: 14px
+  line-height: 1.45
+  color: map.get(vars.$text, 'slate')
+  word-break: break-word
+
+.route-task-items-list
+  display: flex
+  flex-direction: column
+  border-radius: 14px
+  background: rgba(var(--surface-soft-rgb), 0.9)
+
+.route-task-items-head,
+.route-task-item-row
+  display: grid
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(90px, 1fr))
+  gap: 12px
+  align-items: start
+  padding: 12px 16px
+
+.route-task-items-head
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.10)
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: map.get(vars.$text, 'tertiary')
+
+.route-task-item-row
+  font-size: 14px
+  color: map.get(vars.$text, 'slate')
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.06)
+
+  &:last-child
+    border-bottom: none
+
+.route-task-item-product
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.route-task-item-cell
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.route-task-item-cell-label
+  display: none
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: map.get(vars.$text, 'tertiary')
+
+.route-task-item-name
+  font-weight: 600
+  color: map.get(vars.$text, 'slate')
+
+.route-task-item-subname
+  font-size: 12px
+  color: map.get(vars.$text, 'secondary')
+
+.route-task-item-row-empty
+  color: map.get(vars.$text, 'muted')
+
+:root[data-theme='dark']
+
+  .delivery-task-item-card
+    background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.10) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.18)
+
+  .delivery-task-item-title h5
+    color: map.get(vars.$text, 'primary')
+
+  .route-task-control-btn
+    background: rgba(var(--main-primary-soft-rgb), 0.08)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.18)
+    color: map.get(vars.$text, 'slate')
+
+  .route-task-card
+    background: linear-gradient(180deg, rgba(var(--surface-soft-rgb), 1) 0%, rgba(var(--surface-soft-rgb), 0.92) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.12)
+
+  .route-task-number,
+  .route-task-item-name,
+  .route-task-metric-value,
+  .route-task-expanded-value
+    color: map.get(vars.$text, 'primary')
+
+  .route-task-customer-name
+    color: map.get(vars.$text, 'primary')
+
+  .route-task-customer-meta,
+  .route-task-invoice,
+  .route-task-item-subname,
+  .route-task-expanded-label,
+  .route-task-metric-label,
+  .route-task-items-head
+    color: map.get(vars.$text, 'secondary')
+
+  .route-task-expand-icon
+    background: rgba(var(--main-primary-soft-rgb), 0.12)
+    color: map.get(vars.$main, 'main-hover')
+
+  .route-task-expanded
+    border-top-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+  .route-task-items-list
+    background: rgba(var(--white-rgb), 0.02)
+
+  .route-task-items-head,
+  .route-task-item-row
+    border-bottom-color: rgba(var(--main-primary-soft-rgb), 0.08)
+
+  .route-task-item-row
+    color: map.get(vars.$text, 'slate')
+
+  .route-task-item-cell-label
+    color: map.get(vars.$text, 'secondary')
+
+@media (max-width: 900px)
+
+  .delivery-task-item-stats
+    grid-template-columns: 1fr
+
+  .route-task-controls
+    flex-direction: row
+    flex-wrap: nowrap
+    width: auto
+    gap: 6px
+    margin-bottom: 0
+
+  .route-task-control-btn
+    flex: 0 1 auto
+    min-width: 0
+    padding: 7px 12px
+    font-size: 10px
+    line-height: 1
+    border-radius: 12px
+    white-space: nowrap
+
+  .route-task-header
+    grid-template-columns: minmax(0, 1fr)
+    gap: 12px
+    padding: 16px
+    padding-right: 52px
+
+  .route-task-expand-icon
+    top: 16px
+    right: 16px
+
+  .route-task-side
+    grid-column: 1 / -1
+    align-items: flex-start
+    width: 100%
+    gap: 8px
+
+    .status-badge
+      flex-shrink: 0
+
+    .primary
+      width: 100%
+
+  .route-task-invoice
+    display: none
+
+  .route-task-topline
+    grid-template-columns: 1fr
+    gap: 8px
+
+  .route-task-number
+    font-size: 18px
+    line-height: 1.15
+
+  .route-task-metrics
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+    gap: 10px
+
+  .route-task-expanded
+    padding: 0 16px 16px
+    gap: 12px
+
+  .route-task-expanded-meta
+    grid-template-columns: 1fr
+    gap: 8px
+    padding-top: 12px
+
+  .route-task-expanded-item
+    gap: 4px
+    padding: 10px 12px
+    border: 1px solid rgba(var(--main-primary-rgb), 0.10)
+    border-radius: 12px
+    background: rgba(var(--surface-soft-rgb), 0.92)
+
+  .route-task-expanded-value
+    font-size: 13px
+    line-height: 1.35
+
+  .route-task-items-head
+    display: none
+
+  .route-task-items-list
+    gap: 8px
+    background: transparent
+
+  .route-task-item-row
+    grid-template-columns: 1fr
+    gap: 10px
+    padding: 12px
+    border: 1px solid rgba(var(--main-primary-rgb), 0.08)
+    border-radius: 14px
+    background: rgba(var(--surface-soft-rgb), 0.92)
+
+    &:last-child
+      border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.08)
+
+  .route-task-item-product
+    gap: 2px
+    padding-bottom: 8px
+    border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.08)
+
+  .route-task-item-cell
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    gap: 12px
+    font-size: 13px
+
+    > span:last-child
+      font-weight: 600
+      color: map.get(vars.$text, 'slate')
+      text-align: right
+
+  .route-task-item-row-empty
+    display: flex
+    align-items: center
+    justify-content: center
+    min-height: 72px
+
+  .route-task-item-cell-label
+    display: block
+
+:root[data-theme='dark']
+  @media (max-width: 900px)
+
+    .route-task-expanded-item,
+    .route-task-item-row
+      background: rgba(var(--white-rgb), 0.03)
+      border-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+    .route-task-item-product
+      border-bottom-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+    .route-task-item-cell
+      > span:last-child
+        color: map.get(vars.$text, 'primary')

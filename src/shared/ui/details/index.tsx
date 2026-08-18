@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import "./styles.sass";
 
 type DetailGridVariant = "main" | "single" | "secondary";
 
@@ -79,7 +80,7 @@ export const DetailCard = ({
     {title && (actions || headerWithActions) ? (
       <div className={cx("detail-card-header", headerWithActions && "detail-card-header-with-actions")}>
         <h4>{title}</h4>
-        {actions}
+        {actions && <div className="detail-card-actions">{actions}</div>}
       </div>
     ) : (
       title && <h4>{title}</h4>

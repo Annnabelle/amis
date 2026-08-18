@@ -4,6 +4,7 @@ import CustomButton from 'shared/ui/button';
 import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import 'shared/ui/details/styles.sass';
 
 const DeliveryTasksDetails = () => {
   const navigate = useNavigate();
