@@ -205,7 +205,8 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       return (
           <CustomButton
               type="button"
-              className="outline table-action-btn"
+              variant="outline"
+              className="table-action-btn"
               disabled={isCreatingAik}
               onClick={(e) => {
                 if (canCreateAik) {

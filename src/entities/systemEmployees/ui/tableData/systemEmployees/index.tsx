@@ -91,7 +91,7 @@ export const SystemEmployeesTableColumns = (
           {permissions.canRead && (
             <CustomButton
               type="button"
-              className="outline"
+              variant="outline"
               onClick={(event) => {
                 event.stopPropagation();
                 handleAction("read", record);
@@ -103,7 +103,7 @@ export const SystemEmployeesTableColumns = (
           {canEdit && (
             <CustomButton
               type="button"
-              className="outline"
+              variant="outline"
               onClick={(event) => {
                 event.stopPropagation();
                 handleAction("edit", record);
@@ -115,7 +115,7 @@ export const SystemEmployeesTableColumns = (
           {canRevoke && (
             <CustomButton
               type="button"
-              className="danger"
+              variant="danger"
               onClick={(event) => {
                 event.stopPropagation();
                 handleAction("delete", record);

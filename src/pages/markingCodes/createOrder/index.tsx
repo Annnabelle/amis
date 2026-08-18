@@ -432,7 +432,8 @@ const OrderForm = () => {
                 Boolean(productsError)
             }
             type="submit"
-            className="outline full-width"
+            variant="outline"
+            className="full-width"
         >
           {t("markingCodes.orderCreation.submitOrder")}
         </CustomButton>

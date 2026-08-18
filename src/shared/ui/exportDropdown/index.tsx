@@ -32,17 +32,17 @@ const ExportDropdownButton: React.FC<ExportDropdownButtonProps> = ({
     const menuItems: MenuProps["items"] = [
         {
             key: "short",
-            className: "btn outline",
+            className: "export-dropdown-option",
             label: t("export.short"),
         },
         {
             key: "long",
-            className: "btn outline",
+            className: "export-dropdown-option",
             label: t("export.long"),
         },
         ...extraOptions.map((option) => ({
             key: option.key,
-            className: "btn outline",
+            className: "export-dropdown-option",
             label: option.label,
         })),
     ];
@@ -61,7 +61,7 @@ const ExportDropdownButton: React.FC<ExportDropdownButtonProps> = ({
             className="export-dropdown"
         >
           <span>
-            <CustomButton className="btn">
+            <CustomButton>
               {loading ? <Spin size="small" /> : label}
             </CustomButton>
           </span>

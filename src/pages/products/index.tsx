@@ -279,7 +279,7 @@ const Products = () => {
             <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
                     {canReadAudit && (
-                        <CustomButton className='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                        <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                     )}
                     {canCreateProduct && (
                         <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
@@ -672,10 +672,10 @@ const Products = () => {
                     <p className="subtitle">{modalState.productData?.name} ? </p>
                 </div>
                 <div className="delete-modal-btns">
-                    <CustomButton className="danger" onClick={confirmDeleteProduct}>
+                    <CustomButton variant="danger" onClick={confirmDeleteProduct}>
                         {t('btn.delete')}
                     </CustomButton>
-                    <CustomButton onClick={() => handleModal("deleteProduct", false)} className="outline">
+                    <CustomButton onClick={() => handleModal("deleteProduct", false)} variant="outline">
                         {t('btn.cancel')}
                     </CustomButton>
                 </div>

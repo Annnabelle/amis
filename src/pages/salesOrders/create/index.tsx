@@ -563,7 +563,7 @@ const SalesOrdersCreate = () => {
               </div>
 
               <div className="form-btns-group">
-                <CustomButton className="outline" onClick={() => navigate(listPath)}>
+                <CustomButton variant="outline" onClick={() => navigate(listPath)}>
                   {t('btn.cancel')}
                 </CustomButton>
                 <CustomButton

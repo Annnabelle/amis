@@ -200,7 +200,7 @@ const InvoicesDetails = () => {
     return (
       <MainLayout>
         <Heading title={t('invoices.detailsTitle')} subtitle={t('common.details')}>
-          <CustomButton className="outline" onClick={() => navigate(listPath)}>
+          <CustomButton variant="outline" onClick={() => navigate(listPath)}>
             {t('common.backToList')}
           </CustomButton>
         </Heading>
@@ -324,7 +324,7 @@ const InvoicesDetails = () => {
               <DownloadOutlined />
             </button>
           </div>
-          <CustomButton className="outline" onClick={() => navigate(listPath)}>
+          <CustomButton variant="outline" onClick={() => navigate(listPath)}>
             {t('common.backToList')}
           </CustomButton>
         </div>

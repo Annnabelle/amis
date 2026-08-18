@@ -376,7 +376,8 @@ const CustomsCodesPage = () => {
           return (
             <CustomButton
               type="button"
-              className="outline table-action-btn"
+              variant="outline"
+              className="table-action-btn"
               onClick={(event) => {
                 event.stopPropagation();
                 openSignModal(row.order, 'registration');
@@ -391,7 +392,8 @@ const CustomsCodesPage = () => {
           return (
             <CustomButton
               type="button"
-              className="outline table-action-btn"
+              variant="outline"
+              className="table-action-btn"
               disabled={dissolving}
               onClick={(event) => {
                 event.stopPropagation();
@@ -411,7 +413,8 @@ const CustomsCodesPage = () => {
         return (
           <CustomButton
             type="button"
-            className="outline table-action-btn"
+            variant="outline"
+            className="table-action-btn"
             onClick={(event) => {
               event.stopPropagation();
               openSignModal(row.order, 'dissolution');

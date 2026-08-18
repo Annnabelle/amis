@@ -93,7 +93,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <div className="user-dropdown">
           {showProfileAction && (
             <div className="user-dropdown-action">
-              <CustomButton className="outline" onClick={() => navigate('/profile')}>
+              <CustomButton variant="outline" onClick={() => navigate('/profile')}>
                {t("changePwd.title")}
               </CustomButton>
             </div>

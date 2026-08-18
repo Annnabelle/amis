@@ -251,7 +251,7 @@ const DeliveryRoutesDetails = () => {
         {isMobile && (
           <div className="mobile-route-toolbar">
             <div className="mobile-route-toolbar-back">
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
                 <LeftOutlined />
               </CustomButton>
             </div>
@@ -265,7 +265,7 @@ const DeliveryRoutesDetails = () => {
             <div className="box-container-items">
               <Empty description={t('common.dataNotFound')} />
               <div className="btns-group">
-                <CustomButton className="outline" onClick={() => navigate(backPath)}>
+                <CustomButton variant="outline" onClick={() => navigate(backPath)}>
                   {t('common.backToList')}
                 </CustomButton>
               </div>
@@ -335,7 +335,7 @@ const DeliveryRoutesDetails = () => {
       {isMobile && (
         <div className="mobile-route-toolbar">
           <div className="mobile-route-toolbar-back">
-            <CustomButton className="outline" onClick={() => navigate(backPath)}>
+            <CustomButton variant="outline" onClick={() => navigate(backPath)}>
               <LeftOutlined />
             </CustomButton>
           </div>
@@ -351,7 +351,7 @@ const DeliveryRoutesDetails = () => {
             )}
             {canOpenReturn && (
               <CustomButton
-                className="outline"
+                variant="outline"
                 onClick={() => void handleOpenReturn()}
               >
                 {returnButtonLabel}
@@ -359,7 +359,7 @@ const DeliveryRoutesDetails = () => {
             )}
             {canStartTransit && (
               <CustomButton
-                className="outline"
+                variant="outline"
                 onClick={() => void handleStartTransit()}
               >
                 {transitButtonLabel}
@@ -394,7 +394,7 @@ const DeliveryRoutesDetails = () => {
             )}
             {canOpenReturn && (
               <CustomButton
-                className="outline"
+                variant="outline"
                 onClick={() => void handleOpenReturn()}
               >
                 {returnButtonLabel}
@@ -402,7 +402,7 @@ const DeliveryRoutesDetails = () => {
             )}
             {canStartTransit && (
               <CustomButton
-                className="outline"
+                variant="outline"
                 onClick={() => void handleStartTransit()}
               >
                 {transitButtonLabel}
@@ -720,7 +720,7 @@ const DeliveryRoutesDetails = () => {
             )}
 
             <div className="btns-group">
-              <CustomButton className="outline" onClick={() => navigate(backPath)}>
+              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
                 {t('common.backToList')}
               </CustomButton>
             </div>

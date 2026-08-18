@@ -196,7 +196,7 @@ const OrganizationsEdit = () => {
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.person')}  />
                             </Form.Item>
                         </div>
-                        <CustomButton className="outline" type="submit">{t('btn.save')} </CustomButton>
+                        <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>
                     </>
                 )}
             </div>

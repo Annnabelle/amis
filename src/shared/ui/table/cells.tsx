@@ -3,6 +3,7 @@ import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import CustomButton from "shared/ui/button";
+import type { ButtonVariant } from "shared/ui/button";
 
 type CellValue = ReactNode;
 
@@ -22,7 +23,7 @@ interface CenteredCellProps {
 export interface ActionDropdownItem {
   key: string;
   label: ReactNode;
-  className?: string;
+  variant?: ButtonVariant;
   onClick: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
@@ -61,7 +62,7 @@ export const ActionDropdownButton = ({ actions }: ActionDropdownButtonProps) => 
       label: (
         <CustomButton
           type="button"
-          className={action.className}
+          variant={action.variant}
           onClick={(event) => {
             event.stopPropagation();
             action.onClick(event);

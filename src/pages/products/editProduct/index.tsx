@@ -338,7 +338,7 @@ const ProductsEdit = () => {
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.price')}  />
                                 </Form.Item>
                             </div>
-                            <CustomButton className="outline" type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
+                            <CustomButton variant="outline" type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
                         </>
                     )}
                 </div>

@@ -303,7 +303,7 @@ const CompanyIntegrations = () => {
       {isMobile && (
         <div className="mobile-route-toolbar">
           <div className="mobile-route-toolbar-back">
-            <CustomButton className="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
               <LeftOutlined />
             </CustomButton>
           </div>
@@ -314,7 +314,7 @@ const CompanyIntegrations = () => {
           title={t('navigation.integrations')}
           subtitle={organizationById?.displayName ?? t('organizations.title')}
         >
-          <CustomButton className="outline" onClick={() => navigateBack(`/organization/${orgId}`)}>
+          <CustomButton variant="outline" onClick={() => navigateBack(`/organization/${orgId}`)}>
             {t('common.backToList')}
           </CustomButton>
         </Heading>
@@ -334,7 +334,7 @@ const CompanyIntegrations = () => {
                     <div className="detail-card-header">
                       <h4>{t('organizations.integrations.xTrace.cardTitle')}</h4>
                       {showXTraceAction && (
-                        <CustomButton className="outline" onClick={openXTraceModal}>
+                        <CustomButton variant="outline" onClick={openXTraceModal}>
                           {t(xTraceIntegration ? 'btn.edit' : 'btn.create')}
                         </CustomButton>
                       )}
@@ -348,7 +348,7 @@ const CompanyIntegrations = () => {
                     <div className="detail-card-header">
                       <h4>{t('organizations.integrations.fakturaUz.cardTitle')}</h4>
                       {showFakturaAction && (
-                        <CustomButton className="outline" onClick={openFakturaUzModal}>
+                        <CustomButton variant="outline" onClick={openFakturaUzModal}>
                           {t(fakturaUzIntegration ? 'btn.edit' : 'btn.create')}
                         </CustomButton>
                       )}
@@ -428,7 +428,7 @@ const CompanyIntegrations = () => {
           </FormComponent>
 
           <div className="btns-group organization-integration-actions">
-            <CustomButton className="outline" onClick={closeXTraceModal} disabled={xTraceCreateLoading}>
+            <CustomButton variant="outline" onClick={closeXTraceModal} disabled={xTraceCreateLoading}>
               {t('btn.cancel')}
             </CustomButton>
             <CustomButton
@@ -490,7 +490,7 @@ const CompanyIntegrations = () => {
           </FormComponent>
 
           <div className="btns-group organization-integration-actions">
-            <CustomButton className="outline" onClick={() => setIsFakturaUzModalOpen(false)} disabled={fakturaUzCreateLoading}>
+            <CustomButton variant="outline" onClick={() => setIsFakturaUzModalOpen(false)} disabled={fakturaUzCreateLoading}>
               {t('btn.cancel')}
             </CustomButton>
             <CustomButton onClick={handleSaveFakturaUz} disabled={fakturaUzCreateLoading}>
