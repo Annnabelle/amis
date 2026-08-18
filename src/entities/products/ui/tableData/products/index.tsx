@@ -1,6 +1,5 @@
-import { type TableProps, Dropdown, Menu, Button } from 'antd';
-import { HiDotsHorizontal } from 'react-icons/hi';
-import CustomButton from 'shared/ui/button';
+import { type TableProps } from 'antd';
+import { ActionDropdownButton, TextCell } from 'shared/ui/table/cells';
 import type { ProductTableDataType } from './types';
 import type { TFunction } from 'i18next';
 
@@ -15,21 +14,21 @@ export const ProductsTableColumns = (
     dataIndex: "name",
     key: "name",
     width: 460,
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('products.addProductForm.label.productType'),
     dataIndex: "productGroup",
     key: "productGroup",
     width: 220,
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('products.addProductForm.label.gtin'),
     dataIndex: "gtin",
     key: "gtin",
     width: 110,
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   // {
   //   title: t('products.status'),
@@ -41,52 +40,24 @@ export const ProductsTableColumns = (
     title: '',
     key: "action",
     width: 72,
-    render: (_, record) => {
-      if (!permissions.canUpdate && !permissions.canDelete) {
-        return null;
-      }
-
-      return (
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-        <Dropdown
-          overlay={
-            <Menu
-              items={[
-                permissions.canUpdate ? {
-                  key: "edit",
-                  label: (
-                    <CustomButton
-                      type="button"
-                      className="outline"
-                      onClick={(e) =>  {e.stopPropagation(); handleRowClick("Product", "edit", record);}}
-                    >
-                      {t('btn.edit')} 
-                    </CustomButton>
-                  ),
-                } : null,
-                permissions.canDelete ? {
-                  key: "delete",
-                  label: (
-                    <CustomButton
-                      type="button"
-                      className="danger"
-                      onClick={(e) => { e.stopPropagation(); onDelete(record)}}
-                    >
-                      {t('btn.delete')} 
-                    </CustomButton>
-                  ),
-                } : null,
-              ].filter(Boolean)}
-            />
-          }
-          trigger={["click"]}
-          placement="bottomRight"
-        >
-          <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} />
-        </Dropdown>
-      </div>
-      );
-    },
+    render: (_, record) => (
+      <ActionDropdownButton
+        actions={[
+          permissions.canUpdate && {
+            key: "edit",
+            label: t('btn.edit'),
+            className: "outline",
+            onClick: () => handleRowClick("Product", "edit", record),
+          },
+          permissions.canDelete && {
+            key: "delete",
+            label: t('btn.delete'),
+            className: "danger",
+            onClick: () => onDelete(record),
+          },
+        ]}
+      />
+    ),
   },
 ];
 

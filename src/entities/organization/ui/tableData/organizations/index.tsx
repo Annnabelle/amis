@@ -1,6 +1,5 @@
-import { Dropdown, Menu, Button, Tag} from 'antd';
-import { HiDotsHorizontal } from 'react-icons/hi';
-import CustomButton from 'shared/ui/button';
+import { Tag} from 'antd';
+import { ActionDropdownButton, TextCell } from 'shared/ui/table/cells';
 import type { OrganizationTableDataType } from './types';
 import type { TFunction } from 'i18next';
 import {statusColors} from "shared/ui/statuses.tsx";
@@ -27,16 +26,7 @@ export const OrganizationsTableColumns = (
                         Тест
                     </Tag>
                 )}
-              <span
-                  style={{
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                  }}
-                  className="table-text"
-              >
-                {text}
-              </span>
+              <TextCell value={text} />
             </div>
         ),
     },
@@ -45,43 +35,35 @@ export const OrganizationsTableColumns = (
     dataIndex: "tin",
     flex: 2,
     key: "tin",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('organizations.addUserForm.label.legalName'),
     dataIndex: "legalName",
     flex: 3,
     key: "legalName",
-    render: (text) => <p className="table-text" style={{
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-    }}>{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('organizations.addUserForm.label.director'),
     dataIndex: "director",
       flex: 2,
     key: "director",
-    render: (text) => <p className="table-text" style={{
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-    }}>{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('organizations.addUserForm.label.phone'),
     dataIndex: "contacts",
       flex: 2,
     key: "contacts",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('organizations.addUserForm.label.vatCode'),
     dataIndex: "vatCode",
     flex: 2,
     key: "vatCode",
-    render: (text) => <p className="table-text">{text}</p>
+    render: (text) => <TextCell value={text} />
   },
   {
     title: t('organizations.status'),
@@ -105,44 +87,18 @@ export const OrganizationsTableColumns = (
     key: "action",
        flex: 1,
        ellipsis: false,
-    render: (_, record) => canDelete ? (
-      <Dropdown
-        overlay={
-          <Menu
-            items={[
-              // {
-              //   key: "edit",
-              //   label: (
-              //     <CustomButton
-              //       type="button"
-              //       className="outline"
-              //       onClick={(e) =>  {e.stopPropagation(); handleRowClick("Company", "edit", record);}}
-              //     >
-              //      {t('btn.edit')}
-              //     </CustomButton>
-              //   ),
-              // },
-              {
-                key: "delete",
-                label: (
-                  <CustomButton
-                    type="button"
-                    className="danger"
-                    onClick={(e) => { e.stopPropagation(); onDelete(record)}}
-                  >
-                    {t('btn.delete')}
-                  </CustomButton>
-                ),
-              },
-            ]}
-          />
-        }
-        trigger={["click"]}
-        placement="bottomRight"
-      >
-        <Button onClick={(e) => e.stopPropagation()} type="text" icon={<HiDotsHorizontal />} style={{width: "100%", display: "flex", justifyContent: "center" }} />
-      </Dropdown>
-    ) : null,
+    render: (_, record) => (
+      <ActionDropdownButton
+        actions={[
+          canDelete && {
+            key: "delete",
+            label: t('btn.delete'),
+            className: "danger",
+            onClick: () => onDelete(record),
+          },
+        ]}
+      />
+    ),
   },
 ];
 
