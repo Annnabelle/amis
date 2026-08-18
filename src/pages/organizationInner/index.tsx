@@ -10,14 +10,16 @@ import { getOrganizationById } from 'entities/organization/model';
 import type { CompanyResponse } from 'entities/organization/types';
 import { useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
+import {
+  DetailCard,
+  DetailGrid,
+  DetailItems,
+  RouteMetaChip,
+  type DetailItemData,
+} from 'shared/ui/details';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import StatusBadge from 'shared/ui/statusBadge';
-
-type DetailItem = {
-  label: string;
-  value: string;
-};
 
 const hasValue = (value?: string | number | null) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
@@ -33,20 +35,6 @@ const formatFullName = (
 
   return value || '-';
 };
-
-const renderDetailItems = (items: DetailItem[]) => (
-  <div className="detail-items">
-    {items.map((item) => (
-      <div className="detail-item" key={item.label}>
-        <span className="label inline-label">{item.label}</span>
-        <span className="detail-separator">:</span>
-        <span className="value" title={item.value}>
-          {item.value}
-        </span>
-      </div>
-    ))}
-  </div>
-);
 
 const OrganizationsInner = () => {
   const { id } = useParams<{ id: string }>();
@@ -137,18 +125,18 @@ const OrganizationsInner = () => {
     defaultValue: organization.status,
   });
 
-  const overviewItems: DetailItem[] = [
+  const overviewItems: DetailItemData[] = [
     { label: t('organizations.addUserForm.label.legalName'), value: organization.legalName || '-' },
     { label: t('organizations.addUserForm.label.tin'), value: organization.tin || '-' },
   ];
 
-  const nameItems: DetailItem[] = [
+  const nameItems: DetailItemData[] = [
     { label: `${t('organizations.addUserForm.label.companyName')} RU`, value: organization.name.ru || '-' },
     { label: `${t('organizations.addUserForm.label.companyName')} EN`, value: organization.name.en || '-' },
     { label: `${t('organizations.addUserForm.label.companyName')} UZ`, value: organization.name.uz || '-' },
   ];
 
-  const directorItems: DetailItem[] = [
+  const directorItems: DetailItemData[] = [
     { label: t('organizations.addUserForm.label.name', { defaultValue: 'Name' }), value: directorName },
     {
       label: t('organizations.addUserForm.label.tin'),
@@ -160,7 +148,7 @@ const OrganizationsInner = () => {
     },
   ];
 
-  const accountantItems: DetailItem[] = [
+  const accountantItems: DetailItemData[] = [
     {
       label: t('organizations.addUserForm.label.name', { defaultValue: 'Name' }),
       value: accountantName,
@@ -175,35 +163,35 @@ const OrganizationsInner = () => {
     },
   ];
 
-  const registrationItems: DetailItem[] = [
+  const registrationItems: DetailItemData[] = [
     {
       label: t('organizations.addUserForm.label.vatCode', { defaultValue: 'VAT code' }),
       value: organization.vatCode || '-',
     },
   ];
 
-  const addressItems: DetailItem[] = [
+  const addressItems: DetailItemData[] = [
     { label: t('organizations.addUserForm.label.region'), value: organization.address.region || '-' },
     { label: t('organizations.addUserForm.label.district'), value: organization.address.district || '-' },
     { label: t('organizations.addUserForm.label.address'), value: organization.address.address || '-' },
   ];
 
-  const bankItems: DetailItem[] = [
+  const bankItems: DetailItemData[] = [
     { label: t('organizations.addUserForm.label.bankName'), value: organization.bankDetails?.bankName || '-' },
     { label: t('organizations.addUserForm.label.ccea'), value: organization.bankDetails?.ccea || '-' },
     { label: t('organizations.addUserForm.label.account'), value: organization.bankDetails?.account || '-' },
     { label: t('organizations.addUserForm.label.mfo'), value: organization.bankDetails?.mfo || '-' },
   ];
 
-  const contactItems: DetailItem[] = [
+  const contactItems: DetailItemData[] = [
     { label: t('organizations.addUserForm.label.phone'), value: organization.contacts.phone || '-' },
     { label: t('organizations.addUserForm.label.email'), value: organization.contacts.email || '-' },
     { label: t('organizations.addUserForm.label.url'), value: organization.contacts.url || '-' },
     { label: t('organizations.addUserForm.label.person'), value: organization.contacts.person || '-' },
   ];
 
-  const hasBankDetails = bankItems.some((item) => hasValue(item.value) && item.value !== '-');
-  const hasContactDetails = contactItems.some((item) => hasValue(item.value) && item.value !== '-');
+  const hasBankDetails = bankItems.some((item) => hasValue(String(item.value)) && item.value !== '-');
+  const hasContactDetails = contactItems.some((item) => hasValue(String(item.value)) && item.value !== '-');
 
   return (
     <MainLayout>
@@ -257,59 +245,54 @@ const OrganizationsInner = () => {
 
               <div className="route-overview-meta">
                 {overviewItems.map((item) => (
-                  <div className="route-meta-chip" key={item.label}>
-                    <span className="label">{item.label}</span>
-                    <span className="value" title={item.value}>{item.value}</span>
-                  </div>
+                  <RouteMetaChip
+                    key={String(item.label)}
+                    label={item.label}
+                    value={item.value}
+                    valueTitle={String(item.value)}
+                  />
                 ))}
               </div>
             </div>
 
-            <div className="detail-grid detail-grid-main">
-              <div className="detail-card">
-                <h4>{t('organizations.subtitles.name')}</h4>
-                {renderDetailItems(nameItems)}
-              </div>
+            <DetailGrid variant="main">
+              <DetailCard title={t('organizations.subtitles.name')}>
+                <DetailItems items={nameItems} />
+              </DetailCard>
 
-              <div className="detail-card">
-                <h4>{t('organizations.subtitles.address')}</h4>
-                {renderDetailItems(addressItems)}
-              </div>
-            </div>
+              <DetailCard title={t('organizations.subtitles.address')}>
+                <DetailItems items={addressItems} />
+              </DetailCard>
+            </DetailGrid>
 
-            <div className="detail-grid detail-grid-main">
-              <div className="detail-card">
-                <h4>{t('organizations.addUserForm.label.director')}</h4>
-                {renderDetailItems(directorItems)}
-              </div>
+            <DetailGrid variant="main">
+              <DetailCard title={t('organizations.addUserForm.label.director')}>
+                <DetailItems items={directorItems} />
+              </DetailCard>
 
-              <div className="detail-card">
-                <h4>{t('organizations.addUserForm.label.accountant')}</h4>
-                {renderDetailItems(accountantItems)}
-              </div>
-            </div>
+              <DetailCard title={t('organizations.addUserForm.label.accountant')}>
+                <DetailItems items={accountantItems} />
+              </DetailCard>
+            </DetailGrid>
 
-            <div className="detail-grid detail-grid-main">
+            <DetailGrid variant="main">
               {hasContactDetails && (
-                <div className="detail-card">
-                  <h4>{t('organizations.subtitles.contactDetails')}</h4>
-                  {renderDetailItems(contactItems)}
-                </div>
+                <DetailCard title={t('organizations.subtitles.contactDetails')}>
+                  <DetailItems items={contactItems} />
+                </DetailCard>
               )}
 
-              <div className="detail-card">
-                <h4>{t('common.details')}</h4>
-                {renderDetailItems(registrationItems)}
-              </div>
-            </div>
+              <DetailCard title={t('common.details')}>
+                <DetailItems items={registrationItems} />
+              </DetailCard>
+            </DetailGrid>
 
             {hasBankDetails && (
-              <div className="detail-grid detail-grid-single">
-                <div className="detail-card detail-card-full">
-                  <h4>{t('organizations.subtitles.bankDetails')}</h4>
-                  {renderDetailItems(bankItems)}
-                </div>
-              </div>
+              <DetailGrid variant="single">
+                <DetailCard full title={t('organizations.subtitles.bankDetails')}>
+                  <DetailItems items={bankItems} />
+                </DetailCard>
+              </DetailGrid>
             )}
 
             <div className="btns-group">
