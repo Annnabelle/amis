@@ -4,7 +4,7 @@ import { CompanyMembershipState, type CompanyRole } from "entities/companyMember
 import type { CompanyMembershipTableDataType } from "./types";
 import type { UserPreview } from "entities/users/types";
 import UserPreviewCard from "entities/users/ui/userPreviewCard";
-import CustomButton from "shared/ui/button";
+import { ActionDropdownButton } from "shared/ui/table/cells";
 import { statusColors } from "shared/ui/statuses";
 
 export const CompanyMembershipsTableColumns = (
@@ -23,6 +23,7 @@ export const CompanyMembershipsTableColumns = (
     dataIndex: "user",
     key: "user",
     className: "no-ellipsis",
+    width: "30%",
     render: (user: UserPreview) => <UserPreviewCard user={user} />,
   },
   {
@@ -30,6 +31,7 @@ export const CompanyMembershipsTableColumns = (
     dataIndex: "roles",
     key: "roles",
     className: "no-ellipsis",
+    width: "30%",
     render: (roles: CompanyRole[]) => (
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         {roles.map((role) => (
@@ -45,7 +47,7 @@ export const CompanyMembershipsTableColumns = (
     dataIndex: "state",
     key: "state",
     className: "no-ellipsis",
-    width: 120,
+    width: "18%",
     render: (state: CompanyMembershipState) => (
       <Tag color={statusColors[state] ?? "default"}>
         {t(`companyMemberships.states.${state}`)}
@@ -56,14 +58,14 @@ export const CompanyMembershipsTableColumns = (
     title: t("companyMemberships.fields.createdAt"),
     dataIndex: "createdAt",
     key: "createdAt",
-    width: 110,
+    width: "14%",
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: "",
     key: "action",
     className: "no-ellipsis",
-    width: 320,
+    width: 72,
     render: (_, record) => {
       const isTerminalState =
         record.state === CompanyMembershipState.Declined ||
@@ -87,44 +89,28 @@ export const CompanyMembershipsTableColumns = (
       }
 
       return (
-        <div className="company-memberships-table-actions">
-          {permissions.canRead && (
-            <CustomButton
-              type="button"
-              variant="outline"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleAction("read", record);
-              }}
-            >
-              {t("common.details")}
-            </CustomButton>
-          )}
-          {canEdit && (
-            <CustomButton
-              type="button"
-              variant="outline"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleAction("edit", record);
-              }}
-            >
-              {t("companyMemberships.actions.editRoles")}
-            </CustomButton>
-          )}
-          {canRevoke && (
-            <CustomButton
-              type="button"
-              variant="danger"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleAction("delete", record);
-              }}
-            >
-              {t("companyMemberships.actions.revoke")}
-            </CustomButton>
-          )}
-        </div>
+        <ActionDropdownButton
+          actions={[
+            permissions.canRead && {
+              key: "read",
+              label: t("common.details"),
+              variant: "outline",
+              onClick: () => handleAction("read", record),
+            },
+            canEdit && {
+              key: "edit",
+              label: t("companyMemberships.actions.editRoles"),
+              variant: "outline",
+              onClick: () => handleAction("edit", record),
+            },
+            canRevoke && {
+              key: "delete",
+              label: t("companyMemberships.actions.revoke"),
+              variant: "danger",
+              onClick: () => handleAction("delete", record),
+            },
+          ]}
+        />
       );
     },
   },

@@ -38,14 +38,35 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
     justifyContent: 'center',
     flex: '0 0 auto',
   };
+  const clippedTextStyle = {
+    display: 'block',
+    width: '100%',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  } as const;
+
   const popoverContent = (
-    <div style={{ width: 240, display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div
+      style={{
+        width: 280,
+        maxWidth: 'calc(100vw - 48px)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ ...iconChipStyle, width: 32, height: 32 }}>
           <UserOutlined style={{ color: 'var(--main-primary)', fontSize: 15 }} />
         </span>
-        <div style={{ minWidth: 0 }}>
-          <Text style={{ display: 'block', color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }} ellipsis={{ tooltip: displayName }}>
+        <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+          <Text
+            style={{ ...clippedTextStyle, color: 'var(--text-primary)', fontSize: 14, fontWeight: 600 }}
+            ellipsis={{ tooltip: displayName }}
+          >
             {displayName}
           </Text>
           {user.status ? (
@@ -68,13 +89,27 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
       <div style={{ display: 'grid', gap: 6 }}>
         <div>
           <Text style={{ display: 'block', color: 'var(--text-secondary)', fontSize: 12 }}>{t('common.email')}</Text>
-          <Text style={{ color: 'var(--text-primary)', fontSize: 13 }} ellipsis={{ tooltip: user.email || '-' }}>
+          <Text
+            style={{
+              ...clippedTextStyle,
+              color: 'var(--text-primary)',
+              fontSize: 13,
+            }}
+            ellipsis={{ tooltip: user.email || '-' }}
+          >
             {user.email || '-'}
           </Text>
         </div>
         <div>
           <Text style={{ display: 'block', color: 'var(--text-secondary)', fontSize: 12 }}>{t('common.phone')}</Text>
-          <Text style={{ color: 'var(--text-primary)', fontSize: 13 }} ellipsis={{ tooltip: phoneDisplay }}>
+          <Text
+            style={{
+              ...clippedTextStyle,
+              color: 'var(--text-primary)',
+              fontSize: 13,
+            }}
+            ellipsis={{ tooltip: phoneDisplay }}
+          >
             {phoneDisplay}
           </Text>
         </div>
@@ -83,20 +118,26 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
   );
 
   return (
-    <Popover content={popoverContent} trigger="hover" placement="topLeft">
+    <Popover
+      content={popoverContent}
+      trigger="hover"
+      placement={compact ? 'top' : 'topRight'}
+      overlayStyle={{ maxWidth: 'calc(100vw - 24px)' }}
+      overlayInnerStyle={{ maxWidth: 'calc(100vw - 24px)', overflow: 'hidden' }}
+    >
       <div
         style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: compact ? 9 : 10,
-          width: compact ? 'fit-content' : undefined,
+          width: 'fit-content',
           maxWidth: compact ? '100%' : '100%',
           minWidth: compact ? 250 : 0,
           minHeight: compact ? 46 : undefined,
-          padding: compact ? '7px 12px' : '6px 10px',
-          border: compact ? '1px solid rgba(var(--main-primary-rgb), 0.12)' : '1px solid var(--surface-border)',
-          borderRadius: compact ? 18 : 8,
-          background: 'var(--surface-base)',
+          padding: compact ? '7px 12px' : 0,
+          border: compact ? '1px solid rgba(var(--main-primary-rgb), 0.12)' : 'none',
+          borderRadius: compact ? 18 : 0,
+          background: compact ? 'var(--surface-base)' : 'transparent',
           boxShadow: compact ? '0 8px 22px var(--shadow-card-soft)' : undefined,
           color: 'var(--text-primary)',
           verticalAlign: 'middle',
