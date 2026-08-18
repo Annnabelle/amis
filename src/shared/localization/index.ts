@@ -196,6 +196,7 @@
                     comment: "Comment",
                     createdAt: "Created",
                     updatedAt: "Updated",
+                    statusChangedBy: "Executor",
                     statusChangedAt: "Status changed",
                 },
                 sections: {
@@ -211,6 +212,8 @@
                 modal: {
                     detailsAction: "Details",
                     lead: "Lead",
+                    changeStatus: "Change status",
+                    commentPlaceholder: "Add a comment for this status change",
                 },
                 actions: {
                     saveStatus: "Save status",
@@ -1802,6 +1805,7 @@
                     comment: "Комментарий",
                     createdAt: "Создано",
                     updatedAt: "Обновлено",
+                    statusChangedBy: "Исполнитель",
                     statusChangedAt: "Статус изменен",
                 },
                 sections: {
@@ -1817,6 +1821,8 @@
                 modal: {
                     detailsAction: "Просмотр",
                     lead: "Заявка",
+                    changeStatus: "Изменить статус",
+                    commentPlaceholder: "Добавьте комментарий к изменению статуса",
                 },
                 actions: {
                     saveStatus: "Сохранить статус",
@@ -3400,6 +3406,7 @@
                     comment: "Izoh",
                     createdAt: "Yaratildi",
                     updatedAt: "Yangilandi",
+                    statusChangedBy: "Ijrochi",
                     statusChangedAt: "Holat o'zgartirildi",
                 },
                 sections: {
@@ -3415,6 +3422,8 @@
                 modal: {
                     detailsAction: "Ko'rish",
                     lead: "Ariza",
+                    changeStatus: "Holatni o'zgartirish",
+                    commentPlaceholder: "Holat o'zgarishi uchun izoh qo'shing",
                 },
                 actions: {
                     saveStatus: "Holatni saqlash",

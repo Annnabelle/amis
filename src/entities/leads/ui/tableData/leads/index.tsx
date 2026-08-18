@@ -1,11 +1,21 @@
-import { Tag } from "antd";
+import { Select, Tag } from "antd";
 import type { TFunction } from "i18next";
+import { LeadStatuses, type LeadStatus } from "entities/leads/types";
 import { statusColors } from "shared/ui/statuses";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { LeadTableDataType } from "./types";
 
+type LeadStatusChangeHandler = (
+  record: LeadTableDataType,
+  status: LeadStatus
+) => void;
+
 export const LeadsTableColumns = (
-  t: TFunction
+  t: TFunction,
+  options: {
+    canUpdateStatus?: boolean;
+    onStatusChange?: LeadStatusChangeHandler;
+  } = {}
 ): AdaptiveColumn<LeadTableDataType>[] => [
   {
     title: t("leads.fields.name"),
@@ -34,11 +44,42 @@ export const LeadsTableColumns = (
     key: "status",
     flex: 1.4,
     className: "no-ellipsis",
-    render: (status: string) => (
-      <Tag color={statusColors[status] ?? "default"} style={{ margin: 0 }}>
-        {t(`leads.statuses.${status}`)}
-      </Tag>
-    ),
+    render: (status: LeadStatus, record) => {
+      if (!options.canUpdateStatus) {
+        return (
+          <Tag color={statusColors[status] ?? "default"} style={{ margin: 0 }}>
+            {t(`leads.statuses.${status}`)}
+          </Tag>
+        );
+      }
+
+      return (
+        <div
+          className="leads-status-cell"
+          onClick={(event) => event.stopPropagation()}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <Select
+            className="leads-status-select"
+            popupClassName="leads-status-select-popup"
+            size="middle"
+            value={status}
+            popupMatchSelectWidth={false}
+            options={LeadStatuses.map((leadStatus) => ({
+              value: leadStatus,
+              label: t(`leads.statuses.${leadStatus}`),
+            }))}
+            onChange={(nextStatus) => {
+              if (nextStatus === status) {
+                return;
+              }
+
+              options.onStatusChange?.(record, nextStatus);
+            }}
+          />
+        </div>
+      );
+    },
   },
   {
     title: t("leads.fields.createdAt"),

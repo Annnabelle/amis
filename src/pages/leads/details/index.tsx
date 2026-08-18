@@ -1,6 +1,6 @@
-import { Empty, Form, Input, Select, Tag } from "antd";
+import { Empty, Form, Input, Modal, Select, Tag } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -8,16 +8,15 @@ import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
 import { getLeadById, updateLeadStatus } from "entities/leads/model";
 import { LeadStatuses, type LeadStatus } from "entities/leads/types";
+import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
-import FormComponent from "shared/ui/formComponent";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import { statusColors } from "shared/ui/statuses";
 import "../styles.sass";
 
 type StatusForm = {
-  status: LeadStatus;
   comment?: string;
 };
 
@@ -34,25 +33,14 @@ const LeadDetails = () => {
   const lead = useAppSelector((state) => state.leads.leadById);
   const isLoading = useAppSelector((state) => state.leads.isLoading);
   const [form] = Form.useForm<StatusForm>();
+  const [pendingStatus, setPendingStatus] = useState<LeadStatus | null>(null);
+  const [isStatusSaving, setIsStatusSaving] = useState(false);
 
   useEffect(() => {
     if (id) {
       dispatch(getLeadById({ id }));
     }
   }, [dispatch, id]);
-
-  useEffect(() => {
-    const currentLead = lead;
-
-    if (!currentLead || currentLead.id !== id) {
-      return;
-    }
-
-    form.setFieldsValue({
-      status: currentLead.status,
-      comment: currentLead.comment,
-    });
-  }, [form, id, lead]);
 
   const statusOptions = useMemo(
     () =>
@@ -63,21 +51,40 @@ const LeadDetails = () => {
     [t]
   );
 
-  const handleStatusUpdate = async (values: StatusForm) => {
-    if (!id) return;
+  const openStatusModal = (status: LeadStatus) => {
+    if (!lead || status === lead.status) {
+      return;
+    }
 
+    setPendingStatus(status);
+    form.setFieldsValue({ comment: "" });
+  };
+
+  const closeStatusModal = () => {
+    setPendingStatus(null);
+    form.resetFields();
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!id || !pendingStatus) return;
+
+    const values = await form.validateFields();
+
+    setIsStatusSaving(true);
     const result = await dispatch(
       updateLeadStatus({
         id,
         data: {
-          status: values.status,
+          status: pendingStatus,
           comment: values.comment?.trim() || undefined,
         },
       })
     );
+    setIsStatusSaving(false);
 
     if (updateLeadStatus.fulfilled.match(result)) {
       toast.success(t("leads.messages.statusUpdated"));
+      closeStatusModal();
       return;
     }
 
@@ -115,6 +122,10 @@ const LeadDetails = () => {
   ];
 
   const statusItems = [
+    {
+      label: t("leads.fields.statusChangedBy"),
+      value: lead.statusChangedBy ? <UserPreviewCardById userId={lead.statusChangedBy} /> : "-",
+    },
     { label: t("leads.fields.statusChangedAt"), value: formatDateTime(lead.statusChangedAt) },
     { label: t("leads.fields.updatedAt"), value: formatDateTime(lead.updatedAt) },
   ];
@@ -122,9 +133,21 @@ const LeadDetails = () => {
   return (
     <MainLayout>
       <Heading title={t("leads.detailsTitle")} subtitle={t("common.details")}>
-        <CustomButton variant="outline" onClick={() => navigate("/leads")}>
-          {t("common.backToList")}
-        </CustomButton>
+        <div className="leads-heading-actions">
+          {canUpdateStatus && (
+            <Select
+              className="leads-status-select"
+              popupClassName="leads-status-select-popup"
+              value={lead.status}
+              popupMatchSelectWidth={false}
+              options={statusOptions}
+              onChange={openStatusModal}
+            />
+          )}
+          <CustomButton variant="outline" onClick={() => navigate("/leads")}>
+            {t("common.backToList")}
+          </CustomButton>
+        </div>
       </Heading>
 
       <div className="box">
@@ -163,8 +186,8 @@ const LeadDetails = () => {
               </div>
             </div>
 
-            <div className="detail-grid detail-grid-secondary">
-              <div className="detail-card detail-card-wide">
+            <div className="detail-grid detail-grid-secondary leads-details-info-grid">
+              <div className="detail-card leads-status-card">
                 <h4>{t("leads.sections.status")}</h4>
                 <div className="detail-items">
                   <div className="detail-item">
@@ -192,49 +215,45 @@ const LeadDetails = () => {
                 <h4>{t("leads.fields.comment")}</h4>
                 <div className="detail-text-block">{formatValue(lead.comment)}</div>
               </div>
-            </div>
 
-            <div className="detail-grid detail-grid-single">
-              <div className="detail-card detail-card-full">
+              <div className="detail-card">
                 <h4>{t("leads.fields.message")}</h4>
                 <div className="detail-text-block">{formatValue(lead.message)}</div>
               </div>
             </div>
-
-            {canUpdateStatus && (
-              <div className="detail-grid detail-grid-single">
-                <div className="detail-card detail-card-full leads-processing-card">
-                  <h4>{t("leads.sections.processing")}</h4>
-                  <FormComponent form={form} onFinish={handleStatusUpdate}>
-                    <div className="leads-processing-form-grid">
-                      <Form.Item
-                        className="input"
-                        name="status"
-                        label={t("leads.fields.status")}
-                        rules={[{ required: true, message: t("leads.validation.statusRequired") }]}
-                      >
-                        <Select size="large" options={statusOptions} />
-                      </Form.Item>
-                      <Form.Item
-                        className="input"
-                        name="comment"
-                        label={t("leads.fields.comment")}
-                      >
-                        <Input.TextArea className="leads-processing-textarea" rows={3} />
-                      </Form.Item>
-                    </div>
-                    <div className="leads-processing-actions">
-                      <CustomButton type="submit">
-                        {t("leads.actions.saveStatus")}
-                      </CustomButton>
-                    </div>
-                  </FormComponent>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      <Modal
+        title={t("leads.modal.changeStatus")}
+        open={Boolean(pendingStatus)}
+        centered
+        okText={t("btn.save")}
+        cancelText={t("btn.cancel")}
+        confirmLoading={isStatusSaving}
+        onOk={handleStatusUpdate}
+        onCancel={closeStatusModal}
+        destroyOnHidden
+      >
+        {pendingStatus && (
+          <div className="leads-status-modal">
+            <div className="leads-status-modal-summary">
+              <span>{lead.name}</span>
+              <strong>{t(`leads.statuses.${pendingStatus}`)}</strong>
+            </div>
+            <Form form={form} layout="vertical">
+              <Form.Item name="comment" label={t("leads.fields.comment")}>
+                <Input.TextArea
+                  className="leads-status-comment"
+                  rows={4}
+                  placeholder={t("leads.modal.commentPlaceholder")}
+                />
+              </Form.Item>
+            </Form>
+          </div>
+        )}
+      </Modal>
     </MainLayout>
   );
 };

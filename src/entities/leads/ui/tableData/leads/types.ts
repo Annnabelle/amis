@@ -6,5 +6,6 @@ export type LeadTableDataType = {
   phone: string;
   company: string;
   status: LeadStatus;
+  comment?: string;
   createdAt: string;
 };
