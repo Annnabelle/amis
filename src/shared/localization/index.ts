@@ -168,6 +168,7 @@
                 exitCompany: "Exit company",
                 users: "Users",
                 systemEmployees: "Employees",
+                leads: "Leads",
                 audit: "System logs",
                 markingCodes: "Marking codes",
                 agregations: "Aggregations",
@@ -180,6 +181,47 @@
                 invoices: "Invoices",
                 companyMemberships: "Employees",
                 integrations: "Integrations"
+            },
+            leads: {
+                title: "Leads",
+                detailsTitle: "Lead",
+                subtitle: "Requests from the AMIS website",
+                fields: {
+                    name: "Name",
+                    phone: "Phone",
+                    company: "Company",
+                    tariff: "Tariff",
+                    message: "Message",
+                    status: "Status",
+                    comment: "Comment",
+                    createdAt: "Created",
+                    updatedAt: "Updated",
+                    statusChangedAt: "Status changed",
+                },
+                sections: {
+                    status: "Status",
+                    processing: "Processing",
+                },
+                statuses: {
+                    new: "New",
+                    in_progress: "In progress",
+                    completed: "Completed",
+                    rejected: "Rejected",
+                },
+                modal: {
+                    detailsAction: "Details",
+                    lead: "Lead",
+                },
+                actions: {
+                    saveStatus: "Save status",
+                },
+                validation: {
+                    statusRequired: "Select status",
+                },
+                messages: {
+                    statusUpdated: "Lead status updated",
+                    statusUpdateError: "Could not update lead status",
+                },
             },
             scanner: {
                 accepted: "Accepted",
@@ -1732,6 +1774,7 @@
                 exitCompany: "Выйти из компании",
                 users: "Пользователи",
                 systemEmployees: "Сотрудники",
+                leads: "Заявки",
                 audit: "Логи системы",
                 markingCodes: "Коды маркировки",
                 agregations: "Агрегации",
@@ -1744,6 +1787,47 @@
                 invoices: "Инвойсы",
                 companyMemberships: "Сотрудники",
                 integrations: "Интеграции",
+            },
+            leads: {
+                title: "Заявки",
+                detailsTitle: "Заявка",
+                subtitle: "Заявки с сайта AMIS",
+                fields: {
+                    name: "Имя",
+                    phone: "Телефон",
+                    company: "Компания",
+                    tariff: "Тариф",
+                    message: "Сообщение",
+                    status: "Статус",
+                    comment: "Комментарий",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено",
+                    statusChangedAt: "Статус изменен",
+                },
+                sections: {
+                    status: "Статус",
+                    processing: "Обработка",
+                },
+                statuses: {
+                    new: "Новая",
+                    in_progress: "В работе",
+                    completed: "Завершена",
+                    rejected: "Отклонена",
+                },
+                modal: {
+                    detailsAction: "Просмотр",
+                    lead: "Заявка",
+                },
+                actions: {
+                    saveStatus: "Сохранить статус",
+                },
+                validation: {
+                    statusRequired: "Выберите статус",
+                },
+                messages: {
+                    statusUpdated: "Статус заявки обновлен",
+                    statusUpdateError: "Не удалось обновить статус заявки",
+                },
             },
             scanner: {
                 accepted: "Принято",
@@ -3288,6 +3372,7 @@
                 exitCompany: "Kompaniyadan chiqish",
                 users: "Foydalanuvchilar",
                 systemEmployees: "Xodimlar",
+                leads: "Arizalar",
                 audit: "Tizim jurnallari",
                 markingCodes: "Markirovka kodlari",
                 agregations: "Agregatsiyalar",
@@ -3300,6 +3385,47 @@
                 invoices: "Hisob-fakturalar",
                 companyMemberships: "Xodimlar",
                 integrations: "Integratsiyalar",
+            },
+            leads: {
+                title: "Arizalar",
+                detailsTitle: "Ariza",
+                subtitle: "AMIS saytidan kelgan arizalar",
+                fields: {
+                    name: "Ism",
+                    phone: "Telefon",
+                    company: "Kompaniya",
+                    tariff: "Tarif",
+                    message: "Xabar",
+                    status: "Holat",
+                    comment: "Izoh",
+                    createdAt: "Yaratildi",
+                    updatedAt: "Yangilandi",
+                    statusChangedAt: "Holat o'zgartirildi",
+                },
+                sections: {
+                    status: "Holat",
+                    processing: "Qayta ishlash",
+                },
+                statuses: {
+                    new: "Yangi",
+                    in_progress: "Jarayonda",
+                    completed: "Yakunlangan",
+                    rejected: "Rad etilgan",
+                },
+                modal: {
+                    detailsAction: "Ko'rish",
+                    lead: "Ariza",
+                },
+                actions: {
+                    saveStatus: "Holatni saqlash",
+                },
+                validation: {
+                    statusRequired: "Holatni tanlang",
+                },
+                messages: {
+                    statusUpdated: "Ariza holati yangilandi",
+                    statusUpdateError: "Ariza holatini yangilab bo'lmadi",
+                },
             },
             scanner: {
                 accepted: "Qabul qilindi",

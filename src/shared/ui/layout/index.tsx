@@ -11,6 +11,7 @@ import {
   ApartmentOutlined,
   UserOutlined,
   FileTextOutlined,
+  ContactsOutlined,
   LeftOutlined,
   AppstoreOutlined,
   CodeOutlined,
@@ -166,6 +167,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isSystemScreen = [
     '/users',
     '/system-employees',
+    '/leads',
     '/audit-logs',
   ].some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
   const routeCompanyId = orgId;
@@ -396,6 +398,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
+  if (systemModules.includes(AccessModules.Leads)) {
+    systemMenuItems.push({
+      key: '/leads',
+      icon: <ContactsOutlined />,
+      label: (
+        <Link to="/leads">
+          {t('navigation.leads')}
+        </Link>
+      ),
+    });
+  }
+
   if (systemModules.includes(AccessModules.Audit)) {
     systemMenuItems.push({
       key: '/audit-logs',
@@ -436,6 +450,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           meta: '',
           isActive: location.pathname === '/organization',
           onClick: () => navigate('/organization'),
+        }]
+      : []),
+    ...(systemModules.includes(AccessModules.Leads)
+      ? [{
+          key: '/leads',
+          label: t('navigation.leads'),
+          meta: '',
+          isActive: location.pathname === '/leads',
+          onClick: () => navigate('/leads'),
         }]
       : []),
     ...(systemModules.includes(AccessModules.Audit)
