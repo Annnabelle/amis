@@ -23,6 +23,14 @@ import { toast } from 'react-toastify';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import {
+  DetailCard,
+  DetailGrid,
+  DetailItems,
+  DetailStat,
+  DetailStatsGrid,
+  RouteMetaChip,
+} from 'shared/ui/details';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
@@ -454,98 +462,63 @@ const DeliveryRoutesDetails = () => {
               </div>
               <div className="route-overview-meta">
                 {summaryItems.map((item) => (
-                  <div className="route-meta-chip" key={item.label}>
-                    <span className="label">{item.label}</span>
-                    <span className="value">{item.value}</span>
-                  </div>
+                  <RouteMetaChip key={item.label} label={item.label} value={item.value} />
                 ))}
               </div>
               {route.createdBy && (
-                <div className="detail-grid detail-grid-single" style={{ marginTop: 16 }}>
+                <DetailGrid variant="single" style={{ marginTop: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <span className="label inline-label">{t('common.createdBy')}:</span>
                     <UserPreviewCardById userId={route.createdBy} compact />
                   </div>
-                </div>
+                </DetailGrid>
               )}
             </div>
 
-            <div className="detail-grid detail-grid-main">
-              <div className="detail-card">
-                <h4>{t('deliveryRoutes.sections.vehicle')}</h4>
-                <div className="detail-items">
-                  {vehicleItems.map((item) => (
-                    <div className="detail-item" key={item.label}>
-                      <span className="label inline-label">{item.label}</span>
-                      <span className="detail-separator">:</span>
-                      <span className="value">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <DetailGrid variant="main">
+              <DetailCard title={t('deliveryRoutes.sections.vehicle')}>
+                <DetailItems items={vehicleItems} />
+              </DetailCard>
 
-              <div className="detail-card">
-                <h4>{t('deliveryRoutes.sections.crew')}</h4>
+              <DetailCard title={t('deliveryRoutes.sections.crew')}>
                 {route.crew ? (
-                  <>
-                    <div className="detail-items">
-                      {crewItems.map((item) => (
-                        <div className="detail-item" key={item.label}>
-                          <span className="label inline-label">{item.label}</span>
-                          <span className="detail-separator">:</span>
-                          <span className="value">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
+                  <DetailItems items={crewItems} />
                 ) : (
                   <Empty description={t('deliveryRoutes.details.crewEmpty')} />
                 )}
-              </div>
-            </div>
+              </DetailCard>
+            </DetailGrid>
 
-            <div className="detail-grid detail-grid-secondary">
-              <div className="detail-card detail-card-wide">
-                <h4>{t('deliveryRoutes.sections.totals')}</h4>
-                <div className="detail-stats-grid">
+            <DetailGrid variant="secondary">
+              <DetailCard wide title={t('deliveryRoutes.sections.totals')}>
+                <DetailStatsGrid>
                   {totalItems.map((item) => (
-                    <div className="detail-stat" key={item.label}>
-                      <span className="label">{item.label}</span>
-                      <span className="value">{item.value}</span>
-                    </div>
+                    <DetailStat key={item.label} label={item.label} value={item.value} />
                   ))}
-                </div>
-              </div>
+                </DetailStatsGrid>
+              </DetailCard>
 
-              <div className="detail-card">
-                <h4>{t('deliveryRoutes.sections.timestamps')}</h4>
-                <div className="detail-items">
-                  {timestampItems.map((item) => (
-                    <div className="detail-item" key={item.label}>
-                      <span className="label inline-label">{item.label}</span>
-                      <span className="detail-separator">:</span>
-                      <span className="value">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+              <DetailCard title={t('deliveryRoutes.sections.timestamps')}>
+                <DetailItems items={timestampItems} />
+              </DetailCard>
+            </DetailGrid>
             {route.comment && (
-              <div className="detail-grid detail-grid-single">
-                <div className="detail-card detail-card-full">
-                  <h4>{t('deliveryRoutes.fields.comment')}</h4>
+              <DetailGrid variant="single">
+                <DetailCard full title={t('deliveryRoutes.fields.comment')}>
                   <div className="detail-text-block">
                     {route.comment || '-'}
                   </div>
-                </div>
-              </div>
+                </DetailCard>
+              </DetailGrid>
             )}
             {canListTasks && (
-            <div className="detail-grid detail-grid-single">
-              <div className="detail-card detail-card-full">
-                <div className="detail-card-header detail-card-header-with-actions">
-                  <h4>{t('deliveryRoutes.sections.tasks')}</h4>
-                  {tasks.length > 0 && (
+            <DetailGrid variant="single">
+              <DetailCard
+                full
+                headerWithActions
+                title={t('deliveryRoutes.sections.tasks')}
+                actions={
+                  tasks.length > 0 && (
                     <div className="route-task-controls">
                       <button
                         className="route-task-control-btn"
@@ -564,8 +537,9 @@ const DeliveryRoutesDetails = () => {
                         <UpOutlined /> {isMobile ? 'Свернуть' : t('common.collapseAll')}
                       </button>
                     </div>
-                  )}
-                </div>
+                  )
+                }
+              >
                 {tasks.length === 0 && !tasksLoading ? (
                   <Empty description={t('deliveryRoutes.details.tasksEmpty')} />
                 ) : (
@@ -715,8 +689,8 @@ const DeliveryRoutesDetails = () => {
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+              </DetailCard>
+            </DetailGrid>
             )}
 
             <div className="btns-group">

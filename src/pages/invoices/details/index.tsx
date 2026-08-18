@@ -21,6 +21,15 @@ import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import axiosInstance from 'shared/lib/axiosInstance';
 import { BASE_URL, getFileNameFromDisposition } from 'shared/lib';
+import {
+  DetailCard,
+  DetailGrid,
+  DetailItem,
+  DetailItems,
+  DetailStat,
+  DetailStatsGrid,
+  RouteMetaChip,
+} from 'shared/ui/details';
 
 const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
 const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
@@ -355,69 +364,46 @@ const InvoicesDetails = () => {
               </div>
               <div className="route-overview-meta">
                 {metaItems.map((item) => (
-                  <div className="route-meta-chip" key={item.label}>
-                    <span className="label">{item.label}</span>
-                    <span className="value">{item.value}</span>
-                  </div>
+                  <RouteMetaChip key={item.label} label={item.label} value={item.value} />
                 ))}
               </div>
               {invoice.createdBy && (
-                <div className="detail-grid detail-grid-single" style={{ marginTop: 16 }}>
-                  <div className="detail-card detail-card-full">
+                <DetailGrid variant="single" style={{ marginTop: 16 }}>
+                  <DetailCard full>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       <span className="label inline-label">{t('common.createdBy')}:</span>
                       <UserPreviewCardById userId={invoice.createdBy} compact />
                     </div>
-                  </div>
-                </div>
+                  </DetailCard>
+                </DetailGrid>
               )}
             </div>
 
-            <div className="detail-grid detail-grid-secondary">
-              <div className="detail-card detail-card-wide">
-                <h4>{t('invoices.sections.totals')}</h4>
-                <div className="detail-stats-grid">
-                  <div className="detail-stat">
-                    <span className="label">{t('invoices.fields.amountWithoutVat')}</span>
-                    <span className="value">{formatNumber(invoice.totals.amountWithoutVat)}</span>
-                  </div>
-                  <div className="detail-stat">
-                    <span className="label">{t('invoices.fields.itemsQuantity')}</span>
-                    <span className="value">{formatNumber(invoice.totals.itemsQuantity)}</span>
-                  </div>
-                  <div className="detail-stat">
-                    <span className="label">{t('invoices.fields.unitsQuantity')}</span>
-                    <span className="value">{formatNumber(invoice.totals.unitsQuantity)}</span>
-                  </div>
-                </div>
-              </div>
+            <DetailGrid variant="secondary">
+              <DetailCard wide title={t('invoices.sections.totals')}>
+                <DetailStatsGrid>
+                  <DetailStat label={t('invoices.fields.amountWithoutVat')} value={formatNumber(invoice.totals.amountWithoutVat)} />
+                  <DetailStat label={t('invoices.fields.itemsQuantity')} value={formatNumber(invoice.totals.itemsQuantity)} />
+                  <DetailStat label={t('invoices.fields.unitsQuantity')} value={formatNumber(invoice.totals.unitsQuantity)} />
+                </DetailStatsGrid>
+              </DetailCard>
 
-              <div className="detail-card">
-                <h4>{t('invoices.sections.contract')}</h4>
-                <div className="detail-items">
-                  <div className="detail-item">
-                    <span className="label inline-label">{t('invoices.fields.contractNumber')}</span>
-                    <span className="detail-separator">:</span>
-                    <span className="value">{invoice.contract?.number || '-'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label inline-label">{t('invoices.fields.contractDate')}</span>
-                    <span className="detail-separator">:</span>
-                    <span className="value">{formatDate(invoice.contract?.date)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <DetailCard title={t('invoices.sections.contract')}>
+                <DetailItems
+                  items={[
+                    { label: t('invoices.fields.contractNumber'), value: invoice.contract?.number || '-' },
+                    { label: t('invoices.fields.contractDate'), value: formatDate(invoice.contract?.date) },
+                  ]}
+                />
+              </DetailCard>
+            </DetailGrid>
 
-            <div className="detail-grid detail-grid-main">
+            <DetailGrid variant="main">
               {participantItems.map((participant) => (
-                <div className="detail-card" key={participant.title}>
-                  <h4>{participant.title}</h4>
-                  <div className="detail-items">
+                <DetailCard key={participant.title} title={participant.title}>
+                  <DetailItems>
                     {participant.values.map((item) => (
-                      <div className="detail-item" key={item.label}>
-                        <span className="label inline-label">{item.label}</span>
-                        <span className="detail-separator">:</span>
+                      <DetailItem key={item.label} label={item.label}>
                         {item.path ? (
                           <Link className="value link" to={item.path}>
                             {item.value}
@@ -425,21 +411,18 @@ const InvoicesDetails = () => {
                         ) : (
                           <span className="value">{item.value}</span>
                         )}
-                      </div>
+                      </DetailItem>
                     ))}
-                  </div>
-                </div>
+                  </DetailItems>
+                </DetailCard>
               ))}
-            </div>
+            </DetailGrid>
 
-            <div className="detail-grid detail-grid-main">
-              <div className="detail-card">
-                <h4>{t('invoices.sections.links')}</h4>
-                <div className="detail-items">
+            <DetailGrid variant="main">
+              <DetailCard title={t('invoices.sections.links')}>
+                <DetailItems>
                   {linkItems.map((item) => (
-                    <div className="detail-item" key={item.label}>
-                      <span className="label inline-label">{item.label}</span>
-                      <span className="detail-separator">:</span>
+                    <DetailItem key={item.label} label={item.label}>
                       {item.path ? (
                         <Link className="value link" to={item.path}>
                           {item.value}
@@ -447,37 +430,26 @@ const InvoicesDetails = () => {
                       ) : (
                         <span className="value">-</span>
                       )}
-                    </div>
+                    </DetailItem>
                   ))}
-                </div>
-              </div>
+                </DetailItems>
+              </DetailCard>
 
-              <div className="detail-card">
-                <h4>{t('invoices.sections.file')}</h4>
-                <div className="detail-items">
-                  {fileMetaItems.map((item) => (
-                    <div className="detail-item" key={item.label}>
-                      <span className="label inline-label">{item.label}</span>
-                      <span className="detail-separator">:</span>
-                      <span className="value">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+              <DetailCard title={t('invoices.sections.file')}>
+                <DetailItems items={fileMetaItems} />
+              </DetailCard>
+            </DetailGrid>
 
             {invoice.comment && (
-              <div className="detail-grid detail-grid-single">
-                <div className="detail-card detail-card-full">
-                  <h4>{t('invoices.fields.comment')}</h4>
+              <DetailGrid variant="single">
+                <DetailCard full title={t('invoices.fields.comment')}>
                   <div className="detail-text-block">{invoice.comment}</div>
-                </div>
-              </div>
+                </DetailCard>
+              </DetailGrid>
             )}
 
-            <div className="detail-grid detail-grid-single">
-              <div className="detail-card detail-card-full">
-                <h4>{t('invoices.sections.items')}</h4>
+            <DetailGrid variant="single">
+              <DetailCard full title={t('invoices.sections.items')}>
                 <Spin spinning={invoiceItemsLoading}>
                   {invoiceItemsData.length ? (
                     <div className="invoice-items-cards">
@@ -611,8 +583,8 @@ const InvoicesDetails = () => {
                     }}
                   />
                 </Spin>
-              </div>
-            </div>
+              </DetailCard>
+            </DetailGrid>
           </div>
         </div>
       </div>
