@@ -10,6 +10,7 @@ import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { useNavigationBack } from 'shared/lib';
 import FormComponent from 'shared/ui/formComponent';
+import { FormActions, FormGrid, FormRow } from 'shared/ui/form';
 import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -115,16 +116,16 @@ const ProductsEdit = () => {
             }}
         >
             <Heading title={t('products.edit')} subtitle={t('users.subtitle')}>
-                <div className="btns-group">
+                <FormActions>
                     <CustomButton type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
                    <CustomButton onClick={() => navigateBack(`/organization/${id}/products`)}>{t('btn.back')}</CustomButton>
-                </div>
+                </FormActions>
             </Heading>
             <div className="box">
                 <div className="box-container">
                     {productById && (
-                        <>
-                            <div className="form-inputs  form-inputs-row">
+                        <FormGrid>
+                            <FormRow>
                                 <Form.Item className="input" name="name" label={t('products.addProductForm.label.name')}
                                     initialValue={productById.name}
                                     rules={[
@@ -143,8 +144,8 @@ const ProductsEdit = () => {
                                 >
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.shortName')}  />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item
                                     className="input"
                                     name="manufacturerCountry"
@@ -188,16 +189,16 @@ const ProductsEdit = () => {
                                         placeholder={t('products.addProductForm.placeholder.expiration')}
                                     />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item className="input" name="description" label={t('products.addProductForm.label.description')}
                                     initialValue={productById.description}
                                     rules={[{ max: 200, message: t('products.validation.max200') }]}
                                 >
                                     <TextArea className="input" size="large" placeholder={t('products.addProductForm.placeholder.description')} />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item className="input" name={['gtin', 'unit']} label={t('products.gtin.unit')}
                                            initialValue={productById.gtin.unit}
                                            rules={[
@@ -216,8 +217,8 @@ const ProductsEdit = () => {
                                 >
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')}/>
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item className="input" name={['gtin', 'box_lv_1']} label={t('products.gtin.box_lv_1')}
                                            initialValue={productById.gtin.box_lv_1}
                                            rules={[
@@ -236,8 +237,8 @@ const ProductsEdit = () => {
                                 >
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item className="input" name="icps" label={t('products.addProductForm.label.icps')}
                                            initialValue={productById.icps}
                                            rules={[
@@ -267,8 +268,8 @@ const ProductsEdit = () => {
                                         }))}
                                     />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 {/* <Form.Item className="input" name="expiration" label={t('products.addProductForm.label.expiration')}
                                     initialValue={productById.expiration}
                                     rules={[
@@ -297,8 +298,8 @@ const ProductsEdit = () => {
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.unit')}   />
                                 </Form.Item>
 
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item className="input" name={['measurement', 'amount']} label={t('products.addProductForm.label.amount')}
                                     initialValue={productById.measurement.amount}
                                     rules={[
@@ -317,8 +318,8 @@ const ProductsEdit = () => {
                                 >
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.net')}  />
                                 </Form.Item>
-                            </div>
-                            <div className="form-inputs  form-inputs-row">
+                            </FormRow>
+                            <FormRow>
                                 <Form.Item className="input" name={['weight', 'gross']} label={t('products.addProductForm.label.gross')}
                                     initialValue={productById.weight.gross}
                                     rules={[
@@ -337,9 +338,11 @@ const ProductsEdit = () => {
                                 >
                                     <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.price')}  />
                                 </Form.Item>
-                            </div>
-                            <CustomButton variant="outline" type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
-                        </>
+                            </FormRow>
+                            <FormActions>
+                                <CustomButton variant="outline" type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
+                            </FormActions>
+                        </FormGrid>
                     )}
                 </div>
             </div>

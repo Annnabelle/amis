@@ -8,6 +8,7 @@ import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
+import { FormActions, FormGrid, FormRow } from "shared/ui/form";
 import {Form, Input} from "antd";
 import {useNavigationBack} from "shared/lib";
 
@@ -115,89 +116,83 @@ const OrganizationsEdit = () => {
             }}
         >
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')}>
-            <div className="btns-group">
+            <FormActions>
                 <CustomButton type="submit">{t('btn.save')} </CustomButton>
                 <CustomButton onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
-            </div>
+            </FormActions>
         </Heading>
         <div className="box">
             <div className="box-container">
                 {organizationById  && (
-                    <>
-                        <div className="form-inputs form-inputs-row">
+                    <FormGrid>
+                        <FormRow>
                             <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')} initialValue={organizationById.displayName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')}  />
                             </Form.Item>
-                        </div>
-                        <div className="form-inputs form-inputs-row">
-                            {/*<Form.Item className="input"  name="tin" label={t('organizations.addUserForm.label.tin')} initialValue={organizationById.tin}>*/}
-                            {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.tin')}  />*/}
-                            {/*</Form.Item>*/}
-                            {/*<Form.Item className="input" name="legalName" label={t('organizations.addUserForm.label.legalName')} initialValue={organizationById.legalName}>*/}
-                            {/*    <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.legalName')}  />*/}
-                            {/*</Form.Item>*/}
-                        </div>
-                        <div className="form-inputs form-inputs-row">
+                        </FormRow>
+                        <FormRow>
                             <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')} initialValue={directorName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.director')}  />
                             </Form.Item>
-                        </div>
+                        </FormRow>
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.address')} </h4>
                         </div>
-                        <div className="form-inputs form-inputs-row">
+                        <FormRow>
                             <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')} initialValue={organizationById.address.region}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.region')} />
                             </Form.Item>
                             <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')} initialValue={organizationById.address.district}>
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.district')}  />
                             </Form.Item>
-                        </div>
-                        <div className="form-inputs form-inputs-row">
+                        </FormRow>
+                        <FormRow>
                             <Form.Item className="input" name={['address', 'address']} label={t('organizations.addUserForm.label.address')} initialValue={organizationById.address.address}>
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.address')}  />
                             </Form.Item>
-                        </div>
+                        </FormRow>
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                         </div>
-                        <div className="form-inputs form-inputs-row">
+                        <FormRow>
                             <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById?.bankDetails?.bankName}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.bankName')}  />
                             </Form.Item>
                             <Form.Item className="input" name={['bankDetails', 'ccea']} label={t('organizations.addUserForm.label.ccea')} initialValue={organizationById?.bankDetails?.ccea}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.ccea')}  />
                             </Form.Item>
-                        </div>
-                        <div className="form-inputs form-inputs-row">
+                        </FormRow>
+                        <FormRow>
                             <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById?.bankDetails?.account}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.account')}   />
                             </Form.Item>
                             <Form.Item className="input" name={['bankDetails', 'mfo']} label={t('organizations.addUserForm.label.mfo')} initialValue={organizationById?.bankDetails?.mfo}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.mfo')} />
                             </Form.Item>
-                        </div>
+                        </FormRow>
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
                         </div>
-                        <div className="form-inputs form-inputs-row">
+                        <FormRow>
                             <Form.Item className="input" name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}initialValue={organizationById.contacts.phone}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.phone')}  />
                             </Form.Item>
                             <Form.Item className="input" name={['contacts', 'email']} label={t('organizations.addUserForm.label.email')} initialValue={organizationById.contacts.email}>
                                 <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.email')}   />
                             </Form.Item>
-                        </div>
-                        <div className="form-inputs form-inputs-row">
+                        </FormRow>
+                        <FormRow>
                             <Form.Item className="input" name={['contacts', 'url']} label={t('organizations.addUserForm.label.url')} initialValue={organizationById.contacts.url}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.url')}  />
                             </Form.Item>
                             <Form.Item className="input" name={['contacts', 'person']} label={t('organizations.addUserForm.label.person')} initialValue={organizationById.contacts.person}>
                                 <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.person')}  />
                             </Form.Item>
-                        </div>
-                        <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>
-                    </>
+                        </FormRow>
+                        <FormActions>
+                            <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>
+                        </FormActions>
+                    </FormGrid>
                 )}
             </div>
         </div>

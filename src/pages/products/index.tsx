@@ -10,6 +10,7 @@ import ComponentTable from 'shared/ui/table'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
+import { FormActions, FormGrid, FormRow } from 'shared/ui/form'
 import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from 'entities/products/model'
 import { ProductsTableColumns } from 'entities/products/ui/tableData/products'
 import type { ProductTableDataType } from 'entities/products/ui/tableData/products/types'
@@ -277,14 +278,14 @@ const Products = () => {
     return (
         <MainLayout>
             <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
-                <div className="btns-group">
+                <FormActions>
                     {canReadAudit && (
                         <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                     )}
                     {canCreateProduct && (
                         <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>
                     )}
-                </div>
+                </FormActions>
             </Heading>
             <div className="box">
             <div className="box-container">
@@ -366,7 +367,8 @@ const Products = () => {
                     }
                 }}
             >
-                <div className="form-inputs form-inputs-row">
+                <FormGrid>
+                <FormRow>
                     <Form.Item
                         className="input"
                         name="name"
@@ -388,8 +390,8 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.shortName')} />
                     </Form.Item>
-                </div>
-                <div className="form-inputs form-inputs-row">
+                </FormRow>
+                <FormRow>
                     <Form.Item
                         className="input"
                         name="manufacturerCountry"
@@ -439,8 +441,8 @@ const Products = () => {
                             // inputMode="numeric"
                         />
                     </Form.Item>
-                </div>
-                <div className="form-inputs form-inputs-row">
+                </FormRow>
+                <FormRow>
                     <Form.Item
                         className="input"
                         name="description"
@@ -448,9 +450,9 @@ const Products = () => {
                     >
                         <TextArea className="input" size="large" placeholder={t('products.addProductForm.placeholder.description')} />
                     </Form.Item>
-                </div>
+                </FormRow>
 
-                <div className="form-inputs form-inputs-row">
+                <FormRow>
                     <Form.Item
                         className="input"
                         name={['gtin', 'unit']}
@@ -473,9 +475,9 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
                     </Form.Item>
-                </div>
+                </FormRow>
 
-                <div className="form-inputs form-inputs-row">
+                <FormRow>
                     <Form.Item
                         className="input"
                         name={['gtin', 'box_lv_1']}
@@ -498,9 +500,9 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
                     </Form.Item>
-                </div>
+                </FormRow>
 
-                <div className="form-inputs form-inputs-row">
+                <FormRow>
                     <Form.Item
                         className="input"
                         name="icps"
@@ -552,9 +554,9 @@ const Products = () => {
                     {/*    />*/}
                     {/*</Form.Item>*/}
 
-                </div>
+                </FormRow>
 
-                <div className="form-inputs form-inputs-row">
+                <FormRow>
                     {/* <Form.Item
                         className="input"
                         name="expiration"
@@ -590,9 +592,9 @@ const Products = () => {
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.unit')} />
                     </Form.Item>
 
-                </div>
+                </FormRow>
 
-                <div className="form-inputs form-inputs-row">
+                <FormRow>
                     <Form.Item
                         className="input"
                         name={['measurement', 'amount']}
@@ -616,9 +618,9 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.net')} />
                     </Form.Item>
-                </div>
+                </FormRow>
 
-                <div className="form-inputs form-inputs-row">
+                <FormRow>
                     <Form.Item
                         className="input"
                         name={['weight', 'gross']}
@@ -642,19 +644,22 @@ const Products = () => {
                     >
                         <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.price')} />
                     </Form.Item>
-                </div>
+                </FormRow>
 
-                <CustomButton
-                    type="submit"
-                    disabled={
-                        companyLoading ||
-                        referencesLoading ||
-                        Boolean(companyError) ||
-                        Boolean(referencesError)
-                    }
-                >
-                    {t('btn.create')}
-                </CustomButton>
+                <FormActions>
+                    <CustomButton
+                        type="submit"
+                        disabled={
+                            companyLoading ||
+                            referencesLoading ||
+                            Boolean(companyError) ||
+                            Boolean(referencesError)
+                        }
+                    >
+                        {t('btn.create')}
+                    </CustomButton>
+                </FormActions>
+                </FormGrid>
             </FormComponent>
         </ModalWindow>
         <ModalWindow
