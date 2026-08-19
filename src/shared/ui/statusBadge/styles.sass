@@ -21,6 +21,19 @@
   width: fit-content
   box-sizing: border-box
 
+  &[data-mode='compact']
+    min-height: 22px
+    padding: 2px 8px
+    border-radius: map.get(vars.$border, 'r-6')
+    font-size: 11px
+    line-height: 14px
+    font-weight: 600
+    gap: 3px
+
+  &[data-mode='full']
+    min-height: 28px
+    padding: 4px 10px
+
   &[data-variant='neutral']
     --status-bg: #{map.get(vars.$status, 'neutral-bg')}
     --status-color: #{map.get(vars.$status, 'neutral-color')}

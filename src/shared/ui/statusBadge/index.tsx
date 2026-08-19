@@ -2,9 +2,12 @@ import type { ReactNode } from 'react';
 import { getStatusBadgeVariant, type StatusBadgeVariant } from './variants';
 import './styles.sass';
 
+export type StatusBadgeMode = 'compact' | 'full';
+
 type StatusBadgeProps = {
   status?: string | null;
   variant?: StatusBadgeVariant;
+  mode?: StatusBadgeMode;
   children: ReactNode;
   className?: string;
   title?: string;
@@ -13,6 +16,7 @@ type StatusBadgeProps = {
 const StatusBadge = ({
   status,
   variant,
+  mode = 'full',
   children,
   className = '',
   title,
@@ -24,6 +28,7 @@ const StatusBadge = ({
     <span
       className={classNames}
       data-variant={statusVariant}
+      data-mode={mode}
       data-status={status ?? undefined}
       title={title}
     >
@@ -32,4 +37,5 @@ const StatusBadge = ({
   );
 };
 
+export type { StatusBadgeVariant };
 export default StatusBadge;

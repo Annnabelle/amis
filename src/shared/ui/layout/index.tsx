@@ -848,7 +848,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       {item.status ? (
                         <div className="mobile-sider-item-row">
                           <span className="mobile-sider-item-label">{item.label}</span>
-                          <StatusBadge status={item.status}>{item.meta}</StatusBadge>
+                          <StatusBadge status={item.status} mode="compact">{item.meta}</StatusBadge>
                         </div>
                       ) : (
                         <span className="mobile-sider-item-label">{item.label}</span>
