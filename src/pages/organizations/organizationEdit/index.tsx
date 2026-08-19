@@ -3,13 +3,14 @@ import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "app/store";
 import {useEffect} from "react";
 import { getOrganizationById, updateOrganization } from "entities/organization/model";
+import type { UpdateCompanyDto } from "entities/organization/dtos";
 import { toast } from "react-toastify";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
-import { FormActions, FormGrid, FormRow } from "shared/ui/form";
-import {Form, Input} from "antd";
+import { FormActions, FormGrid, FormRow, TextField } from "shared/ui/form";
+import {Form} from "antd";
 import {useNavigationBack} from "shared/lib";
 
 const OrganizationsEdit = () => {
@@ -81,7 +82,7 @@ const OrganizationsEdit = () => {
         : "";
 
 
-    const handleUpdateOrganization = async (values: any) => {
+    const handleUpdateOrganization = async (values: UpdateCompanyDto) => {
         if (!id) return;
 
         try {
@@ -126,68 +127,42 @@ const OrganizationsEdit = () => {
                 {organizationById  && (
                     <FormGrid>
                         <FormRow>
-                            <Form.Item className="input" name="displayName" label={t('organizations.addUserForm.label.displayName')} initialValue={organizationById.displayName}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.displayName')}  />
-                            </Form.Item>
+                            <TextField name="displayName" label={t('organizations.addUserForm.label.displayName')} initialValue={organizationById.displayName} placeholder={t('organizations.addUserForm.placeholder.displayName')} />
                         </FormRow>
                         <FormRow>
-                            <Form.Item className="input" name="director" label={t('organizations.addUserForm.label.director')} initialValue={directorName}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.director')}  />
-                            </Form.Item>
+                            <TextField name="director" label={t('organizations.addUserForm.label.director')} initialValue={directorName} placeholder={t('organizations.addUserForm.placeholder.director')} />
                         </FormRow>
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.address')} </h4>
                         </div>
                         <FormRow>
-                            <Form.Item className="input" name={['address', 'region']} label={t('organizations.addUserForm.label.region')} initialValue={organizationById.address.region}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.region')} />
-                            </Form.Item>
-                            <Form.Item className="input" name={['address', 'district']} label={t('organizations.addUserForm.label.district')} initialValue={organizationById.address.district}>
-                                <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.district')}  />
-                            </Form.Item>
+                            <TextField name={['address', 'region']} label={t('organizations.addUserForm.label.region')} initialValue={organizationById.address.region} placeholder={t('organizations.addUserForm.placeholder.region')} />
+                            <TextField name={['address', 'district']} label={t('organizations.addUserForm.label.district')} initialValue={organizationById.address.district} placeholder={t('organizations.addUserForm.placeholder.district')} />
                         </FormRow>
                         <FormRow>
-                            <Form.Item className="input" name={['address', 'address']} label={t('organizations.addUserForm.label.address')} initialValue={organizationById.address.address}>
-                                <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.address')}  />
-                            </Form.Item>
+                            <TextField name={['address', 'address']} label={t('organizations.addUserForm.label.address')} initialValue={organizationById.address.address} placeholder={t('organizations.addUserForm.placeholder.address')} />
                         </FormRow>
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.bankDetails')}</h4>
                         </div>
                         <FormRow>
-                            <Form.Item className="input" name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById?.bankDetails?.bankName}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.bankName')}  />
-                            </Form.Item>
-                            <Form.Item className="input" name={['bankDetails', 'ccea']} label={t('organizations.addUserForm.label.ccea')} initialValue={organizationById?.bankDetails?.ccea}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.ccea')}  />
-                            </Form.Item>
+                            <TextField name={['bankDetails', 'bankName']} label={t('organizations.addUserForm.label.bankName')} initialValue={organizationById?.bankDetails?.bankName} placeholder={t('organizations.addUserForm.placeholder.bankName')} />
+                            <TextField name={['bankDetails', 'ccea']} label={t('organizations.addUserForm.label.ccea')} initialValue={organizationById?.bankDetails?.ccea} placeholder={t('organizations.addUserForm.placeholder.ccea')} />
                         </FormRow>
                         <FormRow>
-                            <Form.Item className="input" name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById?.bankDetails?.account}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.account')}   />
-                            </Form.Item>
-                            <Form.Item className="input" name={['bankDetails', 'mfo']} label={t('organizations.addUserForm.label.mfo')} initialValue={organizationById?.bankDetails?.mfo}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.mfo')} />
-                            </Form.Item>
+                            <TextField name={['bankDetails', 'account']} label={t('organizations.addUserForm.label.account')} initialValue={organizationById?.bankDetails?.account} placeholder={t('organizations.addUserForm.placeholder.account')} />
+                            <TextField name={['bankDetails', 'mfo']} label={t('organizations.addUserForm.label.mfo')} initialValue={organizationById?.bankDetails?.mfo} placeholder={t('organizations.addUserForm.placeholder.mfo')} />
                         </FormRow>
                         <div className="form-divider-title">
                             <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
                         </div>
                         <FormRow>
-                            <Form.Item className="input" name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}initialValue={organizationById.contacts.phone}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.phone')}  />
-                            </Form.Item>
-                            <Form.Item className="input" name={['contacts', 'email']} label={t('organizations.addUserForm.label.email')} initialValue={organizationById.contacts.email}>
-                                <Input className="input" size="large"  placeholder={t('organizations.addUserForm.placeholder.email')}   />
-                            </Form.Item>
+                            <TextField name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}initialValue={organizationById.contacts.phone} placeholder={t('organizations.addUserForm.placeholder.phone')} />
+                            <TextField name={['contacts', 'email']} label={t('organizations.addUserForm.label.email')} initialValue={organizationById.contacts.email} placeholder={t('organizations.addUserForm.placeholder.email')} />
                         </FormRow>
                         <FormRow>
-                            <Form.Item className="input" name={['contacts', 'url']} label={t('organizations.addUserForm.label.url')} initialValue={organizationById.contacts.url}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.url')}  />
-                            </Form.Item>
-                            <Form.Item className="input" name={['contacts', 'person']} label={t('organizations.addUserForm.label.person')} initialValue={organizationById.contacts.person}>
-                                <Input className="input" size="large" placeholder={t('organizations.addUserForm.placeholder.person')}  />
-                            </Form.Item>
+                            <TextField name={['contacts', 'url']} label={t('organizations.addUserForm.label.url')} initialValue={organizationById.contacts.url} placeholder={t('organizations.addUserForm.placeholder.url')} />
+                            <TextField name={['contacts', 'person']} label={t('organizations.addUserForm.label.person')} initialValue={organizationById.contacts.person} placeholder={t('organizations.addUserForm.placeholder.person')} />
                         </FormRow>
                         <FormActions>
                             <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>

@@ -1,4 +1,4 @@
-import {Form, Input, Select} from 'antd'
+import {Form, Input} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
@@ -10,13 +10,12 @@ import ComponentTable from 'shared/ui/table'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
-import { FormActions, FormGrid, FormRow } from 'shared/ui/form'
+import { FormActions, FormGrid, FormRow, SelectField, TextAreaField, TextField } from 'shared/ui/form'
 import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from 'entities/products/model'
 import { ProductsTableColumns } from 'entities/products/ui/tableData/products'
 import type { ProductTableDataType } from 'entities/products/ui/tableData/products/types'
 import type { CreateProduct, ProductResponse } from 'entities/products/types'
 import { useNavigate, useParams } from 'react-router-dom'
-import TextArea from "antd/es/input/TextArea";
 import {fetchReferencesByType} from "entities/references/model";
 import type {LangKey} from "shared/lib/consts.ts";
 import type {MultiLanguage} from "shared/types/dtos";
@@ -49,7 +48,7 @@ const Products = () => {
 
     const productGroupReferences =
         useAppSelector(state => state.references.references.productGroup) ?? [];
-    type Lang = LangKey[number];
+    type Lang = LangKey;
     const orgId = id
     const companyError = useAppSelector(state => state.organizations.error)
     const companyLoading = useAppSelector(state => state.organizations.isLoading)
@@ -61,7 +60,7 @@ const Products = () => {
         const map = new Map<string, string>();
         productGroupReferences.forEach((ref) => {
             const localizedTitle =
-                (ref.title as any)?.[currentLang] ??
+                ref.title?.[currentLang] ??
                 ref.title?.ru ??
                 ref.title?.en ??
                 ref.alias;
@@ -164,7 +163,7 @@ const Products = () => {
                 handleModal("addProduct", false);
             }, 1000);
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error(
                 getBackendErrorMessage(error, t('products.messages.error.createProduct'))
             );
@@ -268,7 +267,7 @@ const Products = () => {
 
     const getTitle = (title: MultiLanguage | undefined, fallback: string = "") => {
         return (
-            (title as any)?.[currentLang] ??
+            title?.[currentLang] ??
             title?.ru ??
             title?.en ??
             fallback
@@ -369,31 +368,12 @@ const Products = () => {
             >
                 <FormGrid>
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name="name"
-                        label={t('products.addProductForm.label.name')}
-                        rules={[
-                            { required: true, message: t('products.addProductForm.validation.required.name') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.name')} />
-                    </Form.Item>
+                    <TextField name="name" label={t('products.addProductForm.label.name')} rules={[ { required: true, message: t('products.addProductForm.validation.required.name') }, ]} placeholder={t('products.addProductForm.placeholder.name')} />
 
-                    <Form.Item
-                        className="input"
-                        name="shortName"
-                        label={t('products.addProductForm.label.shortName')}
-                        rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.shortName') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.shortName')} />
-                    </Form.Item>
+                    <TextField name="shortName" label={t('products.addProductForm.label.shortName')} rules={[ { required: true, message: t('products.addProductForm.validation.required.shortName') }, ]} placeholder={t('products.addProductForm.placeholder.shortName')} />
                 </FormRow>
                 <FormRow>
-                    <Form.Item
-                        className="input"
+                    <SelectField
                         name="manufacturerCountry"
                         label={t('products.addProductForm.label.manufacturerCountry')}
                         rules={[
@@ -402,137 +382,53 @@ const Products = () => {
                                 message: t('products.addProductForm.validation.required.manufacturerCountry'),
                             },
                         ]}
-                    >
-                        <Select
-                            showSearch
-                            allowClear
-                            size="large"
-                            className="input"
-                            placeholder={t('products.addProductForm.placeholder.manufacturerCountry')}
-                            optionFilterProp="label"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '')
-                                    .toString()
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                            }
-                            options={countryReferences.map(ref => ({
-                                label: getTitle(ref.title, ref.alias),
-                                value: ref.alias, // будет отправляться в POST
-                            }))}
-                        />
-                    </Form.Item>
+                        showSearch
+                        allowClear
+                        placeholder={t('products.addProductForm.placeholder.manufacturerCountry')}
+                        optionFilterProp="label"
+                        filterOption={(input, option) =>
+                            (option?.label ?? '')
+                                .toString()
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                        }
+                        options={countryReferences.map(ref => ({
+                            label: getTitle(ref.title, ref.alias),
+                            value: ref.alias,
+                        }))}
+                    />
 
-                    <Form.Item
-                        className="input"
-                        name="expiration"
-                        label={t('products.addProductForm.label.expiration')}
-                        rules={[
-                            {
-                                required: true,
-                                message: t('products.addProductForm.validation.required.expiration'),
-                            },
-                        ]}
-                    >
-                        <Input
-                            className="input"
-                            size="large"
-                            placeholder={t('products.addProductForm.placeholder.expiration')}
-                            // inputMode="numeric"
-                        />
-                    </Form.Item>
+                    <TextField name="expiration" label={t('products.addProductForm.label.expiration')} rules={[ { required: true, message: t('products.addProductForm.validation.required.expiration'), }, ]} placeholder={t('products.addProductForm.placeholder.expiration')} />
                 </FormRow>
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name="description"
-                        label={t('products.addProductForm.label.description')}
-                    >
-                        <TextArea className="input" size="large" placeholder={t('products.addProductForm.placeholder.description')} />
-                    </Form.Item>
+                    <TextAreaField name="description" label={t('products.addProductForm.label.description')} placeholder={t('products.addProductForm.placeholder.description')} />
                 </FormRow>
 
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name={['gtin', 'unit']}
-                        label={t('products.gtin.unit')}
-                        rules={[
-                            { required: true, message: t('products.addProductForm.validation.required.gtin') },
-                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
-                    </Form.Item>
-                    <Form.Item
-                        className="input"
-                        name={['gtin', 'group']}
-                        label={t('products.gtin.group')}
-                        rules={[
-                            { required: false},
-                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
-                    </Form.Item>
+                    <TextField name={['gtin', 'unit']} label={t('products.gtin.unit')} rules={[ { required: true, message: t('products.addProductForm.validation.required.gtin') }, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
+                    <TextField name={['gtin', 'group']} label={t('products.gtin.group')} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
                 </FormRow>
 
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name={['gtin', 'box_lv_1']}
-                        label={t('products.gtin.box_lv_1')}
-                        rules={[
-                            { required: false},
-                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
-                    </Form.Item>
-                    <Form.Item
-                        className="input"
-                        name={['gtin', 'box_lv_2']}
-                        label={t('products.gtin.box_lv_2')}
-                        rules={[
-                            { required: false},
-                            { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gtin')} />
-                    </Form.Item>
+                    <TextField name={['gtin', 'box_lv_1']} label={t('products.gtin.box_lv_1')} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
+                    <TextField name={['gtin', 'box_lv_2']} label={t('products.gtin.box_lv_2')} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
                 </FormRow>
 
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name="icps"
-                        label={t('products.addProductForm.label.icps')}
-                        rules={[
-                            // { required: false, message:  t('products.addProductForm.validation.required.icps') },
-                            // { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.icps')  },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.icps')} />
-                    </Form.Item>
-                    <Form.Item
-                        className="input"
+                    <TextField name="icps" label={t('products.addProductForm.label.icps')} placeholder={t('products.addProductForm.placeholder.icps')} />
+                    <SelectField
                         name="productGroup"
                         label={t('products.addProductForm.label.productType')}
                         rules={[
                             { required: true, message: t('products.addProductForm.validation.required.productType') }
                         ]}
-                    >
-                        <Select
-                            key={currentLang}
-                            size="large"
-                            className="input"
-                            placeholder={t('products.addProductForm.placeholder.productType')}
-                            options={companyProductGroups.map(ref => ({
-                                label: getTitle(ref.title, ref.alias),
-                                value: ref.alias, // 👈 ВАЖНО
-                            }))}
-                        />
-                    </Form.Item>
+                        key={currentLang}
+                        placeholder={t('products.addProductForm.placeholder.productType')}
+                        options={companyProductGroups.map(ref => ({
+                            label: getTitle(ref.title, ref.alias),
+                            value: ref.alias,
+                        }))}
+                    />
 
                     {/*<Form.Item*/}
                     {/*    className="input"*/}
@@ -557,93 +453,23 @@ const Products = () => {
                 </FormRow>
 
                 <FormRow>
-                    {/* <Form.Item
-                        className="input"
-                        name="expiration"
-                        label={t('products.addProductForm.label.expiration')}
-                        rules={[
-                        { required: true, message: t('products.addProductForm.validation.required.expiration') },
-                        { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.expiration') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.expiration')} />
-                    </Form.Item> */}
-                    <Form.Item
-                        className="input"
-                        name="aggregationQuantity"
-                        label={t('products.addProductForm.label.aggregationQuantity')}
-                        rules={[
-                            { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') },
-                            { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.aggregationQuantity') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.aggregationQuantity')} />
-                    </Form.Item>
+                    {/* <TextField name="expiration" label={t('products.addProductForm.label.expiration')} rules={[ { required: true, message: t('products.addProductForm.validation.required.expiration') }, { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.expiration') }, ]} placeholder={t('products.addProductForm.placeholder.expiration')} /> */}
+                    <TextField name="aggregationQuantity" label={t('products.addProductForm.label.aggregationQuantity')} rules={[ { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') }, { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.aggregationQuantity') }, ]} placeholder={t('products.addProductForm.placeholder.aggregationQuantity')} />
 
-                    <Form.Item
-                        className="input"
-                        name={['measurement', 'unit']}
-                        label={t('products.addProductForm.label.unit')}
-                        rules={[
-                        { required: false, message: t('products.addProductForm.validation.required.measurementUnit') },
-                        { max: 10, message: t('products.addProductForm.validation.pattern.measurementUnit') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.unit')} />
-                    </Form.Item>
+                    <TextField name={['measurement', 'unit']} label={t('products.addProductForm.label.unit')} rules={[ { required: false, message: t('products.addProductForm.validation.required.measurementUnit') }, { max: 10, message: t('products.addProductForm.validation.pattern.measurementUnit') }, ]} placeholder={t('products.addProductForm.placeholder.unit')} />
 
                 </FormRow>
 
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name={['measurement', 'amount']}
-                        label={t('products.addProductForm.label.amount')}
-                        rules={[
-                        { required: false, message: t('products.addProductForm.validation.required.requiredField') },
-                        { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.amount')} />
-                    </Form.Item>
+                    <TextField name={['measurement', 'amount']} label={t('products.addProductForm.label.amount')} rules={[ { required: false, message: t('products.addProductForm.validation.required.requiredField') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.amount')} />
 
-                    <Form.Item
-                        className="input"
-                        name={['weight', 'net']}
-                        label={t('products.addProductForm.label.net')}
-                        rules={[
-                        { required: false, message: t('products.addProductForm.validation.required.requiredField') },
-                        { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.net')} />
-                    </Form.Item>
+                    <TextField name={['weight', 'net']} label={t('products.addProductForm.label.net')} rules={[ { required: false, message: t('products.addProductForm.validation.required.requiredField') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.net')} />
                 </FormRow>
 
                 <FormRow>
-                    <Form.Item
-                        className="input"
-                        name={['weight', 'gross']}
-                        label={t('products.addProductForm.label.gross')}
-                        rules={[
-                        { required: false, message: t('products.addProductForm.validation.required.measurementAmount') },
-                        { pattern: /^\d+(\.\d+)?$/, message: t('products.addProductForm.validation.pattern.measurementAmount') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.gross')} />
-                    </Form.Item>
+                    <TextField name={['weight', 'gross']} label={t('products.addProductForm.label.gross')} rules={[ { required: false, message: t('products.addProductForm.validation.required.measurementAmount') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.addProductForm.validation.pattern.measurementAmount') }, ]} placeholder={t('products.addProductForm.placeholder.gross')} />
 
-                    <Form.Item
-                        className="input"
-                        name="price"
-                        label={t('products.addProductForm.label.price')}
-                        rules={[
-                        { required: false, message: t('products.addProductForm.validation.required.weightNet') },
-                        { pattern: /^\d+(\.\d{1,2})?$/, message: t('products.addProductForm.validation.pattern.weightNet') },
-                        ]}
-                    >
-                        <Input className="input" size="large" placeholder={t('products.addProductForm.placeholder.price')} />
-                    </Form.Item>
+                    <TextField name="price" label={t('products.addProductForm.label.price')} rules={[ { required: false, message: t('products.addProductForm.validation.required.weightNet') }, { pattern: /^\d+(\.\d{1,2})?$/, message: t('products.addProductForm.validation.pattern.weightNet') }, ]} placeholder={t('products.addProductForm.placeholder.price')} />
                 </FormRow>
 
                 <FormActions>
