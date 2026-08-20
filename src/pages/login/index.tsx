@@ -1,6 +1,6 @@
 import type { LoginForm } from 'entities/users/types';
 import {useEffect, useState} from "react";
-import { Form, Input, Spin } from 'antd';
+import { Form, Input } from 'antd';
 import {useAppDispatch, useAppSelector} from 'app/store';
 import { Login } from 'entities/users/model';
 import { toast } from 'react-toastify';
@@ -90,8 +90,8 @@ const LoginPage = () => {
                                 </Form.Item>
                             </div>
                             <div className="form-inputs">
-                                <CustomButton type="submit" className='btn-submit' disabled={isSubmitting}>
-                                    {isSubmitting ? <><Spin size="small" /> {t('login.btn.signIn')}</> : t('login.btn.signIn')}
+                                <CustomButton type="submit" loading={isSubmitting} disabled={isSubmitting}>
+                                    {t('login.btn.signIn')}
                                 </CustomButton>
                             </div>
                         </FormComponent>
