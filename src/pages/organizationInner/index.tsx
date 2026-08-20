@@ -20,6 +20,7 @@ import {
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import StatusBadge from 'shared/ui/statusBadge';
+import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 
 const hasValue = (value?: string | number | null) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
@@ -237,7 +238,7 @@ const OrganizationsInner = () => {
                 <div className="route-overview-status">
                   <span className="label inline-label">{t('organizations.status')}</span>
                   <span className="detail-separator">:</span>
-                  <StatusBadge status={organization.status}>
+                  <StatusBadge variant={getCompanyStatusBadgeVariant(organization.status)}>
                     {statusLabel}
                   </StatusBadge>
                 </div>

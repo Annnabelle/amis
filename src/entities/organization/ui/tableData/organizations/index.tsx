@@ -2,8 +2,9 @@ import { Tag} from 'antd';
 import { ActionDropdownButton, TextCell } from 'shared/ui/table/cells';
 import type { OrganizationTableDataType } from './types';
 import type { TFunction } from 'i18next';
-import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
+import StatusBadge from 'shared/ui/statusBadge';
+import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 
 export const OrganizationsTableColumns = (
   t: TFunction,
@@ -74,11 +75,9 @@ export const OrganizationsTableColumns = (
       ellipsis: false,
     render: (status: string) => (
         status ? (
-            <Tag color={statusColors[status]}
-                 className="company-status"
-            >
+            <StatusBadge variant={getCompanyStatusBadgeVariant(status)}>
                 {t(`statuses.${status}`)}
-            </Tag>
+            </StatusBadge>
         ) : null
     ),
   },

@@ -4,6 +4,10 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import StatusBadge from 'shared/ui/statusBadge';
+import {
+  getDeliveryRouteStatusBadgeVariant,
+  getDeliveryTaskStatusBadgeVariant,
+} from 'shared/ui/statusBadge/variants';
 import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -437,7 +441,7 @@ const DeliveryRoutesDetails = () => {
                       <span className="detail-separator">:</span>
                       <h2>{route.routeNumber}</h2>
                     </div>
-                    <StatusBadge status={route.status}>
+                    <StatusBadge variant={getDeliveryRouteStatusBadgeVariant(route.status)}>
                       {t(`deliveryRoutes.status.${route.status}`)}
                     </StatusBadge>
                   </div>
@@ -450,7 +454,7 @@ const DeliveryRoutesDetails = () => {
                     <div className="route-overview-status">
                       <span className="label inline-label">{t('deliveryRoutes.fields.status')}</span>
                       <span className="detail-separator">:</span>
-                      <StatusBadge status={route.status}>
+                      <StatusBadge variant={getDeliveryRouteStatusBadgeVariant(route.status)}>
                         {t(`deliveryRoutes.status.${route.status}`)}
                       </StatusBadge>
                     </div>
@@ -586,7 +590,7 @@ const DeliveryRoutesDetails = () => {
                             </div>
 
                             <div className="route-task-side">
-                              <StatusBadge status={task.status}>
+                              <StatusBadge variant={getDeliveryTaskStatusBadgeVariant(task.status)}>
                                 {t(`statuses.${task.status}`, { defaultValue: task.status })}
                               </StatusBadge>
                               <span className="route-task-invoice">

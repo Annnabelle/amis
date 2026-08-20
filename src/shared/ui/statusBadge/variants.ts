@@ -1,4 +1,15 @@
-export type StatusBadgeSemanticVariant =
+import type {
+  CompanyStatus,
+  DeliveryRouteStatus,
+  DeliveryTaskStatus,
+  SalesOrderStatus,
+} from 'shared/types/dtos';
+import type {
+  ExternalInvoiceStatus,
+  InvoiceStatus,
+} from 'entities/invoices/dtos';
+
+export type StatusBadgeVariant =
   | 'default'
   | 'neutral'
   | 'warning'
@@ -9,169 +20,146 @@ export type StatusBadgeSemanticVariant =
   | 'purple'
   | 'danger';
 
-export type StatusBadgeVariant = StatusBadgeSemanticVariant;
+const fallbackVariant: StatusBadgeVariant = 'default';
 
-const semanticVariants: StatusBadgeSemanticVariant[] = [
-  'default',
-  'neutral',
-  'warning',
-  'info',
-  'success',
-  'cyan',
-  'orange',
-  'purple',
-  'danger',
-];
+const normalizeStatusKey = (status?: string | null): string =>
+  status
+    ?.trim()
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/[\s-]+/g, '_')
+    .toLowerCase() ?? '';
 
-const colorVariantMap: Record<string, StatusBadgeSemanticVariant> = {
-  default: 'default',
-  gray: 'neutral',
-  grey: 'neutral',
-  gold: 'warning',
-  yellow: 'warning',
-  processing: 'info',
-  blue: 'info',
-  geekblue: 'info',
-  green: 'success',
-  cyan: 'cyan',
-  volcano: 'orange',
-  orange: 'orange',
-  pink: 'purple',
-  purple: 'purple',
-  red: 'danger',
+const getMappedVariant = (
+  map: Record<string, StatusBadgeVariant>,
+  status?: string | null
+): StatusBadgeVariant => {
+  if (!status) {
+    return fallbackVariant;
+  }
+
+  return map[status] ?? fallbackVariant;
 };
 
-const statusVariantMap: Record<string, StatusBadgeSemanticVariant> = {
+const companyStatusVariants: Record<CompanyStatus, StatusBadgeVariant> = {
   active: 'success',
-  ACTIVE: 'success',
-  approved: 'success',
-  accepted: 'success',
-  APPLIED: 'success',
-  closed: 'neutral',
-  CLOSED: 'neutral',
-  completed: 'success',
-  created: 'success',
-  CREATED: 'success',
-  declined: 'danger',
-  codes_received: 'info',
-  RECEIVED: 'info',
-  codes_utilized: 'success',
-  codes_aggregated: 'purple',
-  codes_utilization_requested: 'neutral',
-  confirmed: 'info',
-  delivered: 'success',
-  draft: 'neutral',
-  disabled: 'neutral',
-  error: 'danger',
-  exhausted: 'success',
-  EXHAUSTED: 'success',
-  ERROR: 'danger',
-  failed: 'danger',
   inactive: 'danger',
-  invited: 'info',
-  issued: 'success',
-  INTRODUCED: 'warning',
-  issue_failed: 'danger',
-  loaded: 'success',
-  loading: 'info',
-  new: 'info',
-  OUTSOURCED: 'purple',
-  pending: 'warning',
-  PENDING: 'warning',
-  planned: 'warning',
   prospective: 'warning',
-  ready: 'info',
-  READY: 'success',
-  ready_for_codes: 'success',
+};
+
+const salesOrderStatusVariants: Record<SalesOrderStatus, StatusBadgeVariant> = {
+  draft: 'neutral',
+  confirmed: 'info',
+  partially_assigned: 'warning',
+  assigned: 'cyan',
+  partially_delivered: 'orange',
+  delivered: 'success',
+  cancelled: 'danger',
+  closed: 'neutral',
+};
+
+const deliveryRouteStatusVariants: Record<DeliveryRouteStatus, StatusBadgeVariant> = {
+  draft: 'neutral',
+  assigned_to_warehouse: 'warning',
   ready_for_loading: 'warning',
-  registered: 'info',
-  rejected: 'danger',
-  Rejected: 'danger',
-  REJECTED: 'danger',
-  rejected_by_external: 'danger',
-  requested: 'warning',
+  loading: 'info',
+  loaded: 'success',
+  in_transit: 'cyan',
+  partially_delivered: 'orange',
+  delivered: 'success',
   returning: 'purple',
   returned: 'neutral',
-  sent: 'info',
-  success: 'success',
-  SUCCESS: 'success',
-  validating: 'warning',
-  VALIDATING: 'warning',
-  vendor_pending: 'warning',
-  WITHDRAWN: 'info',
-  WRITTEN_OFF: 'success',
-  in_process: 'warning',
-  IN_PROCESS: 'warning',
-  in_progress: 'warning',
-  in_review: 'warning',
-  in_transit: 'cyan',
+  closed: 'neutral',
+  cancelled: 'danger',
+  failed: 'danger',
+};
+
+const deliveryTaskStatusVariants: Record<DeliveryTaskStatus, StatusBadgeVariant> = {
+  planned: 'warning',
+  loading: 'info',
+  loaded: 'success',
   handover_in_progress: 'info',
   delivering: 'cyan',
-  assigned: 'cyan',
-  assigned_to_warehouse: 'warning',
-  partially_assigned: 'warning',
   partially_delivered: 'orange',
-  partially_processed: 'info',
-  PARTIALLY_PROCESSED: 'info',
+  delivered: 'success',
+  issue_failed: 'danger',
   cancelled: 'danger',
+};
+
+const invoiceStatusVariants: Record<InvoiceStatus, StatusBadgeVariant> = {
+  created: 'success',
+  in_review: 'warning',
+  approved: 'success',
+  sent: 'info',
+  pending: 'warning',
+  completed: 'success',
+  rejected: 'danger',
   canceled: 'danger',
-  deleted: 'neutral',
-  Deleted: 'neutral',
-  None: 'neutral',
+  returned: 'neutral',
   unknown: 'default',
-  outsourcered: 'warning',
+  registered: 'info',
+  deleted: 'neutral',
+};
+
+const externalInvoiceStatusVariants: Record<ExternalInvoiceStatus, StatusBadgeVariant> = {
+  None: 'neutral',
   AwaitContractor: 'warning',
   AwaitAction: 'info',
+  Rejected: 'danger',
+  Archived: 'success',
   AwaitAgreement: 'warning',
   AwaitSign: 'info',
+  Deleted: 'neutral',
   AwaitThirdSide: 'warning',
-  AwaitDecline: 'warning',
-  AwaitResponsiblePerson: 'warning',
-  AwaitResponsiblePersonAccepted: 'warning',
-  AwaitReturnAccept: 'warning',
-  Archived: 'success',
-  ArchiveCanceled: 'neutral',
   ArchiveCancelRequested: 'orange',
   AwaitCancelArchiveRequest: 'warning',
   RejectArchiveCancelRequest: 'danger',
+  ArchiveCanceled: 'neutral',
   AgreementAgreed: 'success',
   AgreementReject: 'danger',
   SigningSigned: 'success',
   SigningReject: 'danger',
+  AwaitDecline: 'warning',
   VerifiedBySystem: 'success',
+  AwaitResponsiblePerson: 'warning',
   ResponsiblePersonAccepted: 'success',
+  AwaitResponsiblePersonAccepted: 'warning',
   ResponsiblePersonRejected: 'danger',
   ResponsiblePersonTillReturned: 'orange',
   ResponsiblePersonReturned: 'orange',
   ReturnAccepted: 'success',
+  AwaitReturnAccept: 'warning',
 };
 
-const isStatusBadgeVariant = (
-  value: string
-): value is StatusBadgeSemanticVariant => (
-  semanticVariants.includes(value as StatusBadgeSemanticVariant)
-);
-
-export const getStatusBadgeVariant = (
-  status?: string | null,
-  fallback: StatusBadgeSemanticVariant = 'default'
-): StatusBadgeSemanticVariant => {
-  const normalizedStatus = status?.trim();
-
-  if (!normalizedStatus) {
-    return fallback;
-  }
-
-  const lowercaseStatus = normalizedStatus.toLowerCase();
-
-  if (isStatusBadgeVariant(lowercaseStatus)) {
-    return lowercaseStatus;
-  }
-
-  return (
-    statusVariantMap[normalizedStatus] ??
-    statusVariantMap[lowercaseStatus] ??
-    colorVariantMap[lowercaseStatus] ??
-    fallback
-  );
+const integrationStatusVariants: Record<string, StatusBadgeVariant> = {
+  active: 'success',
+  inactive: 'danger',
+  disabled: 'neutral',
+  pending: 'warning',
+  validating: 'warning',
+  error: 'danger',
+  failed: 'danger',
+  connected: 'success',
+  disconnected: 'neutral',
+  unknown: 'default',
 };
+
+export const getCompanyStatusBadgeVariant = (status?: CompanyStatus | string | null) =>
+  getMappedVariant(companyStatusVariants, status);
+
+export const getSalesOrderStatusBadgeVariant = (status?: SalesOrderStatus | string | null) =>
+  getMappedVariant(salesOrderStatusVariants, status);
+
+export const getDeliveryRouteStatusBadgeVariant = (status?: DeliveryRouteStatus | string | null) =>
+  getMappedVariant(deliveryRouteStatusVariants, status);
+
+export const getDeliveryTaskStatusBadgeVariant = (status?: DeliveryTaskStatus | string | null) =>
+  getMappedVariant(deliveryTaskStatusVariants, status);
+
+export const getInvoiceStatusBadgeVariant = (status?: InvoiceStatus | string | null) =>
+  getMappedVariant(invoiceStatusVariants, status);
+
+export const getExternalInvoiceStatusBadgeVariant = (status?: ExternalInvoiceStatus | string | null) =>
+  getMappedVariant(externalInvoiceStatusVariants, status);
+
+export const getIntegrationStatusBadgeVariant = (status?: string | null): StatusBadgeVariant =>
+  integrationStatusVariants[normalizeStatusKey(status)] ?? fallbackVariant;
