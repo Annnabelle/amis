@@ -16,7 +16,7 @@ import {downloadReport} from "entities/export/model";
 import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
-import {Button, Pagination, Select, Tooltip} from "antd";
+import { Pagination, Select, Tooltip } from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -224,10 +224,12 @@ const AggregationReportPage: React.FC = () => {
                                     </Tooltip>
 
                                     <Tooltip title={t("btn.copy", { defaultValue: "Копировать" })}>
-                                        <Button
-                                            type="text"
+                                        <CustomButton
+                                            variant="text"
                                             icon={<CopyOutlined />}
+                                            iconOnly
                                             onClick={() => handleCopyParentCode(group.parentCode)}
+                                            aria-label={t("btn.copy", { defaultValue: "Копировать" })}
                                         />
                                     </Tooltip>
                                 </div>

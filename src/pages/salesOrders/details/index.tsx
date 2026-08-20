@@ -5,6 +5,7 @@ import { Form, Input } from 'antd';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
 import StatusBadge from 'shared/ui/statusBadge';
+import { getSalesOrderStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -34,7 +35,7 @@ const SalesOrdersDetails = () => {
       <Heading title={t('salesOrders.detailsTitle')} subtitle={t('common.details')}>
         <div className="btns-group">
           {order && (
-            <StatusBadge status={order.status}>
+            <StatusBadge variant={getSalesOrderStatusBadgeVariant(order.status)}>
               {t(`salesOrders.statuses.${order.status}`)}
             </StatusBadge>
           )}

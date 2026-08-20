@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { type MenuProps } from 'antd';
-import { Button, Layout, Menu, Select, Switch, Tag } from 'antd';
+import { Layout, Menu, Select, Switch, Tag } from 'antd';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -34,6 +34,8 @@ import Session from 'widgets/session';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
 import StatusBadge from '../statusBadge';
+import CustomButton from '../button';
+import { getDeliveryRouteStatusBadgeVariant } from '../statusBadge/variants';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -662,10 +664,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               }}
             >
               <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
-                <Button
-                  type="text"
+                <CustomButton
+                  variant="text"
                   icon={collapsed ? <GiHamburgerMenu /> : <IoClose />}
+                  iconOnly
                   onClick={() => setCollapsed(!collapsed)}
+                  aria-label={collapsed ? t('navigation.openMenu', { defaultValue: 'Открыть меню' }) : t('navigation.closeMenu', { defaultValue: 'Закрыть меню' })}
                 />
               </div>
 
@@ -695,24 +699,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         </div>
                       </div>
                       <div className="layout-sider-invitation-actions">
-                        <Button
-                          type="primary"
+                        <CustomButton
                           className="layout-sider-invitation-accept"
+                          size="sm"
                           onClick={() => {
                             void dispatch(acceptSystemAccessInvitation({ id: invitation.id }));
                           }}
                         >
                           {t('systemEmployees.actions.accept')}
-                        </Button>
-                        <Button
-                          danger
+                        </CustomButton>
+                        <CustomButton
+                          variant="danger"
                           className="layout-sider-invitation-decline"
+                          size="sm"
                           onClick={() => {
                             void dispatch(declineSystemAccessInvitation({ id: invitation.id }));
                           }}
                         >
                           {t('systemEmployees.actions.decline')}
-                        </Button>
+                        </CustomButton>
                       </div>
                     </div>
                   ))}
@@ -743,9 +748,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         </div>
                       </div>
                       <div className="layout-sider-invitation-actions">
-                        <Button
-                          type="primary"
+                        <CustomButton
                           className="layout-sider-invitation-accept"
+                          size="sm"
                           onClick={() => {
                             void dispatch(respondCompanyMembershipInvitation({
                               id: invitation.id,
@@ -754,10 +759,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           }}
                         >
                           {t('companyMemberships.actions.accept')}
-                        </Button>
-                        <Button
-                          danger
+                        </CustomButton>
+                        <CustomButton
+                          variant="danger"
                           className="layout-sider-invitation-decline"
+                          size="sm"
                           onClick={() => {
                             void dispatch(respondCompanyMembershipInvitation({
                               id: invitation.id,
@@ -766,7 +772,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           }}
                         >
                           {t('companyMemberships.actions.decline')}
-                        </Button>
+                        </CustomButton>
                       </div>
                     </div>
                   ))}
@@ -848,7 +854,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       {item.status ? (
                         <div className="mobile-sider-item-row">
                           <span className="mobile-sider-item-label">{item.label}</span>
-                          <StatusBadge status={item.status}>{item.meta}</StatusBadge>
+                          <StatusBadge
+                            variant={getDeliveryRouteStatusBadgeVariant(item.status)}
+                            mode="compact"
+                          >
+                            {item.meta}
+                          </StatusBadge>
                         </div>
                       ) : (
                         <span className="mobile-sider-item-label">{item.label}</span>

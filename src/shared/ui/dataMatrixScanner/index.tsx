@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Button, Tag } from 'antd';
+import { Alert, Tag } from 'antd';
 import { CameraOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ZxingVideoScanner, useIsMobile } from 'shared/lib';
 import { CAMERA_DUPLICATE_COOLDOWN, SCAN_PROCESSING_DELAY } from './constants';
 import type { DataMatrixScannerProps, ScanItem, ScanResult, ScannerStage } from './types';
 import { normalizeScannedCode, wait } from './utils';
+import CustomButton from '../button';
 import './styles.sass';
 
 export type { DataMatrixScannerProps, ScanItem, ScanResult };
@@ -255,16 +256,16 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
   const renderCameraBlock = () => (
     <div className="dm-scanner-camera-block">
       <div className="dm-scanner-camera-actions">
-        <Button
-          type="primary"
-          size="large"
+        <CustomButton
+          size="lg"
+          fullWidth={false}
           icon={cameraStarting ? <LoadingOutlined /> : <CameraOutlined />}
           onClick={handleStartCameraClick}
           loading={cameraStarting}
           disabled={cameraActive}
         >
           {t('scanner.startCamera')}
-        </Button>
+        </CustomButton>
       </div>
 
       <div className={`dm-scanner-camera-preview ${cameraActive ? 'active' : ''}`}>
@@ -295,14 +296,14 @@ const DataMatrixScanner: React.FC<DataMatrixScannerProps> = ({
             {primaryActionLabel}
           </button>
         ) : (
-          <Button
-            type="primary"
-            size="large"
+          <CustomButton
+            size="lg"
+            fullWidth={false}
             className="dm-scanner-session-primary"
             onClick={onPrimaryAction}
           >
             {primaryActionLabel}
-          </Button>
+          </CustomButton>
         )
       )}
       <button

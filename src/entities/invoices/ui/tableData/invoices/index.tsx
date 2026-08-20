@@ -1,11 +1,14 @@
-import { Tag } from "antd";
 import type { TFunction } from "i18next";
 import { getInvoiceStatusKey } from "entities/invoices/lib/status";
-import { statusColors } from "shared/ui/statuses.tsx";
 import type { AdaptiveColumn } from "shared/ui/table/types.ts";
 import type { InvoicesTableDataType } from "./types";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import StatusBadge from "shared/ui/statusBadge";
+import {
+  getExternalInvoiceStatusBadgeVariant,
+  getInvoiceStatusBadgeVariant,
+} from "shared/ui/statusBadge/variants";
 
 const renderText = (text: string | number) => (
   <p className="table-text" title={String(text)}>
@@ -39,17 +42,19 @@ const getStatusLabel = (t: TFunction, status: string, prefix: string) => {
 const renderStatus = (t: TFunction, status: string, prefix: string) => {
   if (!status || status === "-") return renderText("-");
 
-  const colorKey = prefix.includes("external") ? status : getInvoiceStatusKey(status);
   const label = getStatusLabel(t, status, prefix);
+  const variant = prefix.includes("external")
+    ? getExternalInvoiceStatusBadgeVariant(status)
+    : getInvoiceStatusBadgeVariant(getInvoiceStatusKey(status) as InvoicesTableDataType["status"]);
 
   return (
-    <Tag
+    <StatusBadge
       className="invoice-status-tag"
-      color={statusColors[colorKey] ?? statusColors[status] ?? "blue"}
+      variant={variant}
       title={label}
     >
       <span className="invoice-status-tag-label">{label}</span>
-    </Tag>
+    </StatusBadge>
   );
 };
 

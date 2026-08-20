@@ -1157,6 +1157,16 @@
                     box_lv_1: "GTIN box",
                     box_lv_2: "GTIN pallet",
                 },
+                validation: {
+                    required: "This field is required",
+                    min2: "Minimum length is 2 characters",
+                    max10: "Maximum length is 10 characters",
+                    max200: "Maximum length is 200 characters",
+                    number: "Enter a valid number",
+                    decimal: "Enter a valid number (integer or decimal)",
+                    icps: "Enter a valid ICPS (14 digits)",
+                    price: "Enter a valid price",
+                },
                 addProductForm: {
                     label: {
                         name: "Name",
@@ -2767,6 +2777,16 @@
                     box_lv_1: "GTIN коробки",
                     box_lv_2: "GTIN паллеты",
                 },
+                validation: {
+                    required: "Поле обязательно для заполнения",
+                    min2: "Минимальная длина — 2 символа",
+                    max10: "Максимальная длина — 10 символов",
+                    max200: "Максимальная длина — 200 символов",
+                    number: "Введите корректное число",
+                    decimal: "Введите корректное число (целое или с десятичной точкой)",
+                    icps: "Введите корректный ИКПУ (14 цифр)",
+                    price: "Введите корректную цену",
+                },
                 addProductForm: {
                     label: {
                         name: 'Название продукции',
@@ -4337,6 +4357,16 @@
                     group: "GTIN guruhli qadoqlanish",
                     box_lv_1: "GTIN quti",
                     box_lv_2: "GTIN palleta",
+                },
+                validation: {
+                    required: "Ushbu maydon to‘ldirilishi shart",
+                    min2: "Minimal uzunlik — 2 ta belgi",
+                    max10: "Eng ko‘p uzunlik — 10 ta belgi",
+                    max200: "Eng ko‘p uzunlik — 200 ta belgi",
+                    number: "To‘g‘ri raqam kiriting",
+                    decimal: "To‘g‘ri raqam kiriting (butun yoki o‘nlik)",
+                    icps: "To‘g‘ri IKPU kiriting (14 raqam)",
+                    price: "To‘g‘ri narx kiriting",
                 },
                 addProductForm: {
                     label: {
