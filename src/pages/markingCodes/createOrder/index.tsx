@@ -1,4 +1,4 @@
-import { Alert, Form, Select, InputNumber, Button, Tooltip } from "antd";
+import { Alert, Form, Select, InputNumber, Tooltip } from "antd";
 import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -394,13 +394,26 @@ const OrderForm = () => {
                       <div className="marking-code-create-order-actions">
                         <span className="marking-code-create-order-action-slot">
                           {index === fields.length - 1 && (
-                            <Button type="primary" className="create-order-btn" icon={<PlusOutlined />} onClick={() => add()} />
+                            <CustomButton
+                                className="create-order-btn"
+                                icon={<PlusOutlined />}
+                                iconOnly
+                                onClick={() => add()}
+                                aria-label={t("btn.add", { defaultValue: "Добавить" })}
+                            />
                           )}
                         </span>
 
                         <span className="marking-code-create-order-action-slot">
                           {fields.length > 1 && (
-                            <Button danger className="create-order-btn" icon={<CloseOutlined />} onClick={() => remove(field.name)} />
+                            <CustomButton
+                                className="create-order-btn"
+                                variant="danger"
+                                icon={<CloseOutlined />}
+                                iconOnly
+                                onClick={() => remove(field.name)}
+                                aria-label={t("btn.delete", { defaultValue: "Удалить" })}
+                            />
                           )}
                         </span>
                       </div>
@@ -433,7 +446,6 @@ const OrderForm = () => {
             }
             type="submit"
             variant="outline"
-            className="full-width"
         >
           {t("markingCodes.orderCreation.submitOrder")}
         </CustomButton>

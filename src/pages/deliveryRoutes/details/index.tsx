@@ -351,7 +351,6 @@ const DeliveryRoutesDetails = () => {
           <div className="mobile-route-toolbar-actions">
             {canStartLoading && (
               <CustomButton
-                className="primary"
                 onClick={() => void handleOpenLoading()}
                 disabled={!canOpenLoading}
               >
@@ -376,7 +375,6 @@ const DeliveryRoutesDetails = () => {
             )}
             {showCloseRoute && (
               <CustomButton
-                className="primary"
                 onClick={() => void handleCloseRoute()}
                 disabled={isClosing}
               >
@@ -394,7 +392,6 @@ const DeliveryRoutesDetails = () => {
           <div className={`btns-group ${isMobile ? 'mobile-route-actions is-hidden-mobile' : ''}`}>
             {canStartLoading && (
               <CustomButton
-                className="primary"
                 onClick={() => void handleOpenLoading()}
                 disabled={!canOpenLoading}
               >
@@ -419,7 +416,6 @@ const DeliveryRoutesDetails = () => {
             )}
             {showCloseRoute && (
               <CustomButton
-                className="primary"
                 onClick={() => void handleCloseRoute()}
                 disabled={isClosing}
               >
@@ -598,7 +594,7 @@ const DeliveryRoutesDetails = () => {
                               </span>
                               {canStartDelivery && !['delivered', 'cancelled'].includes(task.status) && (
                                 <CustomButton
-                                  className="primary"
+                                  className="route-task-primary-action"
                                   disabled={task.status === 'handover_in_progress'}
                                   onClick={(event) => {
                                     event.stopPropagation();
