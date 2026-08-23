@@ -193,6 +193,7 @@
                     tariff: "Tariff",
                     message: "Message",
                     status: "Status",
+                    actions: "Actions",
                     comment: "Comment",
                     createdAt: "Created",
                     updatedAt: "Updated",
@@ -217,6 +218,9 @@
                 },
                 actions: {
                     saveStatus: "Save status",
+                    startProgress: "Accept for work",
+                    complete: "Complete",
+                    reject: "Reject",
                 },
                 validation: {
                     statusRequired: "Select status",
@@ -1812,6 +1816,7 @@
                     tariff: "Тариф",
                     message: "Сообщение",
                     status: "Статус",
+                    actions: "Действия",
                     comment: "Комментарий",
                     createdAt: "Создано",
                     updatedAt: "Обновлено",
@@ -1836,6 +1841,9 @@
                 },
                 actions: {
                     saveStatus: "Сохранить статус",
+                    startProgress: "Принять в работу",
+                    complete: "Завершить",
+                    reject: "Отклонить",
                 },
                 validation: {
                     statusRequired: "Выберите статус",
@@ -3423,6 +3431,7 @@
                     tariff: "Tarif",
                     message: "Xabar",
                     status: "Holat",
+                    actions: "Harakatlar",
                     comment: "Izoh",
                     createdAt: "Yaratildi",
                     updatedAt: "Yangilandi",
@@ -3447,6 +3456,9 @@
                 },
                 actions: {
                     saveStatus: "Holatni saqlash",
+                    startProgress: "Ishga qabul qilish",
+                    complete: "Yakunlash",
+                    reject: "Rad etish",
                 },
                 validation: {
                     statusRequired: "Holatni tanlang",
