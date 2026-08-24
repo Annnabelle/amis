@@ -26,10 +26,10 @@ const PhoneInput = ({ value = "", onChange }: PhoneInputProps) => {
     if (!localDigits) return "";
 
     let formatted = "+998";
-    if (localDigits.length > 0) formatted += " (" + localDigits.substring(0, 2);
-    if (localDigits.length >= 2) formatted += ") " + localDigits.substring(2, 5);
-    if (localDigits.length >= 5) formatted += "-" + localDigits.substring(5, 7);
-    if (localDigits.length >= 7) formatted += "-" + localDigits.substring(7, 9);
+    if (localDigits.length > 0) formatted += " " + localDigits.substring(0, 2);
+    if (localDigits.length >= 2) formatted += " " + localDigits.substring(2, 5);
+    if (localDigits.length >= 5) formatted += " " + localDigits.substring(5, 7);
+    if (localDigits.length >= 7) formatted += " " + localDigits.substring(7, 9);
 
     return formatted;
   };
@@ -121,7 +121,7 @@ const PhoneInput = ({ value = "", onChange }: PhoneInputProps) => {
       ref={inputRef}
       size="large"
       className="input"
-      placeholder="+998 (__) ___-__-__"
+      placeholder="+998 __ ___ __ __"
       inputMode="numeric"
       value={formatPhone(value)}
       onChange={handleChange}

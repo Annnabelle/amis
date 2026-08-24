@@ -3,6 +3,7 @@ import type { TFunction } from "i18next";
 import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
 import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
 import CustomButton from "shared/ui/button";
+import { FormatUzbekPhoneNumber } from "shared/lib";
 import { statusColors } from "shared/ui/statuses";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { LeadTableDataType } from "./types";
@@ -47,7 +48,7 @@ export const LeadsTableColumns = (
     dataIndex: "phone",
     key: "phone",
     flex: 1.5,
-    render: (text: string) => <p className="table-text">{text}</p>,
+    render: (text: string) => <p className="table-text">{FormatUzbekPhoneNumber(text)}</p>,
   },
   {
     title: t("leads.fields.company"),

@@ -8,7 +8,7 @@ import { setCurrentCompanyId } from 'entities/access/model';
 import { AccessModules, type AccessModule } from 'entities/access/types';
 import { getOrganizationById } from 'entities/organization/model';
 import type { CompanyResponse } from 'entities/organization/types';
-import { useIsMobile, useNavigationBack } from 'shared/lib';
+import { FormatUzbekPhoneNumber, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import {
   DetailCard,
@@ -185,7 +185,7 @@ const OrganizationsInner = () => {
   ];
 
   const contactItems: DetailItemData[] = [
-    { label: t('organizations.addUserForm.label.phone'), value: organization.contacts.phone || '-' },
+    { label: t('organizations.addUserForm.label.phone'), value: organization.contacts.phone ? FormatUzbekPhoneNumber(organization.contacts.phone) : '-' },
     { label: t('organizations.addUserForm.label.email'), value: organization.contacts.email || '-' },
     { label: t('organizations.addUserForm.label.url'), value: organization.contacts.url || '-' },
     { label: t('organizations.addUserForm.label.person'), value: organization.contacts.person || '-' },
