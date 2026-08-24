@@ -10,6 +10,7 @@ import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
 import { FormActions, FormGrid, FormRow, TextField } from "shared/ui/form";
+import PhoneInput from "shared/ui/phoneInput";
 import {Form} from "antd";
 import {useNavigationBack} from "shared/lib";
 
@@ -157,7 +158,9 @@ const OrganizationsEdit = () => {
                             <h4 className="title">{t('organizations.subtitles.contactDetails')} </h4>
                         </div>
                         <FormRow>
-                            <TextField name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}initialValue={organizationById.contacts.phone} placeholder={t('organizations.addUserForm.placeholder.phone')} />
+                            <Form.Item className="input" name={['contacts', 'phone']} label={t('organizations.addUserForm.label.phone')}>
+                                <PhoneInput />
+                            </Form.Item>
                             <TextField name={['contacts', 'email']} label={t('organizations.addUserForm.label.email')} initialValue={organizationById.contacts.email} placeholder={t('organizations.addUserForm.placeholder.email')} />
                         </FormRow>
                         <FormRow>
