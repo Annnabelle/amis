@@ -8,7 +8,7 @@ import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'
-import { useNavigationBack } from 'shared/lib'
+import { FormatUzbekPhoneNumber, useNavigationBack } from 'shared/lib'
 
 const UsersRetrieve = () => {
     const { id } = useParams();
@@ -60,7 +60,7 @@ const UsersRetrieve = () => {
                                             name="phone"
                                             label={t('users.addUserForm.label.phone')}
                                         >
-                                            <Input className="input" size='large' placeholder={userById.phone} disabled />
+                                            <Input className="input" size='large' placeholder={FormatUzbekPhoneNumber(userById.phone)} disabled />
                                         </Form.Item>
                                     )}
                                     {userById.email && (

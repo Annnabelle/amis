@@ -11,6 +11,7 @@ import { getLeadById, updateLeadStatus } from "entities/leads/model";
 import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
+import { FormatUzbekPhoneNumber } from "shared/lib";
 import CustomButton from "shared/ui/button";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
@@ -123,7 +124,7 @@ const LeadDetails = () => {
   }
 
   const metaItems = [
-    { label: t("leads.fields.phone"), value: lead.phone },
+    { label: t("leads.fields.phone"), value: FormatUzbekPhoneNumber(lead.phone) },
     { label: t("leads.fields.company"), value: formatValue(lead.company) },
     { label: t("leads.fields.tariff"), value: formatValue(lead.tariff) },
     { label: t("leads.fields.createdAt"), value: formatDateTime(lead.createdAt) },
