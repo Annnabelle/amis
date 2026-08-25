@@ -294,6 +294,7 @@ const CustomsCodesPage = () => {
     try {
       setLocalSigning(true);
       const keyId = await eImzoClient.loadKey(certificate);
+      await eImzoClient.validateCertificate(certificate, keyId);
       const signedDocumentBase64 = await eImzoClient.createPkcs7(documentBase64, keyId, {
         detached: true,
       });
