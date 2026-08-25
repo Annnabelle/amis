@@ -57,6 +57,11 @@ import {
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
 import { isLanguage, type Language } from 'shared/types/dtos';
+import { canAccessEndpoint } from 'entities/access/lib';
+import {
+  endpointAccessMap,
+  type StaticEndpointAccess,
+} from 'shared/config/endpointAccessMap';
 
 const { Header, Content, Sider } = Layout;
 
@@ -283,6 +288,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   type CompanyModuleMenuItem = {
     module: AccessModule;
+    access: StaticEndpointAccess | readonly StaticEndpointAccess[];
     key: string;
     icon: ReactNode;
     path: string;
@@ -296,6 +302,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const frontendModuleOrder: CompanyModuleMenuItem[] = [
       {
         module: AccessModules.CompanyMemberships,
+        access: endpointAccessMap.companyMembershipsList,
         key: 'memberships',
         icon: <TeamOutlined />,
         path: `/organization/${companyId}/memberships`,
@@ -303,6 +310,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Products,
+        access: endpointAccessMap.productsList,
         key: 'products',
         icon: <AppstoreOutlined />,
         path: `/organization/${companyId}/products`,
@@ -310,6 +318,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Orders,
+        access: endpointAccessMap.ordersList,
         key: 'orders',
         icon: <CodeOutlined />,
         path: `/organization/${companyId}/orders`,
@@ -317,6 +326,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Reports,
+        access: endpointAccessMap.aggregationReportsList,
         key: 'agregations',
         icon: <ClusterOutlined />,
         path: `/organization/${companyId}/agregations`,
@@ -324,6 +334,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Reports,
+        access: endpointAccessMap.customsCodesList,
         key: 'customs-codes',
         icon: <SafetyCertificateOutlined />,
         path: `/organization/${companyId}/customs-codes`,
@@ -331,6 +342,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.SalesOrders,
+        access: endpointAccessMap.salesOrdersList,
         key: 'sales-orders',
         icon: <ShoppingCartOutlined />,
         path: `/organization/${companyId}/sales-orders`,
@@ -338,13 +350,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.DeliveryRoutes,
+        access: endpointAccessMap.deliveryRoutesList,
         key: 'delivery-routes',
         icon: <CarOutlined />,
         path: `/organization/${companyId}/delivery-routes`,
         label: t('navigation.routes'),
       },
       {
+        module: AccessModules.Vehicles,
+        access: endpointAccessMap.vehiclesList,
+        key: 'vehicles',
+        icon: <CarOutlined />,
+        path: `/organization/${companyId}/vehicles`,
+        label: t('navigation.vehicles'),
+      },
+      {
         module: AccessModules.Invoices,
+        access: endpointAccessMap.invoicesList,
         key: 'invoices',
         icon: <FileDoneOutlined />,
         path: `/organization/${companyId}/invoices`,
@@ -352,6 +374,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Integrations,
+        access: [
+          endpointAccessMap.integrationsXTraceRead,
+          endpointAccessMap.integrationsFakturaUzRead,
+        ],
         key: 'integrations',
         icon: <ApiOutlined />,
         path: `/organization/${companyId}/integrations`,
@@ -359,7 +385,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
     ];
 
-    return frontendModuleOrder.filter((item) => modules.includes(item.module));
+    return frontendModuleOrder.filter((item) => {
+      if (!modules.includes(item.module)) return false;
+
+      const endpoints = Array.isArray(item.access) ? item.access : [item.access];
+
+      return endpoints.some((endpoint) =>
+        canAccessEndpoint({
+          access,
+          endpoint,
+          companyId,
+        })
+      );
+    });
   };
 
   const systemMenuItems: MenuProps['items'] = [];

@@ -74,6 +74,13 @@ export const Permissions = {
   DeliveryRoutesCompleteReturn: "delivery-routes.complete-return",
   DeliveryRoutesClose: "delivery-routes.close",
 
+  VehiclesList: "vehicle.list",
+  VehiclesRead: "vehicle.read",
+  VehiclesCreate: "vehicle.create",
+  VehiclesUpdate: "vehicle.update",
+  VehiclesDelete: "vehicle.delete",
+  VehiclesSearch: "vehicle.search",
+
   DeliveryTasksList: "delivery-tasks.list",
   DeliveryTasksRead: "delivery-tasks.read",
   DeliveryTasksStartHandover: "delivery-tasks.start-handover",

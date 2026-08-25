@@ -16,6 +16,7 @@ import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { getSalesOrders } from 'entities/salesOrders/model';
 import { searchCompanyMemberships } from 'entities/companyMemberships/model';
 import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';
+import { getVehicles } from 'entities/vehicles/model';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
@@ -50,6 +51,9 @@ const DeliveryRoutesCreate = () => {
   const ordersError = useAppSelector((state) => state.salesOrders.error);
   const searchedMemberships = useAppSelector((state) => state.companyMemberships.searchedMemberships);
   const companyMembershipsError = useAppSelector((state) => state.companyMemberships.error);
+  const vehicles = useAppSelector((state) => state.vehicles.vehicles);
+  const isVehiclesLoading = useAppSelector((state) => state.vehicles.isLoading);
+  const vehiclesError = useAppSelector((state) => state.vehicles.error);
   const [form] = Form.useForm<DeliveryRouteFormValues>();
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
@@ -120,6 +124,7 @@ const DeliveryRoutesCreate = () => {
         sortOrder: 'asc',
       })
     );
+    dispatch(getVehicles({ page: 1, limit: 100, sortOrder: 'asc' }));
   }, [dispatch, companyId]);
 
   const toggleCardExpanded = (index: number) => {
@@ -295,6 +300,18 @@ const DeliveryRoutesCreate = () => {
     };
   }, [selectedOrderIds, orders]);
 
+  const vehicleOptions = useMemo(
+    () =>
+      vehicles.map((vehicle) => ({
+        value: vehicle.id,
+        label: vehicle.plateNumber
+          ? `${vehicle.name} · ${vehicle.plateNumber}`
+          : vehicle.name,
+        vehicle,
+      })),
+    [vehicles]
+  );
+
   const availableOrdersColumns = useMemo<AdaptiveColumn<AvailableOrderRow>[]>(
     () => [
       {
@@ -400,8 +417,9 @@ const DeliveryRoutesCreate = () => {
         endpoints={[
           endpointAccessMap.salesOrdersList,
           endpointAccessMap.companyMembershipsSearch,
+          endpointAccessMap.vehiclesList,
         ]}
-        errors={[ordersError, companyMembershipsError]}
+        errors={[ordersError, companyMembershipsError, vehiclesError]}
       />
       <div className="box">
         <div className="box-container">
@@ -442,13 +460,47 @@ const DeliveryRoutesCreate = () => {
               <div className="form-inputs form-inputs-organization">
                 <Form.Item
                   className="input"
+                  name={["vehicle", "vehicleId"]}
+                  label={t('deliveryRoutes.fields.vehicle')}
+                >
+                  <Select
+                    className="input"
+                    size="large"
+                    allowClear
+                    showSearch
+                    loading={isVehiclesLoading}
+                    options={vehicleOptions}
+                    optionFilterProp="label"
+                    placeholder={t('vehicles.placeholders.selectVehicle')}
+                    onSelect={(_, option) => {
+                      form.setFieldsValue({
+                        vehicle: {
+                          vehicleId: option.vehicle.id,
+                          name: option.vehicle.name,
+                          plateNumber: option.vehicle.plateNumber,
+                        },
+                      });
+                    }}
+                    onClear={() => {
+                      const vehicle = form.getFieldValue('vehicle') || {};
+                      form.setFieldsValue({
+                        vehicle: {
+                          ...vehicle,
+                          vehicleId: undefined,
+                        },
+                      });
+                    }}
+                  />
+                </Form.Item>
+                <Form.Item
+                  className="input"
                   name={["schedule", "routeDate"]}
                   label={t('deliveryRoutes.fields.routeDate')}
                   rules={[{ required: true, message: t('deliveryRoutes.validation.routeDateRequired') }]}
                 >
                   <DatePicker className="input" size="large" placeholder={t('deliveryRoutes.placeholders.routeDate')} />
                 </Form.Item>
-                <Form.Item className="input" name={["vehicle", "name"]} label={t('deliveryRoutes.fields.vehicle')}>
+                <Form.Item className="input" name={["vehicle", "name"]} label={t('deliveryRoutes.fields.vehicleName')}>
                   <Input className="input" size="large" placeholder={t('deliveryRoutes.placeholders.vehicle')} />
                 </Form.Item>
                 <Form.Item 

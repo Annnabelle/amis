@@ -177,6 +177,7 @@
                 routes: "Routes",
                 salesOrders: "Sales Orders",
                 deliveryRoutes: "Delivery Routes",
+                vehicles: "Vehicles",
                 deliveryTasks: "Delivery Tasks",
                 invoices: "Invoices",
                 companyMemberships: "Employees",
@@ -393,6 +394,83 @@
                     totalsEmpty: "Ordered / assigned / delivered / amount",
                     itemsEmpty: "Items table",
                     relatedEmpty: "Linked route, task, invoice"
+                }
+            },
+            vehicles: {
+                title: "Vehicles",
+                deleteQuestion: "Are you sure you want to delete this vehicle?",
+                fields: {
+                    name: "Vehicle name",
+                    plateNumber: "Plate number",
+                    comment: "Comment",
+                    type: "Type",
+                    brand: "Brand",
+                    model: "Model",
+                    year: "Year",
+                    loadCapacityKg: "Load capacity, kg",
+                    volumeCapacityM3: "Volume capacity, m3",
+                    vin: "VIN",
+                    registrationCertificateNumber: "Registration certificate",
+                    status: "Status",
+                    createdAt: "Created",
+                    updatedAt: "Updated"
+                },
+                placeholders: {
+                    name: "Enter vehicle name",
+                    plateNumber: "00 000AAA",
+                    comment: "Add a comment",
+                    brand: "Enter brand",
+                    model: "Enter model",
+                    vin: "Enter VIN",
+                    registrationCertificateNumber: "Enter certificate number",
+                    selectVehicle: "Select vehicle"
+                },
+                types: {
+                    sedan: "Sedan",
+                    van: "Van",
+                    truck: "Truck",
+                    semi_truck: "Semi truck",
+                    pickup: "Pickup",
+                    other: "Other"
+                },
+                statuses: {
+                    active: "Active",
+                    maintenance: "Maintenance",
+                    out_of_service: "Out of service",
+                    archived: "Archived"
+                },
+                details: {
+                    main: "Main information",
+                    characteristics: "Characteristics",
+                    identification: "Identification",
+                    system: "System information"
+                },
+                actions: {
+                    create: "Add vehicle"
+                },
+                modal: {
+                    create: "Add vehicle",
+                    vehicle: "vehicle"
+                },
+                validation: {
+                    nameRequired: "Enter vehicle name",
+                    typeRequired: "Select vehicle type",
+                    plateNumberRequired: "Enter plate number",
+                    plateNumberLength: "Plate number must contain 8 characters without spaces",
+                    brandRequired: "Enter brand",
+                    modelRequired: "Enter model"
+                },
+                messages: {
+                    success: {
+                        create: "Vehicle created",
+                        update: "Vehicle updated",
+                        delete: "Vehicle deleted"
+                    },
+                    error: {
+                        create: "Could not create vehicle",
+                        update: "Could not update vehicle",
+                        delete: "Could not delete vehicle"
+                    }
                 }
             },
             deliveryRoutes: {
@@ -1805,6 +1883,7 @@
                 routes: "Рейсы",
                 salesOrders: "Сделки",
                 deliveryRoutes: "Рейсы",
+                vehicles: "Транспорт",
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
                 companyMemberships: "Сотрудники",
@@ -2021,6 +2100,83 @@
                     totalsEmpty: "Заказано / назначено / доставлено / сумма",
                     itemsEmpty: "Таблица товаров",
                     relatedEmpty: "Связанный рейс, задача, инвойс"
+                }
+            },
+            vehicles: {
+                title: "Транспорт",
+                deleteQuestion: "Вы уверены, что хотите удалить транспорт?",
+                fields: {
+                    name: "Название транспорта",
+                    plateNumber: "Номер машины",
+                    comment: "Комментарий",
+                    type: "Тип",
+                    brand: "Марка",
+                    model: "Модель",
+                    year: "Год",
+                    loadCapacityKg: "Грузоподъёмность, кг",
+                    volumeCapacityM3: "Объём, м3",
+                    vin: "VIN",
+                    registrationCertificateNumber: "Номер техпаспорта",
+                    status: "Статус",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено"
+                },
+                placeholders: {
+                    name: "Введите название транспорта",
+                    plateNumber: "00 000AAA",
+                    comment: "Добавьте комментарий",
+                    brand: "Введите марку",
+                    model: "Введите модель",
+                    vin: "Введите VIN",
+                    registrationCertificateNumber: "Введите номер техпаспорта",
+                    selectVehicle: "Выберите транспорт"
+                },
+                types: {
+                    sedan: "Седан",
+                    van: "Фургон",
+                    truck: "Грузовик",
+                    semi_truck: "Тягач",
+                    pickup: "Пикап",
+                    other: "Другое"
+                },
+                statuses: {
+                    active: "Активен",
+                    maintenance: "На обслуживании",
+                    out_of_service: "Не используется",
+                    archived: "В архиве"
+                },
+                details: {
+                    main: "Основная информация",
+                    characteristics: "Характеристики",
+                    identification: "Идентификация",
+                    system: "Системная информация"
+                },
+                actions: {
+                    create: "Добавить транспорт"
+                },
+                modal: {
+                    create: "Добавить транспорт",
+                    vehicle: "транспорт"
+                },
+                validation: {
+                    nameRequired: "Введите название транспорта",
+                    typeRequired: "Выберите тип транспорта",
+                    plateNumberRequired: "Введите номер машины",
+                    plateNumberLength: "Номер должен содержать 8 символов без пробелов",
+                    brandRequired: "Введите марку",
+                    modelRequired: "Введите модель"
+                },
+                messages: {
+                    success: {
+                        create: "Транспорт создан",
+                        update: "Транспорт обновлен",
+                        delete: "Транспорт удален"
+                    },
+                    error: {
+                        create: "Не удалось создать транспорт",
+                        update: "Не удалось обновить транспорт",
+                        delete: "Не удалось удалить транспорт"
+                    }
                 }
             },
             deliveryRoutes: {
@@ -3425,6 +3581,7 @@
                 routes: "Reyslar",
                 salesOrders: "Sotuv buyurtmalari",
                 deliveryRoutes: "Reyslar",
+                vehicles: "Transport",
                 deliveryTasks: "Yetkazib berish vazifalari",
                 invoices: "Hisob-fakturalar",
                 companyMemberships: "Xodimlar",
@@ -3641,6 +3798,83 @@
                     totalsEmpty: "Buyurtma / biriktirilgan / yetkazilgan / summa",
                     itemsEmpty: "Tovarlar jadvali",
                     relatedEmpty: "Bog'langan reys, vazifa, hisob-faktura"
+                }
+            },
+            vehicles: {
+                title: "Transport",
+                deleteQuestion: "Transportni o'chirishni xohlaysizmi?",
+                fields: {
+                    name: "Transport nomi",
+                    plateNumber: "Mashina raqami",
+                    comment: "Izoh",
+                    type: "Turi",
+                    brand: "Marka",
+                    model: "Model",
+                    year: "Yil",
+                    loadCapacityKg: "Yuk ko'tarish, kg",
+                    volumeCapacityM3: "Hajm, m3",
+                    vin: "VIN",
+                    registrationCertificateNumber: "Tex pasport raqami",
+                    status: "Holat",
+                    createdAt: "Yaratildi",
+                    updatedAt: "Yangilandi"
+                },
+                placeholders: {
+                    name: "Transport nomini kiriting",
+                    plateNumber: "00 000AAA",
+                    comment: "Izoh qo'shing",
+                    brand: "Markani kiriting",
+                    model: "Modelni kiriting",
+                    vin: "VIN ni kiriting",
+                    registrationCertificateNumber: "Tex pasport raqamini kiriting",
+                    selectVehicle: "Transportni tanlang"
+                },
+                types: {
+                    sedan: "Sedan",
+                    van: "Furgon",
+                    truck: "Yuk mashinasi",
+                    semi_truck: "Tyagach",
+                    pickup: "Pikap",
+                    other: "Boshqa"
+                },
+                statuses: {
+                    active: "Faol",
+                    maintenance: "Texnik xizmatda",
+                    out_of_service: "Ishlatilmayapti",
+                    archived: "Arxivda"
+                },
+                details: {
+                    main: "Asosiy ma'lumot",
+                    characteristics: "Xususiyatlar",
+                    identification: "Identifikatsiya",
+                    system: "Tizim ma'lumoti"
+                },
+                actions: {
+                    create: "Transport qo'shish"
+                },
+                modal: {
+                    create: "Transport qo'shish",
+                    vehicle: "transport"
+                },
+                validation: {
+                    nameRequired: "Transport nomini kiriting",
+                    typeRequired: "Transport turini tanlang",
+                    plateNumberRequired: "Mashina raqamini kiriting",
+                    plateNumberLength: "Raqam probelsiz 8 ta belgidan iborat bo'lishi kerak",
+                    brandRequired: "Markani kiriting",
+                    modelRequired: "Modelni kiriting"
+                },
+                messages: {
+                    success: {
+                        create: "Transport yaratildi",
+                        update: "Transport yangilandi",
+                        delete: "Transport o'chirildi"
+                    },
+                    error: {
+                        create: "Transportni yaratib bo'lmadi",
+                        update: "Transportni yangilab bo'lmadi",
+                        delete: "Transportni o'chirib bo'lmadi"
+                    }
                 }
             },
             deliveryRoutes: {

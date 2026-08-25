@@ -23,6 +23,7 @@ export const AccessModules = {
   Codes: "codes",
   SalesOrders: "sales-orders",
   DeliveryRoutes: "delivery-routes",
+  Vehicles: "vehicles",
   DeliveryTasks: "delivery-tasks",
   ScanSessions: "scan-sessions",
   Invoices: "invoices",

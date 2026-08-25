@@ -1,0 +1,23 @@
+.vehicle-details-grid
+  width: 100%
+  display: grid
+  grid-template-columns: repeat(2, minmax(280px, 1fr))
+  gap: 20px
+  align-items: stretch
+
+  .detail-card
+    min-height: 220px
+    height: 100%
+    display: flex
+    flex-direction: column
+
+  .detail-items
+    flex: 1
+    justify-content: flex-start
+
+@media (max-width: 900px)
+  .vehicle-details-grid
+    grid-template-columns: 1fr
+
+    .detail-card
+      min-height: auto
