@@ -13,6 +13,7 @@ import CustomButton from 'shared/ui/button'
 import PhoneInput from 'shared/ui/phoneInput'
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import './styles.sass'
 
 const UsersEdit = () => {
     const { id } = useParams();
@@ -39,7 +40,7 @@ const UsersEdit = () => {
             lastName: userById.lastName,
             phone: userById.phone,
             email: userById.email,
-            role: userById.role?.alias,
+            pinfl: userById.pinfl,
             status: userById.status,
             })
         }
@@ -60,7 +61,7 @@ const UsersEdit = () => {
 
                 await dispatch(getUserById({ id: id }));
             } else {
-                toast.error(t('users.messages.error.updateUser'));
+                toast.error((resultAction.payload as string) || t('users.messages.error.updateUser'));
             }
         } catch (err) {
             toast.error((err as string) || t('users.messages.error.updateUser'));
@@ -107,7 +108,7 @@ const UsersEdit = () => {
         <div className="box">
             <div className="box-container">
                 <div className="box-container-items">
-                    <div className="box-container-items-item">
+                    <div className="box-container-items-item users-edit-fields">
                         {userById && (
                             <>
                                 <div className="form-inputs form-inputs-row">
@@ -126,14 +127,26 @@ const UsersEdit = () => {
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.email')}  />
                                     </Form.Item>
                                 </div>
-                                {canListCompanies && (
-                                <div className="form-inputs">
-                                    <Form.Item className="input" name="status" label="Статус" >
-                                        <Select className='input' size="large" options={statusOption}/>
+                                <div className="form-inputs form-inputs-row users-edit-access-row">
+                                    <Form.Item
+                                        className="input"
+                                        name="pinfl"
+                                        label={t('users.addUserForm.label.pinfl')}
+                                        rules={[
+                                            { pattern: /^[0-9]{14}$/, message: t('users.addUserForm.pattern.pinfl') }
+                                        ]}
+                                    >
+                                        <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.pinfl')} />
                                     </Form.Item>
+                                    {canListCompanies && (
+                                        <Form.Item className="input" name="status" label="Статус" >
+                                            <Select className='input' size="large" options={statusOption}/>
+                                        </Form.Item>
+                                    )}
                                 </div>
-                                )}
-                                <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>
+                                <div className="users-edit-actions">
+                                    <CustomButton variant="outline" type="submit">{t('btn.save')} </CustomButton>
+                                </div>
                             </>
                         )}
                     </div>
