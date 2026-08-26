@@ -1,15 +1,17 @@
-import { Empty, Form, Input, Modal, Select, Tag } from "antd";
+import { Empty, Form, Input, Modal, Tag } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
+import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
 import { getLeadById, updateLeadStatus } from "entities/leads/model";
-import { LeadStatuses, type LeadStatus } from "entities/leads/types";
+import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
+import { FormatUzbekPhoneNumber } from "shared/lib";
 import CustomButton from "shared/ui/button";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
@@ -24,6 +26,22 @@ const formatValue = (value?: string | null) => value || "-";
 const formatDateTime = (value?: string) =>
   value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "-";
 
+const getLeadStatusActionLabelKey = (status: LeadStatusType) => {
+  if (status === LeadStatus.InProgress) {
+    return "leads.actions.startProgress";
+  }
+
+  if (status === LeadStatus.Completed) {
+    return "leads.actions.complete";
+  }
+
+  if (status === LeadStatus.Rejected) {
+    return "leads.actions.reject";
+  }
+
+  return `leads.statuses.${status}`;
+};
+
 const LeadDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
@@ -33,7 +51,7 @@ const LeadDetails = () => {
   const lead = useAppSelector((state) => state.leads.leadById);
   const isLoading = useAppSelector((state) => state.leads.isLoading);
   const [form] = Form.useForm<StatusForm>();
-  const [pendingStatus, setPendingStatus] = useState<LeadStatus | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<LeadStatusType | null>(null);
   const [isStatusSaving, setIsStatusSaving] = useState(false);
 
   useEffect(() => {
@@ -42,16 +60,7 @@ const LeadDetails = () => {
     }
   }, [dispatch, id]);
 
-  const statusOptions = useMemo(
-    () =>
-      LeadStatuses.map((status) => ({
-        value: status,
-        label: t(`leads.statuses.${status}`),
-      })),
-    [t]
-  );
-
-  const openStatusModal = (status: LeadStatus) => {
+  const openStatusModal = (status: LeadStatusType) => {
     if (!lead || status === lead.status) {
       return;
     }
@@ -115,7 +124,7 @@ const LeadDetails = () => {
   }
 
   const metaItems = [
-    { label: t("leads.fields.phone"), value: lead.phone },
+    { label: t("leads.fields.phone"), value: FormatUzbekPhoneNumber(lead.phone) },
     { label: t("leads.fields.company"), value: formatValue(lead.company) },
     { label: t("leads.fields.tariff"), value: formatValue(lead.tariff) },
     { label: t("leads.fields.createdAt"), value: formatDateTime(lead.createdAt) },
@@ -129,20 +138,26 @@ const LeadDetails = () => {
     { label: t("leads.fields.statusChangedAt"), value: formatDateTime(lead.statusChangedAt) },
     { label: t("leads.fields.updatedAt"), value: formatDateTime(lead.updatedAt) },
   ];
+  const statusActions = getAvailableLeadStatusActions(lead.status);
 
   return (
     <MainLayout>
       <Heading title={t("leads.detailsTitle")} subtitle={t("common.details")}>
         <div className="leads-heading-actions">
-          {canUpdateStatus && (
-            <Select
-              className="leads-status-select"
-              popupClassName="leads-status-select-popup"
-              value={lead.status}
-              popupMatchSelectWidth={false}
-              options={statusOptions}
-              onChange={openStatusModal}
-            />
+          {canUpdateStatus && statusActions.length > 0 && (
+            <div className="leads-status-actions">
+              {statusActions.map((status) => (
+                <CustomButton
+                  key={status}
+                  className="leads-status-action-btn"
+                  size="sm"
+                  variant={status === LeadStatus.Rejected ? "danger" : "primary"}
+                  onClick={() => openStatusModal(status)}
+                >
+                  {t(getLeadStatusActionLabelKey(status))}
+                </CustomButton>
+              ))}
+            </div>
           )}
           <CustomButton variant="outline" onClick={() => navigate("/leads")}>
             {t("common.backToList")}
@@ -187,6 +202,11 @@ const LeadDetails = () => {
             </div>
 
             <div className="detail-grid detail-grid-secondary leads-details-info-grid">
+              <div className="detail-card">
+                <h4>{t("leads.fields.message")}</h4>
+                <div className="detail-text-block">{formatValue(lead.message)}</div>
+              </div>
+
               <div className="detail-card leads-status-card">
                 <h4>{t("leads.sections.status")}</h4>
                 <div className="detail-items">
@@ -214,11 +234,6 @@ const LeadDetails = () => {
               <div className="detail-card">
                 <h4>{t("leads.fields.comment")}</h4>
                 <div className="detail-text-block">{formatValue(lead.comment)}</div>
-              </div>
-
-              <div className="detail-card">
-                <h4>{t("leads.fields.message")}</h4>
-                <div className="detail-text-block">{formatValue(lead.message)}</div>
               </div>
             </div>
           </div>

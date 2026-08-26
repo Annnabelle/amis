@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Spin } from 'antd';
+import { DatePicker, Form, Input, InputNumber, Radio, Select, Spin } from 'antd';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -531,18 +531,21 @@ const SalesOrdersCreate = () => {
                         </Form.Item>
 
                         {index === fields.length - 1 ? (
-                          <Button
-                            type="primary"
+                          <CustomButton
                             className="create-order-btn"
                             icon={<PlusOutlined />}
+                            iconOnly
                             onClick={() => add()}
+                            aria-label={t("btn.add", { defaultValue: "Добавить" })}
                           />
                         ) : (
-                          <Button
-                            danger
+                          <CustomButton
+                            variant="danger"
                             className="create-order-btn"
                             icon={<CloseOutlined />}
+                            iconOnly
                             onClick={() => remove(field.name)}
+                            aria-label={t("btn.delete", { defaultValue: "Удалить" })}
                           />
                         )}
                       </div>

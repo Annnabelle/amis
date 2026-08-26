@@ -1,6 +1,7 @@
 import type { ErrorDto } from "shared/types/dtos";
-import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
-import type { ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserPreview, UserResponse } from "entities/users/types";
+import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, RegisterUserDto, UpdateUserDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
+import type { AddUserForm, ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserPreview, UserResponse } from "entities/users/types";
+import type { Language } from "shared/types/dtos";
 
 export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
   return {
@@ -17,37 +18,55 @@ export function mapChangePwdFormToChangePwdDto(form: ChangePassword): ChangePass
   };
 }
 
+const getUserFirstName = (dto: UserResponseDto | UserPreviewDto) => dto.name?.first ?? dto.firstName ?? "";
+const getUserLastName = (dto: UserResponseDto | UserPreviewDto) => dto.name?.last ?? dto.lastName ?? "";
+
 export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   id: dto.id,
-  firstName: dto.firstName,
-  lastName: dto.lastName,
+  firstName: getUserFirstName(dto),
+  lastName: getUserLastName(dto),
   email: dto.email,
   phone: dto.phone,
+  pinfl: dto.pinfl,
   status: dto.status,
-  companyIds: dto.companyIds,
-  role: dto.role
-    ? {
-        id: dto.role.id,
-        name: {
-          ru: dto.role.name.ru,
-          uz: dto.role.name.uz,
-          en: dto.role.name.en,
-        },
-        alias: dto.role.alias,
-      }
-    : undefined,
-  language: dto.language,
+  companyIds: dto.companyIds ?? [],
+  language: dto.language ?? "ru",
   lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
 });
 
 export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => ({
   id: dto.id,
-  firstName: dto.firstName,
-  lastName: dto.lastName,
+  firstName: getUserFirstName(dto),
+  lastName: getUserLastName(dto),
   status: dto.status,
   email: dto.email,
   phone: dto.phone,
+  pinfl: dto.pinfl,
 });
+
+export const mapRegisterUserFormToDto = (form: AddUserForm & { language: Language }): RegisterUserDto => ({
+  firstName: form.firstName,
+  lastName: form.lastName,
+  email: form.email,
+  phone: form.phone,
+  pinfl: form.pinfl,
+  password: form.password,
+  language: form.language as RegisterUserDto["language"],
+});
+
+export const mapUpdateUserFormToDto = (form: Partial<UserResponse>): UpdateUserDto => {
+  const dto: UpdateUserDto = {
+    firstName: form.firstName,
+    lastName: form.lastName,
+    email: form.email,
+    phone: form.phone,
+    pinfl: form.pinfl,
+    language: form.language as UpdateUserDto["language"],
+    status: form.status as UpdateUserDto["status"],
+  };
+
+  return dto;
+};
 
 
 function isSuccessChangePasswordResponseDto(
@@ -86,28 +105,7 @@ export function mapLoginResponseDtoToLoginResponse(
   if (isSuccessLoginResponseDto(dto) && dto.success) {
     return {
       success: true,
-      user: {
-        id: dto.user.id,
-        firstName: dto.user.firstName,
-        lastName: dto.user.lastName,
-        email: dto.user.email,
-        phone: dto.user.phone,
-        status: dto.user.status,
-        companyIds: dto.user.companyIds,
-        role: dto.user.role
-          ? {
-              id: dto.user.role.id,
-              name: {
-                ru: dto.user.role.name.ru,
-                uz: dto.user.role.name.uz,
-                en: dto.user.role.name.en,
-              },
-              alias: dto.user.role.alias,
-            }
-          : undefined,
-        language: dto.user.language,
-        lastLoggedInAt: dto.user.lastLoggedInAt ? new Date(dto.user.lastLoggedInAt) : null,
-      },
+      user: mapUsersDtoToEntity(dto.user),
       accessToken: dto.tokens.accessToken,
       refreshToken: dto.tokens.refreshToken,
     };
@@ -120,24 +118,7 @@ export function mapLoginResponseDtoToLoginResponse(
 }
 
 export function mapUpdateUserDtoToEntity(dto: UserResponseDto): UserResponse {
-  return {
-    id: dto.id,
-    firstName: dto.firstName,
-    lastName: dto.lastName,
-    email: dto.email,
-    phone: dto.phone,
-    status: dto.status,
-    companyIds: dto.companyIds,
-    role: dto.role
-      ? {
-          id: dto.role.id,
-          name: dto.role.name,
-          alias: dto.role.alias,
-        }
-      : undefined,
-    language: dto.language,
-    lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
-  };
+  return mapUsersDtoToEntity(dto);
 }
 
 

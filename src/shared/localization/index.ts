@@ -177,6 +177,7 @@
                 routes: "Routes",
                 salesOrders: "Sales Orders",
                 deliveryRoutes: "Delivery Routes",
+                vehicles: "Vehicles",
                 deliveryTasks: "Delivery Tasks",
                 invoices: "Invoices",
                 companyMemberships: "Employees",
@@ -193,6 +194,7 @@
                     tariff: "Tariff",
                     message: "Message",
                     status: "Status",
+                    actions: "Actions",
                     comment: "Comment",
                     createdAt: "Created",
                     updatedAt: "Updated",
@@ -217,6 +219,9 @@
                 },
                 actions: {
                     saveStatus: "Save status",
+                    startProgress: "Accept for work",
+                    complete: "Complete",
+                    reject: "Reject",
                 },
                 validation: {
                     statusRequired: "Select status",
@@ -389,6 +394,83 @@
                     totalsEmpty: "Ordered / assigned / delivered / amount",
                     itemsEmpty: "Items table",
                     relatedEmpty: "Linked route, task, invoice"
+                }
+            },
+            vehicles: {
+                title: "Vehicles",
+                deleteQuestion: "Are you sure you want to delete this vehicle?",
+                fields: {
+                    name: "Vehicle name",
+                    plateNumber: "Plate number",
+                    comment: "Comment",
+                    type: "Type",
+                    brand: "Brand",
+                    model: "Model",
+                    year: "Year",
+                    loadCapacityKg: "Load capacity, kg",
+                    volumeCapacityM3: "Volume capacity, m3",
+                    vin: "VIN",
+                    registrationCertificateNumber: "Registration certificate",
+                    status: "Status",
+                    createdAt: "Created",
+                    updatedAt: "Updated"
+                },
+                placeholders: {
+                    name: "Enter vehicle name",
+                    plateNumber: "00 000AAA",
+                    comment: "Add a comment",
+                    brand: "Enter brand",
+                    model: "Enter model",
+                    vin: "Enter VIN",
+                    registrationCertificateNumber: "Enter certificate number",
+                    selectVehicle: "Select vehicle"
+                },
+                types: {
+                    sedan: "Sedan",
+                    van: "Van",
+                    truck: "Truck",
+                    semi_truck: "Semi truck",
+                    pickup: "Pickup",
+                    other: "Other"
+                },
+                statuses: {
+                    active: "Active",
+                    maintenance: "Maintenance",
+                    out_of_service: "Out of service",
+                    archived: "Archived"
+                },
+                details: {
+                    main: "Main information",
+                    characteristics: "Characteristics",
+                    identification: "Identification",
+                    system: "System information"
+                },
+                actions: {
+                    create: "Add vehicle"
+                },
+                modal: {
+                    create: "Add vehicle",
+                    vehicle: "vehicle"
+                },
+                validation: {
+                    nameRequired: "Enter vehicle name",
+                    typeRequired: "Select vehicle type",
+                    plateNumberRequired: "Enter plate number",
+                    plateNumberLength: "Plate number must contain 8 characters without spaces",
+                    brandRequired: "Enter brand",
+                    modelRequired: "Enter model"
+                },
+                messages: {
+                    success: {
+                        create: "Vehicle created",
+                        update: "Vehicle updated",
+                        delete: "Vehicle deleted"
+                    },
+                    error: {
+                        create: "Could not create vehicle",
+                        update: "Could not update vehicle",
+                        delete: "Could not delete vehicle"
+                    }
                 }
             },
             deliveryRoutes: {
@@ -764,7 +846,8 @@
                         createUser: "Error creating user",
                         updateUser: "Error updating user",
                         deleteUser: "Error deleting user",
-                        loadUsers: "Error searching for users"
+                        loadUsers: "Error searching for users",
+                        loadAccess: "Error loading user access"
                     },
                 },
                 addUserForm: {
@@ -773,6 +856,7 @@
                         lastName: 'Last Name',
                         email: 'Email',
                         role: 'Role',
+                        pinfl: 'PINFL',
                         password: 'Password',
                         phone: 'Phone',
                         lastLoggedInAt: 'Last logged in at'
@@ -782,6 +866,7 @@
                         lastName: 'Enter last name',
                         email: 'Enter email',
                         role: 'Enter role',
+                        pinfl: 'Enter PINFL',
                         password: 'Enter password',
                         phone: 'Enter phone number',
                     },
@@ -796,6 +881,7 @@
                     pattern: {
                         phone: "Please enter a valid phone number",
                         email: "Please enter a valid email",
+                        pinfl: "PINFL must contain 14 digits",
                         passwordMinLength: "Password must be at least 8 characters"
                     }
                 },
@@ -805,6 +891,17 @@
                     editing: 'Editing',
                     viewing: 'Viewing',
                     adding: 'Adding',
+                },
+                details: {
+                    title: "User",
+                    profile: "Profile",
+                    personalData: "Personal data",
+                    accessSummary: "Access summary",
+                    systemAccess: "System access",
+                    enabled: "Enabled",
+                    notAssigned: "Not assigned",
+                    noSystemAccess: "No system access",
+                    noCompanies: "No companies",
                 }
             },
             systemEmployees: {
@@ -1156,6 +1253,16 @@
                     group: "GTIN group packaging",
                     box_lv_1: "GTIN box",
                     box_lv_2: "GTIN pallet",
+                },
+                validation: {
+                    required: "This field is required",
+                    min2: "Minimum length is 2 characters",
+                    max10: "Maximum length is 10 characters",
+                    max200: "Maximum length is 200 characters",
+                    number: "Enter a valid number",
+                    decimal: "Enter a valid number (integer or decimal)",
+                    icps: "Enter a valid ICPS (14 digits)",
+                    price: "Enter a valid price",
                 },
                 addProductForm: {
                     label: {
@@ -1523,6 +1630,11 @@
                     connectionClosed: "E-IMZO connection was closed. Start e-imzo.exe and try again.",
                     keyIdMissing: "E-IMZO did not return a key id.",
                     signedDocumentMissing: "E-IMZO did not return a signed document.",
+                    certificateDateMissing: "Could not check the certificate validity period. Select another key or restart E-IMZO.",
+                    certificateNotYetValid: "The selected certificate is not active yet.",
+                    certificateExpired: "The selected certificate has expired. Select an active key.",
+                    certificateInactive: "The selected certificate is inactive or revoked. Select an active key.",
+                    certificateInvalid: "The selected certificate is invalid. Select another key.",
                 },
                 signModal: {
                     title: "ACC signing",
@@ -1786,6 +1898,7 @@
                 routes: "Рейсы",
                 salesOrders: "Сделки",
                 deliveryRoutes: "Рейсы",
+                vehicles: "Транспорт",
                 deliveryTasks: "Задачи доставки",
                 invoices: "Инвойсы",
                 companyMemberships: "Сотрудники",
@@ -1802,6 +1915,7 @@
                     tariff: "Тариф",
                     message: "Сообщение",
                     status: "Статус",
+                    actions: "Действия",
                     comment: "Комментарий",
                     createdAt: "Создано",
                     updatedAt: "Обновлено",
@@ -1826,6 +1940,9 @@
                 },
                 actions: {
                     saveStatus: "Сохранить статус",
+                    startProgress: "Принять в работу",
+                    complete: "Завершить",
+                    reject: "Отклонить",
                 },
                 validation: {
                     statusRequired: "Выберите статус",
@@ -1998,6 +2115,83 @@
                     totalsEmpty: "Заказано / назначено / доставлено / сумма",
                     itemsEmpty: "Таблица товаров",
                     relatedEmpty: "Связанный рейс, задача, инвойс"
+                }
+            },
+            vehicles: {
+                title: "Транспорт",
+                deleteQuestion: "Вы уверены, что хотите удалить транспорт?",
+                fields: {
+                    name: "Название транспорта",
+                    plateNumber: "Номер машины",
+                    comment: "Комментарий",
+                    type: "Тип",
+                    brand: "Марка",
+                    model: "Модель",
+                    year: "Год",
+                    loadCapacityKg: "Грузоподъёмность, кг",
+                    volumeCapacityM3: "Объём, м3",
+                    vin: "VIN",
+                    registrationCertificateNumber: "Номер техпаспорта",
+                    status: "Статус",
+                    createdAt: "Создано",
+                    updatedAt: "Обновлено"
+                },
+                placeholders: {
+                    name: "Введите название транспорта",
+                    plateNumber: "00 000AAA",
+                    comment: "Добавьте комментарий",
+                    brand: "Введите марку",
+                    model: "Введите модель",
+                    vin: "Введите VIN",
+                    registrationCertificateNumber: "Введите номер техпаспорта",
+                    selectVehicle: "Выберите транспорт"
+                },
+                types: {
+                    sedan: "Седан",
+                    van: "Фургон",
+                    truck: "Грузовик",
+                    semi_truck: "Тягач",
+                    pickup: "Пикап",
+                    other: "Другое"
+                },
+                statuses: {
+                    active: "Активен",
+                    maintenance: "На обслуживании",
+                    out_of_service: "Не используется",
+                    archived: "В архиве"
+                },
+                details: {
+                    main: "Основная информация",
+                    characteristics: "Характеристики",
+                    identification: "Идентификация",
+                    system: "Системная информация"
+                },
+                actions: {
+                    create: "Добавить транспорт"
+                },
+                modal: {
+                    create: "Добавить транспорт",
+                    vehicle: "транспорт"
+                },
+                validation: {
+                    nameRequired: "Введите название транспорта",
+                    typeRequired: "Выберите тип транспорта",
+                    plateNumberRequired: "Введите номер машины",
+                    plateNumberLength: "Номер должен содержать 8 символов без пробелов",
+                    brandRequired: "Введите марку",
+                    modelRequired: "Введите модель"
+                },
+                messages: {
+                    success: {
+                        create: "Транспорт создан",
+                        update: "Транспорт обновлен",
+                        delete: "Транспорт удален"
+                    },
+                    error: {
+                        create: "Не удалось создать транспорт",
+                        update: "Не удалось обновить транспорт",
+                        delete: "Не удалось удалить транспорт"
+                    }
                 }
             },
             deliveryRoutes: {
@@ -2373,7 +2567,8 @@
                         createUser: "Ошибка при создании пользователя",
                         updateUser: "Ошибка при обновлении пользователя",
                         deleteUser: "Ошибка при удалении пользователя",
-                        loadUsers: "Ошибка при поиске пользователей"
+                        loadUsers: "Ошибка при поиске пользователей",
+                        loadAccess: "Ошибка при загрузке доступов пользователя"
                     },
                 },
                 addUserForm: {
@@ -2382,6 +2577,7 @@
                         lastName: 'Фамилия',
                         email: 'Почта',
                         role: 'Роль',
+                        pinfl: 'ПИНФЛ',
                         password: 'Пароль',
                         phone: 'Телефон',
                         lastLoggedInAt: 'Дата последнего входа'
@@ -2391,6 +2587,7 @@
                         lastName: 'Введите фамилию',
                         email: 'Введите почту',
                         role: 'Введите роль',
+                        pinfl: 'Введите ПИНФЛ',
                         password: 'Введите пароль',
                         phone: 'Введите номер телефона',
                     },
@@ -2405,6 +2602,7 @@
                     pattern: {
                         phone: "Введите корректный номер телефона",
                         email: "Введите корректный email",
+                        pinfl: "ПИНФЛ должен содержать 14 цифр",
                         passwordMinLength: "Пароль должен содержать минимум 8 символов"
                     }
                 },
@@ -2414,6 +2612,17 @@
                     editing: 'Редактирование',
                     viewing: 'Просмотр',
                     adding: 'Добавление',
+                },
+                details: {
+                    title: "Пользователь",
+                    profile: "Профиль",
+                    personalData: "Личные данные",
+                    accessSummary: "Сводка доступа",
+                    systemAccess: "Системный доступ",
+                    enabled: "Есть",
+                    notAssigned: "Не назначен",
+                    noSystemAccess: "Системный доступ не назначен",
+                    noCompanies: "Компании не назначены",
                 }
             },
             systemEmployees: {
@@ -2766,6 +2975,16 @@
                     group: "GTIN групповой упаковки",
                     box_lv_1: "GTIN коробки",
                     box_lv_2: "GTIN паллеты",
+                },
+                validation: {
+                    required: "Поле обязательно для заполнения",
+                    min2: "Минимальная длина — 2 символа",
+                    max10: "Максимальная длина — 10 символов",
+                    max200: "Максимальная длина — 200 символов",
+                    number: "Введите корректное число",
+                    decimal: "Введите корректное число (целое или с десятичной точкой)",
+                    icps: "Введите корректный ИКПУ (14 цифр)",
+                    price: "Введите корректную цену",
                 },
                 addProductForm: {
                     label: {
@@ -3133,6 +3352,11 @@
                     connectionClosed: "Соединение с E-IMZO закрыто. Запустите e-imzo.exe и попробуйте снова.",
                     keyIdMissing: "E-IMZO не вернул идентификатор ключа.",
                     signedDocumentMissing: "E-IMZO не вернул подписанный документ.",
+                    certificateDateMissing: "Не удалось проверить срок действия сертификата. Выберите другой ключ или перезапустите E-IMZO.",
+                    certificateNotYetValid: "Выбранный сертификат ещё не активен.",
+                    certificateExpired: "Срок действия выбранного сертификата истёк. Выберите активный ключ.",
+                    certificateInactive: "Выбранный сертификат неактивен или отозван. Выберите активный ключ.",
+                    certificateInvalid: "Выбранный сертификат недействителен. Выберите другой ключ.",
                 },
                 signModal: {
                     title: "Подписание АИК",
@@ -3387,6 +3611,7 @@
                 routes: "Reyslar",
                 salesOrders: "Sotuv buyurtmalari",
                 deliveryRoutes: "Reyslar",
+                vehicles: "Transport",
                 deliveryTasks: "Yetkazib berish vazifalari",
                 invoices: "Hisob-fakturalar",
                 companyMemberships: "Xodimlar",
@@ -3403,6 +3628,7 @@
                     tariff: "Tarif",
                     message: "Xabar",
                     status: "Holat",
+                    actions: "Harakatlar",
                     comment: "Izoh",
                     createdAt: "Yaratildi",
                     updatedAt: "Yangilandi",
@@ -3427,6 +3653,9 @@
                 },
                 actions: {
                     saveStatus: "Holatni saqlash",
+                    startProgress: "Ishga qabul qilish",
+                    complete: "Yakunlash",
+                    reject: "Rad etish",
                 },
                 validation: {
                     statusRequired: "Holatni tanlang",
@@ -3599,6 +3828,83 @@
                     totalsEmpty: "Buyurtma / biriktirilgan / yetkazilgan / summa",
                     itemsEmpty: "Tovarlar jadvali",
                     relatedEmpty: "Bog'langan reys, vazifa, hisob-faktura"
+                }
+            },
+            vehicles: {
+                title: "Transport",
+                deleteQuestion: "Transportni o'chirishni xohlaysizmi?",
+                fields: {
+                    name: "Transport nomi",
+                    plateNumber: "Mashina raqami",
+                    comment: "Izoh",
+                    type: "Turi",
+                    brand: "Marka",
+                    model: "Model",
+                    year: "Yil",
+                    loadCapacityKg: "Yuk ko'tarish, kg",
+                    volumeCapacityM3: "Hajm, m3",
+                    vin: "VIN",
+                    registrationCertificateNumber: "Tex pasport raqami",
+                    status: "Holat",
+                    createdAt: "Yaratildi",
+                    updatedAt: "Yangilandi"
+                },
+                placeholders: {
+                    name: "Transport nomini kiriting",
+                    plateNumber: "00 000AAA",
+                    comment: "Izoh qo'shing",
+                    brand: "Markani kiriting",
+                    model: "Modelni kiriting",
+                    vin: "VIN ni kiriting",
+                    registrationCertificateNumber: "Tex pasport raqamini kiriting",
+                    selectVehicle: "Transportni tanlang"
+                },
+                types: {
+                    sedan: "Sedan",
+                    van: "Furgon",
+                    truck: "Yuk mashinasi",
+                    semi_truck: "Tyagach",
+                    pickup: "Pikap",
+                    other: "Boshqa"
+                },
+                statuses: {
+                    active: "Faol",
+                    maintenance: "Texnik xizmatda",
+                    out_of_service: "Ishlatilmayapti",
+                    archived: "Arxivda"
+                },
+                details: {
+                    main: "Asosiy ma'lumot",
+                    characteristics: "Xususiyatlar",
+                    identification: "Identifikatsiya",
+                    system: "Tizim ma'lumoti"
+                },
+                actions: {
+                    create: "Transport qo'shish"
+                },
+                modal: {
+                    create: "Transport qo'shish",
+                    vehicle: "transport"
+                },
+                validation: {
+                    nameRequired: "Transport nomini kiriting",
+                    typeRequired: "Transport turini tanlang",
+                    plateNumberRequired: "Mashina raqamini kiriting",
+                    plateNumberLength: "Raqam probelsiz 8 ta belgidan iborat bo'lishi kerak",
+                    brandRequired: "Markani kiriting",
+                    modelRequired: "Modelni kiriting"
+                },
+                messages: {
+                    success: {
+                        create: "Transport yaratildi",
+                        update: "Transport yangilandi",
+                        delete: "Transport o'chirildi"
+                    },
+                    error: {
+                        create: "Transportni yaratib bo'lmadi",
+                        update: "Transportni yangilab bo'lmadi",
+                        delete: "Transportni o'chirib bo'lmadi"
+                    }
                 }
             },
             deliveryRoutes: {
@@ -3945,7 +4251,8 @@
                         createUser: "Foydalanuvchini yaratishda xatolik",
                         updateUser: "Foydalanuvchini yangilashda xatolik",
                         deleteUser: "Foydalanuvchini o‘chirishda xatolik",
-                        loadUsers: "Foydalanuvchilarni qidirishda xatolik"
+                        loadUsers: "Foydalanuvchilarni qidirishda xatolik",
+                        loadAccess: "Foydalanuvchi kirishlarini yuklashda xatolik"
                     },
                 },
                 addUserForm: {
@@ -3954,6 +4261,7 @@
                         lastName: 'Familiya',
                         email: 'Elektron pochta',
                         role: 'Roli',
+                        pinfl: 'JSHSHIR',
                         password: 'Parol',
                         phone: 'Telefon',
                         lastLoggedInAt: 'Oxirgi tizimga kirgan vaqti'
@@ -3963,6 +4271,7 @@
                         lastName: 'Familiyani kiriting',
                         email: 'Elektron pochtani kiriting',
                         role: 'Rolni kiriting',
+                        pinfl: 'JSHSHIRni kiriting',
                         password: 'Parolni kiriting',
                         phone: 'Telefon raqamini kiriting',
                     },
@@ -3977,6 +4286,7 @@
                     pattern: {
                         phone: "To‘g‘ri telefon raqamini kiriting",
                         email: "To‘g‘ri email manzilini kiriting",
+                        pinfl: "JSHSHIR 14 ta raqamdan iborat bo‘lishi kerak",
                         passwordMinLength: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak"
                     }
                 },
@@ -3986,6 +4296,17 @@
                     editing: 'Tahrirlash',
                     viewing: 'Ko‘rish',
                     adding: 'Qo‘shish',
+                },
+                details: {
+                    title: "Foydalanuvchi",
+                    profile: "Profil",
+                    personalData: "Shaxsiy ma'lumotlar",
+                    accessSummary: "Kirish xulosasi",
+                    systemAccess: "Tizimga kirish",
+                    enabled: "Bor",
+                    notAssigned: "Belgilanmagan",
+                    noSystemAccess: "Tizimga kirish belgilanmagan",
+                    noCompanies: "Kompaniyalar belgilanmagan",
                 }
             },
             systemEmployees: {
@@ -4337,6 +4658,16 @@
                     group: "GTIN guruhli qadoqlanish",
                     box_lv_1: "GTIN quti",
                     box_lv_2: "GTIN palleta",
+                },
+                validation: {
+                    required: "Ushbu maydon to‘ldirilishi shart",
+                    min2: "Minimal uzunlik — 2 ta belgi",
+                    max10: "Eng ko‘p uzunlik — 10 ta belgi",
+                    max200: "Eng ko‘p uzunlik — 200 ta belgi",
+                    number: "To‘g‘ri raqam kiriting",
+                    decimal: "To‘g‘ri raqam kiriting (butun yoki o‘nlik)",
+                    icps: "To‘g‘ri IKPU kiriting (14 raqam)",
+                    price: "To‘g‘ri narx kiriting",
                 },
                 addProductForm: {
                     label: {
@@ -4703,6 +5034,11 @@
                     connectionClosed: "E-IMZO bilan ulanish yopildi. e-imzo.exe ni ishga tushirib, qayta urinib ko‘ring.",
                     keyIdMissing: "E-IMZO kalit identifikatorini qaytarmadi.",
                     signedDocumentMissing: "E-IMZO imzolangan hujjatni qaytarmadi.",
+                    certificateDateMissing: "Sertifikat amal qilish muddatini tekshirib bo‘lmadi. Boshqa kalitni tanlang yoki E-IMZO ni qayta ishga tushiring.",
+                    certificateNotYetValid: "Tanlangan sertifikat hali faol emas.",
+                    certificateExpired: "Tanlangan sertifikat muddati tugagan. Faol kalitni tanlang.",
+                    certificateInactive: "Tanlangan sertifikat faol emas yoki bekor qilingan. Faol kalitni tanlang.",
+                    certificateInvalid: "Tanlangan sertifikat yaroqsiz. Boshqa kalitni tanlang.",
                 },
                 signModal: {
                     title: "AIK imzolash",

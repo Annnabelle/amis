@@ -435,7 +435,6 @@ const DeliveryRoutesReturn = () => {
         <div className="btns-group">
           {canCreateScanSession && (
             <CustomButton
-              className="primary"
               onClick={handleStartScanning}
               disabled={isCreating || isClosingSession}
             >

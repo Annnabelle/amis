@@ -15,11 +15,12 @@ import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import StatusBadge from 'shared/ui/statusBadge'
+import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants'
 import { useNavigate } from 'react-router-dom'
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
-import { useIsMobile } from 'shared/lib';
+import { FormatUzbekPhoneNumber, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import {
@@ -102,7 +103,7 @@ const Organizations = () => {
     };
 
     const formatContacts = (contacts: CompanyResponse["contacts"]) => {
-        return [contacts.phone, contacts.email]
+        return [contacts.phone ? FormatUzbekPhoneNumber(contacts.phone) : "", contacts.email]
             .filter(Boolean)
             .join(" / ");
     };
@@ -901,7 +902,7 @@ const Organizations = () => {
                                         <div className="detail-item">
                                             <span className="label inline-label">{t('organizations.status')}</span>
                                             <span className="detail-separator">:</span>
-                                            <StatusBadge status={fakturaUzIntegration.status}>
+                                            <StatusBadge variant={getIntegrationStatusBadgeVariant(fakturaUzIntegration.status)}>
                                                 {t(`statuses.${fakturaUzIntegration.status}`, { defaultValue: fakturaUzIntegration.status })}
                                             </StatusBadge>
                                         </div>

@@ -1,6 +1,7 @@
 import type { TableProps } from "antd";
 import type { TFunction } from "i18next";
 import StatusBadge from "shared/ui/statusBadge";
+import { getDeliveryRouteStatusBadgeVariant } from "shared/ui/statusBadge/variants";
 import type { DeliveryRoutesTableDataType } from "./types";
 
 export const DeliveryRoutesTableColumns = (
@@ -30,7 +31,7 @@ export const DeliveryRoutesTableColumns = (
     key: "status",
     width: 160,
     render: (status) => (
-      <StatusBadge status={status}>
+      <StatusBadge variant={getDeliveryRouteStatusBadgeVariant(status)}>
         {t(`deliveryRoutes.status.${status}`)}
       </StatusBadge>
     ),

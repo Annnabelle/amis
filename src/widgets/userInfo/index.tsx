@@ -20,17 +20,12 @@ const UserInfo: React.FC<UserInfoProps> = ({
   onProfileClick,
   showProfileAction = true,
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = useAppSelector((s) => s.users.currentUser);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const supportedLangs = ['ru', 'en', 'uz'] as const;
-  type Lang = typeof supportedLangs[number];
-
-
-  const currentLang = (i18n.language as Lang) || 'en';
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -76,11 +71,6 @@ const UserInfo: React.FC<UserInfoProps> = ({
             <p className="user-text-container-name">
               {user?.firstName} {user?.lastName}
             </p>
-          </div>
-          <div className="user-text-container">
-            <div className="user-text-container-role">
-                {user?.role?.name?.[currentLang] || ""}
-            </div>
           </div>
         </div>
         {showDropdown && (

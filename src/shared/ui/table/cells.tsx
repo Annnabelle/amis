@@ -1,4 +1,4 @@
-import { Button, Dropdown, Menu } from "antd";
+import { Dropdown, Menu } from "antd";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link } from "react-router-dom";
@@ -84,11 +84,13 @@ export const ActionDropdownButton = ({ actions }: ActionDropdownButtonProps) => 
         trigger={["click"]}
         placement="bottomRight"
       >
-        <Button
+        <CustomButton
           className="table-action-trigger"
           onClick={(event) => event.stopPropagation()}
-          type="text"
+          variant="text"
+          iconOnly
           icon={<HiDotsHorizontal />}
+          aria-label="Open row actions"
         />
       </Dropdown>
     </CenteredCell>

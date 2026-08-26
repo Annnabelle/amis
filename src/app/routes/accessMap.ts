@@ -40,6 +40,9 @@ export const routeAccess = {
   deliveryRoutesCreate: endpointAccessMap.deliveryRoutesCreate,
   deliveryRoutesRead: endpointAccessMap.deliveryRoutesRead,
 
+  vehiclesList: endpointAccessMap.vehiclesList,
+  vehiclesRead: endpointAccessMap.vehiclesRead,
+
   deliveryTasksList: endpointAccessMap.deliveryRouteTasksList,
   deliveryTasksRead: endpointAccessMap.deliveryTasksRead,
 

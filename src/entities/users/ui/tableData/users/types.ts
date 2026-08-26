@@ -3,7 +3,7 @@ export interface UserTableDataType {
     firstName: string, 
     lastName: string, 
     email: string,
-    role: string | undefined, 
+    pinfl: string,
     status: string,
     lastLoggedInAt: string,
     action: string

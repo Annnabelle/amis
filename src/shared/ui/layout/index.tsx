@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { type MenuProps } from 'antd';
-import { Button, Layout, Menu, Select, Switch, Tag } from 'antd';
+import { Layout, Menu, Select, Switch, Tag } from 'antd';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -34,6 +34,8 @@ import Session from 'widgets/session';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
 import StatusBadge from '../statusBadge';
+import CustomButton from '../button';
+import { getDeliveryRouteStatusBadgeVariant } from '../statusBadge/variants';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -55,6 +57,11 @@ import {
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
 import { isLanguage, type Language } from 'shared/types/dtos';
+import { canAccessEndpoint } from 'entities/access/lib';
+import {
+  endpointAccessMap,
+  type StaticEndpointAccess,
+} from 'shared/config/endpointAccessMap';
 
 const { Header, Content, Sider } = Layout;
 
@@ -281,6 +288,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   type CompanyModuleMenuItem = {
     module: AccessModule;
+    access: StaticEndpointAccess | readonly StaticEndpointAccess[];
     key: string;
     icon: ReactNode;
     path: string;
@@ -294,6 +302,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const frontendModuleOrder: CompanyModuleMenuItem[] = [
       {
         module: AccessModules.CompanyMemberships,
+        access: endpointAccessMap.companyMembershipsList,
         key: 'memberships',
         icon: <TeamOutlined />,
         path: `/organization/${companyId}/memberships`,
@@ -301,6 +310,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Products,
+        access: endpointAccessMap.productsList,
         key: 'products',
         icon: <AppstoreOutlined />,
         path: `/organization/${companyId}/products`,
@@ -308,6 +318,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Orders,
+        access: endpointAccessMap.ordersList,
         key: 'orders',
         icon: <CodeOutlined />,
         path: `/organization/${companyId}/orders`,
@@ -315,6 +326,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Reports,
+        access: endpointAccessMap.aggregationReportsList,
         key: 'agregations',
         icon: <ClusterOutlined />,
         path: `/organization/${companyId}/agregations`,
@@ -322,6 +334,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Reports,
+        access: endpointAccessMap.customsCodesList,
         key: 'customs-codes',
         icon: <SafetyCertificateOutlined />,
         path: `/organization/${companyId}/customs-codes`,
@@ -329,6 +342,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.SalesOrders,
+        access: endpointAccessMap.salesOrdersList,
         key: 'sales-orders',
         icon: <ShoppingCartOutlined />,
         path: `/organization/${companyId}/sales-orders`,
@@ -336,13 +350,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.DeliveryRoutes,
+        access: endpointAccessMap.deliveryRoutesList,
         key: 'delivery-routes',
         icon: <CarOutlined />,
         path: `/organization/${companyId}/delivery-routes`,
         label: t('navigation.routes'),
       },
       {
+        module: AccessModules.Vehicles,
+        access: endpointAccessMap.vehiclesList,
+        key: 'vehicles',
+        icon: <CarOutlined />,
+        path: `/organization/${companyId}/vehicles`,
+        label: t('navigation.vehicles'),
+      },
+      {
         module: AccessModules.Invoices,
+        access: endpointAccessMap.invoicesList,
         key: 'invoices',
         icon: <FileDoneOutlined />,
         path: `/organization/${companyId}/invoices`,
@@ -350,6 +374,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
       {
         module: AccessModules.Integrations,
+        access: [
+          endpointAccessMap.integrationsXTraceRead,
+          endpointAccessMap.integrationsFakturaUzRead,
+        ],
         key: 'integrations',
         icon: <ApiOutlined />,
         path: `/organization/${companyId}/integrations`,
@@ -357,7 +385,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       },
     ];
 
-    return frontendModuleOrder.filter((item) => modules.includes(item.module));
+    return frontendModuleOrder.filter((item) => {
+      if (!modules.includes(item.module)) return false;
+
+      const endpoints = Array.isArray(item.access) ? item.access : [item.access];
+
+      return endpoints.some((endpoint) =>
+        canAccessEndpoint({
+          access,
+          endpoint,
+          companyId,
+        })
+      );
+    });
   };
 
   const systemMenuItems: MenuProps['items'] = [];
@@ -662,10 +702,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               }}
             >
               <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
-                <Button
-                  type="text"
+                <CustomButton
+                  variant="text"
                   icon={collapsed ? <GiHamburgerMenu /> : <IoClose />}
+                  iconOnly
                   onClick={() => setCollapsed(!collapsed)}
+                  aria-label={collapsed ? t('navigation.openMenu', { defaultValue: 'Открыть меню' }) : t('navigation.closeMenu', { defaultValue: 'Закрыть меню' })}
                 />
               </div>
 
@@ -695,24 +737,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         </div>
                       </div>
                       <div className="layout-sider-invitation-actions">
-                        <Button
-                          type="primary"
+                        <CustomButton
                           className="layout-sider-invitation-accept"
+                          size="sm"
                           onClick={() => {
                             void dispatch(acceptSystemAccessInvitation({ id: invitation.id }));
                           }}
                         >
                           {t('systemEmployees.actions.accept')}
-                        </Button>
-                        <Button
-                          danger
+                        </CustomButton>
+                        <CustomButton
+                          variant="danger"
                           className="layout-sider-invitation-decline"
+                          size="sm"
                           onClick={() => {
                             void dispatch(declineSystemAccessInvitation({ id: invitation.id }));
                           }}
                         >
                           {t('systemEmployees.actions.decline')}
-                        </Button>
+                        </CustomButton>
                       </div>
                     </div>
                   ))}
@@ -743,9 +786,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         </div>
                       </div>
                       <div className="layout-sider-invitation-actions">
-                        <Button
-                          type="primary"
+                        <CustomButton
                           className="layout-sider-invitation-accept"
+                          size="sm"
                           onClick={() => {
                             void dispatch(respondCompanyMembershipInvitation({
                               id: invitation.id,
@@ -754,10 +797,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           }}
                         >
                           {t('companyMemberships.actions.accept')}
-                        </Button>
-                        <Button
-                          danger
+                        </CustomButton>
+                        <CustomButton
+                          variant="danger"
                           className="layout-sider-invitation-decline"
+                          size="sm"
                           onClick={() => {
                             void dispatch(respondCompanyMembershipInvitation({
                               id: invitation.id,
@@ -766,7 +810,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           }}
                         >
                           {t('companyMemberships.actions.decline')}
-                        </Button>
+                        </CustomButton>
                       </div>
                     </div>
                   ))}
@@ -848,7 +892,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       {item.status ? (
                         <div className="mobile-sider-item-row">
                           <span className="mobile-sider-item-label">{item.label}</span>
-                          <StatusBadge status={item.status}>{item.meta}</StatusBadge>
+                          <StatusBadge
+                            variant={getDeliveryRouteStatusBadgeVariant(item.status)}
+                            mode="compact"
+                          >
+                            {item.meta}
+                          </StatusBadge>
                         </div>
                       ) : (
                         <span className="mobile-sider-item-label">{item.label}</span>

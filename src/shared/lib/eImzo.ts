@@ -12,6 +12,8 @@ type EImzoResponse<T = unknown> = {
   keyId?: string;
   pkcs7_64?: string;
   certificates?: EImzoCertificate[];
+  certificate_info?: EImzoCertificateInfo;
+  certificateInfo?: EImzoCertificateInfo;
 } & T;
 
 export type EImzoCertificate = {
@@ -29,13 +31,27 @@ export type EImzoCertificate = {
   CN?: string;
 };
 
+type EImzoCertificateInfo = {
+  serialNumber?: string;
+  subjectName?: unknown;
+  issuerName?: unknown;
+  validFrom?: string;
+  validTo?: string;
+  status?: number | string;
+  message?: string;
+  revokedStatusInfo?: unknown;
+  verified?: boolean;
+  certificateVerified?: boolean;
+  certificateValidAtSigningTime?: boolean;
+  exception?: string;
+};
+
 const E_IMZO_HOST = '127.0.0.1';
 const E_IMZO_HTTPS_PORT = 64443;
 const E_IMZO_HTTP_PORT = 64646;
 const E_IMZO_LAUNCH_URL = 'eimzo://';
 const REQUEST_TIMEOUT_MS = 30_000;
 
-console.log(config.eImzoApiKeys)
 const apiKeys = config.eImzoApiKeys?.length > 0 ? config.eImzoApiKeys : [
   'localhost',
   '96D0C1491615C82B9A54D9989779DF825B690748224C2B04F500F370D51827CE2644D8D4A82C18184D73AB8530BB8ED537269603F61DB0D03D2104ABF789970B',
@@ -63,6 +79,51 @@ const normalizeReason = (reason?: string) => {
   }
 
   return reason;
+};
+
+const getX500Value = (source: string | undefined, field: string) => {
+  if (!source) return undefined;
+
+  const match = source.match(new RegExp(`(?:^|,)${field}=([^,]*)`, 'i'));
+
+  return match?.[1];
+};
+
+const parseEImzoDate = (value: unknown) => {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  if (typeof value !== 'string') return null;
+
+  const normalized = value.trim().replace(/\./g, '-').replace(' ', 'T');
+  const date = new Date(normalized);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const getCertificateDate = (
+  certificate: EImzoCertificate,
+  certificateInfo: EImzoCertificateInfo,
+  field: 'validFrom' | 'validTo'
+) => {
+  return parseEImzoDate(certificateInfo[field])
+    ?? parseEImzoDate(certificate[field])
+    ?? parseEImzoDate(getX500Value(certificate.alias, field));
+};
+
+const isCertificateStatusInvalid = (status: EImzoCertificateInfo['status']) => {
+  if (status === undefined || status === null || status === '') return false;
+
+  if (typeof status === 'number') return status !== 1;
+
+  const normalized = status.trim().toLowerCase();
+
+  if (normalized === '1' || normalized === 'active' || normalized === 'valid') return false;
+
+  return true;
 };
 
 class EImzoClient {
@@ -161,6 +222,71 @@ class EImzoClient {
     }
 
     return response.keyId;
+  }
+
+  async getCertificateChain(keyId: string) {
+    await this.installApiKeys();
+
+    const response = await this.request<{ certificates: string[] }>({
+      plugin: 'x509',
+      name: 'get_certificate_chain',
+      arguments: [keyId],
+    });
+
+    return response.certificates ?? [];
+  }
+
+  async getCertificateInfo(certificateBase64: string) {
+    await this.installApiKeys();
+
+    const response = await this.request<{
+      certificate_info?: EImzoCertificateInfo;
+      certificateInfo?: EImzoCertificateInfo;
+    }>({
+      plugin: 'x509',
+      name: 'get_certificate_info',
+      arguments: [certificateBase64],
+    });
+
+    return response.certificate_info ?? response.certificateInfo ?? {};
+  }
+
+  async validateCertificate(certificate: EImzoCertificate, keyId: string) {
+    const [mainCertificate] = await this.getCertificateChain(keyId);
+    const certificateInfo = mainCertificate
+      ? await this.getCertificateInfo(mainCertificate)
+      : {};
+    const validFrom = getCertificateDate(certificate, certificateInfo, 'validFrom');
+    const validTo = getCertificateDate(certificate, certificateInfo, 'validTo');
+    const now = new Date();
+
+    if (isCertificateStatusInvalid(certificateInfo.status)) {
+      throw new Error(certificateInfo.message || 'customsCodes.eImzoErrors.certificateInactive');
+    }
+
+    if (certificateInfo.verified === false || certificateInfo.certificateVerified === false) {
+      throw new Error(certificateInfo.exception || 'customsCodes.eImzoErrors.certificateInvalid');
+    }
+
+    if (certificateInfo.certificateValidAtSigningTime === false) {
+      throw new Error('customsCodes.eImzoErrors.certificateInvalid');
+    }
+
+    if (certificateInfo.revokedStatusInfo) {
+      throw new Error('customsCodes.eImzoErrors.certificateInactive');
+    }
+
+    if (!validFrom || !validTo) {
+      throw new Error('customsCodes.eImzoErrors.certificateDateMissing');
+    }
+
+    if (now < validFrom) {
+      throw new Error('customsCodes.eImzoErrors.certificateNotYetValid');
+    }
+
+    if (now > validTo) {
+      throw new Error('customsCodes.eImzoErrors.certificateExpired');
+    }
   }
 
   async createPkcs7(
