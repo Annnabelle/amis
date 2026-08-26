@@ -45,6 +45,8 @@ export const routeAccess = {
 
   invoicesList: endpointAccessMap.invoicesList,
   invoicesRead: endpointAccessMap.invoicesRead,
+  waybillsList: endpointAccessMap.waybillsList,
+  waybillsRead: endpointAccessMap.waybillsRead,
 
   integrationsRead: [
     endpointAccessMap.integrationsXTraceRead,

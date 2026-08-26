@@ -19,6 +19,7 @@ import {
   ShoppingCartOutlined,
   CarOutlined,
   FileDoneOutlined,
+  FileProtectOutlined,
   ApiOutlined,
   LogoutOutlined,
   SunOutlined,
@@ -347,6 +348,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         icon: <FileDoneOutlined />,
         path: `/organization/${companyId}/invoices`,
         label: t('navigation.invoices'),
+      },
+      {
+        module: AccessModules.Waybills,
+        key: 'waybills',
+        icon: <FileProtectOutlined />,
+        path: `/organization/${companyId}/waybills`,
+        label: t('navigation.waybills'),
       },
       {
         module: AccessModules.Integrations,

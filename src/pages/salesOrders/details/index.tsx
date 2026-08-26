@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { getSalesOrderById } from 'entities/salesOrders/model';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
+import type { SalesOrderAddressResponse } from 'entities/salesOrders/types';
 
 const SalesOrdersDetails = () => {
   const navigate = useNavigate();
@@ -29,6 +30,13 @@ const SalesOrdersDetails = () => {
 
   const items = useMemo(() => order?.items ?? [], [order]);
   const hasOrderComment = Boolean(order?.comment?.trim());
+  const formatOptionalNumber = (value?: number) =>
+    value !== undefined ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value) : empty;
+  const formatLocation = (addressDetails?: SalesOrderAddressResponse) =>
+    addressDetails?.location
+      ? `${addressDetails.location.latitude}, ${addressDetails.location.longitude}`
+      : empty;
+
   return (
     <MainLayout>
       <Heading title={t('salesOrders.detailsTitle')} subtitle={t('common.details')}>
@@ -65,6 +73,18 @@ const SalesOrdersDetails = () => {
                       placeholder={t(`salesOrders.priority.${order.fulfillment.priority}`)}
                     />
                   </Form.Item>
+                  <Form.Item className="input" label={t('salesOrders.fields.paymentMethod')}>
+                    <Input
+                      className="input"
+                      size="large"
+                      disabled
+                      placeholder={
+                        order.fulfillment.paymentMethod
+                          ? t(`salesOrders.paymentMethods.${order.fulfillment.paymentMethod}`)
+                          : empty
+                      }
+                    />
+                  </Form.Item>
                   <Form.Item className="input" label={t('salesOrders.fields.dueDate')}>
                     <Input
                       className="input"
@@ -91,6 +111,29 @@ const SalesOrdersDetails = () => {
                     </Form.Item>
                   )}
                 </div>
+
+                {order.sender?.addressDetails && (
+                  <>
+                    <div className="form-divider-title">
+                      <h4 className="title">{t('salesOrders.createSections.sender')}</h4>
+                    </div>
+                    <div className="form-inputs sales-order-details-grid">
+                      <Form.Item className="input" label={t('salesOrders.fields.senderRegion')}>
+                        <Input className="input" size="large" disabled placeholder={order.sender.addressDetails.regionId ?? empty} />
+                      </Form.Item>
+                      <Form.Item className="input" label={t('salesOrders.fields.senderDistrict')}>
+                        <Input className="input" size="large" disabled placeholder={order.sender.addressDetails.districtId ?? empty} />
+                      </Form.Item>
+                      <Form.Item className="input" label={t('salesOrders.fields.senderAddress')}>
+                        <Input className="input" size="large" disabled placeholder={order.sender.addressDetails.address ?? empty} />
+                      </Form.Item>
+                      <Form.Item className="input" label={t('salesOrders.fields.senderLocation')}>
+                        <Input className="input" size="large" disabled placeholder={formatLocation(order.sender.addressDetails)} />
+                      </Form.Item>
+                    </div>
+                  </>
+                )}
+
                 <div className="form-divider-title">
                   <h4 className="title">{t('salesOrders.sections.customer')}</h4>
                 </div>
@@ -102,9 +145,52 @@ const SalesOrdersDetails = () => {
                     <Input className="input" size="large" disabled placeholder={order.customer.tin} />
                   </Form.Item>
                   <Form.Item className="input" label={t('salesOrders.fields.customerAddress')}>
-                    <Input className="input" size="large" disabled placeholder={order.customer.address ?? empty} />
+                    <Input
+                      className="input"
+                      size="large"
+                      disabled
+                      placeholder={order.customer.addressDetails?.address ?? order.customer.address ?? empty}
+                    />
+                  </Form.Item>
+                  <Form.Item className="input" label={t('salesOrders.fields.customerRegion')}>
+                    <Input className="input" size="large" disabled placeholder={order.customer.addressDetails?.regionId ?? empty} />
+                  </Form.Item>
+                  <Form.Item className="input" label={t('salesOrders.fields.customerDistrict')}>
+                    <Input className="input" size="large" disabled placeholder={order.customer.addressDetails?.districtId ?? empty} />
+                  </Form.Item>
+                  <Form.Item className="input" label={t('salesOrders.fields.customerLocation')}>
+                    <Input className="input" size="large" disabled placeholder={formatLocation(order.customer.addressDetails)} />
                   </Form.Item>
                 </div>
+
+                {order.delivery && (
+                  <>
+                    <div className="form-divider-title">
+                      <h4 className="title">{t('waybills.sections.delivery')}</h4>
+                    </div>
+                    <div className="form-inputs sales-order-details-grid">
+                      <Form.Item className="input" label={t('waybills.fields.deliveryType')}>
+                        <Input
+                          className="input"
+                          size="large"
+                          disabled
+                          placeholder={t(`waybills.deliveryTypes.${order.delivery.type}`, {
+                            defaultValue: order.delivery.type,
+                          })}
+                        />
+                      </Form.Item>
+                      <Form.Item className="input" label={t('waybills.fields.costPerDistanceUnit')}>
+                        <Input className="input" size="large" disabled placeholder={formatOptionalNumber(order.delivery.costPerDistanceUnit)} />
+                      </Form.Item>
+                      <Form.Item className="input" label={t('waybills.fields.totalDistance')}>
+                        <Input className="input" size="large" disabled placeholder={formatOptionalNumber(order.delivery.totalDistance)} />
+                      </Form.Item>
+                      <Form.Item className="input" label={t('waybills.fields.deliveryTotalCost')}>
+                        <Input className="input" size="large" disabled placeholder={formatOptionalNumber(order.delivery.totalCost)} />
+                      </Form.Item>
+                    </div>
+                  </>
+                )}
 
                 <div className="form-divider-title">
                   <h4 className="title">{t('salesOrders.sections.contract')}</h4>

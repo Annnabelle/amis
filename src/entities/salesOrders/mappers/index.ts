@@ -2,11 +2,13 @@ import type { Dayjs } from "dayjs";
 import type {
   CreateSalesOrderDto,
   CreateSalesOrderResponseDto,
+  SalesOrderAddressResponseDto,
   SalesOrderResponseDto,
 } from "entities/salesOrders/dtos";
 import type { ErrorDto } from "shared/types/dtos";
 import type { SalesOrderResponse } from "entities/salesOrders/types";
 import type { SalesOrderPaymentMethod, SalesOrderPriority } from "shared/types/dtos";
+import type { SalesOrderDeliveryType } from "entities/waybills/dtos";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -23,6 +25,30 @@ const toDateString = (value: string | Date | Dayjs | undefined): string | undefi
   return undefined;
 };
 
+const optionalNumber = (value: unknown): number | undefined => {
+  if (value === undefined || value === null || value === "") return undefined;
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+};
+
+const mapAddressResponseDtoToEntity = (
+  addressDetails?: SalesOrderAddressResponseDto
+): SalesOrderResponse["customer"]["addressDetails"] | undefined =>
+  addressDetails
+    ? {
+        regionId: addressDetails.regionId,
+        districtId: addressDetails.districtId,
+        address: addressDetails.address,
+        location: addressDetails.location
+          ? {
+              latitude: addressDetails.location.latitude,
+              longitude: addressDetails.location.longitude,
+            }
+          : undefined,
+      }
+    : undefined;
+
 export const mapSalesOrderDtoToEntity = (
   dto: SalesOrderResponseDto
 ): SalesOrderResponse => ({
@@ -30,11 +56,17 @@ export const mapSalesOrderDtoToEntity = (
   companyId: dto.companyId,
   salesOrderNumber: dto.salesOrderNumber,
   status: dto.status,
+  sender: dto.sender
+    ? {
+        addressDetails: mapAddressResponseDtoToEntity(dto.sender.addressDetails),
+      }
+    : undefined,
   customer: {
     companyId: dto.customer.companyId,
     tin: dto.customer.tin,
     name: dto.customer.name,
     address: dto.customer.address,
+    addressDetails: mapAddressResponseDtoToEntity(dto.customer.addressDetails),
   },
   contract: dto.contract
     ? {
@@ -45,7 +77,16 @@ export const mapSalesOrderDtoToEntity = (
   fulfillment: {
     dueDate: toDate(dto.fulfillment.dueDate) ?? new Date(),
     priority: dto.fulfillment.priority,
+    paymentMethod: dto.fulfillment.paymentMethod,
   },
+  delivery: dto.delivery
+    ? {
+        type: dto.delivery.type,
+        costPerDistanceUnit: dto.delivery.costPerDistanceUnit,
+        totalDistance: dto.delivery.totalDistance,
+        totalCost: dto.delivery.totalCost,
+      }
+    : undefined,
   items: dto.items.map((item) => ({
     id: item.id,
     product: {
@@ -108,11 +149,16 @@ export const mapCreateSalesOrderResponseDtoToEntity = (
 };
 
 export type SalesOrderFormValues = {
+  sender?: {
+    tin?: string;
+    name?: string;
+    addressDetails?: SalesOrderAddressFormValues;
+  };
   customer: {
-    companyId?: string;
+    id?: string;
     tin: string;
     name: string;
-    address?: string;
+    addressDetails?: SalesOrderAddressFormValues;
   };
   contract?: {
     number?: string;
@@ -123,6 +169,11 @@ export type SalesOrderFormValues = {
     priority: SalesOrderPriority;
     paymentMethod: SalesOrderPaymentMethod;
   };
+  delivery?: {
+    type?: SalesOrderDeliveryType;
+    costPerDistanceUnit?: number;
+    totalDistance?: number;
+  };
   items: {
     productId: string;
     quantity: number;
@@ -132,20 +183,54 @@ export type SalesOrderFormValues = {
   comment?: string;
 };
 
+export type SalesOrderAddressFormValues = {
+  regionId?: string;
+  districtId?: string;
+  address?: string;
+  location?: {
+    latitude?: number;
+    longitude?: number;
+  };
+};
+
+const mapAddressDetails = (
+  addressDetails?: SalesOrderAddressFormValues
+): CreateSalesOrderDto["customer"]["addressDetails"] | undefined => {
+  if (!addressDetails?.regionId || !addressDetails.districtId || !addressDetails.address?.trim()) {
+    return undefined;
+  }
+
+  const latitude = Number(addressDetails.location?.latitude);
+  const longitude = Number(addressDetails.location?.longitude);
+  const hasLocation = Number.isFinite(latitude) && Number.isFinite(longitude);
+
+  return {
+    regionId: addressDetails.regionId,
+    districtId: addressDetails.districtId,
+    address: addressDetails.address.trim(),
+    location: hasLocation ? { latitude, longitude } : undefined,
+  };
+};
+
 export const mapSalesOrderFormToCreateDto = (
-  values: SalesOrderFormValues,
-  companyId: string
+  values: SalesOrderFormValues
 ): CreateSalesOrderDto => {
   const contractDate = toDateString(values.contract?.date);
   const dueDate = toDateString(values.fulfillment?.dueDate);
+  const senderAddressDetails = mapAddressDetails(values.sender?.addressDetails);
+  const customerAddressDetails = mapAddressDetails(values.customer.addressDetails);
 
   return {
-    companyId,
+    sender: senderAddressDetails
+      ? {
+          addressDetails: senderAddressDetails,
+        }
+      : undefined,
     customer: {
-      companyId: values.customer.companyId,
+      id: values.customer.id,
       tin: values.customer.tin.replace(/\D/g, '').trim(),
       name: values.customer.name.trim(),
-      address: values.customer.address?.trim() || undefined,
+      addressDetails: customerAddressDetails,
     },
     contract:
       values.contract?.number && contractDate
@@ -159,6 +244,14 @@ export const mapSalesOrderFormToCreateDto = (
       priority: values.fulfillment.priority,
       paymentMethod: values.fulfillment.paymentMethod,
     },
+    delivery:
+      values.delivery?.type
+        ? {
+            type: values.delivery.type,
+            costPerDistanceUnit: optionalNumber(values.delivery.costPerDistanceUnit),
+            totalDistance: optionalNumber(values.delivery.totalDistance),
+          }
+        : undefined,
     items: values.items.map((item) => ({
       productId: item.productId,
       quantity: Number(item.quantity),

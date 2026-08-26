@@ -17,6 +17,7 @@ export const ReferenceBookType = {
   releaseMethodType: "releaseMethodType",
   serialNumberType: "serialNumberType",
   orderStatus: "orderStatus",
+  regions: "regions",
 } as const;
 
 export type ReferenceBookType =
@@ -36,6 +37,20 @@ export type ReferenceDto = {
 export type GetReferenceByTypeDto = {
     references: ReferenceDto[],
 }
+
+export type AddressReferenceDto = {
+    id: string;
+    alias: string;
+    title: MultiLanguage;
+};
+
+export type GetRegionsResponseDto = {
+    regions: AddressReferenceDto[];
+};
+
+export type GetDistrictsResponseDto = {
+    districts: AddressReferenceDto[];
+};
 
 
 

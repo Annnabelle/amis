@@ -17,6 +17,7 @@ export const ReferenceBookType = {
   releaseMethodType: "releaseMethodType",
   serialNumberType: "serialNumberType",
   orderStatus: "orderStatus",
+  regions: "regions",
 } as const;
 
 export type ReferenceBookType =
@@ -28,6 +29,7 @@ export interface GetReferenceDto {
 }
 
 export type Reference = {
+    id?: string;
     alias: string;
     title: MultiLanguage
 };

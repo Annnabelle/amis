@@ -66,6 +66,7 @@ export const resolveFallbackPath = (
     [AccessModules.SalesOrders, endpointAccessMap.salesOrdersList, 'sales-orders'],
     [AccessModules.DeliveryRoutes, endpointAccessMap.deliveryRoutesList, 'delivery-routes'],
     [AccessModules.Invoices, endpointAccessMap.invoicesList, 'invoices'],
+    [AccessModules.Waybills, endpointAccessMap.waybillsList, 'waybills'],
     [AccessModules.Integrations, [endpointAccessMap.integrationsXTraceRead, endpointAccessMap.integrationsFakturaUzRead], 'integrations'],
   ] as const;
 
