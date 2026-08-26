@@ -846,7 +846,8 @@
                         createUser: "Error creating user",
                         updateUser: "Error updating user",
                         deleteUser: "Error deleting user",
-                        loadUsers: "Error searching for users"
+                        loadUsers: "Error searching for users",
+                        loadAccess: "Error loading user access"
                     },
                 },
                 addUserForm: {
@@ -855,6 +856,7 @@
                         lastName: 'Last Name',
                         email: 'Email',
                         role: 'Role',
+                        pinfl: 'PINFL',
                         password: 'Password',
                         phone: 'Phone',
                         lastLoggedInAt: 'Last logged in at'
@@ -864,6 +866,7 @@
                         lastName: 'Enter last name',
                         email: 'Enter email',
                         role: 'Enter role',
+                        pinfl: 'Enter PINFL',
                         password: 'Enter password',
                         phone: 'Enter phone number',
                     },
@@ -878,6 +881,7 @@
                     pattern: {
                         phone: "Please enter a valid phone number",
                         email: "Please enter a valid email",
+                        pinfl: "PINFL must contain 14 digits",
                         passwordMinLength: "Password must be at least 8 characters"
                     }
                 },
@@ -887,6 +891,17 @@
                     editing: 'Editing',
                     viewing: 'Viewing',
                     adding: 'Adding',
+                },
+                details: {
+                    title: "User",
+                    profile: "Profile",
+                    personalData: "Personal data",
+                    accessSummary: "Access summary",
+                    systemAccess: "System access",
+                    enabled: "Enabled",
+                    notAssigned: "Not assigned",
+                    noSystemAccess: "No system access",
+                    noCompanies: "No companies",
                 }
             },
             systemEmployees: {
@@ -2552,7 +2567,8 @@
                         createUser: "Ошибка при создании пользователя",
                         updateUser: "Ошибка при обновлении пользователя",
                         deleteUser: "Ошибка при удалении пользователя",
-                        loadUsers: "Ошибка при поиске пользователей"
+                        loadUsers: "Ошибка при поиске пользователей",
+                        loadAccess: "Ошибка при загрузке доступов пользователя"
                     },
                 },
                 addUserForm: {
@@ -2561,6 +2577,7 @@
                         lastName: 'Фамилия',
                         email: 'Почта',
                         role: 'Роль',
+                        pinfl: 'ПИНФЛ',
                         password: 'Пароль',
                         phone: 'Телефон',
                         lastLoggedInAt: 'Дата последнего входа'
@@ -2570,6 +2587,7 @@
                         lastName: 'Введите фамилию',
                         email: 'Введите почту',
                         role: 'Введите роль',
+                        pinfl: 'Введите ПИНФЛ',
                         password: 'Введите пароль',
                         phone: 'Введите номер телефона',
                     },
@@ -2584,6 +2602,7 @@
                     pattern: {
                         phone: "Введите корректный номер телефона",
                         email: "Введите корректный email",
+                        pinfl: "ПИНФЛ должен содержать 14 цифр",
                         passwordMinLength: "Пароль должен содержать минимум 8 символов"
                     }
                 },
@@ -2593,6 +2612,17 @@
                     editing: 'Редактирование',
                     viewing: 'Просмотр',
                     adding: 'Добавление',
+                },
+                details: {
+                    title: "Пользователь",
+                    profile: "Профиль",
+                    personalData: "Личные данные",
+                    accessSummary: "Сводка доступа",
+                    systemAccess: "Системный доступ",
+                    enabled: "Есть",
+                    notAssigned: "Не назначен",
+                    noSystemAccess: "Системный доступ не назначен",
+                    noCompanies: "Компании не назначены",
                 }
             },
             systemEmployees: {
@@ -4221,7 +4251,8 @@
                         createUser: "Foydalanuvchini yaratishda xatolik",
                         updateUser: "Foydalanuvchini yangilashda xatolik",
                         deleteUser: "Foydalanuvchini o‘chirishda xatolik",
-                        loadUsers: "Foydalanuvchilarni qidirishda xatolik"
+                        loadUsers: "Foydalanuvchilarni qidirishda xatolik",
+                        loadAccess: "Foydalanuvchi kirishlarini yuklashda xatolik"
                     },
                 },
                 addUserForm: {
@@ -4230,6 +4261,7 @@
                         lastName: 'Familiya',
                         email: 'Elektron pochta',
                         role: 'Roli',
+                        pinfl: 'JSHSHIR',
                         password: 'Parol',
                         phone: 'Telefon',
                         lastLoggedInAt: 'Oxirgi tizimga kirgan vaqti'
@@ -4239,6 +4271,7 @@
                         lastName: 'Familiyani kiriting',
                         email: 'Elektron pochtani kiriting',
                         role: 'Rolni kiriting',
+                        pinfl: 'JSHSHIRni kiriting',
                         password: 'Parolni kiriting',
                         phone: 'Telefon raqamini kiriting',
                     },
@@ -4253,6 +4286,7 @@
                     pattern: {
                         phone: "To‘g‘ri telefon raqamini kiriting",
                         email: "To‘g‘ri email manzilini kiriting",
+                        pinfl: "JSHSHIR 14 ta raqamdan iborat bo‘lishi kerak",
                         passwordMinLength: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak"
                     }
                 },
@@ -4262,6 +4296,17 @@
                     editing: 'Tahrirlash',
                     viewing: 'Ko‘rish',
                     adding: 'Qo‘shish',
+                },
+                details: {
+                    title: "Foydalanuvchi",
+                    profile: "Profil",
+                    personalData: "Shaxsiy ma'lumotlar",
+                    accessSummary: "Kirish xulosasi",
+                    systemAccess: "Tizimga kirish",
+                    enabled: "Bor",
+                    notAssigned: "Belgilanmagan",
+                    noSystemAccess: "Tizimga kirish belgilanmagan",
+                    noCompanies: "Kompaniyalar belgilanmagan",
                 }
             },
             systemEmployees: {

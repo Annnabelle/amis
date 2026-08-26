@@ -27,6 +27,12 @@ export const UsersTableColumns = (
     render: (text) => <TextCell value={text} />,
   },
   {
+    title: t('users.addUserForm.label.pinfl'),
+    dataIndex: "pinfl",
+    key: "pinfl",
+    render: (text) => <TextCell value={text} />,
+  },
+  {
     title: t('users.addUserForm.label.lastLoggedInAt'),
     dataIndex: "lastLoggedInAt",
     key: "lastLoggedInAt",

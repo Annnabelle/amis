@@ -6,6 +6,7 @@ export type UserResponse = {
     lastName: string,
     email: string,
     phone: string,
+    pinfl?: string,
     status: string,
     companyIds: HexString[],
     language: string,
@@ -19,6 +20,7 @@ export type UserPreview = {
     status: string,
     email: string,
     phone: string,
+    pinfl?: string,
 }
 
 export type LoginForm = {
@@ -59,6 +61,7 @@ export type  AddUserForm = {
   firstName: string
   lastName: string,
   phone: string,
+  pinfl?: string,
   email: string,
   password: string,
 }

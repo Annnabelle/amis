@@ -17,6 +17,7 @@ export type UserResponseDto = {
   lastName?: string,
   email: string,
   phone: string,
+  pinfl?: string,
   status: string,
   companyIds?: HexString[],
   language?: string,
@@ -47,6 +48,7 @@ export type RegisterUserDto = {
   lastName: string;
   email: string;
   phone: string;
+  pinfl?: string;
   password: string;
   language: Language;
 }
@@ -73,6 +75,7 @@ export type UserPreviewDto = {
   status: UserStatus,
   email: string,
   phone: string,
+  pinfl?: string,
 }
 
 export type GetUserPreviewResponseDto = {
@@ -85,6 +88,7 @@ export class UpdateUserDto {
   lastName?: string;
   email?: string;
   phone?: string;
+  pinfl?: string;
   language?: Language;
   status?: UserStatus;
 }

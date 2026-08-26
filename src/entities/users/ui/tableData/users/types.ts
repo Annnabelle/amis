@@ -3,6 +3,7 @@ export interface UserTableDataType {
     firstName: string, 
     lastName: string, 
     email: string,
+    pinfl: string,
     status: string,
     lastLoggedInAt: string,
     action: string

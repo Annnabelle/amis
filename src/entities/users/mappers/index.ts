@@ -27,6 +27,7 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   lastName: getUserLastName(dto),
   email: dto.email,
   phone: dto.phone,
+  pinfl: dto.pinfl,
   status: dto.status,
   companyIds: dto.companyIds ?? [],
   language: dto.language ?? "ru",
@@ -40,6 +41,7 @@ export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => (
   status: dto.status,
   email: dto.email,
   phone: dto.phone,
+  pinfl: dto.pinfl,
 });
 
 export const mapRegisterUserFormToDto = (form: AddUserForm & { language: Language }): RegisterUserDto => ({
@@ -47,6 +49,7 @@ export const mapRegisterUserFormToDto = (form: AddUserForm & { language: Languag
   lastName: form.lastName,
   email: form.email,
   phone: form.phone,
+  pinfl: form.pinfl,
   password: form.password,
   language: form.language as RegisterUserDto["language"],
 });
@@ -57,6 +60,7 @@ export const mapUpdateUserFormToDto = (form: Partial<UserResponse>): UpdateUserD
     lastName: form.lastName,
     email: form.email,
     phone: form.phone,
+    pinfl: form.pinfl,
     language: form.language as UpdateUserDto["language"],
     status: form.status as UpdateUserDto["status"],
   };

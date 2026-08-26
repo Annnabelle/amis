@@ -54,6 +54,7 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
+            pinfl: user.pinfl || '-',
             lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
             status: user.status,
             action: 'Действие', 
@@ -304,7 +305,22 @@ const Users = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs">
+                <div className="form-inputs form-inputs-row">
+                    <Form.Item
+                        className="input"
+                        name="pinfl"
+                        label={t('users.addUserForm.label.pinfl')}
+                        rules={[
+                            { pattern: /^[0-9]{14}$/, message: t('users.addUserForm.pattern.pinfl') }
+                        ]}
+                    >
+                    <Input
+                        className="input"
+                        size="large"
+                        placeholder={t('users.addUserForm.placeholder.pinfl')}
+                    />
+                    </Form.Item>
+
                     <Form.Item
                         className="input"
                         name="password"

@@ -50,10 +50,10 @@ export const Login = createAsyncThunk(
 
           return mapped;
         } else {
-          return rejectWithValue(mapped.error?.errorMessage?.ru || 'Ошибка авторизации');
+          return rejectWithValue(getBackendErrorMessage(mapped.error, 'Ошибка авторизации'));
         }
       } catch (error: any) {
-        return rejectWithValue(error.response?.data?.message || 'Ошибка сервера');
+        return rejectWithValue(getBackendErrorMessage(error.response?.data ?? error, 'Ошибка сервера'));
       }
     }
 );
@@ -77,9 +77,11 @@ export const getAllUsers = createAsyncThunk(
           limit: response.data.limit,
         };
       }
-      return rejectWithValue("Ошибка загрузки пользователей");
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка загрузки пользователей")
+      );
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+      return rejectWithValue(getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера"));
     }
   }
 );
@@ -101,9 +103,11 @@ export const changeUserPassword = createAsyncThunk(
       if (isSuccessChangePasswordResponseDto(response.data)) {
         return mapChangePwdDtoToEntity(response.data);
       }
-      return thunkAPI.rejectWithValue("Ошибка изменения пароля");
+      return thunkAPI.rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка изменения пароля")
+      );
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message || "Ошибка сервера");
+      return thunkAPI.rejectWithValue(getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера"));
     }
   }
 )
@@ -157,9 +161,11 @@ export const getUserById = createAsyncThunk(
         return mapUsersDtoToEntity(response.data.user);
       }
 
-      return rejectWithValue("Ошибка загрузки пользователя");
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка загрузки пользователя")
+      );
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+      return rejectWithValue(getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера"));
     }
   }
 );
@@ -182,9 +188,11 @@ export const getUserPreview = createAsyncThunk(
         return mapUserPreviewDtoToEntity(response.data.data);
       }
 
-      return rejectWithValue("Ошибка загрузки превью пользователя");
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка загрузки превью пользователя")
+      );
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+      return rejectWithValue(getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера"));
     }
   },
   {
@@ -277,7 +285,7 @@ export const searchUsers = createAsyncThunk(
       });
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || error);
+      return rejectWithValue(getBackendErrorMessage(error.response?.data ?? error, "Ошибка поиска пользователей"));
     }
   }
 );
