@@ -27,12 +27,6 @@ export const UsersTableColumns = (
     render: (text) => <TextCell value={text} />,
   },
   {
-    title: t('users.addUserForm.label.role'),
-    dataIndex: "role",
-    key: "role",
-    render: (text) => <TextCell value={text} />
-  },
-  {
     title: t('users.addUserForm.label.lastLoggedInAt'),
     dataIndex: "lastLoggedInAt",
     key: "lastLoggedInAt",

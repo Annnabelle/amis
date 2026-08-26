@@ -1,4 +1,4 @@
-import { Form, Input, Select, Tag } from 'antd'
+import { Form, Input, Tag } from 'antd'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -17,18 +17,16 @@ const UsersRetrieve = () => {
     const userById = useAppSelector((state) => state.users.userById);
     const organizations = useAppSelector((state) => state.organizations.organizations);
     const navigateBack = useNavigationBack();
+    const userOrganizations = userById
+        ? organizations.filter((org) => userById.companyIds.includes(org.id))
+        : [];
+
     useEffect(() => {
         if (id) {
             dispatch(getUserById({ id }));
         }
     }, [dispatch, id]);
    
-
-    const roleOption = [
-        { value: "superadmin", label: t('users.userRole.superadmin') },
-        { value: "admin", label: t('users.userRole.admin') },
-        { value: "operator", label: t('users.userRole.operator') },
-    ];
 
   return (
     <MainLayout>
@@ -69,24 +67,15 @@ const UsersRetrieve = () => {
                                         </Form.Item>
                                     )}
                                 </div>
-                                {userById.role?.name && (
-                                    <div className="form-inputs">
-                                        <Form.Item className="input" name="role" label={t('users.addUserForm.label.role')} >
-                                            <Select className='input' size="large" options={roleOption} placeholder={userById.role?.name.ru} disabled/>
-                                        </Form.Item>
-                                    </div>
-                                )}
-                                {userById.companyIds && (
+                                {userOrganizations.length > 0 && (
                                     <div className="form-inputs">
                                         <Form.Item
                                             className="input"
                                             label={t("users.companies")}
                                         >
-                                            {organizations?.map((org) =>
-                                                userById.companyIds?.includes(org.id) ? (
-                                                    <Tag key={org.id}>{org.displayName}</Tag>
-                                                ) : null
-                                            )}
+                                            {userOrganizations.map((org) => (
+                                                <Tag key={org.id}>{org.displayName}</Tag>
+                                            ))}
                                         </Form.Item>
                                     </div>
                                 )}

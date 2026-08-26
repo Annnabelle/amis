@@ -1,4 +1,4 @@
-import { Form, Input, Select } from 'antd'
+import { Form, Input } from 'antd'
 import { UsersTableColumns } from 'entities/users/ui/tableData/users'
 import { IoSearch } from 'react-icons/io5'
 import { useAppDispatch, useAppSelector } from 'app/store'
@@ -17,7 +17,6 @@ import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import PhoneInput from 'shared/ui/phoneInput'
-import type { LangKey } from 'shared/lib/consts'
 import { getAllOrganizations } from 'entities/organization/model'
 import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
@@ -26,7 +25,7 @@ import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Users = () => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const dispatch = useAppDispatch()
     const canReadUser = useCan(endpointAccessMap.usersRead);
     const canUpdateUser = useCan(endpointAccessMap.usersUpdate);
@@ -55,7 +54,6 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            role: user.role?.name?.[i18n.language as LangKey] || user.role?.name?.ru || 'Без роли',
             lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
             status: user.status,
             action: 'Действие', 
@@ -92,7 +90,7 @@ const Users = () => {
                     window.location.reload(); 
                 }, 1000); 
             } else {
-                toast.error(t('users.messages.error.createUser'));
+                toast.error((resultAction.payload as string) || t('users.messages.error.createUser'));
             }
         } catch (err) {
             toast.error((err as string) || t('users.messages.error.createUser'));
@@ -163,18 +161,12 @@ const Users = () => {
 
                 await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: "asc" }));
             } else {
-                toast.error(t('users.messages.error.deleteUser'));
+                toast.error((resultAction.payload as string) || t('users.messages.error.deleteUser'));
             }
         } catch (err) {
             toast.error((err as string) || t('users.messages.error.deleteUser'));
         }
     };
-
-    const roleOption = [
-        { value: "superadmin", label: t('users.userRole.superadmin') },
-        { value: "admin", label: t('users.userRole.admin') },
-        { value: "operator", label: t('users.userRole.operator') },
-    ];
 
     // const statusOption = [
     //     { value: "active", label: t('users.status.active') },
@@ -312,23 +304,7 @@ const Users = () => {
                     </Form.Item>
                 </div>
 
-                <div className="form-inputs form-inputs-row">
-                    <Form.Item
-                        className="input"
-                        name="role"
-                        label={t('users.addUserForm.label.role')}
-                        rules={[
-                            { required: true, message: t('users.addUserForm.required.role') }
-                        ]}
-                    >
-                    <Select
-                        className="input"
-                        size="large"
-                        options={roleOption}
-                        placeholder={t('users.addUserForm.placeholder.role')}
-                    />
-                    </Form.Item>
-
+                <div className="form-inputs">
                     <Form.Item
                         className="input"
                         name="password"

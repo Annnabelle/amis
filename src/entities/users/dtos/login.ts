@@ -5,25 +5,22 @@ export type LoginDto = {
   password: string;
 }
 
+export type UserNameDto = {
+  first: string;
+  last: string;
+}
+
 export type UserResponseDto = {
   id: HexString,
-  firstName: string,
-  lastName: string,
+  name?: UserNameDto,
+  firstName?: string,
+  lastName?: string,
   email: string,
   phone: string,
   status: string,
-  companyIds: HexString[],
-  role?: {
-    id: HexString,
-    name: {
-      ru: string,
-      uz: string,
-      en: string,
-    },
-    alias: string,
-  },
-  language: string,
-  lastLoggedInAt: Date | null,
+  companyIds?: HexString[],
+  language?: string,
+  lastLoggedInAt?: string | Date | null,
 };
 
 export type LoginResponseDto = {
@@ -51,7 +48,6 @@ export type RegisterUserDto = {
   email: string;
   phone: string;
   password: string;
-  role: string; 
   language: Language;
 }
 
@@ -71,8 +67,9 @@ export type GetUserResponseDto = {
 
 export type UserPreviewDto = {
   id: HexString,
-  firstName: string,
-  lastName: string,
+  name?: UserNameDto,
+  firstName?: string,
+  lastName?: string,
   status: UserStatus,
   email: string,
   phone: string,

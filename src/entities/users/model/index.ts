@@ -1,11 +1,13 @@
-import type { LoginForm, UserResponse, UsersState } from "entities/users/types";
-import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, RegisterUserDto, UpdateUserDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto } from "entities/users/dtos/login";
+import type { AddUserForm, LoginForm, UserResponse, UsersState } from "entities/users/types";
+import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto } from "entities/users/dtos/login";
 import type { PaginatedResponseDto } from "shared/types/dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapUpdateUserDtoToEntity, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
+import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapRegisterUserFormToDto, mapUpdateUserDtoToEntity, mapUpdateUserFormToDto, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import { clearAuthStorage } from "shared/lib/authSession";
+import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
+import type { Language } from "shared/types/dtos";
 
 const storedUser = localStorage.getItem("user");
 const storedAccessToken = localStorage.getItem("accessToken");
@@ -114,20 +116,25 @@ function isRegisterSuccessResponse(
 
 export const registerUser = createAsyncThunk(
   "users/registerUser",
-  async (payload: RegisterUserDto, { rejectWithValue }) => {
+  async (payload: AddUserForm & { language: Language }, { rejectWithValue }) => {
     try {
+      const dto = mapRegisterUserFormToDto(payload);
       const response = await axiosInstance.post<RegisterResponseDto>(
         `${BASE_URL}/users/register`,
-        payload
+        dto
       );
 
       if (isRegisterSuccessResponse(response.data)) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
-      return rejectWithValue("Ошибка регистрации пользователя");
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка регистрации пользователя")
+      );
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
     }
   }
 );
@@ -201,20 +208,25 @@ function isUpdateUserSuccessResponse(
 
 export const updateUser = createAsyncThunk(
   "users/updateUser",
-  async ({ id, data }: { id: string; data: UpdateUserDto }, { rejectWithValue }) => {
+  async ({ id, data }: { id: string; data: Partial<UserResponse> }, { rejectWithValue }) => {
     try {
+      const dto = mapUpdateUserFormToDto(data);
       const response = await axiosInstance.patch<UpdateUserResponseDto>(
         `${BASE_URL}/users/${id}`,
-        data
+        dto
       );
 
       if (isUpdateUserSuccessResponse(response.data)) {
         return mapUpdateUserDtoToEntity(response.data.user);
       }
 
-      return rejectWithValue("Ошибка обновления пользователя");
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка обновления пользователя")
+      );
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
     }
   }
 );
@@ -237,9 +249,13 @@ export const deleteUser = createAsyncThunk(
         return { id };
       }
 
-      return rejectWithValue("Ошибка при удалении пользователя");
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка при удалении пользователя")
+      );
     } catch (err: any) {
-      return rejectWithValue(err.message || "Ошибка сервера");
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
     }
   }
 );
@@ -426,14 +442,7 @@ export const usersSlice = createSlice({
       .addCase(searchUsers.fulfilled, (state, action) => {
         const { data = [] } = action.payload;
 
-        state.searchedUsers = data.map((user: any) => ({
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role,
-          status: user.status,
-        }));
+        state.searchedUsers = data.map(mapUsersDtoToEntity);
       })
       .addCase(changeUserPassword.pending, (state) => {
         state.isLoading = true;

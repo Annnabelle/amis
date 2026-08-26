@@ -39,7 +39,6 @@ const UsersEdit = () => {
             lastName: userById.lastName,
             phone: userById.phone,
             email: userById.email,
-            role: userById.role?.alias,
             status: userById.status,
             })
         }
@@ -60,7 +59,7 @@ const UsersEdit = () => {
 
                 await dispatch(getUserById({ id: id }));
             } else {
-                toast.error(t('users.messages.error.updateUser'));
+                toast.error((resultAction.payload as string) || t('users.messages.error.updateUser'));
             }
         } catch (err) {
             toast.error((err as string) || t('users.messages.error.updateUser'));
