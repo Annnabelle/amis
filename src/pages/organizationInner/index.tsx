@@ -8,7 +8,7 @@ import { setCurrentCompanyId } from 'entities/access/model';
 import { AccessModules, type AccessModule } from 'entities/access/types';
 import { getOrganizationById } from 'entities/organization/model';
 import type { CompanyResponse } from 'entities/organization/types';
-import { useIsMobile, useNavigationBack } from 'shared/lib';
+import { FormatUzbekPhoneNumber, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import {
   DetailCard,
@@ -20,6 +20,7 @@ import {
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import StatusBadge from 'shared/ui/statusBadge';
+import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 
 const hasValue = (value?: string | number | null) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
@@ -184,7 +185,7 @@ const OrganizationsInner = () => {
   ];
 
   const contactItems: DetailItemData[] = [
-    { label: t('organizations.addUserForm.label.phone'), value: organization.contacts.phone || '-' },
+    { label: t('organizations.addUserForm.label.phone'), value: organization.contacts.phone ? FormatUzbekPhoneNumber(organization.contacts.phone) : '-' },
     { label: t('organizations.addUserForm.label.email'), value: organization.contacts.email || '-' },
     { label: t('organizations.addUserForm.label.url'), value: organization.contacts.url || '-' },
     { label: t('organizations.addUserForm.label.person'), value: organization.contacts.person || '-' },
@@ -237,7 +238,7 @@ const OrganizationsInner = () => {
                 <div className="route-overview-status">
                   <span className="label inline-label">{t('organizations.status')}</span>
                   <span className="detail-separator">:</span>
-                  <StatusBadge status={organization.status}>
+                  <StatusBadge variant={getCompanyStatusBadgeVariant(organization.status)}>
                     {statusLabel}
                   </StatusBadge>
                 </div>

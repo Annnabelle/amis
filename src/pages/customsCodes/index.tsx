@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Select, Space, Tag } from 'antd';
+import { Alert, Select, Space, Tag } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
@@ -294,6 +294,7 @@ const CustomsCodesPage = () => {
     try {
       setLocalSigning(true);
       const keyId = await eImzoClient.loadKey(certificate);
+      await eImzoClient.validateCertificate(certificate, keyId);
       const signedDocumentBase64 = await eImzoClient.createPkcs7(documentBase64, keyId, {
         detached: true,
       });
@@ -492,9 +493,9 @@ const CustomsCodesPage = () => {
             description={eImzoError ? t('customsCodes.signModal.openAppHint') : undefined}
             action={
               eImzoError ? (
-                <Button size="small" type="primary" onClick={handleOpenEImzo}>
+                <CustomButton size="sm" fullWidth={false} onClick={handleOpenEImzo}>
                   {t('customsCodes.signModal.openApp')}
-                </Button>
+                </CustomButton>
               ) : undefined
             }
           />

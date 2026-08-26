@@ -20,15 +20,40 @@
         align-items: center
         justify-content: center
         line-height: 0
+    &__spinner
+        width: 14px
+        height: 14px
+        border: 2px solid currentColor
+        border-right-color: transparent
+        border-radius: 50%
+        animation: btn-spin 0.75s linear infinite
     &--full-width
         width: 100%
+    &--icon-only
+        width: 40px
+        min-width: 40px
+        height: 40px
+        padding: 0
+        column-gap: 0
     &--sm
         padding: 8px 12px
+        &.btn--icon-only
+            width: 32px
+            min-width: 32px
+            height: 32px
+            padding: 0
     &--md
         padding: 12px 24px
+        &.btn--icon-only
+            padding: 0
     &--lg
         padding: 14px 28px
         +mix.typography(16px, 500, map.get(vars.$static, 'white'))
+        &.btn--icon-only
+            width: 44px
+            min-width: 44px
+            height: 44px
+            padding: 0
     &--primary
         background: map.get(vars.$main, 'main' )
         border-color: map.get(vars.$main, 'main')
@@ -73,35 +98,14 @@
         border-color: transparent
         &:hover
             color: map.get(vars.$basic, 'black')
-.outline
-    +mix.typography(14px, 400, map.get(vars.$main, 'main'))
-    background: transparent
-    border: 1px solid map.get(vars.$main, 'main')
-    &:hover
-        background: map.get(vars.$main, 'main' )
-        border: 1px solid map.get(vars.$main, 'main')
-        color: map.get(vars.$static, 'white')
-    &:disabled
-        background: transparent
-        color: map.get(vars.$main, 'main')
-        border: 1px solid map.get(vars.$main, 'main')
-        opacity: 0.45
-    &-black
-        @extend .outline
-        color: map.get(vars.$basic, 'black')
-.danger
-    +mix.typography(14px, 500, map.get(vars.$events, 'red'))
-    background: transparent
-    border: 1px solid map.get(vars.$events, 'red')
-    &:hover
-        background: map.get(vars.$events, 'red')
-        border: 1px solid map.get(vars.$events, 'red')
-        color: map.get(vars.$static, 'white')
+        &.btn--icon-only
+            width: 40px
+            min-width: 40px
+            height: 40px
 
-.create-order-btn
-    padding: 8px 16px
-    width: 200px !important
-    height: 100%
+@keyframes btn-spin
+    to
+        transform: rotate(360deg)
 
 .table-action-btn
     width: auto

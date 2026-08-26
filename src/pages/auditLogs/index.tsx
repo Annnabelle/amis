@@ -188,7 +188,7 @@ const AuditLogsPage: React.FC = () => {
   };
 
   const formatValueByKey = (key: string, value: any): string => {
-    if (key === "phone") return FormatUzbekPhoneNumber(String(value));
+    if (key === "phone" || key === "contacts.phone") return FormatUzbekPhoneNumber(String(value));
     return Array.isArray(value) ? value.map(String).join(", ") : String(value);
   };
 

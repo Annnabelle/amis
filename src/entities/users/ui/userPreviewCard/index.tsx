@@ -8,6 +8,7 @@ import { getUserPreview } from 'entities/users/model';
 import type { UserPreview } from 'entities/users/types';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { FormatUzbekPhoneNumber } from 'shared/lib';
 
 const { Text } = Typography;
 
@@ -27,7 +28,7 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
   const canReadUser = useCan(endpointAccessMap.usersRead);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || '-';
   const displayName = fullName !== '-' ? fullName : user.email || user.id;
-  const phoneDisplay = user.phone ? (user.phone.startsWith('+') ? user.phone : `+${user.phone}`) : '-';
+  const phoneDisplay = user.phone ? FormatUzbekPhoneNumber(user.phone) : '-';
   const iconChipStyle = {
     width: compact ? 24 : 24,
     height: compact ? 24 : 24,

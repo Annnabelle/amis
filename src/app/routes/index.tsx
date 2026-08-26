@@ -35,6 +35,8 @@ const DeliveryRoutesCreate = lazy(() => import("pages/deliveryRoutes/create"));
 const DeliveryRoutesDetails = lazy(() => import("pages/deliveryRoutes/details"));
 const DeliveryRoutesLoading = lazy(() => import("pages/deliveryRoutes/loading"));
 const DeliveryRoutesReturn = lazy(() => import("pages/deliveryRoutes/return"));
+const Vehicles = lazy(() => import("pages/vehicles"));
+const VehicleDetails = lazy(() => import("pages/vehicles/details"));
 const DeliveryTasksList = lazy(() => import("pages/deliveryTasks/list"));
 const DeliveryTasksDetails = lazy(() => import("pages/deliveryTasks/details"));
 const DeliveryTasksScan = lazy(() => import("pages/deliveryTasks/scan"));
@@ -83,6 +85,8 @@ const Router: React.FC = () => {
         <Route path='/organization/:orgId/delivery-routes/:id' element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesDetails/>)} />
         <Route path='/organization/:orgId/delivery-routes/:id/loading' element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesLoading/>)} />
         <Route path='/organization/:orgId/delivery-routes/:id/return' element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesReturn/>)} />
+        <Route path='/organization/:orgId/vehicles' element={protectedPage(routeAccess.vehiclesList, <Vehicles/>)} />
+        <Route path='/organization/:orgId/vehicles/:id' element={protectedPage(routeAccess.vehiclesRead, <VehicleDetails/>)} />
         <Route path='/organization/:orgId/delivery-tasks' element={protectedPage(routeAccess.deliveryTasksList, <DeliveryTasksList/>)} />
         <Route path='/organization/:orgId/delivery-tasks/:id' element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksDetails/>)} />
         <Route path='/organization/:orgId/delivery-tasks/:id/scan' element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksScan/>)} />

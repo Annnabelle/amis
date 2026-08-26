@@ -27,7 +27,7 @@ const PhoneInput = ({ value = "", onChange }: PhoneInputProps) => {
 
     let formatted = "+998";
     if (localDigits.length > 0) formatted += " (" + localDigits.substring(0, 2);
-    if (localDigits.length >= 2) formatted += ") " + localDigits.substring(2, 5);
+    if (localDigits.length >= 2) formatted += ")-" + localDigits.substring(2, 5);
     if (localDigits.length >= 5) formatted += "-" + localDigits.substring(5, 7);
     if (localDigits.length >= 7) formatted += "-" + localDigits.substring(7, 9);
 

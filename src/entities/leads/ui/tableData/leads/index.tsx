@@ -1,14 +1,33 @@
-import { Select, Tag } from "antd";
+import { Tag } from "antd";
 import type { TFunction } from "i18next";
-import { LeadStatuses, type LeadStatus } from "entities/leads/types";
+import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
+import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
+import CustomButton from "shared/ui/button";
+import { FormatUzbekPhoneNumber } from "shared/lib";
 import { statusColors } from "shared/ui/statuses";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { LeadTableDataType } from "./types";
 
 type LeadStatusChangeHandler = (
   record: LeadTableDataType,
-  status: LeadStatus
+  status: LeadStatusType
 ) => void;
+
+const getLeadStatusActionLabelKey = (status: LeadStatusType) => {
+  if (status === LeadStatus.InProgress) {
+    return "leads.actions.startProgress";
+  }
+
+  if (status === LeadStatus.Completed) {
+    return "leads.actions.complete";
+  }
+
+  if (status === LeadStatus.Rejected) {
+    return "leads.actions.reject";
+  }
+
+  return `leads.statuses.${status}`;
+};
 
 export const LeadsTableColumns = (
   t: TFunction,
@@ -29,7 +48,7 @@ export const LeadsTableColumns = (
     dataIndex: "phone",
     key: "phone",
     flex: 1.5,
-    render: (text: string) => <p className="table-text">{text}</p>,
+    render: (text: string) => <p className="table-text">{FormatUzbekPhoneNumber(text)}</p>,
   },
   {
     title: t("leads.fields.company"),
@@ -43,14 +62,29 @@ export const LeadsTableColumns = (
     dataIndex: "status",
     key: "status",
     flex: 1.4,
+    render: (status: LeadStatusType) => (
+      <Tag color={statusColors[status] ?? "default"} style={{ margin: 0 }}>
+        {t(`leads.statuses.${status}`)}
+      </Tag>
+    ),
+  },
+  {
+    title: t("leads.fields.createdAt"),
+    dataIndex: "createdAt",
+    key: "createdAt",
+    flex: 1.3,
+    render: (text: string) => <p className="table-text">{text}</p>,
+  },
+  {
+    title: t("leads.fields.actions"),
+    key: "actions",
+    flex: 1.7,
     className: "no-ellipsis",
-    render: (status: LeadStatus, record) => {
-      if (!options.canUpdateStatus) {
-        return (
-          <Tag color={statusColors[status] ?? "default"} style={{ margin: 0 }}>
-            {t(`leads.statuses.${status}`)}
-          </Tag>
-        );
+    render: (_: unknown, record) => {
+      const statusActions = getAvailableLeadStatusActions(record.status);
+
+      if (!options.canUpdateStatus || !statusActions.length) {
+        return null;
       }
 
       return (
@@ -59,33 +93,19 @@ export const LeadsTableColumns = (
           onClick={(event) => event.stopPropagation()}
           onMouseDown={(event) => event.stopPropagation()}
         >
-          <Select
-            className="leads-status-select"
-            popupClassName="leads-status-select-popup"
-            size="middle"
-            value={status}
-            popupMatchSelectWidth={false}
-            options={LeadStatuses.map((leadStatus) => ({
-              value: leadStatus,
-              label: t(`leads.statuses.${leadStatus}`),
-            }))}
-            onChange={(nextStatus) => {
-              if (nextStatus === status) {
-                return;
-              }
-
-              options.onStatusChange?.(record, nextStatus);
-            }}
-          />
+          {statusActions.map((nextStatus) => (
+            <CustomButton
+              key={nextStatus}
+              className="leads-status-action-btn"
+              size="sm"
+              variant={nextStatus === LeadStatus.Rejected ? "danger" : "primary"}
+              onClick={() => options.onStatusChange?.(record, nextStatus)}
+            >
+              {t(getLeadStatusActionLabelKey(nextStatus))}
+            </CustomButton>
+          ))}
         </div>
       );
     },
-  },
-  {
-    title: t("leads.fields.createdAt"),
-    dataIndex: "createdAt",
-    key: "createdAt",
-    flex: 1.3,
-    render: (text: string) => <p className="table-text">{text}</p>,
   },
 ];

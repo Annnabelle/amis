@@ -69,8 +69,24 @@
         white-space: nowrap
 
     &-status-cell
-        display: inline-flex
+        display: flex
+        align-items: center
+        gap: 8px
         max-width: 100%
+        flex-wrap: nowrap
+        white-space: nowrap
+
+    &-status-actions
+        display: flex
+        align-items: center
+        justify-content: flex-end
+        gap: 8px
+        flex-wrap: wrap
+
+    &-status-action-btn.btn
+        width: 148px
+        min-width: 148px
+        padding: 8px 12px
 
     &-status-select
         width: 168px

@@ -8,18 +8,31 @@ export const useNavigationBack = () => {
   };
 };
 
-export const FormatUzbekPhoneNumber = (raw: any) => {
-  const digits = raw.replace(/\D/g, ""); 
+export const FormatUzbekPhoneNumber = (raw: unknown) => {
+  if (raw === undefined || raw === null) return "";
+
+  const value = String(raw);
+  const digits = value.replace(/\D/g, "");
+  let localDigits = "";
 
   if (digits.length === 12 && digits.startsWith("998")) {
-    const operator = digits.slice(3, 5);
-    const part1 = digits.slice(5, 8);
-    const part2 = digits.slice(8, 10);
-    const part3 = digits.slice(10, 12);
-    return `+998 (${operator}) ${part1}-${part2}-${part3}`;
+    localDigits = digits.slice(3);
+  } else if (digits.length === 9) {
+    localDigits = digits;
+  } else if (digits.length === 10 && digits.startsWith("0")) {
+    localDigits = digits.slice(1);
   }
 
-  return raw; // если формат не подходит, возвращаем как есть
+  if (localDigits.length === 9) {
+    const operator = localDigits.slice(0, 2);
+    const part1 = localDigits.slice(2, 5);
+    const part2 = localDigits.slice(5, 7);
+    const part3 = localDigits.slice(7, 9);
+
+    return `+998 ${operator} ${part1} ${part2} ${part3}`;
+  }
+
+  return value;
 };
 
 

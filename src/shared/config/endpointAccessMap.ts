@@ -119,6 +119,13 @@ export const endpointAccessMap = {
   deliveryRoutesCompleteReturn: endpoint({ method: "POST", path: "/delivery-routes/:id/complete-return", permission: Permissions.DeliveryRoutesCompleteReturn, scope: EndpointScopes.Company }),
   deliveryRoutesClose: endpoint({ method: "POST", path: "/delivery-routes/:id/close", permission: Permissions.DeliveryRoutesClose, scope: EndpointScopes.Company }),
 
+  vehiclesCreate: endpoint({ method: "POST", path: "/vehicles", permission: Permissions.VehiclesCreate, scope: EndpointScopes.Company }),
+  vehiclesList: endpoint({ method: "GET", path: "/vehicles", permission: Permissions.VehiclesList, scope: EndpointScopes.Company }),
+  vehiclesSearch: endpoint({ method: "GET", path: "/vehicles/search", permission: Permissions.VehiclesSearch, scope: EndpointScopes.Company }),
+  vehiclesRead: endpoint({ method: "GET", path: "/vehicles/:id", permission: Permissions.VehiclesRead, scope: EndpointScopes.Company }),
+  vehiclesUpdate: endpoint({ method: "PATCH", path: "/vehicles/:id", permission: Permissions.VehiclesUpdate, scope: EndpointScopes.Company }),
+  vehiclesDelete: endpoint({ method: "DELETE", path: "/vehicles/:id", permission: Permissions.VehiclesDelete, scope: EndpointScopes.Company }),
+
   deliveryTasksRead: endpoint({ method: "GET", path: "/delivery-tasks/:id", permission: Permissions.DeliveryTasksRead, scope: EndpointScopes.Company }),
   deliveryTasksStartHandover: endpoint({ method: "POST", path: "/delivery-tasks/:id/start-handover", permission: Permissions.DeliveryTasksStartHandover, scope: EndpointScopes.Company }),
   deliveryTasksCompleteHandover: endpoint({ method: "POST", path: "/delivery-tasks/:id/complete-handover", permission: Permissions.DeliveryTasksCompleteHandover, scope: EndpointScopes.Company }),

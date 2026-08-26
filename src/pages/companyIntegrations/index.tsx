@@ -27,6 +27,7 @@ import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ModalWindow from 'shared/ui/modalWindow';
 import StatusBadge from 'shared/ui/statusBadge';
+import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import '../organizations/styles.sass';
 
 type DetailItem = {
@@ -38,7 +39,7 @@ const formatDate = (value?: string | null) =>
   value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-';
 
 const renderStatus = (status: string, t: ReturnType<typeof useTranslation>['t']) => (
-  <StatusBadge status={status}>
+  <StatusBadge variant={getIntegrationStatusBadgeVariant(status)}>
     {t(`statuses.${status}`, { defaultValue: status })}
   </StatusBadge>
 );
