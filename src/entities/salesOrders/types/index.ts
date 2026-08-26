@@ -10,11 +10,15 @@ export type SalesOrderResponse = {
   companyId: string;
   salesOrderNumber: string;
   status: SalesOrderStatus;
+  sender?: {
+    addressDetails?: SalesOrderAddressResponse;
+  };
   customer: {
     companyId?: string;
     tin: string;
     name: string;
     address?: string;
+    addressDetails?: SalesOrderAddressResponse;
   };
   contract?: {
     number: string;
@@ -23,6 +27,13 @@ export type SalesOrderResponse = {
   fulfillment: {
     dueDate: Date;
     priority: SalesOrderPriority;
+    paymentMethod: SalesOrderPaymentMethod;
+  };
+  delivery?: {
+    type: string;
+    costPerDistanceUnit?: number;
+    totalDistance?: number;
+    totalCost?: number;
   };
   items: {
     id: string;
@@ -53,6 +64,18 @@ export type SalesOrderResponse = {
   updatedBy?: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type SalesOrderLocation = {
+  latitude: number;
+  longitude: number;
+};
+
+export type SalesOrderAddressResponse = {
+  regionId: HexString;
+  districtId: HexString;
+  address: string;
+  location?: SalesOrderLocation;
 };
 
 export type CreateSalesOrderItem = {

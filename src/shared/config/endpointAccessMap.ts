@@ -141,6 +141,10 @@ export const endpointAccessMap = {
   invoiceItemsRead: endpoint({ method: "GET", path: "/invoices/:id/items", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
   invoiceCodesRead: endpoint({ method: "GET", path: "/invoices/:id/codes", permission: Permissions.InvoicesRead, scope: EndpointScopes.Company }),
 
+  waybillsList: endpoint({ method: "GET", path: "/waybills", permission: Permissions.WaybillsList, scope: EndpointScopes.Company }),
+  waybillsRead: endpoint({ method: "GET", path: "/waybills/:id", permission: Permissions.WaybillsRead, scope: EndpointScopes.Company }),
+  waybillFileRead: endpoint({ method: "GET", path: "/waybills/:id/file", permission: Permissions.WaybillsRead, scope: EndpointScopes.Company }),
+
   utilizationReportsCreate: endpoint({ method: "POST", path: "/reports/utilization", permission: Permissions.ReportsCreateUtilization, scope: EndpointScopes.Company }),
   aggregationReportsCreate: endpoint({ method: "POST", path: "/reports/aggregation", permission: Permissions.ReportsCreateAggregation, scope: EndpointScopes.Company }),
   aggregationReportsList: endpoint({ method: "GET", path: "/reports/aggregation", permission: Permissions.ReportsList, scope: EndpointScopes.Company }),

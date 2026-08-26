@@ -1,0 +1,254 @@
+@use "../../../shared/styles/variables" as vars
+@use "sass:map"
+@use "../../invoices/details/styles.sass"
+
+.waybill-section-tabs
+  position: sticky
+  top: 0
+  z-index: 5
+  margin: 0 0 18px
+  padding: 8px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.10)
+  border-radius: 8px
+  background: rgba(var(--white-rgb), 0.92)
+  backdrop-filter: blur(10px)
+
+  .ant-segmented
+    width: 100%
+    border-radius: 8px
+
+  .ant-segmented-item
+    min-height: 36px
+    display: inline-flex
+    align-items: center
+    justify-content: center
+
+.waybill-route-line
+  display: grid
+  grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr)
+  gap: 12px
+  align-items: stretch
+  margin-top: 14px
+
+.waybill-route-point
+  min-width: 0
+  padding: 12px
+  border-radius: 8px
+  background: rgba(var(--main-primary-rgb), 0.04)
+  border: 1px solid rgba(var(--main-primary-rgb), 0.08)
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+  strong,
+  span:not(.label)
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+  strong
+    color: map.get(vars.$text, 'primary')
+    font-size: 14px
+
+  span:not(.label)
+    color: map.get(vars.$text, 'secondary')
+    font-size: 12px
+
+.waybill-route-arrow
+  display: flex
+  align-items: center
+  justify-content: center
+  color: map.get(vars.$main, 'main')
+  font-weight: 700
+
+.waybill-cargo-groups
+  display: flex
+  flex-direction: column
+  gap: 14px
+
+.waybill-cargo-card
+  min-width: 0
+  padding: 14px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.12)
+  border-radius: 8px
+  background: linear-gradient(180deg, rgba(var(--main-primary-rgb), 0.04) 0%, rgba(var(--white-rgb), 1) 100%)
+
+.waybill-cargo-head
+  display: grid
+  grid-template-columns: minmax(0, 1fr) auto
+  gap: 14px
+  align-items: start
+  padding-bottom: 12px
+  margin-bottom: 12px
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.10)
+
+  h3
+    margin: 2px 0 0
+    color: map.get(vars.$text, 'primary')
+    font-size: 15px
+    line-height: 1.35
+    font-weight: 700
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.waybill-cargo-sum
+  display: flex
+  gap: 6px
+  align-items: baseline
+  text-align: right
+
+  strong
+    color: map.get(vars.$main, 'main')
+    font-size: 15px
+    white-space: nowrap
+
+.waybill-location-pair
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: 10px
+  margin-bottom: 12px
+
+  > div
+    min-width: 0
+    padding: 10px
+    border-radius: 8px
+    background: rgba(var(--main-primary-rgb), 0.04)
+    border: 1px solid rgba(var(--main-primary-rgb), 0.08)
+
+  strong,
+  p,
+  small
+    display: block
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+  strong
+    margin-top: 4px
+    color: map.get(vars.$text, 'primary')
+    font-size: 13px
+    font-weight: 700
+
+  p
+    margin: 4px 0 0
+    color: map.get(vars.$text, 'primary')
+    font-size: 13px
+
+  small
+    margin-top: 5px
+    color: map.get(vars.$text, 'secondary')
+    font-size: 12px
+
+.waybill-products-list
+  display: flex
+  flex-direction: column
+  gap: 8px
+  margin-top: 12px
+
+.waybill-product-row
+  display: grid
+  grid-template-columns: minmax(0, 1fr) minmax(84px, 0.22fr) minmax(84px, 0.22fr) minmax(84px, 0.22fr)
+  gap: 12px
+  align-items: center
+  padding: 10px 12px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.08)
+  border-radius: 8px
+  background: rgba(var(--white-rgb), 0.72)
+
+.waybill-product-row-head
+  padding-top: 0
+  padding-bottom: 2px
+  border: none
+  background: transparent
+  color: map.get(vars.$text, 'secondary')
+  font-size: 11px
+  font-weight: 700
+  text-transform: uppercase
+
+.waybill-product-main
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: 3px
+
+  strong,
+  span
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+  strong
+    color: map.get(vars.$text, 'primary')
+    font-size: 13px
+
+  span
+    color: map.get(vars.$text, 'secondary')
+    font-size: 12px
+
+.waybill-product-value
+  min-width: 0
+  overflow: hidden
+  text-overflow: ellipsis
+  color: map.get(vars.$text, 'primary')
+  font-size: 12px
+  font-weight: 600
+  white-space: nowrap
+  text-align: right
+
+:root[data-theme='dark']
+
+  .waybill-section-tabs
+    background: rgba(var(--surface-soft-rgb), 0.92)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.14)
+
+  .waybill-route-point,
+  .waybill-location-pair > div
+    background: rgba(var(--main-primary-soft-rgb), 0.08)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+  .waybill-cargo-card
+    background: linear-gradient(180deg, rgba(var(--main-primary-soft-rgb), 0.08) 0%, rgba(var(--surface-soft-rgb), 1) 100%)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.14)
+
+  .waybill-product-row
+    background: rgba(var(--white-rgb), 0.03)
+    border-color: rgba(var(--main-primary-soft-rgb), 0.10)
+
+  .waybill-product-row-head
+    background: transparent
+    border: none
+
+@media (max-width: 900px)
+
+  .waybill-section-tabs
+    top: 0
+    margin-bottom: 14px
+    overflow-x: auto
+
+    .ant-segmented
+      min-width: 520px
+
+  .waybill-route-line
+    grid-template-columns: 1fr
+
+  .waybill-route-arrow
+    min-height: 24px
+    transform: rotate(90deg)
+
+  .waybill-cargo-head,
+  .waybill-location-pair,
+  .waybill-product-row
+    grid-template-columns: 1fr
+
+  .waybill-cargo-sum
+    text-align: left
+
+  .waybill-product-row-head
+    display: none
+
+  .waybill-product-value
+    text-align: left

@@ -95,6 +95,9 @@ export const Permissions = {
   InvoicesRead: "invoices.read",
   InvoicesCreate: "invoices.create",
 
+  WaybillsList: "waybills.list",
+  WaybillsRead: "waybills.read",
+
   ReportsList: "reports.list",
   ReportsRead: "reports.read",
   ReportsCreateUtilization: "reports.create-utilization",

@@ -14,6 +14,7 @@ import { salesOrdersSlice } from "entities/salesOrders/model";
 import { deliveryRoutesSlice } from "entities/deliveryRoutes/model";
 import { deliveryTasksSlice } from "entities/deliveryTasks/model";
 import { invoicesSlice } from "entities/invoices/model";
+import { waybillsSlice } from "entities/waybills/model";
 import { scanSessionsSlice } from "entities/scanSessions/model";
 import { accessSlice } from "entities/access/model";
 import { systemEmployeesSlice } from "entities/systemEmployees/model";
@@ -40,6 +41,7 @@ export const store = configureStore({
         deliveryRoutes: deliveryRoutesSlice.reducer,
         deliveryTasks: deliveryTasksSlice.reducer,
         invoices: invoicesSlice.reducer,
+        waybills: waybillsSlice.reducer,
         scanSessions: scanSessionsSlice.reducer,
         access: accessSlice.reducer,
         systemEmployees: systemEmployeesSlice.reducer,

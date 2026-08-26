@@ -27,6 +27,7 @@ export const AccessModules = {
   DeliveryTasks: "delivery-tasks",
   ScanSessions: "scan-sessions",
   Invoices: "invoices",
+  Waybills: "waybills",
   Integrations: "integrations",
   Reports: "reports",
   Audit: "audit",

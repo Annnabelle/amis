@@ -7,17 +7,22 @@ import type {
   SalesOrderPriority,
   SalesOrderStatus,
 } from "shared/types/dtos";
+import type { SalesOrderDeliveryType } from "entities/waybills/dtos";
 
 export type SalesOrderResponseDto = {
   id: string;
   companyId: string;
   salesOrderNumber: string;
   status: SalesOrderStatus;
+  sender?: {
+    addressDetails?: SalesOrderAddressResponseDto;
+  };
   customer: {
     companyId?: string;
     tin: string;
     name: string;
     address?: string;
+    addressDetails?: SalesOrderAddressResponseDto;
   };
   contract?: {
     number: string;
@@ -26,6 +31,13 @@ export type SalesOrderResponseDto = {
   fulfillment: {
     dueDate: Date;
     priority: SalesOrderPriority;
+    paymentMethod: SalesOrderPaymentMethod;
+  };
+  delivery?: {
+    type: string;
+    costPerDistanceUnit?: number;
+    totalDistance?: number;
+    totalCost?: number;
   };
   items: {
     id: string;
@@ -59,12 +71,14 @@ export type SalesOrderResponseDto = {
 };
 
 export type CreateSalesOrderDto = {
-  companyId: HexString;
+  sender?: {
+    addressDetails?: SalesOrderAddressDto;
+  };
   customer: {
-    companyId?: HexString;
+    id?: HexString;
     tin: string;
     name: string;
-    address?: string;
+    addressDetails?: SalesOrderAddressDto;
   };
   contract?: {
     number: string;
@@ -75,6 +89,11 @@ export type CreateSalesOrderDto = {
     priority: SalesOrderPriority;
     paymentMethod: SalesOrderPaymentMethod;
   };
+  delivery?: {
+    type: SalesOrderDeliveryType;
+    costPerDistanceUnit?: number;
+    totalDistance?: number;
+  };
   items: {
     productId: HexString;
     quantity: number;
@@ -83,6 +102,20 @@ export type CreateSalesOrderDto = {
   }[];
   comment?: string;
 };
+
+export type SalesOrderLocationDto = {
+  latitude: number;
+  longitude: number;
+};
+
+export type SalesOrderAddressDto = {
+  regionId: HexString;
+  districtId: HexString;
+  address: string;
+  location?: SalesOrderLocationDto;
+};
+
+export type SalesOrderAddressResponseDto = SalesOrderAddressDto;
 
 export type CreateSalesOrderResponseDto =
   | {
