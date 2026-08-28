@@ -18,6 +18,19 @@ export const isLanguage = (value: string): value is Language =>
 
 export type Language = (typeof Language)[keyof typeof Language];
 
+export const AppTheme = {
+  Light: 'light',
+  Dark: 'dark',
+  System: 'system',
+} as const;
+
+export type AppTheme = (typeof AppTheme)[keyof typeof AppTheme];
+
+export type UserPreferences = {
+  language: Language;
+  theme: AppTheme;
+};
+
 export type MultiLanguage = Record<Language, string>;
 
 export type ErrorDto = {

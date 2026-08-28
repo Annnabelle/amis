@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next'
 import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers } from 'entities/users/model'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
 import type { AddUserForm, UserResponse } from 'entities/users/types'
-import type { Language } from 'shared/types/dtos'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
@@ -54,7 +53,6 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            pinfl: user.pinfl || '-',
             lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
             status: user.status,
             action: 'Действие', 
@@ -81,8 +79,7 @@ const Users = () => {
 
     const handleRegisterUser = async (values: AddUserForm) => {
         try {
-            const newFormData = {...values,   language: "ru" as Language, }
-            const resultAction = await dispatch(registerUser(newFormData));
+            const resultAction = await dispatch(registerUser(values));
         
             if (registerUser.fulfilled.match(resultAction)) {
                 toast.success(t('users.messages.success.createUser'));
@@ -311,12 +308,15 @@ const Users = () => {
                         name="pinfl"
                         label={t('users.addUserForm.label.pinfl')}
                         rules={[
+                            { required: true, message: t('users.addUserForm.required.pinfl') },
                             { pattern: /^[0-9]{14}$/, message: t('users.addUserForm.pattern.pinfl') }
                         ]}
                     >
                     <Input
                         className="input"
                         size="large"
+                        inputMode="numeric"
+                        maxLength={14}
                         placeholder={t('users.addUserForm.placeholder.pinfl')}
                     />
                     </Form.Item>
@@ -327,7 +327,7 @@ const Users = () => {
                         label={t('users.addUserForm.label.password')}
                         rules={[
                             { required: true, message: t('users.addUserForm.required.password') },
-                            { min: 8, message: t('users.addUserForm.pattern.passwordMinLength') }
+                            { min: 6, message: t('users.addUserForm.pattern.passwordMinLength') }
                         ]}
                     >
                     <Input.Password

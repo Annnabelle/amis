@@ -2,12 +2,12 @@ import type { AddUserForm, LoginForm, UserResponse, UsersState } from "entities/
 import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto } from "entities/users/dtos/login";
 import type { PaginatedResponseDto } from "shared/types/dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { UpdateUserPreferencesDto, UpdateUserPreferencesResponseDto } from "entities/users/dtos/login";
 import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapRegisterUserFormToDto, mapUpdateUserDtoToEntity, mapUpdateUserFormToDto, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import { clearAuthStorage } from "shared/lib/authSession";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
-import type { Language } from "shared/types/dtos";
 
 const storedUser = localStorage.getItem("user");
 const storedAccessToken = localStorage.getItem("accessToken");
@@ -120,7 +120,7 @@ function isRegisterSuccessResponse(
 
 export const registerUser = createAsyncThunk(
   "users/registerUser",
-  async (payload: AddUserForm & { language: Language }, { rejectWithValue }) => {
+  async (payload: AddUserForm, { rejectWithValue }) => {
     try {
       const dto = mapRegisterUserFormToDto(payload);
       const response = await axiosInstance.post<RegisterResponseDto>(
@@ -234,6 +234,24 @@ export const updateUser = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(
         getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+export const updateUserPreferences = createAsyncThunk(
+  "users/updateUserPreferences",
+  async (preferences: UpdateUserPreferencesDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch<UpdateUserPreferencesResponseDto>(
+        `${BASE_URL}/users/me/preferences`,
+        preferences
+      );
+
+      return mapUsersDtoToEntity(response.data.user);
+    } catch (err: any) {
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка обновления настроек пользователя")
       );
     }
   }
@@ -431,6 +449,11 @@ export const usersSlice = createSlice({
       .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updateUserPreferences.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+        state.user = action.payload;
+        state.currentUser = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload));
       })
       .addCase(deleteUser.pending, (state) => {
         state.isLoading = true;

@@ -1051,13 +1051,14 @@
                         phone: "Please enter your phone number",
                         email: "Please enter your email",
                         role: "Please select a role",
-                        password: "Please enter your password"
+                        password: "Please enter your password",
+                        pinfl: "Please enter PINFL"
                     },
                     pattern: {
                         phone: "Please enter a valid phone number",
                         email: "Please enter a valid email",
                         pinfl: "PINFL must contain 14 digits",
-                        passwordMinLength: "Password must be at least 8 characters"
+                        passwordMinLength: "Password must be at least 6 characters"
                     }
                 },
                 modalWindow: {
@@ -2947,13 +2948,14 @@
                         phone: "Введите номер телефона",
                         email: "Введите email",
                         role: "Выберите роль",
-                        password: "Введите пароль"
+                        password: "Введите пароль",
+                        pinfl: "Введите ПИНФЛ"
                     },
                     pattern: {
                         phone: "Введите корректный номер телефона",
                         email: "Введите корректный email",
                         pinfl: "ПИНФЛ должен содержать 14 цифр",
-                        passwordMinLength: "Пароль должен содержать минимум 8 символов"
+                        passwordMinLength: "Пароль должен содержать минимум 6 символов"
                     }
                 },
                 modalWindow: {
@@ -4806,13 +4808,14 @@
                         phone: "Telefon raqamingizni kiriting",
                         email: "Emailingizni kiriting",
                         role: "Rolni tanlang",
-                        password: "Parolni kiriting"
+                        password: "Parolni kiriting",
+                        pinfl: "JSHSHIRni kiriting"
                     },
                     pattern: {
                         phone: "To‘g‘ri telefon raqamini kiriting",
                         email: "To‘g‘ri email manzilini kiriting",
                         pinfl: "JSHSHIR 14 ta raqamdan iborat bo‘lishi kerak",
-                        passwordMinLength: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak"
+                        passwordMinLength: "Parol kamida 6 ta belgidan iborat bo‘lishi kerak"
                     }
                 },
                 modalWindow: {

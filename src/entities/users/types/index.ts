@@ -1,4 +1,4 @@
-import type { ErrorDto, HexString } from "shared/types/dtos";
+import type { ErrorDto, HexString, UserPreferences, UserStatus } from "shared/types/dtos";
 
 export type UserResponse = {
     id: HexString,
@@ -7,9 +7,8 @@ export type UserResponse = {
     email: string,
     phone: string,
     pinfl?: string,
-    status: string,
-    companyIds: HexString[],
-    language: string,
+    status: UserStatus,
+    preferences: UserPreferences,
     lastLoggedInAt: Date | null,
 }
 
@@ -61,7 +60,7 @@ export type  AddUserForm = {
   firstName: string
   lastName: string,
   phone: string,
-  pinfl?: string,
+  pinfl: string,
   email: string,
   password: string,
 }

@@ -1,7 +1,6 @@
 import type { ErrorDto } from "shared/types/dtos";
 import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, RegisterUserDto, UpdateUserDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
 import type { AddUserForm, ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserPreview, UserResponse } from "entities/users/types";
-import type { Language } from "shared/types/dtos";
 
 export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
   return {
@@ -18,54 +17,46 @@ export function mapChangePwdFormToChangePwdDto(form: ChangePassword): ChangePass
   };
 }
 
-const getUserFirstName = (dto: UserResponseDto | UserPreviewDto) => dto.name?.first ?? dto.firstName ?? "";
-const getUserLastName = (dto: UserResponseDto | UserPreviewDto) => dto.name?.last ?? dto.lastName ?? "";
-
 export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   id: dto.id,
-  firstName: getUserFirstName(dto),
-  lastName: getUserLastName(dto),
+  firstName: dto.firstName,
+  lastName: dto.lastName,
   email: dto.email,
   phone: dto.phone,
   pinfl: dto.pinfl,
   status: dto.status,
-  companyIds: dto.companyIds ?? [],
-  language: dto.language ?? "ru",
+  preferences: dto.preferences,
   lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
 });
 
 export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => ({
   id: dto.id,
-  firstName: getUserFirstName(dto),
-  lastName: getUserLastName(dto),
+  firstName: dto.name?.first ?? dto.firstName ?? "",
+  lastName: dto.name?.last ?? dto.lastName ?? "",
   status: dto.status,
   email: dto.email,
   phone: dto.phone,
   pinfl: dto.pinfl,
 });
 
-export const mapRegisterUserFormToDto = (form: AddUserForm & { language: Language }): RegisterUserDto => ({
+export const mapRegisterUserFormToDto = (form: AddUserForm): RegisterUserDto => ({
   firstName: form.firstName,
   lastName: form.lastName,
-  email: form.email,
+  email: form.email.trim().toLowerCase(),
   phone: form.phone,
   pinfl: form.pinfl,
   password: form.password,
-  language: form.language as RegisterUserDto["language"],
 });
 
 export const mapUpdateUserFormToDto = (form: Partial<UserResponse>): UpdateUserDto => {
-  const dto: UpdateUserDto = {
+  return {
     firstName: form.firstName,
     lastName: form.lastName,
-    email: form.email,
+    email: form.email?.trim().toLowerCase(),
     phone: form.phone,
     pinfl: form.pinfl,
-    language: form.language as UpdateUserDto["language"],
-    status: form.status as UpdateUserDto["status"],
+    status: form.status,
   };
-
-  return dto;
 };
 
 

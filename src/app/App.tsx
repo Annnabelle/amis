@@ -6,7 +6,8 @@ import Router from './routes';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
-import { logout } from 'entities/users/model';
+import { logout, updateUserPreferences } from 'entities/users/model';
+import { AppTheme } from 'shared/types/dtos';
 import {
   clearAccess,
   fetchCurrentUserAccess,
@@ -118,6 +119,7 @@ const CompanyRouteSync = () => {
 };
 
 function App() {
+  const dispatch = useAppDispatch();
   const { darkAlgorithm, defaultAlgorithm } = theme;
   const loading = useAppSelector((state) => state.loader.loading);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
@@ -147,10 +149,12 @@ function App() {
       isDarkTheme,
       setThemeMode,
       toggleTheme: () => {
-        setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+        const nextTheme = themeMode === AppTheme.Dark ? AppTheme.Light : AppTheme.Dark;
+        setThemeMode(nextTheme);
+        void dispatch(updateUserPreferences({ theme: nextTheme }));
       },
     }),
-    [isDarkTheme, themeMode]
+    [dispatch, isDarkTheme, themeMode]
   );
 
   return (

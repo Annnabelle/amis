@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getUserById } from 'entities/users/model';
+import { fetchRoleReferences } from 'entities/access/model';
+import {
+  getRoleReferenceCacheKey,
+  RoleReferenceScope,
+  type RoleReference,
+} from 'entities/access/types';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -23,7 +29,7 @@ import {
   DetailItems,
   RouteMetaChip,
 } from 'shared/ui/details';
-import type { SystemEmployee } from 'entities/systemEmployees/types';
+import type { SystemEmployee, SystemRole } from 'entities/systemEmployees/types';
 import {
   isSystemEmployeesResponseSuccess,
   type SystemEmployeesResponseDto,
@@ -35,6 +41,8 @@ import {
   type CompanyMembershipsResponseDto,
 } from 'entities/companyMemberships/dtos';
 import { mapCompanyMembershipDtoToEntity } from 'entities/companyMemberships/mappers';
+import type { CompanyRole } from 'entities/companyMemberships/types';
+import { isLanguage, type Language } from 'shared/types/dtos';
 
 const getUserStatusVariant = (status?: string): StatusBadgeVariant =>
   status === 'active' ? 'success' : status === 'inactive' ? 'danger' : 'default';
@@ -42,15 +50,23 @@ const getUserStatusVariant = (status?: string): StatusBadgeVariant =>
 const formatDateTime = (value?: Date | null) =>
   value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-';
 
+const getLocalizedText = (
+  value: Record<Language, string>,
+  language: Language
+) => value[language] || value.ru || value.en || value.uz;
+
 const UsersRetrieve = () => {
   const { id } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const navigateBack = useNavigationBack();
   const userById = useAppSelector((state) => state.users.userById);
   const isUserLoading = useAppSelector((state) => state.users.isLoading);
   const organizations = useAppSelector((state) => state.organizations.organizations);
+  const roleReferences = useAppSelector((state) => state.access.roleReferences);
+  const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
+  const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
   const canUpdateUser = useCan(endpointAccessMap.usersUpdate);
   const canListCompanies = useCan(endpointAccessMap.companiesList);
   const canReadCompany = useCan(endpointAccessMap.companiesRead);
@@ -60,6 +76,7 @@ const UsersRetrieve = () => {
   const [companyMemberships, setCompanyMemberships] = useState<CompanyMembership[]>([]);
   const [accessLoading, setAccessLoading] = useState(false);
   const [accessError, setAccessError] = useState<string | null>(null);
+  const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
 
   useEffect(() => {
     if (!id) return;
@@ -77,10 +94,10 @@ const UsersRetrieve = () => {
   const isCurrentUserLoaded = Boolean(currentUser);
   const userOrganizations = useMemo(
     () =>
-      currentUser
-        ? organizations.filter((org) => currentUser.companyIds.includes(org.id))
-        : [],
-    [currentUser, organizations]
+      organizations.filter((organization) =>
+        companyMemberships.some((membership) => membership.companyId === organization.id)
+      ),
+    [companyMemberships, organizations]
   );
 
   useEffect(() => {
@@ -115,9 +132,9 @@ const UsersRetrieve = () => {
                     : []
                 )
             : Promise.resolve([]),
-          canSearchCompanyMemberships && user.companyIds.length > 0
+          canSearchCompanyMemberships && organizations.length > 0
             ? Promise.all(
-                user.companyIds.map((companyId) =>
+                organizations.map(({ id: companyId }) =>
                   axiosInstance
                     .get<CompanyMembershipsResponseDto>('/company-memberships/search', {
                       params: { query: user.email, page: 1, limit: 10 },
@@ -159,8 +176,29 @@ const UsersRetrieve = () => {
     canListSystemEmployees,
     canSearchCompanyMemberships,
     currentUser,
+    organizations,
     t,
   ]);
+
+  useEffect(() => {
+    const companyIds = new Set(companyMemberships.map((membership) => membership.companyId));
+
+    companyIds.forEach((companyId) => {
+      const key = getRoleReferenceCacheKey(RoleReferenceScope.Company, companyId);
+      if (roleReferencesLoaded[key] || roleReferencesLoading[key]) return;
+
+      void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.Company, companyId }));
+    });
+  }, [companyMemberships, dispatch, roleReferencesLoaded, roleReferencesLoading]);
+
+  useEffect(() => {
+    if (systemEmployees.length === 0) return;
+
+    const key = getRoleReferenceCacheKey(RoleReferenceScope.System);
+    if (roleReferencesLoaded[key] || roleReferencesLoading[key]) return;
+
+    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+  }, [dispatch, roleReferencesLoaded, roleReferencesLoading, systemEmployees]);
 
   if (isUserLoading && !isCurrentUserLoaded) {
     return (
@@ -197,7 +235,16 @@ const UsersRetrieve = () => {
 
   const fullName = [userById.firstName, userById.lastName].filter(Boolean).join(' ') || userById.email;
   const companyById = new Map(organizations.map((company) => [company.id, company]));
-  const companyCount = companyMemberships.length || userOrganizations.length || userById.companyIds.length;
+  const systemRoleReferenceKey = getRoleReferenceCacheKey(RoleReferenceScope.System);
+  const systemRoleReferences = (roleReferences[systemRoleReferenceKey] ?? []) as RoleReference<SystemRole>[];
+  const systemRoleLabels = new Map(
+    systemRoleReferences.map((role) => [
+      role.alias,
+      getLocalizedText(role.name, currentLanguage),
+    ])
+  );
+  const assignedSystemRoles = [...new Set(systemEmployees.flatMap((employee) => employee.roles))];
+  const companyCount = companyMemberships.length || userOrganizations.length;
   const showAccessSummary = accessLoading || accessError || systemEmployees.length > 0 || companyCount > 0;
   const showSystemAccess = accessLoading || Boolean(accessError) || systemEmployees.length > 0;
   const showCompanies = accessLoading || Boolean(accessError) || companyMemberships.length > 0 || userOrganizations.length > 0;
@@ -263,9 +310,18 @@ const UsersRetrieve = () => {
                   <DetailItems>
                     {(accessLoading || accessError || systemEmployees.length > 0) && (
                       <DetailItem label={t('users.details.systemAccess')}>
-                        <span className="value">
-                          {systemEmployees.length > 0 ? t('users.details.enabled') : t('users.details.notAssigned')}
-                        </span>
+                        {assignedSystemRoles.length > 0 ? (
+                          assignedSystemRoles.map((role) => (
+                            <Tag
+                              key={role}
+                              style={{ width: 'fit-content', marginInlineEnd: 0 }}
+                            >
+                              {systemRoleLabels.get(role) ?? role}
+                            </Tag>
+                          ))
+                        ) : (
+                          <span className="value">{t('users.details.notAssigned')}</span>
+                        )}
                       </DetailItem>
                     )}
                     {(accessLoading || accessError || companyCount > 0) && (
@@ -292,7 +348,12 @@ const UsersRetrieve = () => {
                             {t(`systemEmployees.states.${employee.state}`, { defaultValue: employee.state })}
                           </StatusBadge>
                           {employee.roles.map((role) => (
-                            <Tag key={role}>{t(`systemEmployees.roles.${role}`, { defaultValue: role })}</Tag>
+                            <Tag
+                              key={role}
+                              style={{ width: 'fit-content', marginInlineEnd: 0 }}
+                            >
+                              {systemRoleLabels.get(role) ?? role}
+                            </Tag>
                           ))}
                         </DetailItem>
                       ))}
@@ -316,6 +377,17 @@ const UsersRetrieve = () => {
                       {companyMemberships.map((membership) => {
                         const company = companyById.get(membership.companyId);
                         const companyName = company?.displayName ?? membership.companyId;
+                        const referenceKey = getRoleReferenceCacheKey(
+                          RoleReferenceScope.Company,
+                          membership.companyId
+                        );
+                        const companyRoleReferences = (roleReferences[referenceKey] ?? []) as RoleReference<CompanyRole>[];
+                        const roleLabels = new Map(
+                          companyRoleReferences.map((role) => [
+                            role.alias,
+                            getLocalizedText(role.name, currentLanguage),
+                          ])
+                        );
 
                         return (
                           <DetailItem key={membership.id} label={companyName}>
@@ -330,7 +402,12 @@ const UsersRetrieve = () => {
                               {t(`companyMemberships.states.${membership.state}`, { defaultValue: membership.state })}
                             </StatusBadge>
                             {membership.roles.map((role) => (
-                              <Tag key={role}>{t(`companyMemberships.roles.${role}`, { defaultValue: role })}</Tag>
+                              <Tag
+                                key={role}
+                                style={{ width: 'fit-content', marginInlineEnd: 0 }}
+                              >
+                                {roleLabels.get(role) ?? role}
+                              </Tag>
                             ))}
                           </DetailItem>
                         );

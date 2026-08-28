@@ -13,6 +13,7 @@ import CustomButton from 'shared/ui/button'
 import PhoneInput from 'shared/ui/phoneInput'
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import type { UpdateUserDto } from 'entities/users/dtos/login';
 import './styles.sass'
 
 const UsersEdit = () => {
@@ -46,7 +47,7 @@ const UsersEdit = () => {
         }
     }, [userById, form])
 
-    const handleUpdateUser = async (values: any) => {
+    const handleUpdateUser = async (values: UpdateUserDto) => {
         if (!id) {
             toast.error(t('users.messages.error.updateUser'));
             return;
@@ -112,18 +113,44 @@ const UsersEdit = () => {
                         {userById && (
                             <>
                                 <div className="form-inputs form-inputs-row">
-                                    <Form.Item className="input" name="firstName" label={t('users.addUserForm.label.firstName')} >
+                                    <Form.Item
+                                        className="input"
+                                        name="firstName"
+                                        label={t('users.addUserForm.label.firstName')}
+                                        rules={[{ required: true, message: t('users.addUserForm.required.firstName') }]}
+                                    >
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.firstName')}  />
                                     </Form.Item>
-                                    <Form.Item className="input" name="lastName" label={t('users.addUserForm.label.lastName')}>
+                                    <Form.Item
+                                        className="input"
+                                        name="lastName"
+                                        label={t('users.addUserForm.label.lastName')}
+                                        rules={[{ required: true, message: t('users.addUserForm.required.lastName') }]}
+                                    >
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.lastName')}  />
                                     </Form.Item>
                                 </div>
                                 <div className="form-inputs form-inputs-row">
-                                    <Form.Item className="input" name="phone" label={t('users.addUserForm.label.phone')} >
+                                    <Form.Item
+                                        className="input"
+                                        name="phone"
+                                        label={t('users.addUserForm.label.phone')}
+                                        rules={[
+                                            { required: true, message: t('users.addUserForm.required.phone') },
+                                            { pattern: /^998[0-9]{9}$/, message: t('users.addUserForm.pattern.phone') },
+                                        ]}
+                                    >
                                         <PhoneInput />
                                     </Form.Item>
-                                    <Form.Item className="input" name="email" label={t('users.addUserForm.label.email')} >
+                                    <Form.Item
+                                        className="input"
+                                        name="email"
+                                        label={t('users.addUserForm.label.email')}
+                                        rules={[
+                                            { required: true, message: t('users.addUserForm.required.email') },
+                                            { type: 'email', message: t('users.addUserForm.pattern.email') },
+                                        ]}
+                                    >
                                         <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.email')}  />
                                     </Form.Item>
                                 </div>
@@ -136,7 +163,13 @@ const UsersEdit = () => {
                                             { pattern: /^[0-9]{14}$/, message: t('users.addUserForm.pattern.pinfl') }
                                         ]}
                                     >
-                                        <Input className="input" size="large" placeholder={t('users.addUserForm.placeholder.pinfl')} />
+                                        <Input
+                                            className="input"
+                                            size="large"
+                                            inputMode="numeric"
+                                            maxLength={14}
+                                            placeholder={t('users.addUserForm.placeholder.pinfl')}
+                                        />
                                     </Form.Item>
                                     {canListCompanies && (
                                         <Form.Item className="input" name="status" label="Статус" >
