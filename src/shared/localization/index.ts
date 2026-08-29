@@ -461,7 +461,7 @@
                     brand: "Enter brand",
                     model: "Enter model",
                     vin: "Enter VIN",
-                    registrationCertificateNumber: "Enter certificate number",
+                    registrationCertificateNumber: "AA 1234567",
                     selectVehicle: "Select vehicle"
                 },
                 types: {
@@ -496,6 +496,8 @@
                     typeRequired: "Select vehicle type",
                     plateNumberRequired: "Enter plate number",
                     plateNumberLength: "Plate number must contain 8 characters without spaces",
+                    plateNumberInvalid: "Plate number must be in format: 00 000AAA, 00 A000AA or 00 000000",
+                    registrationCertificateNumberInvalid: "Registration certificate must be in format: AA 1234567",
                     brandRequired: "Enter brand",
                     modelRequired: "Enter model"
                 },
@@ -2357,7 +2359,7 @@
                     brand: "Введите марку",
                     model: "Введите модель",
                     vin: "Введите VIN",
-                    registrationCertificateNumber: "Введите номер техпаспорта",
+                    registrationCertificateNumber: "AA 1234567",
                     selectVehicle: "Выберите транспорт"
                 },
                 types: {
@@ -2392,6 +2394,8 @@
                     typeRequired: "Выберите тип транспорта",
                     plateNumberRequired: "Введите номер машины",
                     plateNumberLength: "Номер должен содержать 8 символов без пробелов",
+                    plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA, 00 A000AA или 00 000000",
+                    registrationCertificateNumberInvalid: "Номер техпаспорта должен быть в формате: AA 1234567",
                     brandRequired: "Введите марку",
                     modelRequired: "Введите модель"
                 },
@@ -4245,7 +4249,7 @@
                     brand: "Markani kiriting",
                     model: "Modelni kiriting",
                     vin: "VIN ni kiriting",
-                    registrationCertificateNumber: "Tex pasport raqamini kiriting",
+                    registrationCertificateNumber: "AA 1234567",
                     selectVehicle: "Transportni tanlang"
                 },
                 types: {
@@ -4280,6 +4284,8 @@
                     typeRequired: "Transport turini tanlang",
                     plateNumberRequired: "Mashina raqamini kiriting",
                     plateNumberLength: "Raqam probelsiz 8 ta belgidan iborat bo'lishi kerak",
+                    plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA, 00 A000AA yoki 00 000000",
+                    registrationCertificateNumberInvalid: "Tex pasport raqami AA 1234567 formatida bo'lishi kerak",
                     brandRequired: "Markani kiriting",
                     modelRequired: "Modelni kiriting"
                 },

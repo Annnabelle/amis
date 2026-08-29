@@ -516,7 +516,7 @@ const DeliveryRoutesCreate = () => {
 
                         const raw = value.replace(/\s+/g, '');
                         const region = parseInt(raw.slice(0, 2), 10);
-                        if (Number.isNaN(region) || region < 1 || region > 95) {
+                        if (Number.isNaN(region) || region < 0 || region > 95) {
                           return Promise.reject(new Error(t('deliveryRoutes.validation.plateNumberInvalid')));
                         }
 

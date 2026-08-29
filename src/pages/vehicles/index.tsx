@@ -45,7 +45,9 @@ const normalizePlateNumber = (value: string) => {
   const region = raw.slice(0, 2).replace(/\D/g, "");
   const rest = raw.slice(2);
 
-  if (!region) return "";
+  if (!region) {
+    return "";
+  }
 
   if (/^[A-Z]/.test(rest)) {
     const letter = rest.slice(0, 1);
@@ -54,12 +56,51 @@ const normalizePlateNumber = (value: string) => {
     return [region, letter, digits, tail].filter(Boolean).join(" ").slice(0, 11);
   }
 
-  const digits = rest.slice(0, 3).replace(/\D/g, "");
-  const tail = rest.slice(3).replace(/[^A-Z]/g, "").slice(0, 3);
-  return [region, digits, tail].filter(Boolean).join(" ").slice(0, 11);
+  const lettersIndex = rest.search(/[A-Z]/);
+  if (lettersIndex >= 0) {
+    const digits = rest.slice(0, 3).replace(/\D/g, "");
+    const tail = rest.slice(3).replace(/[^A-Z]/g, "").slice(0, 3);
+    return [region, digits, tail].filter(Boolean).join(" ").slice(0, 11);
+  }
+
+  const digits = rest.replace(/\D/g, "").slice(0, 6);
+  if (digits.length <= 3) {
+    return [region, digits].filter(Boolean).join(" ").slice(0, 6);
+  }
+
+  return [region, digits.slice(0, 3), digits.slice(3)].filter(Boolean).join(" ").slice(0, 11);
 };
 
 const normalizePayloadPlateNumber = (value: string) => value.toUpperCase().replace(/[^0-9A-Z]/g, "");
+
+const isValidPlateNumber = (value: string) => {
+  const raw = normalizePayloadPlateNumber(value);
+  const region = parseInt(raw.slice(0, 2), 10);
+
+  if (Number.isNaN(region) || region < 0 || region > 95) {
+    return false;
+  }
+
+  const privatePattern = /^\d{2}[A-Z]\d{3}[A-Z]{2}$/;
+  const businessPattern = /^\d{2}\d{3}[A-Z]{3}$/;
+  const foreignPattern = /^\d{2}\d{6}$/;
+
+  return privatePattern.test(raw) || businessPattern.test(raw) || foreignPattern.test(raw);
+};
+
+const normalizeRegistrationCertificateNumber = (value: string) => {
+  const raw = value.toUpperCase().replace(/[^0-9A-Z]/g, "");
+  const series = raw.slice(0, 2).replace(/[^A-Z]/g, "");
+  const number = raw.slice(2).replace(/\D/g, "").slice(0, 7);
+
+  return [series, number].filter(Boolean).join(" ").slice(0, 10);
+};
+
+const normalizePayloadRegistrationCertificateNumber = (value: string) =>
+  value.toUpperCase().replace(/[^0-9A-Z]/g, "");
+
+const isValidRegistrationCertificateNumber = (value: string) =>
+  /^[A-Z]{2}\d{7}$/.test(normalizePayloadRegistrationCertificateNumber(value));
 
 const getVehiclePayload = (values: VehicleFormValues): Omit<CreateVehicleDto, "companyId"> => ({
   type: values.type,
@@ -67,7 +108,9 @@ const getVehiclePayload = (values: VehicleFormValues): Omit<CreateVehicleDto, "c
   plateNumber: normalizePayloadPlateNumber(values.plateNumber),
   identification: {
     vin: values.vin?.trim() || undefined,
-    registrationCertificateNumber: values.registrationCertificateNumber?.trim() || undefined,
+    registrationCertificateNumber: values.registrationCertificateNumber
+      ? normalizePayloadRegistrationCertificateNumber(values.registrationCertificateNumber)
+      : undefined,
   },
   characteristics: {
     brand: values.brand.trim(),
@@ -133,6 +176,13 @@ const Vehicles = () => {
     form.setFieldValue("plateNumber", normalizePlateNumber(event.target.value));
   };
 
+  const handleRegistrationCertificateNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
+    form.setFieldValue(
+      "registrationCertificateNumber",
+      normalizeRegistrationCertificateNumber(event.target.value)
+    );
+  };
+
   const handleTableAction = async (
     action: "details" | "edit" | "delete",
     record: VehiclesTableDataType
@@ -149,14 +199,16 @@ const Vehicles = () => {
       form.setFieldsValue({
         type: vehicle.type,
         name: vehicle.name,
-        plateNumber: vehicle.plateNumber,
+        plateNumber: normalizePlateNumber(vehicle.plateNumber),
         brand: vehicle.characteristics.brand,
         model: vehicle.characteristics.model,
         year: vehicle.characteristics.year,
         loadCapacityKg: vehicle.characteristics.loadCapacityKg,
         volumeCapacityM3: vehicle.characteristics.volumeCapacityM3,
         vin: vehicle.identification.vin,
-        registrationCertificateNumber: vehicle.identification.registrationCertificateNumber,
+        registrationCertificateNumber: vehicle.identification.registrationCertificateNumber
+          ? normalizeRegistrationCertificateNumber(vehicle.identification.registrationCertificateNumber)
+          : undefined,
       });
       openModal("edit", true);
       return;
@@ -258,9 +310,9 @@ const Vehicles = () => {
             { required: true, message: t("vehicles.validation.plateNumberRequired") },
             {
               validator: (_, value: string | undefined) =>
-                !value || normalizePayloadPlateNumber(value).length === 8
+                !value || isValidPlateNumber(value)
                   ? Promise.resolve()
-                  : Promise.reject(new Error(t("vehicles.validation.plateNumberLength"))),
+                  : Promise.reject(new Error(t("vehicles.validation.plateNumberInvalid"))),
             },
           ]}
         >
@@ -277,11 +329,21 @@ const Vehicles = () => {
           className="input"
           name="registrationCertificateNumber"
           label={t("vehicles.fields.registrationCertificateNumber")}
+          rules={[
+            {
+              validator: (_, value: string | undefined) =>
+                !value || isValidRegistrationCertificateNumber(value)
+                  ? Promise.resolve()
+                  : Promise.reject(new Error(t("vehicles.validation.registrationCertificateNumberInvalid"))),
+            },
+          ]}
         >
           <Input
             className="input"
             size="large"
+            maxLength={10}
             placeholder={t("vehicles.placeholders.registrationCertificateNumber")}
+            onChange={handleRegistrationCertificateNumberChange}
           />
         </Form.Item>
       </div>
