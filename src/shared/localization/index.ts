@@ -1014,6 +1014,7 @@
                 messages: {
                     success: {
                         createUser: "User created successfully",
+                        activationEmailSent: "User created — an activation email has been sent",
                         updateUser: "User updated successfully",
                         deleteUser: "User deleted successfully"
                     },
@@ -1059,7 +1060,8 @@
                         email: "Please enter a valid email",
                         pinfl: "PINFL must contain 14 digits",
                         passwordMinLength: "Password must be at least 6 characters"
-                    }
+                    },
+                    activationHint: "The user will receive an email to set their password and activate the account."
                 },
                 modalWindow: {
                     deletion: 'Deletion',
@@ -1524,6 +1526,55 @@
                 },
                 enterUserName: 'Enter username',
                 username: 'Username',
+            },
+            auth: {
+                backToLogin: 'Back to login',
+                goToLogin: 'Go to login',
+                errors: {
+                    emailDeliveryFailed: "Couldn't send the email. Please try again in a moment.",
+                    missingToken: 'The link is missing its token. Please open the link from the email again.',
+                },
+                register: {
+                    title: 'Create account',
+                    submit: 'Register',
+                    noAccount: "Don't have an account?",
+                    haveAccount: 'Already have an account?',
+                    messages: {
+                        error: 'Registration failed. Please try again.',
+                    },
+                    checkInbox: {
+                        title: 'Check your inbox',
+                        description: 'We sent a confirmation link to {{email}}. Open it to verify your email, then sign in.',
+                    },
+                },
+                verifyEmail: {
+                    title: 'Email verification',
+                    loading: 'Verifying your email…',
+                    error: 'We could not verify your email.',
+                    errorTitle: 'Verification failed',
+                    successTitle: 'Email verified',
+                    successDescription: 'Your email has been confirmed. You can sign in now.',
+                },
+                activate: {
+                    title: 'Set your password',
+                    subtitle: 'Create a password to activate your account.',
+                    submit: 'Activate account',
+                    error: 'We could not activate your account.',
+                    errorTitle: 'Activation failed',
+                    successTitle: 'Account activated',
+                    successDescription: 'Your password is set and your email is verified. You can sign in now.',
+                    passwordsDontMatch: 'Passwords do not match.',
+                    label: {
+                        password: 'Password',
+                        confirmPassword: 'Confirm password',
+                    },
+                    placeholder: {
+                        confirmPassword: 'Repeat the password',
+                    },
+                    required: {
+                        confirmPassword: 'Please confirm your password',
+                    },
+                },
             },
             changePwd: {
                 title: 'Change Password',
@@ -2911,6 +2962,7 @@
                 messages: {
                     success: {
                         createUser: "Пользователь успешно создан",
+                        activationEmailSent: "Пользователь создан — письмо для активации отправлено",
                         updateUser: "Пользователь успешно обновлён",
                         deleteUser: "Пользователь успешно удалён"
                     },
@@ -2956,7 +3008,8 @@
                         email: "Введите корректный email",
                         pinfl: "ПИНФЛ должен содержать 14 цифр",
                         passwordMinLength: "Пароль должен содержать минимум 6 символов"
-                    }
+                    },
+                    activationHint: "Пользователь получит письмо, чтобы задать пароль и активировать аккаунт."
                 },
                 modalWindow: {
                     deletion: 'Удаление',
@@ -3422,6 +3475,55 @@
                 },
                 enterUserName: 'Введите логин',
                 username: 'Логин',
+            },
+            auth: {
+                backToLogin: 'Вернуться ко входу',
+                goToLogin: 'Перейти ко входу',
+                errors: {
+                    emailDeliveryFailed: 'Не удалось отправить письмо. Попробуйте ещё раз через минуту.',
+                    missingToken: 'В ссылке отсутствует токен. Откройте ссылку из письма ещё раз.',
+                },
+                register: {
+                    title: 'Создать аккаунт',
+                    submit: 'Зарегистрироваться',
+                    noAccount: 'Нет аккаунта?',
+                    haveAccount: 'Уже есть аккаунт?',
+                    messages: {
+                        error: 'Не удалось зарегистрироваться. Попробуйте ещё раз.',
+                    },
+                    checkInbox: {
+                        title: 'Проверьте почту',
+                        description: 'Мы отправили ссылку для подтверждения на {{email}}. Откройте её, чтобы подтвердить email, затем войдите.',
+                    },
+                },
+                verifyEmail: {
+                    title: 'Подтверждение email',
+                    loading: 'Подтверждаем ваш email…',
+                    error: 'Не удалось подтвердить email.',
+                    errorTitle: 'Подтверждение не выполнено',
+                    successTitle: 'Email подтверждён',
+                    successDescription: 'Ваш email подтверждён. Теперь вы можете войти.',
+                },
+                activate: {
+                    title: 'Задайте пароль',
+                    subtitle: 'Создайте пароль, чтобы активировать аккаунт.',
+                    submit: 'Активировать аккаунт',
+                    error: 'Не удалось активировать аккаунт.',
+                    errorTitle: 'Активация не выполнена',
+                    successTitle: 'Аккаунт активирован',
+                    successDescription: 'Пароль задан, email подтверждён. Теперь вы можете войти.',
+                    passwordsDontMatch: 'Пароли не совпадают.',
+                    label: {
+                        password: 'Пароль',
+                        confirmPassword: 'Подтверждение пароля',
+                    },
+                    placeholder: {
+                        confirmPassword: 'Повторите пароль',
+                    },
+                    required: {
+                        confirmPassword: 'Подтвердите пароль',
+                    },
+                },
             },
             changePwd: {
                 title: 'Изменить пароль',
@@ -4771,6 +4873,7 @@
                 messages: {
                     success: {
                         createUser: "Foydalanuvchi muvaffaqiyatli yaratildi",
+                        activationEmailSent: "Foydalanuvchi yaratildi — faollashtirish xati yuborildi",
                         updateUser: "Foydalanuvchi muvaffaqiyatli yangilandi",
                         deleteUser: "Foydalanuvchi muvaffaqiyatli o‘chirildi"
                     },
@@ -4816,7 +4919,8 @@
                         email: "To‘g‘ri email manzilini kiriting",
                         pinfl: "JSHSHIR 14 ta raqamdan iborat bo‘lishi kerak",
                         passwordMinLength: "Parol kamida 6 ta belgidan iborat bo‘lishi kerak"
-                    }
+                    },
+                    activationHint: "Foydalanuvchi parol o‘rnatish va hisobni faollashtirish uchun xat oladi."
                 },
                 modalWindow: {
                     deletion: 'O‘chirish',
@@ -5281,6 +5385,55 @@
                 },
                 enterUserName: 'Login kiriting',
                 username: 'Login',
+            },
+            auth: {
+                backToLogin: 'Kirishga qaytish',
+                goToLogin: 'Kirishga o‘tish',
+                errors: {
+                    emailDeliveryFailed: 'Xat yuborilmadi. Bir daqiqadan so‘ng qayta urinib ko‘ring.',
+                    missingToken: 'Havolada token yo‘q. Xatdagi havolani qaytadan oching.',
+                },
+                register: {
+                    title: 'Hisob yaratish',
+                    submit: 'Ro‘yxatdan o‘tish',
+                    noAccount: 'Hisobingiz yo‘qmi?',
+                    haveAccount: 'Hisobingiz bormi?',
+                    messages: {
+                        error: 'Ro‘yxatdan o‘tib bo‘lmadi. Qayta urinib ko‘ring.',
+                    },
+                    checkInbox: {
+                        title: 'Pochtangizni tekshiring',
+                        description: '{{email}} manziliga tasdiqlash havolasini yubordik. Emailni tasdiqlash uchun uni oching, so‘ng tizimga kiring.',
+                    },
+                },
+                verifyEmail: {
+                    title: 'Emailni tasdiqlash',
+                    loading: 'Emailingiz tasdiqlanmoqda…',
+                    error: 'Emailni tasdiqlab bo‘lmadi.',
+                    errorTitle: 'Tasdiqlash amalga oshmadi',
+                    successTitle: 'Email tasdiqlandi',
+                    successDescription: 'Emailingiz tasdiqlandi. Endi tizimga kirishingiz mumkin.',
+                },
+                activate: {
+                    title: 'Parol o‘rnating',
+                    subtitle: 'Hisobingizni faollashtirish uchun parol yarating.',
+                    submit: 'Hisobni faollashtirish',
+                    error: 'Hisobni faollashtirib bo‘lmadi.',
+                    errorTitle: 'Faollashtirish amalga oshmadi',
+                    successTitle: 'Hisob faollashtirildi',
+                    successDescription: 'Parol o‘rnatildi va email tasdiqlandi. Endi tizimga kirishingiz mumkin.',
+                    passwordsDontMatch: 'Parollar mos kelmadi.',
+                    label: {
+                        password: 'Parol',
+                        confirmPassword: 'Parolni tasdiqlash',
+                    },
+                    placeholder: {
+                        confirmPassword: 'Parolni takrorlang',
+                    },
+                    required: {
+                        confirmPassword: 'Parolni tasdiqlang',
+                    },
+                },
             },
             changePwd: {
                 title: 'Parolni o‘zgartirish',

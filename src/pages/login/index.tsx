@@ -4,7 +4,7 @@ import { Form, Input } from 'antd';
 import {useAppDispatch, useAppSelector} from 'app/store';
 import { Login } from 'entities/users/model';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { resolveFallbackPath } from 'app/routes/PermissionRoute';
 import lightMainBG from 'shared/assets/main-bg.png';
@@ -42,10 +42,14 @@ const LoginPage = () => {
                     position: mobileToastPosition(),
                 });
             })
-            .catch(() => {
-                toast.error(t('login.messages.errorLogin'));
+            .catch((error: unknown) => {
+                const message =
+                    typeof error === 'string' && error.trim()
+                        ? error
+                        : t('login.messages.errorLogin');
+                toast.error(message);
                 setIsSubmitting(false);
-            }); 
+            });
     };
 
     useEffect(() => {
@@ -93,6 +97,9 @@ const LoginPage = () => {
                                 <CustomButton type="submit" loading={isSubmitting} disabled={isSubmitting}>
                                     {t('login.btn.signIn')}
                                 </CustomButton>
+                                <p className="login-page-register-hint">
+                                    {t('auth.register.noAccount')} <Link to="/register">{t('auth.register.title')}</Link>
+                                </p>
                             </div>
                         </FormComponent>
                     </div>

@@ -1,6 +1,12 @@
 import type { ErrorDto } from "shared/types/dtos";
-import type { ChangePasswordDto, ChangePasswordResponseDto, LoginDto, LoginResponseDto, RegisterUserDto, UpdateUserDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
-import type { AddUserForm, ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, UserPreview, UserResponse } from "entities/users/types";
+import type { AccountActionResponseDto, ChangePasswordDto, ChangePasswordResponseDto, CreateUserDto, LoginDto, LoginResponseDto, RegisterUserDto, UpdateUserDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
+import type { AddUserForm, ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, RegisterForm, UserPreview, UserResponse } from "entities/users/types";
+
+// PhoneInput emits digits without the leading "+"; the API expects E.164 (+998…)
+const toE164Phone = (phone: string): string => {
+  const trimmed = phone.trim();
+  return trimmed && !trimmed.startsWith("+") ? `+${trimmed}` : trimmed;
+};
 
 export function mapLoginFormToLoginDto(form: LoginForm): LoginDto {
   return {
@@ -26,6 +32,7 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
   pinfl: dto.pinfl,
   status: dto.status,
   preferences: dto.preferences,
+  emailVerifiedAt: dto.emailVerifiedAt ? new Date(dto.emailVerifiedAt) : null,
   lastLoggedInAt: dto.lastLoggedInAt ? new Date(dto.lastLoggedInAt) : null,
 });
 
@@ -39,12 +46,22 @@ export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => (
   pinfl: dto.pinfl,
 });
 
-export const mapRegisterUserFormToDto = (form: AddUserForm): RegisterUserDto => ({
+// admin-created user (POST /users) — no password
+export const mapCreateUserFormToDto = (form: AddUserForm): CreateUserDto => ({
   firstName: form.firstName,
   lastName: form.lastName,
   email: form.email.trim().toLowerCase(),
-  phone: form.phone,
-  pinfl: form.pinfl,
+  phone: toE164Phone(form.phone),
+  pinfl: form.pinfl || undefined,
+});
+
+// public self-registration (POST /auth/register) — with password
+export const mapRegisterFormToDto = (form: RegisterForm): RegisterUserDto => ({
+  firstName: form.firstName,
+  lastName: form.lastName,
+  email: form.email.trim().toLowerCase(),
+  phone: toE164Phone(form.phone),
+  pinfl: form.pinfl || undefined,
   password: form.password,
 });
 
@@ -110,6 +127,12 @@ export function mapLoginResponseDtoToLoginResponse(
 
 export function mapUpdateUserDtoToEntity(dto: UserResponseDto): UserResponse {
   return mapUsersDtoToEntity(dto);
+}
+
+export function isAccountActionSuccess(
+  dto: AccountActionResponseDto
+): dto is Exclude<AccountActionResponseDto, ErrorDto> {
+  return "success" in dto && dto.success === true && "user" in dto;
 }
 
 

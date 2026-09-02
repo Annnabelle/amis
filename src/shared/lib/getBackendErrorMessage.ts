@@ -10,6 +10,11 @@ interface BackendError {
     };
 }
 
+export const getBackendErrorCode = (error: unknown): number | undefined => {
+    const backendError = error as { errorCode?: number; response?: { data?: { errorCode?: number } } };
+    return backendError?.response?.data?.errorCode ?? backendError?.errorCode;
+};
+
 export const getBackendErrorMessage = (
     error: BackendError | unknown,
     fallback: string

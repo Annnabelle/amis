@@ -21,6 +21,7 @@ export type UserResponseDto = {
   pinfl?: string,
   status: UserStatus,
   preferences: UserPreferences,
+  emailVerifiedAt: string | null,
   lastLoggedInAt: Date | null,
 };
 
@@ -52,7 +53,20 @@ export type RegisterUserDto = {
   password: string;
 }
 
-export type RegisterResponseDto = {
+// admin-created user: no password, activation email is sent by the backend
+export type CreateUserDto = Omit<RegisterUserDto, "password">;
+
+export type VerifyEmailDto = {
+  token: string;
+}
+
+export type SetPasswordDto = {
+  token: string;
+  password: string;
+}
+
+// register / verify-email / set-password / admin create
+export type AccountActionResponseDto = {
   success: boolean,
   user: UserResponseDto,
 } | ErrorDto;

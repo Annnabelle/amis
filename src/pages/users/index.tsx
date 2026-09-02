@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers } from 'entities/users/model'
+import { createUser, deleteUser, getAllUsers, getUserById, searchUsers } from 'entities/users/model'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
 import type { AddUserForm, UserResponse } from 'entities/users/types'
 import MainLayout from 'shared/ui/layout'
@@ -79,14 +79,14 @@ const Users = () => {
 
     const handleRegisterUser = async (values: AddUserForm) => {
         try {
-            const resultAction = await dispatch(registerUser(values));
-        
-            if (registerUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.createUser'));
+            const resultAction = await dispatch(createUser(values));
+
+            if (createUser.fulfilled.match(resultAction)) {
+                toast.success(t('users.messages.success.activationEmailSent'));
                 setTimeout(() => {
                     handleModal('addUser', false);
-                    window.location.reload(); 
-                }, 1000); 
+                    window.location.reload();
+                }, 1000);
             } else {
                 toast.error((resultAction.payload as string) || t('users.messages.error.createUser'));
             }
@@ -320,24 +320,9 @@ const Users = () => {
                         placeholder={t('users.addUserForm.placeholder.pinfl')}
                     />
                     </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name="password"
-                        label={t('users.addUserForm.label.password')}
-                        rules={[
-                            { required: true, message: t('users.addUserForm.required.password') },
-                            { min: 6, message: t('users.addUserForm.pattern.passwordMinLength') }
-                        ]}
-                    >
-                    <Input.Password
-                        type="password"
-                        className="input"
-                        size="large"
-                        placeholder={t('users.addUserForm.placeholder.password')}
-                    />
-                    </Form.Item>
                 </div>
+
+                <p className="form-hint">{t('users.addUserForm.activationHint')}</p>
 
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>

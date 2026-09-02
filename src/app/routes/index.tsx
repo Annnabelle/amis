@@ -5,6 +5,9 @@ import { PermissionRoute } from "./PermissionRoute";
 import { routeAccess, type RouteAccess } from "./accessMap";
 
 const LoginPage = lazy(() => import("pages/login"));
+const RegisterPage = lazy(() => import("pages/register"));
+const VerifyEmailPage = lazy(() => import("pages/verifyEmail"));
+const ActivatePage = lazy(() => import("pages/activate"));
 const WelcomePage = lazy(() => import("pages/welcome"));
 const Users = lazy(() => import("pages/users"));
 const SystemEmployees = lazy(() => import("pages/systemEmployees"));
@@ -55,6 +58,9 @@ const Router: React.FC = () => {
     <Suspense fallback={<GlobalLoader loading={true}/>}>
       <Routes>
         <Route path='/' element={<LoginPage />} />
+        <Route path='/register' element={<RegisterPage />} />
+        <Route path='/verify-email' element={<VerifyEmailPage />} />
+        <Route path='/activate' element={<ActivatePage />} />
         <Route path='/welcome' element={<WelcomePage />} />
         <Route path='/users' element={protectedPage(routeAccess.usersList, <Users />)} />
         <Route path='/system-employees' element={protectedPage(routeAccess.systemEmployeesList, <SystemEmployees />)} />
