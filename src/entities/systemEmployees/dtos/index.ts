@@ -80,6 +80,14 @@ export type SystemEmployeeAccessResponseDto =
     }
   | ErrorDto;
 
+// GET /users/(me|:id)/system-access, data is null when there is no active system access
+export type GetUserSystemAccessResponseDto =
+  | {
+      success: true;
+      data: SystemEmployeeResponseDto | null;
+    }
+  | ErrorDto;
+
 export type DeleteSystemEmployeeResponseDto =
   | {
       success: true;
@@ -99,4 +107,9 @@ export const isSystemEmployeeSingleResponseSuccess = (
 export const isSystemEmployeeAccessResponseSuccess = (
   dto: SystemEmployeeAccessResponseDto
 ): dto is Extract<SystemEmployeeAccessResponseDto, { success: true; data: SystemEmployeeAccessDto }> =>
+  dto.success === true && "data" in dto;
+
+export const isGetUserSystemAccessResponseSuccess = (
+  dto: GetUserSystemAccessResponseDto
+): dto is Extract<GetUserSystemAccessResponseDto, { success: true }> =>
   dto.success === true && "data" in dto;

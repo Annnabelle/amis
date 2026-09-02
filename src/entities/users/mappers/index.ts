@@ -80,7 +80,7 @@ export const mapUpdateUserFormToDto = (form: Partial<UserResponse>): UpdateUserD
 function isSuccessChangePasswordResponseDto(
   dto: ChangePasswordResponseDto
 ): dto is Exclude<ChangePasswordResponseDto, ErrorDto> {
-  return (dto as any).success !== undefined;
+  return "success" in dto && dto.success === true && "tokens" in dto;
 }
 
 export const mapChangePwdDtoToEntity = (

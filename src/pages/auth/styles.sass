@@ -7,15 +7,15 @@
     width: 100%
     min-height: 100vh
     @include mix.flex-content(center, column)
-    background-color: map.get(vars.$main, 'main-bg')
 
     &-background
-        position: fixed
+        position: absolute
         top: 0
         left: 0
         width: 100%
         height: 100%
         z-index: -1
+        background-color: map.get(vars.$main, 'main-bg')
         .img
             width: 100%
             height: 100%
@@ -46,11 +46,15 @@
 .auth-card
     width: 100%
     max-width: 520px
-    background-color: map.get(vars.$basic, 'white')
-    border-radius: map.get(vars.$border, 'r-6')
-    box-shadow: 0 0 17px 0 map.get(vars.$main, 'box-shadow')
-    padding: 40px 28px
+    background: map.get(vars.$basic, 'white')
+    border: 1px solid map.get(vars.$surface, 'border')
+    border-radius: 12px
+    box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.08)
+    padding: 40px 32px
     +mix.typography(16px, 400, map.get(vars.$basic, 'black'))
+
+    &--wide
+        max-width: 640px
 
     &-items
         display: flex
@@ -58,7 +62,7 @@
         row-gap: 20px
 
     &-title
-        +mix.typography(26px, 700, map.get(vars.$main, 'main'))
+        +mix.typography(28px, 700, map.get(vars.$main, 'main'))
         text-align: center
 
     &-subtitle
@@ -75,4 +79,34 @@
             font-weight: 600
 
     .form-hint
-        +mix.typography(13px, 400, map.get(vars.$text, 'tertiary'))
+        +mix.typography(12px, 400, map.get(vars.$text, 'secondary'))
+        line-height: 1.4
+
+.auth-message
+    display: flex
+    flex-direction: column
+    align-items: center
+    text-align: center
+    gap: 12px
+    padding: 4px 0
+    +mix.typography(14px, 400, map.get(vars.$text, 'secondary'))
+    line-height: 1.55
+
+    p
+        margin: 0
+        max-width: 34ch
+
+    &-icon
+        font-size: 44px
+        color: map.get(vars.$main, 'main')
+        margin-bottom: 4px
+
+    &-email
+        +mix.typography(16px, 600, map.get(vars.$basic, 'black'))
+        word-break: break-all
+
+:root[data-theme='dark']
+    .auth-card
+        background: map.get(vars.$surface, 'muted')
+        border-color: map.get(vars.$surface, 'border')
+        box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.28)

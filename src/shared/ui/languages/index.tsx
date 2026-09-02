@@ -4,6 +4,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useAppDispatch } from "app/store";
 import { updateUserPreferences } from "entities/users/model";
 import { isLanguage } from "shared/types/dtos";
+import { persistLanguage } from "shared/lib/languagePreference";
 
 import "./styles.sass";
 
@@ -34,6 +35,7 @@ const Languages: React.FC = () => {
     if (!isLanguage(language)) return;
 
     void i18n.changeLanguage(language);
+    persistLanguage(language);
     void dispatch(updateUserPreferences({ language }));
     setIsOpen(false);
   };

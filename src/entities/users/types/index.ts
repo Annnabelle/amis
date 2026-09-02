@@ -71,7 +71,7 @@ export type RegisterForm = {
   firstName: string;
   lastName: string;
   phone: string;
-  pinfl?: string;
+  pinfl: string;
   email: string;
   password: string;
 }

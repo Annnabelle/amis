@@ -9,9 +9,10 @@ type AuthShellProps = {
   subtitle?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  wide?: boolean;
 };
 
-const AuthShell = ({ title, subtitle, children, footer }: AuthShellProps) => {
+const AuthShell = ({ title, subtitle, children, footer, wide = false }: AuthShellProps) => {
   const { isDarkTheme } = useTheme();
   const background = isDarkTheme ? darkMainBG : lightMainBG;
 
@@ -25,7 +26,7 @@ const AuthShell = ({ title, subtitle, children, footer }: AuthShellProps) => {
           <h1 className="auth-page-header-logo">AMIS</h1>
         </div>
         <div className="auth-page-form-container">
-          <div className="auth-card">
+          <div className={`auth-card${wide ? ' auth-card--wide' : ''}`}>
             <div className="auth-card-items">
               <h3 className="auth-card-title">{title}</h3>
               {subtitle && <p className="auth-card-subtitle">{subtitle}</p>}

@@ -97,9 +97,14 @@ const LoginPage = () => {
                                 <CustomButton type="submit" loading={isSubmitting} disabled={isSubmitting}>
                                     {t('login.btn.signIn')}
                                 </CustomButton>
-                                <p className="login-page-register-hint">
-                                    {t('auth.register.noAccount')} <Link to="/register">{t('auth.register.title')}</Link>
-                                </p>
+                                <div className="login-page-hints">
+                                    <Link className="login-page-hint" to="/forgot-password">
+                                        {t('auth.forgotPassword.link')}
+                                    </Link>
+                                    <p className="login-page-hint">
+                                        {t('auth.register.noAccount')} <Link to="/register">{t('auth.register.title')}</Link>
+                                    </p>
+                                </div>
                             </div>
                         </FormComponent>
                     </div>

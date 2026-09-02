@@ -1531,7 +1531,6 @@
                 backToLogin: 'Back to login',
                 goToLogin: 'Go to login',
                 errors: {
-                    emailDeliveryFailed: "Couldn't send the email. Please try again in a moment.",
                     missingToken: 'The link is missing its token. Please open the link from the email again.',
                 },
                 register: {
@@ -1544,7 +1543,8 @@
                     },
                     checkInbox: {
                         title: 'Check your inbox',
-                        description: 'We sent a confirmation link to {{email}}. Open it to verify your email, then sign in.',
+                        intro: 'We sent a confirmation link to:',
+                        hint: 'Open it to verify your email, then sign in.',
                     },
                 },
                 verifyEmail: {
@@ -1575,12 +1575,51 @@
                         confirmPassword: 'Please confirm your password',
                     },
                 },
+                passwordMinLength: 'Password must be at least 6 characters',
+                forgotPassword: {
+                    link: 'Forgot password?',
+                    title: 'Reset your password',
+                    subtitle: "Enter your email and we'll send you a reset link.",
+                    submit: 'Send reset link',
+                    emailLabel: 'Email',
+                    checkInbox: {
+                        title: 'Check your inbox',
+                        intro: 'If an account with this email exists, we sent a password reset link to:',
+                        hint: "Open the link to set a new password. Check your spam folder if you don't see it.",
+                    },
+                },
+                resetPassword: {
+                    title: 'Set a new password',
+                    subtitle: 'Choose a new password for your account.',
+                    submit: 'Reset password',
+                    successTitle: 'Password updated',
+                    successDescription: 'Your password has been changed. You can sign in now.',
+                    errorTitle: 'Reset failed',
+                    error: 'We could not reset your password.',
+                    passwordsDontMatch: 'Passwords do not match.',
+                    label: {
+                        password: 'New password',
+                        confirmPassword: 'Confirm password',
+                    },
+                    placeholder: {
+                        password: 'Enter a new password',
+                        confirmPassword: 'Repeat the password',
+                    },
+                    required: {
+                        confirmPassword: 'Please confirm your password',
+                    },
+                },
+            },
+            me: {
+                title: 'My profile',
+                loadError: 'Could not load your profile.',
+                changePassword: 'Change password',
             },
             changePwd: {
                 title: 'Change Password',
                 confirmModal: {
                     title: 'Are you sure you want to change the password?',
-                    subtitle: 'After changing the password, you will be automatically logged out',
+                    subtitle: 'Enter your current password to confirm the change.',
                     btn: {
                         confirm: 'Confirm',
                         cancel: 'Cancel',
@@ -1589,7 +1628,8 @@
                 changePasswordForm: {
                     message: {
                         passwordsDontMatch: "Passwords do not match.",
-                        error: "Error when changing password"
+                        error: "Error when changing password",
+                        success: "Password changed successfully"
                     },
                     label: {
                         currentPassword: 'Current password',
@@ -1604,7 +1644,7 @@
                     required: {
                         currentPassword: "Enter your current password",
                         newPasswordRequired: "Enter your current password",
-                        newPassword: "Password must be at least 8 characters long.",
+                        newPassword: "Password must be at least 6 characters long.",
                     }
                 }
             },
@@ -3480,7 +3520,6 @@
                 backToLogin: 'Вернуться ко входу',
                 goToLogin: 'Перейти ко входу',
                 errors: {
-                    emailDeliveryFailed: 'Не удалось отправить письмо. Попробуйте ещё раз через минуту.',
                     missingToken: 'В ссылке отсутствует токен. Откройте ссылку из письма ещё раз.',
                 },
                 register: {
@@ -3493,7 +3532,8 @@
                     },
                     checkInbox: {
                         title: 'Проверьте почту',
-                        description: 'Мы отправили ссылку для подтверждения на {{email}}. Откройте её, чтобы подтвердить email, затем войдите.',
+                        intro: 'Мы отправили ссылку для подтверждения на:',
+                        hint: 'Откройте её, чтобы подтвердить email, затем войдите.',
                     },
                 },
                 verifyEmail: {
@@ -3524,22 +3564,62 @@
                         confirmPassword: 'Подтвердите пароль',
                     },
                 },
+                passwordMinLength: 'Пароль должен содержать не менее 6 символов',
+                forgotPassword: {
+                    link: 'Забыли пароль?',
+                    title: 'Восстановление пароля',
+                    subtitle: 'Укажите email — мы отправим ссылку для сброса пароля.',
+                    submit: 'Отправить ссылку',
+                    emailLabel: 'Email',
+                    checkInbox: {
+                        title: 'Проверьте почту',
+                        intro: 'Если аккаунт с таким адресом существует, мы отправили ссылку для сброса пароля на:',
+                        hint: 'Откройте ссылку, чтобы задать новый пароль. Если письма нет — проверьте папку «Спам».',
+                    },
+                },
+                resetPassword: {
+                    title: 'Новый пароль',
+                    subtitle: 'Задайте новый пароль для вашего аккаунта.',
+                    submit: 'Сбросить пароль',
+                    successTitle: 'Пароль обновлён',
+                    successDescription: 'Пароль изменён. Теперь вы можете войти.',
+                    errorTitle: 'Не удалось сбросить пароль',
+                    error: 'Не удалось сбросить пароль.',
+                    passwordsDontMatch: 'Пароли не совпадают.',
+                    label: {
+                        password: 'Новый пароль',
+                        confirmPassword: 'Подтверждение пароля',
+                    },
+                    placeholder: {
+                        password: 'Введите новый пароль',
+                        confirmPassword: 'Повторите пароль',
+                    },
+                    required: {
+                        confirmPassword: 'Подтвердите пароль',
+                    },
+                },
+            },
+            me: {
+                title: 'Мой профиль',
+                loadError: 'Не удалось загрузить профиль.',
+                changePassword: 'Изменить пароль',
             },
             changePwd: {
                 title: 'Изменить пароль',
                 confirmModal: {
                     title: 'Вы уверены, что хотите изменить пароль?',
-                    subtitle: 'После изменения пароля вы будете автоматически разлогинены',
+                    subtitle: 'Введите текущий пароль, чтобы подтвердить изменение.',
                     btn: {
                         confirm: 'Подтвердить',
                         cancel: 'Отмена',
                     },
                 },
-                  
+
                 changePasswordForm: {
                     message: {
                         passwordsDontMatch: "Пароли не совпадают.",
-                        error: "Ошибка при смене пароля"
+                        error: "Ошибка при смене пароля",
+                        success: "Пароль успешно изменён"
                     },
                     label: {
                         currentPassword: 'Текущий пароль',
@@ -3554,7 +3634,7 @@
                     required: {
                         currentPassword: "Введите текущий пароль",
                         newPasswordRequired: "Введите новый пароль",
-                        newPassword: "Пароль должен содержать не менее 8 символов.",
+                        newPassword: "Пароль должен содержать не менее 6 символов.",
                     }
                 }
             },
@@ -5390,7 +5470,6 @@
                 backToLogin: 'Kirishga qaytish',
                 goToLogin: 'Kirishga o‘tish',
                 errors: {
-                    emailDeliveryFailed: 'Xat yuborilmadi. Bir daqiqadan so‘ng qayta urinib ko‘ring.',
                     missingToken: 'Havolada token yo‘q. Xatdagi havolani qaytadan oching.',
                 },
                 register: {
@@ -5403,7 +5482,8 @@
                     },
                     checkInbox: {
                         title: 'Pochtangizni tekshiring',
-                        description: '{{email}} manziliga tasdiqlash havolasini yubordik. Emailni tasdiqlash uchun uni oching, so‘ng tizimga kiring.',
+                        intro: 'Tasdiqlash havolasini shu manzilga yubordik:',
+                        hint: 'Emailni tasdiqlash uchun uni oching, so‘ng tizimga kiring.',
                     },
                 },
                 verifyEmail: {
@@ -5434,21 +5514,61 @@
                         confirmPassword: 'Parolni tasdiqlang',
                     },
                 },
+                passwordMinLength: 'Parol kamida 6 ta belgidan iborat bo‘lishi kerak',
+                forgotPassword: {
+                    link: 'Parolni unutdingizmi?',
+                    title: 'Parolni tiklash',
+                    subtitle: 'Email manzilingizni kiriting — tiklash havolasini yuboramiz.',
+                    submit: 'Havola yuborish',
+                    emailLabel: 'Email',
+                    checkInbox: {
+                        title: 'Pochtangizni tekshiring',
+                        intro: 'Agar bu manzil uchun hisob mavjud bo‘lsa, parolni tiklash havolasini shu manzilga yubordik:',
+                        hint: 'Yangi parol o‘rnatish uchun havolani oching. Xat kelmasa, «Spam» jildini tekshiring.',
+                    },
+                },
+                resetPassword: {
+                    title: 'Yangi parol',
+                    subtitle: 'Hisobingiz uchun yangi parol tanlang.',
+                    submit: 'Parolni tiklash',
+                    successTitle: 'Parol yangilandi',
+                    successDescription: 'Parolingiz o‘zgartirildi. Endi tizimga kirishingiz mumkin.',
+                    errorTitle: 'Parolni tiklab bo‘lmadi',
+                    error: 'Parolni tiklab bo‘lmadi.',
+                    passwordsDontMatch: 'Parollar mos kelmadi.',
+                    label: {
+                        password: 'Yangi parol',
+                        confirmPassword: 'Parolni tasdiqlash',
+                    },
+                    placeholder: {
+                        password: 'Yangi parolni kiriting',
+                        confirmPassword: 'Parolni takrorlang',
+                    },
+                    required: {
+                        confirmPassword: 'Parolni tasdiqlang',
+                    },
+                },
+            },
+            me: {
+                title: 'Mening profilim',
+                loadError: 'Profilni yuklab bo‘lmadi.',
+                changePassword: 'Parolni o‘zgartirish',
             },
             changePwd: {
                 title: 'Parolni o‘zgartirish',
                 confirmModal: {
                     title: 'Parolni o‘zgartirishni xohlaysizmi?',
-                    subtitle: 'Parol o‘zgartirilgandan so‘ng, siz avtomatik ravishda tizimdan chiqasiz',
+                    subtitle: 'O‘zgarishni tasdiqlash uchun joriy parolni kiriting.',
                     btn: {
-                        confirm: 'Подтвердить',
+                        confirm: 'Tasdiqlash',
                         cancel: 'Bekor qilish',
                     },
                 },
                 changePasswordForm: {
                     message: {
                         passwordsDontMatch: "Parollar mos kelmaydi.",
-                        error: "Parolni o‘zgartirishda xatolik"
+                        error: "Parolni o‘zgartirishda xatolik",
+                        success: "Parol muvaffaqiyatli o‘zgartirildi"
                     },
                     label: {
                         currentPassword: 'Joriy parol',
@@ -5463,7 +5583,7 @@
                     required: {
                         currentPassword: "Joriy parolni kiriting",
                         newPasswordRequired: "Yangi parolni kiriting",
-                        newPassword: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak.",
+                        newPassword: "Parol kamida 6 ta belgidan iborat bo‘lishi kerak.",
                     }
                 }
             },

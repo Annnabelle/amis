@@ -1,13 +1,18 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense, type ReactNode } from "react";
 import GlobalLoader from "shared/ui/loader";
 import { PermissionRoute } from "./PermissionRoute";
+import { GuestRoute } from "./GuestRoute";
+import { AuthRoute } from "./AuthRoute";
 import { routeAccess, type RouteAccess } from "./accessMap";
 
 const LoginPage = lazy(() => import("pages/login"));
 const RegisterPage = lazy(() => import("pages/register"));
 const VerifyEmailPage = lazy(() => import("pages/verifyEmail"));
 const ActivatePage = lazy(() => import("pages/activate"));
+const ForgotPasswordPage = lazy(() => import("pages/forgotPassword"));
+const ResetPasswordPage = lazy(() => import("pages/resetPassword"));
+const ProfilePage = lazy(() => import("pages/profile"));
 const WelcomePage = lazy(() => import("pages/welcome"));
 const Users = lazy(() => import("pages/users"));
 const SystemEmployees = lazy(() => import("pages/systemEmployees"));
@@ -17,7 +22,7 @@ const CompanyMemberships = lazy(() => import("pages/companyMemberships"));
 const Products = lazy(() => import("pages/products"));
 const Organizations = lazy(() => import("pages/organizations"))
 const OrganizationsInner = lazy(() => import('pages/organizationInner'))
-const UserSettings = lazy(() => import('pages/user-settings'))
+const ChangePasswordPage = lazy(() => import('pages/changePassword'))
 const UsersRetrieve = lazy(() => import('pages/users/userRetrieve'))
 const UsersEdit = lazy(() => import('pages/users/userEdit'))
 const AuditLogsPage = lazy(() => import('pages/auditLogs'))
@@ -58,9 +63,12 @@ const Router: React.FC = () => {
     <Suspense fallback={<GlobalLoader loading={true}/>}>
       <Routes>
         <Route path='/' element={<LoginPage />} />
-        <Route path='/register' element={<RegisterPage />} />
+        <Route path='/register' element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path='/forgot-password' element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
         <Route path='/verify-email' element={<VerifyEmailPage />} />
         <Route path='/activate' element={<ActivatePage />} />
+        <Route path='/reset-password' element={<ResetPasswordPage />} />
+        <Route path='/me' element={<Navigate to="/profile" replace />} />
         <Route path='/welcome' element={<WelcomePage />} />
         <Route path='/users' element={protectedPage(routeAccess.usersList, <Users />)} />
         <Route path='/system-employees' element={protectedPage(routeAccess.systemEmployeesList, <SystemEmployees />)} />
@@ -72,7 +80,8 @@ const Router: React.FC = () => {
         <Route path='/organization/:id' element={protectedPage(routeAccess.companiesRead, <OrganizationsInner/>)}/>
         <Route path='/organization/:orgId/memberships' element={protectedPage(routeAccess.companyMembershipsList, <CompanyMemberships/>)} />
         <Route path= '/organization/:id/products' element={protectedPage(routeAccess.productsList, <Products/>)}/>
-        <Route path='/profile' element={<UserSettings/>}/>
+        <Route path='/profile' element={<AuthRoute><ProfilePage/></AuthRoute>}/>
+        <Route path='/change-password' element={<AuthRoute><ChangePasswordPage/></AuthRoute>}/>
         <Route path='/audit-logs' element={protectedPage(routeAccess.auditList, <AuditLogsPage/>)}/>
         <Route path='/organization/:orgId/products/:id' element={protectedPage(routeAccess.productsRead, <ProductsView/>)}/>
         <Route path='/organization/:id/edit' element={protectedPage(routeAccess.companiesUpdate, <OrganizationsEdit/>)}/>

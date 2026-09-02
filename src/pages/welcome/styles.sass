@@ -1,34 +1,72 @@
+@use "sass:map"
+@use "../../shared/styles/mixins" as mix
+@use "../../shared/styles/variables" as vars
+
 .welcome-page
-    min-height: calc(100vh - 140px)
+    width: 100%
+    min-height: calc(100vh - 160px)
     display: flex
     align-items: center
     justify-content: center
-    padding: 32px 16px
+    padding: 40px 16px
 
-    &-content
-        max-width: 620px
-        text-align: center
+.welcome-card
+    display: flex
+    flex-direction: column
+    align-items: center
+    text-align: center
+    gap: 14px
+    width: 100%
+    max-width: 460px
+    padding: 44px 36px
+    background: map.get(vars.$basic, 'white')
+    border: 1px solid map.get(vars.$surface, 'border')
+    border-radius: 16px
+    box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.08)
 
-        h1
-            margin: 0
-            color: var(--text-primary)
-            font-size: 32px
-            font-weight: 700
-            line-height: 1.2
+    &-icon
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 64px
+        height: 64px
+        border-radius: 50%
+        background: rgba(var(--main-primary-rgb), 0.1)
+        color: map.get(vars.$main, 'main')
+        font-size: 30px
 
-        p
-            margin: 16px 0 0
-            color: var(--text-secondary)
-            font-size: 16px
-            line-height: 1.5
+    &-brand
+        +mix.typography(13px, 700, map.get(vars.$text, 'tertiary'))
+        letter-spacing: 0.18em
+        text-transform: uppercase
 
-    @media (max-width: 640px)
-        min-height: calc(100vh - 96px)
+    &-title
+        margin: 0
+        +mix.typography(26px, 700, map.get(vars.$text, 'primary'))
+        line-height: 1.25
+
+    &-text
+        margin: 0
+        max-width: 36ch
+        +mix.typography(15px, 400, map.get(vars.$text, 'secondary'))
+        line-height: 1.55
+
+:root[data-theme='dark']
+    .welcome-card
+        background: map.get(vars.$surface, 'muted')
+        border-color: map.get(vars.$surface, 'border')
+        box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.28)
+
+@media (max-width: 560px)
+    .welcome-page
+        min-height: calc(100vh - 120px)
         padding: 24px 12px
 
-        &-content
-            h1
-                font-size: 24px
+    .welcome-card
+        padding: 32px 22px
 
-            p
-                font-size: 14px
+        &-title
+            font-size: 22px
+
+        &-text
+            font-size: 14px

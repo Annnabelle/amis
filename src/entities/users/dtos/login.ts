@@ -71,6 +71,21 @@ export type AccountActionResponseDto = {
   user: UserResponseDto,
 } | ErrorDto;
 
+export type ForgotPasswordDto = {
+  email: string;
+}
+
+export type ForgotPasswordResponseDto = {
+  success: boolean;
+}
+
+export type ResetPasswordDto = {
+  token: string;
+  password: string;
+}
+
+export type ResetPasswordResponseDto = AccountActionResponseDto;
+
 export type GetUserDto = {
   id: HexString;
 }

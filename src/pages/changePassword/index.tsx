@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppSelector } from 'app/store'
-import { getUserById, changeUserPassword, logout } from 'entities/users/model'
+import { changeOwnPassword, fetchCurrentUser } from 'entities/users/model'
+import type { ChangePassword } from 'entities/users/types'
 import { Form, Input } from 'antd'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
@@ -11,51 +12,50 @@ import ModalWindow from 'shared/ui/modalWindow'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-const UserSettings = () => {
+const ChangePasswordPage = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.users.userById);
   const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.users.currentUser);
 
+  const [form] = Form.useForm();
   const [modalOpen, setModalOpen] = useState(false);
-  const [formValues, setFormValues] = useState<any>(null);
+  const [formValues, setFormValues] = useState<ChangePassword | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (userId) {
-      dispatch(getUserById({ id: userId }));
+    if (!currentUser) {
+      dispatch(fetchCurrentUser());
     }
-  }, [dispatch]);
+  }, [currentUser, dispatch]);
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: ChangePassword) => {
     setFormValues(values);
     setModalOpen(true);
   };
 
   const confirmChangePassword = () => {
-  const userId = user?.id || localStorage.getItem("userId");
-  if (!userId || !formValues) return;
+    if (!formValues || isSubmitting) return;
 
-  dispatch(changeUserPassword({ userId, data: formValues }))
-    .unwrap()
-    .then(() => {
-      dispatch(logout());
-
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userId");
-
-      navigate("/");
-    })
-    .catch(() => {
-      toast.error(t('changePwd.changePasswordForm.message.error'));
-    });
-
-  setModalOpen(false);
-};
-
+    setIsSubmitting(true);
+    dispatch(changeOwnPassword(formValues))
+      .unwrap()
+      .then(() => {
+        toast.success(t('changePwd.changePasswordForm.message.success'));
+        setModalOpen(false);
+        setFormValues(null);
+        form.resetFields();
+        navigate('/profile');
+      })
+      .catch((error: unknown) => {
+        const message =
+          typeof error === 'string' && error.trim()
+            ? error
+            : t('changePwd.changePasswordForm.message.error');
+        toast.error(message);
+      })
+      .finally(() => setIsSubmitting(false));
+  };
 
   return (
     <MainLayout>
@@ -65,7 +65,7 @@ const UserSettings = () => {
           <div className="box-container-items">
             <div className="box-container-items-item">
               <div className="box-container-items-item-filters">
-                <FormComponent onFinish={onFinish}>
+                <FormComponent form={form} onFinish={onFinish}>
                   <div className="form-inputs">
                     <Form.Item
                       className="input"
@@ -76,6 +76,7 @@ const UserSettings = () => {
                       <Input.Password
                         className="input"
                         size="large"
+                        autoComplete="current-password"
                         placeholder={t('changePwd.changePasswordForm.placeholder.currentPassword')}
                       />
                     </Form.Item>
@@ -86,12 +87,13 @@ const UserSettings = () => {
                       label={t('changePwd.changePasswordForm.label.newPassword')}
                       rules={[
                         { required: true, message: t('changePwd.changePasswordForm.required.newPasswordRequired') },
-                        { min: 8, message: t('changePwd.changePasswordForm.required.newPassword') }, // <-- проверка длины
+                        { min: 6, message: t('changePwd.changePasswordForm.required.newPassword') },
                       ]}
                     >
                       <Input.Password
                         className="input"
                         size="large"
+                        autoComplete="new-password"
                         placeholder={t('changePwd.changePasswordForm.placeholder.newPassword')}
                       />
                     </Form.Item>
@@ -104,7 +106,7 @@ const UserSettings = () => {
                       label={t('changePwd.changePasswordForm.label.newPasswordConfirmation')}
                       dependencies={['newPassword']}
                       rules={[
-                        { required: true, message:  t('changePwd.changePasswordForm.required.newPasswordRequired') },
+                        { required: true, message: t('changePwd.changePasswordForm.required.newPasswordRequired') },
                         ({ getFieldValue }) => ({
                           validator(_, value) {
                             if (!value || getFieldValue('newPassword') === value) {
@@ -120,6 +122,7 @@ const UserSettings = () => {
                       <Input.Password
                         className="input"
                         size="large"
+                        autoComplete="new-password"
                         placeholder={t('changePwd.changePasswordForm.placeholder.newPasswordConfirmation')}
                       />
                     </Form.Item>
@@ -145,7 +148,7 @@ const UserSettings = () => {
             <p className="title">{t('changePwd.confirmModal.subtitle')}</p>
           </div>
           <div className="delete-modal-btns">
-            <CustomButton variant="danger" onClick={confirmChangePassword}>
+            <CustomButton variant="danger" onClick={confirmChangePassword} disabled={isSubmitting}>
               {t('changePwd.confirmModal.btn.confirm')}
             </CustomButton>
             <CustomButton onClick={() => setModalOpen(false)} variant="outline">
@@ -158,8 +161,4 @@ const UserSettings = () => {
   )
 }
 
-export default UserSettings
-
-
-
-
+export default ChangePasswordPage

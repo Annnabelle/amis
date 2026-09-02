@@ -36,7 +36,7 @@ const Users = () => {
     const dataPage = useAppSelector((state) => state.users.page)
     const dataTotal = useAppSelector((state) => state.users.total)
 
-    // const [form] = Form.useForm()
+    const [addUserForm] = Form.useForm()
 
     useEffect(() => {
         dispatch(getAllUsers({
@@ -77,16 +77,19 @@ const Users = () => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
 
-    const handleRegisterUser = async (values: AddUserForm) => {
+    const handleCreateUser = async (values: AddUserForm) => {
         try {
             const resultAction = await dispatch(createUser(values));
 
             if (createUser.fulfilled.match(resultAction)) {
                 toast.success(t('users.messages.success.activationEmailSent'));
-                setTimeout(() => {
-                    handleModal('addUser', false);
-                    window.location.reload();
-                }, 1000);
+                handleModal('addUser', false);
+                addUserForm.resetFields();
+                await dispatch(getAllUsers({
+                    page: dataPage || 1,
+                    limit: dataLimit || 10,
+                    sortOrder: 'asc',
+                }));
             } else {
                 toast.error((resultAction.payload as string) || t('users.messages.error.createUser'));
             }
@@ -238,8 +241,8 @@ const Users = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
-            <FormComponent onFinish={handleRegisterUser}>
+        <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => { handleModal('addUser', false); addUserForm.resetFields(); }}>
+            <FormComponent form={addUserForm} onFinish={handleCreateUser}>
                 <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
@@ -279,7 +282,7 @@ const Users = () => {
                         label={t('users.addUserForm.label.phone')}
                         rules={[
                             { required: true, message: t('users.addUserForm.required.phone') },
-                            { pattern: /^\+?[0-9]{9,15}$/, message: t('users.addUserForm.pattern.phone') }
+                            { pattern: /^998[0-9]{9}$/, message: t('users.addUserForm.pattern.phone') }
                         ]}
                     >
                     <PhoneInput />
