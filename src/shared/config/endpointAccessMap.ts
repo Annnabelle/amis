@@ -41,17 +41,29 @@ const endpoint = <const T extends EndpointAccessDefinition>(definition: T) =>
   definition;
 
 export const endpointAccessMap = {
-  usersHealth: endpoint({ method: "GET", path: "/users/health", permission: null, scope: EndpointScopes.Public }),
-  usersLogin: endpoint({ method: "POST", path: "/users/login", permission: null, scope: EndpointScopes.Public }),
+  authHealth: endpoint({ method: "GET", path: "/auth/health", permission: null, scope: EndpointScopes.Public }),
+  authLogin: endpoint({ method: "POST", path: "/auth/login", permission: null, scope: EndpointScopes.Public }),
+  authRegister: endpoint({ method: "POST", path: "/auth/register", permission: null, scope: EndpointScopes.Public }),
+  authVerifyEmail: endpoint({ method: "POST", path: "/auth/verify-email", permission: null, scope: EndpointScopes.Public }),
+  authSetPassword: endpoint({ method: "POST", path: "/auth/set-password", permission: null, scope: EndpointScopes.Public }),
+  authForgotPassword: endpoint({ method: "POST", path: "/auth/forgot-password", permission: null, scope: EndpointScopes.Public }),
+  authResetPassword: endpoint({ method: "POST", path: "/auth/reset-password", permission: null, scope: EndpointScopes.Public }),
+  currentUser: endpoint({ method: "GET", path: "/users/me", permission: null, scope: EndpointScopes.Authenticated }),
   currentAccess: endpoint({ method: "GET", path: "/users/me/access", permission: null, scope: EndpointScopes.Authenticated }),
+  currentUserCompanyMemberships: endpoint({ method: "GET", path: "/users/me/company-memberships", permission: null, scope: EndpointScopes.Authenticated }),
+  currentUserSystemAccess: endpoint({ method: "GET", path: "/users/me/system-access", permission: null, scope: EndpointScopes.Authenticated }),
+  currentUserPreferencesUpdate: endpoint({ method: "PATCH", path: "/users/me/preferences", permission: null, scope: EndpointScopes.Authenticated }),
+  currentUserPasswordUpdate: endpoint({ method: "PATCH", path: "/users/me/password", permission: null, scope: EndpointScopes.Authenticated }),
   decideSystemAccessInvitation: endpoint({ method: "PATCH", path: "/users/me/system-access/invitations/:id", permission: null, scope: EndpointScopes.Authenticated }),
   respondCompanyMembershipInvitation: endpoint({ method: "PATCH", path: "/users/me/company-membership/invitations/:id", permission: null, scope: EndpointScopes.Authenticated }),
-  usersCreate: endpoint({ method: "POST", path: "/users/register", permission: Permissions.UsersCreate, scope: EndpointScopes.Global }),
+  usersCreate: endpoint({ method: "POST", path: "/users", permission: Permissions.UsersCreate, scope: EndpointScopes.Global }),
   usersResetPassword: endpoint({ method: "PATCH", path: "/users/:id/change-password", permission: Permissions.UsersResetPassword, scope: EndpointScopes.Global }),
   usersSearch: endpoint({ method: "GET", path: "/users/search", permission: Permissions.UsersList, scope: EndpointScopes.Global }),
   usersList: endpoint({ method: "GET", path: "/users", permission: Permissions.UsersList, scope: EndpointScopes.Global }),
   usersPreview: endpoint({ method: "GET", path: "/users/:id/preview", permission: Permissions.UsersPreview, scope: EndpointScopes.Any }),
   usersRead: endpoint({ method: "GET", path: "/users/:id", permission: Permissions.UsersRead, scope: EndpointScopes.Global }),
+  userCompanyMemberships: endpoint({ method: "GET", path: "/users/:id/company-memberships", permission: Permissions.UsersRead, scope: EndpointScopes.Global }),
+  userSystemAccess: endpoint({ method: "GET", path: "/users/:id/system-access", permission: Permissions.UsersRead, scope: EndpointScopes.Global }),
   usersUpdate: endpoint({ method: "PATCH", path: "/users/:id", permission: Permissions.UsersUpdate, scope: EndpointScopes.Global }),
   usersDelete: endpoint({ method: "DELETE", path: "/users/:id", permission: Permissions.UsersDelete, scope: EndpointScopes.Global }),
 
@@ -87,7 +99,7 @@ export const endpointAccessMap = {
   companyMembershipsDelete: endpoint({ method: "DELETE", path: "/company-memberships/:id", permission: Permissions.CompanyMembershipsDelete, scope: EndpointScopes.Company }),
 
   referencesRead: endpoint({ method: "GET", path: "/references/:type", permission: Permissions.ReferencesRead, scope: EndpointScopes.Any }),
-  roleReferencesRead: endpoint({ method: "GET", path: "/references/roles/:scope", permission: Permissions.ReferencesRead, scope: EndpointScopes.Dynamic }),
+  roleReferencesRead: endpoint({ method: "GET", path: "/references/roles/:scope", permission: null, scope: EndpointScopes.Dynamic }),
   assignableRoleReferencesRead: endpoint({ method: "GET", path: "/references/roles/:scope/assignable", permission: Permissions.RolesAssign, scope: EndpointScopes.Dynamic }),
 
   productsCreate: endpoint({ method: "POST", path: "/products", permission: Permissions.ProductsCreate, scope: EndpointScopes.Company }),

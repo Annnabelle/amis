@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowDown } from "react-icons/io";
+import { useAppDispatch } from "app/store";
+import { updateUserPreferences } from "entities/users/model";
+import { isLanguage } from "shared/types/dtos";
+import { persistLanguage } from "shared/lib/languagePreference";
 
 import "./styles.sass";
 
@@ -12,7 +16,8 @@ const flagMap: Record <string, string> = {
 
 const Languages: React.FC = () => {
   const { i18n } = useTranslation();
-  const [isOpen, setIsOpen] = useState<Boolean>(false);
+  const dispatch = useAppDispatch();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
@@ -27,7 +32,12 @@ const Languages: React.FC = () => {
     }
   }, [handleClickOutside])
   const handleLanguageChange = (language: string) => {
-    i18n.changeLanguage(language);
+    if (!isLanguage(language)) return;
+
+    void i18n.changeLanguage(language);
+    persistLanguage(language);
+    void dispatch(updateUserPreferences({ language }));
+    setIsOpen(false);
   };
 
   return (

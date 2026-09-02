@@ -74,6 +74,14 @@ export type CompanyMembershipResponseDto =
     }
   | ErrorDto;
 
+// GET /users/(me|:id)/company-memberships
+export type UserCompanyMembershipsResponseDto =
+  | {
+      success: true;
+      data: CompanyMembershipDto[];
+    }
+  | ErrorDto;
+
 export type RespondCompanyMembershipInvitationResponseDto =
   CompanyMembershipResponseDto;
 
@@ -85,4 +93,9 @@ export const isCompanyMembershipsResponseSuccess = (
 export const isCompanyMembershipResponseSuccess = (
   dto: CompanyMembershipResponseDto
 ): dto is Extract<CompanyMembershipResponseDto, { success: true }> =>
+  dto.success === true && "data" in dto;
+
+export const isUserCompanyMembershipsResponseSuccess = (
+  dto: UserCompanyMembershipsResponseDto
+): dto is Extract<UserCompanyMembershipsResponseDto, { success: true }> =>
   dto.success === true && "data" in dto;

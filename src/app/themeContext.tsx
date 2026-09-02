@@ -5,7 +5,7 @@ import {
   type SetStateAction,
 } from 'react';
 
-export type ThemeMode = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 interface ThemeContextValue {
   themeMode: ThemeMode;

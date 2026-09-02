@@ -84,7 +84,7 @@ axiosInstance.interceptors.response.use((response) => response, (error) => {
   const data = error.response?.data;
   const requestUrl = error.config?.url ?? '';
   const hasToken = Boolean(localStorage.getItem('accessToken'));
-  const isLoginRequest = requestUrl.includes('/users/login');
+  const isLoginRequest = requestUrl.includes('/auth/login');
 
   if (hasToken && !isLoginRequest && isAuthErrorResponse(status, data)) {
     clearAuthStorage();

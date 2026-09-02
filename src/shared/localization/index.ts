@@ -1016,6 +1016,7 @@
                 messages: {
                     success: {
                         createUser: "User created successfully",
+                        activationEmailSent: "User created — an activation email has been sent",
                         updateUser: "User updated successfully",
                         deleteUser: "User deleted successfully"
                     },
@@ -1053,14 +1054,16 @@
                         phone: "Please enter your phone number",
                         email: "Please enter your email",
                         role: "Please select a role",
-                        password: "Please enter your password"
+                        password: "Please enter your password",
+                        pinfl: "Please enter PINFL"
                     },
                     pattern: {
                         phone: "Please enter a valid phone number",
                         email: "Please enter a valid email",
                         pinfl: "PINFL must contain 14 digits",
-                        passwordMinLength: "Password must be at least 8 characters"
-                    }
+                        passwordMinLength: "Password must be at least 6 characters"
+                    },
+                    activationHint: "The user will receive an email to set their password and activate the account."
                 },
                 modalWindow: {
                     deletion: 'Deletion',
@@ -1526,11 +1529,99 @@
                 enterUserName: 'Enter username',
                 username: 'Username',
             },
+            auth: {
+                backToLogin: 'Back to login',
+                goToLogin: 'Go to login',
+                errors: {
+                    missingToken: 'The link is missing its token. Please open the link from the email again.',
+                },
+                register: {
+                    title: 'Create account',
+                    submit: 'Register',
+                    noAccount: "Don't have an account?",
+                    haveAccount: 'Already have an account?',
+                    messages: {
+                        error: 'Registration failed. Please try again.',
+                    },
+                    checkInbox: {
+                        title: 'Check your inbox',
+                        intro: 'We sent a confirmation link to:',
+                        hint: 'Open it to verify your email, then sign in.',
+                    },
+                },
+                verifyEmail: {
+                    title: 'Email verification',
+                    loading: 'Verifying your email…',
+                    error: 'We could not verify your email.',
+                    errorTitle: 'Verification failed',
+                    successTitle: 'Email verified',
+                    successDescription: 'Your email has been confirmed. You can sign in now.',
+                },
+                activate: {
+                    title: 'Set your password',
+                    subtitle: 'Create a password to activate your account.',
+                    submit: 'Activate account',
+                    error: 'We could not activate your account.',
+                    errorTitle: 'Activation failed',
+                    successTitle: 'Account activated',
+                    successDescription: 'Your password is set and your email is verified. You can sign in now.',
+                    passwordsDontMatch: 'Passwords do not match.',
+                    label: {
+                        password: 'Password',
+                        confirmPassword: 'Confirm password',
+                    },
+                    placeholder: {
+                        confirmPassword: 'Repeat the password',
+                    },
+                    required: {
+                        confirmPassword: 'Please confirm your password',
+                    },
+                },
+                passwordMinLength: 'Password must be at least 6 characters',
+                forgotPassword: {
+                    link: 'Forgot password?',
+                    title: 'Reset your password',
+                    subtitle: "Enter your email and we'll send you a reset link.",
+                    submit: 'Send reset link',
+                    emailLabel: 'Email',
+                    checkInbox: {
+                        title: 'Check your inbox',
+                        intro: 'If an account with this email exists, we sent a password reset link to:',
+                        hint: "Open the link to set a new password. Check your spam folder if you don't see it.",
+                    },
+                },
+                resetPassword: {
+                    title: 'Set a new password',
+                    subtitle: 'Choose a new password for your account.',
+                    submit: 'Reset password',
+                    successTitle: 'Password updated',
+                    successDescription: 'Your password has been changed. You can sign in now.',
+                    errorTitle: 'Reset failed',
+                    error: 'We could not reset your password.',
+                    passwordsDontMatch: 'Passwords do not match.',
+                    label: {
+                        password: 'New password',
+                        confirmPassword: 'Confirm password',
+                    },
+                    placeholder: {
+                        password: 'Enter a new password',
+                        confirmPassword: 'Repeat the password',
+                    },
+                    required: {
+                        confirmPassword: 'Please confirm your password',
+                    },
+                },
+            },
+            me: {
+                title: 'My profile',
+                loadError: 'Could not load your profile.',
+                changePassword: 'Change password',
+            },
             changePwd: {
                 title: 'Change Password',
                 confirmModal: {
                     title: 'Are you sure you want to change the password?',
-                    subtitle: 'After changing the password, you will be automatically logged out',
+                    subtitle: 'Enter your current password to confirm the change.',
                     btn: {
                         confirm: 'Confirm',
                         cancel: 'Cancel',
@@ -1539,7 +1630,8 @@
                 changePasswordForm: {
                     message: {
                         passwordsDontMatch: "Passwords do not match.",
-                        error: "Error when changing password"
+                        error: "Error when changing password",
+                        success: "Password changed successfully"
                     },
                     label: {
                         currentPassword: 'Current password',
@@ -1554,7 +1646,7 @@
                     required: {
                         currentPassword: "Enter your current password",
                         newPasswordRequired: "Enter your current password",
-                        newPassword: "Password must be at least 8 characters long.",
+                        newPassword: "Password must be at least 6 characters long.",
                     }
                 }
             },
@@ -2914,6 +3006,7 @@
                 messages: {
                     success: {
                         createUser: "Пользователь успешно создан",
+                        activationEmailSent: "Пользователь создан — письмо для активации отправлено",
                         updateUser: "Пользователь успешно обновлён",
                         deleteUser: "Пользователь успешно удалён"
                     },
@@ -2951,14 +3044,16 @@
                         phone: "Введите номер телефона",
                         email: "Введите email",
                         role: "Выберите роль",
-                        password: "Введите пароль"
+                        password: "Введите пароль",
+                        pinfl: "Введите ПИНФЛ"
                     },
                     pattern: {
                         phone: "Введите корректный номер телефона",
                         email: "Введите корректный email",
                         pinfl: "ПИНФЛ должен содержать 14 цифр",
-                        passwordMinLength: "Пароль должен содержать минимум 8 символов"
-                    }
+                        passwordMinLength: "Пароль должен содержать минимум 6 символов"
+                    },
+                    activationHint: "Пользователь получит письмо, чтобы задать пароль и активировать аккаунт."
                 },
                 modalWindow: {
                     deletion: 'Удаление',
@@ -3425,21 +3520,110 @@
                 enterUserName: 'Введите логин',
                 username: 'Логин',
             },
+            auth: {
+                backToLogin: 'Вернуться ко входу',
+                goToLogin: 'Перейти ко входу',
+                errors: {
+                    missingToken: 'В ссылке отсутствует токен. Откройте ссылку из письма ещё раз.',
+                },
+                register: {
+                    title: 'Создать аккаунт',
+                    submit: 'Зарегистрироваться',
+                    noAccount: 'Нет аккаунта?',
+                    haveAccount: 'Уже есть аккаунт?',
+                    messages: {
+                        error: 'Не удалось зарегистрироваться. Попробуйте ещё раз.',
+                    },
+                    checkInbox: {
+                        title: 'Проверьте почту',
+                        intro: 'Мы отправили ссылку для подтверждения на:',
+                        hint: 'Откройте её, чтобы подтвердить email, затем войдите.',
+                    },
+                },
+                verifyEmail: {
+                    title: 'Подтверждение email',
+                    loading: 'Подтверждаем ваш email…',
+                    error: 'Не удалось подтвердить email.',
+                    errorTitle: 'Подтверждение не выполнено',
+                    successTitle: 'Email подтверждён',
+                    successDescription: 'Ваш email подтверждён. Теперь вы можете войти.',
+                },
+                activate: {
+                    title: 'Задайте пароль',
+                    subtitle: 'Создайте пароль, чтобы активировать аккаунт.',
+                    submit: 'Активировать аккаунт',
+                    error: 'Не удалось активировать аккаунт.',
+                    errorTitle: 'Активация не выполнена',
+                    successTitle: 'Аккаунт активирован',
+                    successDescription: 'Пароль задан, email подтверждён. Теперь вы можете войти.',
+                    passwordsDontMatch: 'Пароли не совпадают.',
+                    label: {
+                        password: 'Пароль',
+                        confirmPassword: 'Подтверждение пароля',
+                    },
+                    placeholder: {
+                        confirmPassword: 'Повторите пароль',
+                    },
+                    required: {
+                        confirmPassword: 'Подтвердите пароль',
+                    },
+                },
+                passwordMinLength: 'Пароль должен содержать не менее 6 символов',
+                forgotPassword: {
+                    link: 'Забыли пароль?',
+                    title: 'Восстановление пароля',
+                    subtitle: 'Укажите email — мы отправим ссылку для сброса пароля.',
+                    submit: 'Отправить ссылку',
+                    emailLabel: 'Email',
+                    checkInbox: {
+                        title: 'Проверьте почту',
+                        intro: 'Если аккаунт с таким адресом существует, мы отправили ссылку для сброса пароля на:',
+                        hint: 'Откройте ссылку, чтобы задать новый пароль. Если письма нет — проверьте папку «Спам».',
+                    },
+                },
+                resetPassword: {
+                    title: 'Новый пароль',
+                    subtitle: 'Задайте новый пароль для вашего аккаунта.',
+                    submit: 'Сбросить пароль',
+                    successTitle: 'Пароль обновлён',
+                    successDescription: 'Пароль изменён. Теперь вы можете войти.',
+                    errorTitle: 'Не удалось сбросить пароль',
+                    error: 'Не удалось сбросить пароль.',
+                    passwordsDontMatch: 'Пароли не совпадают.',
+                    label: {
+                        password: 'Новый пароль',
+                        confirmPassword: 'Подтверждение пароля',
+                    },
+                    placeholder: {
+                        password: 'Введите новый пароль',
+                        confirmPassword: 'Повторите пароль',
+                    },
+                    required: {
+                        confirmPassword: 'Подтвердите пароль',
+                    },
+                },
+            },
+            me: {
+                title: 'Мой профиль',
+                loadError: 'Не удалось загрузить профиль.',
+                changePassword: 'Изменить пароль',
+            },
             changePwd: {
                 title: 'Изменить пароль',
                 confirmModal: {
                     title: 'Вы уверены, что хотите изменить пароль?',
-                    subtitle: 'После изменения пароля вы будете автоматически разлогинены',
+                    subtitle: 'Введите текущий пароль, чтобы подтвердить изменение.',
                     btn: {
                         confirm: 'Подтвердить',
                         cancel: 'Отмена',
                     },
                 },
-                  
+
                 changePasswordForm: {
                     message: {
                         passwordsDontMatch: "Пароли не совпадают.",
-                        error: "Ошибка при смене пароля"
+                        error: "Ошибка при смене пароля",
+                        success: "Пароль успешно изменён"
                     },
                     label: {
                         currentPassword: 'Текущий пароль',
@@ -3454,7 +3638,7 @@
                     required: {
                         currentPassword: "Введите текущий пароль",
                         newPasswordRequired: "Введите новый пароль",
-                        newPassword: "Пароль должен содержать не менее 8 символов.",
+                        newPassword: "Пароль должен содержать не менее 6 символов.",
                     }
                 }
             },
@@ -4775,6 +4959,7 @@
                 messages: {
                     success: {
                         createUser: "Foydalanuvchi muvaffaqiyatli yaratildi",
+                        activationEmailSent: "Foydalanuvchi yaratildi — faollashtirish xati yuborildi",
                         updateUser: "Foydalanuvchi muvaffaqiyatli yangilandi",
                         deleteUser: "Foydalanuvchi muvaffaqiyatli o‘chirildi"
                     },
@@ -4812,14 +4997,16 @@
                         phone: "Telefon raqamingizni kiriting",
                         email: "Emailingizni kiriting",
                         role: "Rolni tanlang",
-                        password: "Parolni kiriting"
+                        password: "Parolni kiriting",
+                        pinfl: "JSHSHIRni kiriting"
                     },
                     pattern: {
                         phone: "To‘g‘ri telefon raqamini kiriting",
                         email: "To‘g‘ri email manzilini kiriting",
                         pinfl: "JSHSHIR 14 ta raqamdan iborat bo‘lishi kerak",
-                        passwordMinLength: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak"
-                    }
+                        passwordMinLength: "Parol kamida 6 ta belgidan iborat bo‘lishi kerak"
+                    },
+                    activationHint: "Foydalanuvchi parol o‘rnatish va hisobni faollashtirish uchun xat oladi."
                 },
                 modalWindow: {
                     deletion: 'O‘chirish',
@@ -5285,20 +5472,109 @@
                 enterUserName: 'Login kiriting',
                 username: 'Login',
             },
+            auth: {
+                backToLogin: 'Kirishga qaytish',
+                goToLogin: 'Kirishga o‘tish',
+                errors: {
+                    missingToken: 'Havolada token yo‘q. Xatdagi havolani qaytadan oching.',
+                },
+                register: {
+                    title: 'Hisob yaratish',
+                    submit: 'Ro‘yxatdan o‘tish',
+                    noAccount: 'Hisobingiz yo‘qmi?',
+                    haveAccount: 'Hisobingiz bormi?',
+                    messages: {
+                        error: 'Ro‘yxatdan o‘tib bo‘lmadi. Qayta urinib ko‘ring.',
+                    },
+                    checkInbox: {
+                        title: 'Pochtangizni tekshiring',
+                        intro: 'Tasdiqlash havolasini shu manzilga yubordik:',
+                        hint: 'Emailni tasdiqlash uchun uni oching, so‘ng tizimga kiring.',
+                    },
+                },
+                verifyEmail: {
+                    title: 'Emailni tasdiqlash',
+                    loading: 'Emailingiz tasdiqlanmoqda…',
+                    error: 'Emailni tasdiqlab bo‘lmadi.',
+                    errorTitle: 'Tasdiqlash amalga oshmadi',
+                    successTitle: 'Email tasdiqlandi',
+                    successDescription: 'Emailingiz tasdiqlandi. Endi tizimga kirishingiz mumkin.',
+                },
+                activate: {
+                    title: 'Parol o‘rnating',
+                    subtitle: 'Hisobingizni faollashtirish uchun parol yarating.',
+                    submit: 'Hisobni faollashtirish',
+                    error: 'Hisobni faollashtirib bo‘lmadi.',
+                    errorTitle: 'Faollashtirish amalga oshmadi',
+                    successTitle: 'Hisob faollashtirildi',
+                    successDescription: 'Parol o‘rnatildi va email tasdiqlandi. Endi tizimga kirishingiz mumkin.',
+                    passwordsDontMatch: 'Parollar mos kelmadi.',
+                    label: {
+                        password: 'Parol',
+                        confirmPassword: 'Parolni tasdiqlash',
+                    },
+                    placeholder: {
+                        confirmPassword: 'Parolni takrorlang',
+                    },
+                    required: {
+                        confirmPassword: 'Parolni tasdiqlang',
+                    },
+                },
+                passwordMinLength: 'Parol kamida 6 ta belgidan iborat bo‘lishi kerak',
+                forgotPassword: {
+                    link: 'Parolni unutdingizmi?',
+                    title: 'Parolni tiklash',
+                    subtitle: 'Email manzilingizni kiriting — tiklash havolasini yuboramiz.',
+                    submit: 'Havola yuborish',
+                    emailLabel: 'Email',
+                    checkInbox: {
+                        title: 'Pochtangizni tekshiring',
+                        intro: 'Agar bu manzil uchun hisob mavjud bo‘lsa, parolni tiklash havolasini shu manzilga yubordik:',
+                        hint: 'Yangi parol o‘rnatish uchun havolani oching. Xat kelmasa, «Spam» jildini tekshiring.',
+                    },
+                },
+                resetPassword: {
+                    title: 'Yangi parol',
+                    subtitle: 'Hisobingiz uchun yangi parol tanlang.',
+                    submit: 'Parolni tiklash',
+                    successTitle: 'Parol yangilandi',
+                    successDescription: 'Parolingiz o‘zgartirildi. Endi tizimga kirishingiz mumkin.',
+                    errorTitle: 'Parolni tiklab bo‘lmadi',
+                    error: 'Parolni tiklab bo‘lmadi.',
+                    passwordsDontMatch: 'Parollar mos kelmadi.',
+                    label: {
+                        password: 'Yangi parol',
+                        confirmPassword: 'Parolni tasdiqlash',
+                    },
+                    placeholder: {
+                        password: 'Yangi parolni kiriting',
+                        confirmPassword: 'Parolni takrorlang',
+                    },
+                    required: {
+                        confirmPassword: 'Parolni tasdiqlang',
+                    },
+                },
+            },
+            me: {
+                title: 'Mening profilim',
+                loadError: 'Profilni yuklab bo‘lmadi.',
+                changePassword: 'Parolni o‘zgartirish',
+            },
             changePwd: {
                 title: 'Parolni o‘zgartirish',
                 confirmModal: {
                     title: 'Parolni o‘zgartirishni xohlaysizmi?',
-                    subtitle: 'Parol o‘zgartirilgandan so‘ng, siz avtomatik ravishda tizimdan chiqasiz',
+                    subtitle: 'O‘zgarishni tasdiqlash uchun joriy parolni kiriting.',
                     btn: {
-                        confirm: 'Подтвердить',
+                        confirm: 'Tasdiqlash',
                         cancel: 'Bekor qilish',
                     },
                 },
                 changePasswordForm: {
                     message: {
                         passwordsDontMatch: "Parollar mos kelmaydi.",
-                        error: "Parolni o‘zgartirishda xatolik"
+                        error: "Parolni o‘zgartirishda xatolik",
+                        success: "Parol muvaffaqiyatli o‘zgartirildi"
                     },
                     label: {
                         currentPassword: 'Joriy parol',
@@ -5313,7 +5589,7 @@
                     required: {
                         currentPassword: "Joriy parolni kiriting",
                         newPasswordRequired: "Yangi parolni kiriting",
-                        newPassword: "Parol kamida 8 ta belgidan iborat bo‘lishi kerak.",
+                        newPassword: "Parol kamida 6 ta belgidan iborat bo‘lishi kerak.",
                     }
                 }
             },

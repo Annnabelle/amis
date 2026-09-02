@@ -1,4 +1,4 @@
-import type { ErrorDto, HexString } from "shared/types/dtos";
+import type { ErrorDto, HexString, UserPreferences, UserStatus } from "shared/types/dtos";
 
 export type UserResponse = {
     id: HexString,
@@ -7,9 +7,9 @@ export type UserResponse = {
     email: string,
     phone: string,
     pinfl?: string,
-    status: string,
-    companyIds: HexString[],
-    language: string,
+    status: UserStatus,
+    preferences: UserPreferences,
+    emailVerifiedAt: Date | null,
     lastLoggedInAt: Date | null,
 }
 
@@ -57,13 +57,23 @@ export type UsersState = {
     currentUser: UserResponse | null,
 };
 
-export type  AddUserForm = {
+// admin "create user" form — no password, the user sets it via the activation email
+export type AddUserForm = {
   firstName: string
   lastName: string,
   phone: string,
-  pinfl?: string,
+  pinfl: string,
   email: string,
-  password: string,
+}
+
+// public self-registration form
+export type RegisterForm = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  pinfl: string;
+  email: string;
+  password: string;
 }
 
 

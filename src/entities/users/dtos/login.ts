@@ -1,5 +1,7 @@
 ﻿import type { ErrorDto, HexString, Language, PaginatedDto, PaginatedResponseDto, UserSortField, UserStatus } from "shared/types/dtos";
 
+import type { AppTheme, UserPreferences } from "shared/types/dtos";
+
 export type LoginDto = {
   email: string;
   password: string;
@@ -12,16 +14,15 @@ export type UserNameDto = {
 
 export type UserResponseDto = {
   id: HexString,
-  name?: UserNameDto,
-  firstName?: string,
-  lastName?: string,
+  firstName: string,
+  lastName: string,
   email: string,
   phone: string,
   pinfl?: string,
-  status: string,
-  companyIds?: HexString[],
-  language?: string,
-  lastLoggedInAt?: string | Date | null,
+  status: UserStatus,
+  preferences: UserPreferences,
+  emailVerifiedAt: string | null,
+  lastLoggedInAt: Date | null,
 };
 
 export type LoginResponseDto = {
@@ -50,13 +51,40 @@ export type RegisterUserDto = {
   phone: string;
   pinfl?: string;
   password: string;
-  language: Language;
 }
 
-export type RegisterResponseDto = {
+// admin-created user: no password, activation email is sent by the backend
+export type CreateUserDto = Omit<RegisterUserDto, "password">;
+
+export type VerifyEmailDto = {
+  token: string;
+}
+
+export type SetPasswordDto = {
+  token: string;
+  password: string;
+}
+
+// register / verify-email / set-password / admin create
+export type AccountActionResponseDto = {
   success: boolean,
   user: UserResponseDto,
 } | ErrorDto;
+
+export type ForgotPasswordDto = {
+  email: string;
+}
+
+export type ForgotPasswordResponseDto = {
+  success: boolean;
+}
+
+export type ResetPasswordDto = {
+  token: string;
+  password: string;
+}
+
+export type ResetPasswordResponseDto = AccountActionResponseDto;
 
 export type GetUserDto = {
   id: HexString;
@@ -89,7 +117,6 @@ export class UpdateUserDto {
   email?: string;
   phone?: string;
   pinfl?: string;
-  language?: Language;
   status?: UserStatus;
 }
 
@@ -97,6 +124,16 @@ export type UpdateUserResponseDto = {
   success: boolean,
   user: UserResponseDto,
 } | ErrorDto;
+
+export type UpdateUserPreferencesDto = {
+  language?: Language;
+  theme?: AppTheme;
+};
+
+export type UpdateUserPreferencesResponseDto = {
+  success: true;
+  user: UserResponseDto;
+};
 
 export type DeleteUserDto  = {
   id: HexString;

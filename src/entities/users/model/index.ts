@@ -1,13 +1,19 @@
-import type { AddUserForm, LoginForm, UserResponse, UsersState } from "entities/users/types";
-import type { ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, RegisterResponseDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto } from "entities/users/dtos/login";
+import type { AddUserForm, ChangePassword, LoginForm, RegisterForm, UserResponse, UsersState } from "entities/users/types";
+import type { AccountActionResponseDto, ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, ForgotPasswordDto, ForgotPasswordResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, ResetPasswordDto, ResetPasswordResponseDto, SetPasswordDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto, VerifyEmailDto } from "entities/users/dtos/login";
 import type { PaginatedResponseDto } from "shared/types/dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { mapChangePwdDtoToEntity, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapRegisterUserFormToDto, mapUpdateUserDtoToEntity, mapUpdateUserFormToDto, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
+import type { UpdateUserPreferencesDto, UpdateUserPreferencesResponseDto } from "entities/users/dtos/login";
+import { isAccountActionSuccess, mapChangePwdDtoToEntity, mapChangePwdFormToChangePwdDto, mapCreateUserFormToDto, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapRegisterFormToDto, mapUpdateUserDtoToEntity, mapUpdateUserFormToDto, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import { clearAuthStorage } from "shared/lib/authSession";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
-import type { Language } from "shared/types/dtos";
+
+export type AccountActionError = { message: string };
+
+const toAccountActionError = (data: unknown, fallback: string): AccountActionError => ({
+  message: getBackendErrorMessage(data, fallback),
+});
 
 const storedUser = localStorage.getItem("user");
 const storedAccessToken = localStorage.getItem("accessToken");
@@ -39,7 +45,7 @@ export const Login = createAsyncThunk(
     async (data: LoginForm, { rejectWithValue }) => {
       try {
         const dto = mapLoginFormToLoginDto(data);
-        const response = await axiosInstance.post<LoginResponseDto>(`${BASE_URL}/users/login`, dto);
+        const response = await axiosInstance.post<LoginResponseDto>(`${BASE_URL}/auth/login`, dto);
 
         const mapped = mapLoginResponseDtoToLoginResponse(response.data);
 
@@ -112,32 +118,101 @@ export const changeUserPassword = createAsyncThunk(
   }
 )
 
-function isRegisterSuccessResponse(
-  res: RegisterResponseDto
-): res is { success: boolean; user: UserResponseDto } {
-  return "success" in res && res.success === true && "user" in res;
-}
-
-export const registerUser = createAsyncThunk(
-  "users/registerUser",
-  async (payload: AddUserForm & { language: Language }, { rejectWithValue }) => {
+// admin creates a user (POST /users) — no password; backend emails an activation link
+export const createUser = createAsyncThunk(
+  "users/createUser",
+  async (payload: AddUserForm, { rejectWithValue }) => {
     try {
-      const dto = mapRegisterUserFormToDto(payload);
-      const response = await axiosInstance.post<RegisterResponseDto>(
-        `${BASE_URL}/users/register`,
+      const dto = mapCreateUserFormToDto(payload);
+      const response = await axiosInstance.post<AccountActionResponseDto>(
+        `${BASE_URL}/users`,
         dto
       );
 
-      if (isRegisterSuccessResponse(response.data)) {
+      if (isAccountActionSuccess(response.data)) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
       return rejectWithValue(
-        getBackendErrorMessage(response.data, "Ошибка регистрации пользователя")
+        getBackendErrorMessage(response.data, "Ошибка создания пользователя")
       );
     } catch (err: any) {
       return rejectWithValue(
         getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+// public self-registration (POST /auth/register)
+export const registerAccount = createAsyncThunk(
+  "users/registerAccount",
+  async (payload: RegisterForm, { rejectWithValue }) => {
+    try {
+      const dto = mapRegisterFormToDto(payload);
+      const response = await axiosInstance.post<AccountActionResponseDto>(
+        `${BASE_URL}/auth/register`,
+        dto
+      );
+
+      if (isAccountActionSuccess(response.data)) {
+        return mapUsersDtoToEntity(response.data.user);
+      }
+
+      return rejectWithValue(toAccountActionError(response.data, "Ошибка регистрации"));
+    } catch (err: any) {
+      return rejectWithValue(
+        toAccountActionError(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+// confirm email after self-registration (POST /auth/verify-email)
+export const verifyEmail = createAsyncThunk(
+  "users/verifyEmail",
+  async (payload: VerifyEmailDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post<AccountActionResponseDto>(
+        `${BASE_URL}/auth/verify-email`,
+        payload
+      );
+
+      if (isAccountActionSuccess(response.data)) {
+        return mapUsersDtoToEntity(response.data.user);
+      }
+
+      return rejectWithValue(
+        toAccountActionError(response.data, "Ошибка подтверждения email")
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        toAccountActionError(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+// activate account / set password (POST /auth/set-password)
+export const setPassword = createAsyncThunk(
+  "users/setPassword",
+  async (payload: SetPasswordDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post<AccountActionResponseDto>(
+        `${BASE_URL}/auth/set-password`,
+        payload
+      );
+
+      if (isAccountActionSuccess(response.data)) {
+        return mapUsersDtoToEntity(response.data.user);
+      }
+
+      return rejectWithValue(
+        toAccountActionError(response.data, "Ошибка активации аккаунта")
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        toAccountActionError(err.response?.data ?? err, "Ошибка сервера")
       );
     }
   }
@@ -234,6 +309,125 @@ export const updateUser = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(
         getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+export const updateUserPreferences = createAsyncThunk(
+  "users/updateUserPreferences",
+  async (preferences: UpdateUserPreferencesDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch<UpdateUserPreferencesResponseDto>(
+        `${BASE_URL}/users/me/preferences`,
+        preferences
+      );
+
+      return mapUsersDtoToEntity(response.data.user);
+    } catch (err: any) {
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка обновления настроек пользователя")
+      );
+    }
+  },
+  {
+    // skip when not logged in (e.g. theme toggle on the login screen)
+    condition: (_preferences, { getState }) => {
+      const { users } = getState() as { users: UsersState };
+      return users.isAuthenticated && Boolean(users.accessToken);
+    },
+  }
+);
+
+// GET /users/me
+export const fetchCurrentUser = createAsyncThunk(
+  "users/fetchCurrentUser",
+  async (_: void, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get<GetUserResponseDto>(`${BASE_URL}/users/me`);
+
+      if (isGetUserSuccessResponse(response.data)) {
+        return mapUsersDtoToEntity(response.data.user);
+      }
+
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка загрузки профиля")
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+// PATCH /users/me/password, returns fresh tokens
+export const changeOwnPassword = createAsyncThunk(
+  "users/changeOwnPassword",
+  async (form: ChangePassword, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch<ChangePasswordResponseDto>(
+        `${BASE_URL}/users/me/password`,
+        mapChangePwdFormToChangePwdDto(form)
+      );
+
+      const mapped = mapChangePwdDtoToEntity(response.data);
+      if ("tokens" in mapped) {
+        localStorage.setItem("accessToken", mapped.tokens.accessToken);
+        localStorage.setItem("refreshToken", mapped.tokens.refreshToken);
+        localStorage.setItem("user", JSON.stringify(mapped.user));
+        return mapped;
+      }
+
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Ошибка изменения пароля")
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        getBackendErrorMessage(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+// POST /auth/forgot-password
+export const forgotPassword = createAsyncThunk(
+  "users/forgotPassword",
+  async (payload: ForgotPasswordDto, { rejectWithValue }) => {
+    try {
+      await axiosInstance.post<ForgotPasswordResponseDto>(`${BASE_URL}/auth/forgot-password`, {
+        email: payload.email.trim().toLowerCase(),
+      });
+
+      return true;
+    } catch (err: any) {
+      return rejectWithValue(
+        toAccountActionError(err.response?.data ?? err, "Ошибка сервера")
+      );
+    }
+  }
+);
+
+// POST /auth/reset-password
+export const resetPassword = createAsyncThunk(
+  "users/resetPassword",
+  async (payload: ResetPasswordDto, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post<ResetPasswordResponseDto>(
+        `${BASE_URL}/auth/reset-password`,
+        payload
+      );
+
+      if (isAccountActionSuccess(response.data)) {
+        return mapUsersDtoToEntity(response.data.user);
+      }
+
+      return rejectWithValue(
+        toAccountActionError(response.data, "Ошибка сброса пароля")
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        toAccountActionError(err.response?.data ?? err, "Ошибка сервера")
       );
     }
   }
@@ -371,17 +565,105 @@ export const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(registerUser.pending, (state) => {
+      .addCase(createUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+      .addCase(createUser.fulfilled, (state) => {
         state.isLoading = false;
-        state.users.push(action.payload); // добавляем нового юзера
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(createUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(registerAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerAccount.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(registerAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as AccountActionError | undefined)?.message ?? null;
+      })
+      .addCase(verifyEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as AccountActionError | undefined)?.message ?? null;
+      })
+      .addCase(setPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(setPassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(setPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as AccountActionError | undefined)?.message ?? null;
+      })
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.currentUser = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload));
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(changeOwnPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(changeOwnPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if ("tokens" in action.payload) {
+          state.user = action.payload.user;
+          state.currentUser = action.payload.user;
+          state.accessToken = action.payload.tokens.accessToken;
+          state.refreshToken = action.payload.tokens.refreshToken;
+          state.sessionStart = Date.now();
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+          localStorage.setItem("sessionEnd", String(Date.now() + 60 * 60 * 1000));
+        }
+      })
+      .addCase(changeOwnPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as AccountActionError | undefined)?.message ?? null;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as AccountActionError | undefined)?.message ?? null;
       })
       .addCase(getUserById.pending, (state) => {
         state.isLoading = true;
@@ -431,6 +713,11 @@ export const usersSlice = createSlice({
       .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updateUserPreferences.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+        state.user = action.payload;
+        state.currentUser = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload));
       })
       .addCase(deleteUser.pending, (state) => {
         state.isLoading = true;

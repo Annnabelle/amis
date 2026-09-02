@@ -1,40 +1,92 @@
 @use "sass:map"
 @use "../../shared/styles/mixins.sass" as mix
 @use "../../shared/styles/variables.sass" as vars
+
 .user
     position: relative
+
     &-info
         cursor: pointer
         @include mix.flex-content(space-between, row)
         column-gap: 15px
         line-height: 22px
+
+        &.open .user-arrow svg
+            transform: rotate(180deg)
+
     &-text
+        min-width: 0
+
         &-container
             &-name
                 +mix.typography(14px, 700, map.get(vars.$basic, 'black'))
+                margin: 0
+                white-space: nowrap
+                overflow: hidden
+                text-overflow: ellipsis
+                max-width: 180px
+
     &-arrow
+        display: flex
         svg
-            +mix.typography(18px, 600, map.get(vars.$basic, 'black'))
+            +mix.typography(18px, 600, map.get(vars.$text, 'secondary'))
+            transition: transform 0.2s ease
+
     &-avatar
+        flex-shrink: 0
         background: map.get(vars.$main, 'main')
         .user-icon
-            color: map.get(vars.$basic, 'white')
-    &-dropdown
-        @include mix.flex-content(center, column)
-        row-gap: 12px
-        margin-top: 5px
-        padding: 10px 15px
-        list-style: none
-        left: 0
-        right: 0
-        position: absolute
-        border: 1px solid map.get(vars.$main, "grey")
-        border-radius: 3px
-        box-shadow: 4px 4px 13px map.get(vars.$shadow, 'card')
-        background: map.get(vars.$basic, "white")
-        z-index: 1
-        &-action
-            width: 100%
-            .btn
-                font-size: 14px
+            color: map.get(vars.$static, 'white')
 
+    &-dropdown
+        position: absolute
+        top: calc(100% + 8px)
+        right: 0
+        left: auto
+        min-width: 216px
+        display: flex
+        flex-direction: column
+        padding: 6px
+        border: 1px solid map.get(vars.$surface, 'border')
+        border-radius: 12px
+        background: map.get(vars.$basic, 'white')
+        box-shadow: 0 8px 24px rgba(var(--black-rgb), 0.12)
+        z-index: 20
+
+        &-item
+            display: flex
+            align-items: center
+            gap: 10px
+            width: 100%
+            padding: 9px 12px
+            border: none
+            border-radius: 8px
+            background: transparent
+            cursor: pointer
+            white-space: nowrap
+            text-align: left
+            +mix.typography(14px, 500, map.get(vars.$text, 'primary'))
+            transition: background-color 0.15s ease, color 0.15s ease
+
+            &-icon
+                flex-shrink: 0
+                font-size: 16px
+
+            &:hover
+                background: rgba(var(--main-primary-rgb), 0.08)
+                color: map.get(vars.$main, 'main')
+
+            &--danger:hover
+                background: map.get(vars.$status, 'danger-bg')
+                color: map.get(vars.$status, 'danger-color')
+
+        &-divider
+            height: 1px
+            margin: 6px 4px
+            background: map.get(vars.$surface, 'border')
+
+:root[data-theme='dark']
+    .user-dropdown
+        background: map.get(vars.$surface, 'muted')
+        border-color: map.get(vars.$surface, 'border')
+        box-shadow: 0 8px 24px rgba(var(--black-rgb), 0.4)

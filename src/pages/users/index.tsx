@@ -5,10 +5,9 @@ import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { deleteUser, getAllUsers, getUserById, registerUser, searchUsers } from 'entities/users/model'
+import { createUser, deleteUser, getAllUsers, getUserById, searchUsers } from 'entities/users/model'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
 import type { AddUserForm, UserResponse } from 'entities/users/types'
-import type { Language } from 'shared/types/dtos'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
@@ -37,7 +36,7 @@ const Users = () => {
     const dataPage = useAppSelector((state) => state.users.page)
     const dataTotal = useAppSelector((state) => state.users.total)
 
-    // const [form] = Form.useForm()
+    const [addUserForm] = Form.useForm()
 
     useEffect(() => {
         dispatch(getAllUsers({
@@ -54,7 +53,6 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            pinfl: user.pinfl || '-',
             lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
             status: user.status,
             action: 'Действие', 
@@ -79,17 +77,19 @@ const Users = () => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
 
-    const handleRegisterUser = async (values: AddUserForm) => {
+    const handleCreateUser = async (values: AddUserForm) => {
         try {
-            const newFormData = {...values,   language: "ru" as Language, }
-            const resultAction = await dispatch(registerUser(newFormData));
-        
-            if (registerUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.createUser'));
-                setTimeout(() => {
-                    handleModal('addUser', false);
-                    window.location.reload(); 
-                }, 1000); 
+            const resultAction = await dispatch(createUser(values));
+
+            if (createUser.fulfilled.match(resultAction)) {
+                toast.success(t('users.messages.success.activationEmailSent'));
+                handleModal('addUser', false);
+                addUserForm.resetFields();
+                await dispatch(getAllUsers({
+                    page: dataPage || 1,
+                    limit: dataLimit || 10,
+                    sortOrder: 'asc',
+                }));
             } else {
                 toast.error((resultAction.payload as string) || t('users.messages.error.createUser'));
             }
@@ -241,8 +241,8 @@ const Users = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => handleModal('addUser', false)}>
-            <FormComponent onFinish={handleRegisterUser}>
+        <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => { handleModal('addUser', false); addUserForm.resetFields(); }}>
+            <FormComponent form={addUserForm} onFinish={handleCreateUser}>
                 <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
@@ -282,7 +282,7 @@ const Users = () => {
                         label={t('users.addUserForm.label.phone')}
                         rules={[
                             { required: true, message: t('users.addUserForm.required.phone') },
-                            { pattern: /^\+?[0-9]{9,15}$/, message: t('users.addUserForm.pattern.phone') }
+                            { pattern: /^998[0-9]{9}$/, message: t('users.addUserForm.pattern.phone') }
                         ]}
                     >
                     <PhoneInput />
@@ -311,33 +311,21 @@ const Users = () => {
                         name="pinfl"
                         label={t('users.addUserForm.label.pinfl')}
                         rules={[
+                            { required: true, message: t('users.addUserForm.required.pinfl') },
                             { pattern: /^[0-9]{14}$/, message: t('users.addUserForm.pattern.pinfl') }
                         ]}
                     >
                     <Input
                         className="input"
                         size="large"
+                        inputMode="numeric"
+                        maxLength={14}
                         placeholder={t('users.addUserForm.placeholder.pinfl')}
                     />
                     </Form.Item>
-
-                    <Form.Item
-                        className="input"
-                        name="password"
-                        label={t('users.addUserForm.label.password')}
-                        rules={[
-                            { required: true, message: t('users.addUserForm.required.password') },
-                            { min: 8, message: t('users.addUserForm.pattern.passwordMinLength') }
-                        ]}
-                    >
-                    <Input.Password
-                        type="password"
-                        className="input"
-                        size="large"
-                        placeholder={t('users.addUserForm.placeholder.password')}
-                    />
-                    </Form.Item>
                 </div>
+
+                <p className="form-hint">{t('users.addUserForm.activationHint')}</p>
 
                 <CustomButton type="submit">{t('btn.create')}</CustomButton>
             </FormComponent>

@@ -1,12 +1,15 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
 import Router from './routes';
+import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
-import { logout } from 'entities/users/model';
+import { fetchCurrentUser, logout, updateUserPreferences } from 'entities/users/model';
+import { AppTheme, isLanguage } from 'shared/types/dtos';
+import { persistLanguage } from 'shared/lib/languagePreference';
 import {
   clearAccess,
   fetchCurrentUserAccess,
@@ -27,12 +30,27 @@ const getAntdThemeTokens = () => ({
   colorTextBase: getCssVariable('--basic-black'),
 });
 
+const THEME_MODES: readonly ThemeMode[] = [AppTheme.Light, AppTheme.Dark, AppTheme.System];
+
+const isThemeMode = (value: unknown): value is ThemeMode =>
+  typeof value === 'string' && (THEME_MODES as readonly string[]).includes(value);
+
 const getInitialTheme = (): ThemeMode => {
   const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-  if (savedTheme === 'light' || savedTheme === 'dark') {
-    return savedTheme;
+  return isThemeMode(savedTheme) ? savedTheme : AppTheme.System;
+};
+
+const prefersDarkScheme = () =>
+  window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+const resolveEffectiveTheme = (
+  mode: ThemeMode,
+  systemPrefersDark: boolean
+): 'light' | 'dark' => {
+  if (mode === AppTheme.System) {
+    return systemPrefersDark ? 'dark' : 'light';
   }
-  return 'light';
+  return mode;
 };
 
 const AuthSessionGuard = () => {
@@ -91,6 +109,7 @@ const AccessBootstrap = () => {
   useEffect(() => {
     if (isAuthenticated && accessToken) {
       void dispatch(fetchCurrentUserAccess());
+      void dispatch(fetchCurrentUser());
       return;
     }
 
@@ -118,16 +137,50 @@ const CompanyRouteSync = () => {
 };
 
 function App() {
+  const dispatch = useAppDispatch();
   const { darkAlgorithm, defaultAlgorithm } = theme;
   const loading = useAppSelector((state) => state.loader.loading);
+  const currentUser = useAppSelector((state) => state.users.currentUser);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
+  const [systemPrefersDark, setSystemPrefersDark] = useState(prefersDarkScheme);
   const [antdThemeTokens, setAntdThemeTokens] = useState(getAntdThemeTokens);
-  const isDarkTheme = themeMode === 'dark';
+  const appliedPreferencesRef = useRef<string | null>(null);
+  const effectiveTheme = resolveEffectiveTheme(themeMode, systemPrefersDark);
+  const isDarkTheme = effectiveTheme === 'dark';
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (event: MediaQueryListEvent) => setSystemPrefersDark(event.matches);
+    media.addEventListener('change', handleChange);
+    return () => media.removeEventListener('change', handleChange);
+  }, []);
+
+  // apply saved theme/language on login / boot refresh
+  useEffect(() => {
+    const preferences = currentUser?.preferences;
+    if (!currentUser || !preferences) {
+      appliedPreferencesRef.current = null;
+      return;
+    }
+    const signature = `${currentUser.id}:${preferences.theme}:${preferences.language}`;
+    if (appliedPreferencesRef.current === signature) return;
+    appliedPreferencesRef.current = signature;
+
+    if (isThemeMode(preferences.theme)) {
+      setThemeMode(preferences.theme);
+    }
+    if (isLanguage(preferences.language)) {
+      persistLanguage(preferences.language);
+      if (preferences.language !== i18n.language) {
+        void i18n.changeLanguage(preferences.language);
+      }
+    }
+  }, [currentUser]);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.add(THEME_TRANSITION_CLASS);
-    root.setAttribute('data-theme', themeMode);
+    root.setAttribute('data-theme', effectiveTheme);
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
     setAntdThemeTokens(getAntdThemeTokens());
 
@@ -139,7 +192,7 @@ function App() {
       window.clearTimeout(timeoutId);
       root.classList.remove(THEME_TRANSITION_CLASS);
     };
-  }, [themeMode]);
+  }, [themeMode, effectiveTheme]);
 
   const themeContextValue = useMemo(
     () => ({
@@ -147,10 +200,12 @@ function App() {
       isDarkTheme,
       setThemeMode,
       toggleTheme: () => {
-        setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+        const nextTheme = isDarkTheme ? AppTheme.Light : AppTheme.Dark;
+        setThemeMode(nextTheme);
+        void dispatch(updateUserPreferences({ theme: nextTheme }));
       },
     }),
-    [isDarkTheme, themeMode]
+    [dispatch, isDarkTheme, themeMode]
   );
 
   return (

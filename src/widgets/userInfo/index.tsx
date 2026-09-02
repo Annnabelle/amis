@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Avatar } from "antd";
-import { LuUserRound } from "react-icons/lu";
+import { LuUserRound, LuKeyRound, LuLogOut } from "react-icons/lu";
 import { IoIosArrowDown } from "react-icons/io";
 import { useAppSelector, useAppDispatch } from "app/store";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import CustomButton from "shared/ui/button";
 import "./styles.sass";
 import { logout } from "entities/users/model";
 
@@ -48,10 +47,17 @@ const UserInfo: React.FC<UserInfoProps> = ({
     navigate("/", { replace: true });
   };
 
+  const go = (path: string) => {
+    setIsOpen(false);
+    navigate(path);
+  };
+
+  const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+
   return (
     <div className="user" ref={dropdownRef}>
       <div
-        className={`user-info ${showDropdown ? "" : "user-info-static"}`}
+        className={`user-info ${showDropdown ? "" : "user-info-static"} ${isOpen ? "open" : ""}`}
         onClick={(e) => {
           e.stopPropagation();
           if (!showDropdown) {
@@ -68,9 +74,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         />
         <div className="user-text">
           <div className="user-text-container">
-            <p className="user-text-container-name">
-              {user?.firstName} {user?.lastName}
-            </p>
+            <p className="user-text-container-name">{displayName}</p>
           </div>
         </div>
         {showDropdown && (
@@ -82,15 +86,26 @@ const UserInfo: React.FC<UserInfoProps> = ({
       {showDropdown && isOpen && (
         <div className="user-dropdown">
           {showProfileAction && (
-            <div className="user-dropdown-action">
-              <CustomButton variant="outline" onClick={() => navigate('/profile')}>
-               {t("changePwd.title")}
-              </CustomButton>
-            </div>
+            <>
+              <button type="button" className="user-dropdown-item" onClick={() => go("/profile")}>
+                <LuUserRound className="user-dropdown-item-icon" />
+                <span>{t("me.title")}</span>
+              </button>
+              <button type="button" className="user-dropdown-item" onClick={() => go("/change-password")}>
+                <LuKeyRound className="user-dropdown-item-icon" />
+                <span>{t("changePwd.title")}</span>
+              </button>
+              <div className="user-dropdown-divider" />
+            </>
           )}
-          <div className="user-dropdown-action">
-            <CustomButton onClick={handleLogout}>{t("users.logOut")}</CustomButton>
-          </div>
+          <button
+            type="button"
+            className="user-dropdown-item user-dropdown-item--danger"
+            onClick={handleLogout}
+          >
+            <LuLogOut className="user-dropdown-item-icon" />
+            <span>{t("users.logOut")}</span>
+          </button>
         </div>
       )}
     </div>

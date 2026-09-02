@@ -471,6 +471,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
+  const hasSidebarNavigation =
+    systemMenuItems.length > 0 ||
+    selectableCompanies.length > 0 ||
+    pendingSystemInvitations.length > 0 ||
+    pendingCompanyInvitations.length > 0;
+
   const systemMobileNavItems = useMemo<MobileNavItem[]>(() => [
     ...(systemModules.includes(AccessModules.Users)
       ? [{
@@ -695,7 +701,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
       <div className="layout-content-wrapper">
         <Layout className="layout-content">
-          {!isMobile && (
+          {!isMobile && hasSidebarNavigation && (
             <Sider
               collapsible
               collapsed={collapsed}
