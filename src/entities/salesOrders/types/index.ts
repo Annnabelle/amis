@@ -51,6 +51,7 @@ export type SalesOrderResponse = {
       unitPrice?: number;
       amount?: number;
     };
+    packageCode?: string;
     comment?: string;
   }[];
   totals: {

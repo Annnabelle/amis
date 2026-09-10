@@ -278,6 +278,12 @@ const SalesOrdersDetails = () => {
                           <Input className="input" size="large" placeholder={item.product.name} disabled />
                         </Form.Item>
                         <Form.Item
+                          className="input sales-order-details-item sales-order-details-item--commercial"
+                          label={t('salesOrders.fields.packageCode')}
+                        >
+                          <Input className="input" size="large" placeholder={item.packageCode ?? empty} disabled />
+                        </Form.Item>
+                        <Form.Item
                           className="input sales-order-details-item sales-order-details-item--quantity"
                           label={t('salesOrders.fields.orderedQuantityShort', { defaultValue: t('salesOrders.fields.orderedQuantity') })}
                         >

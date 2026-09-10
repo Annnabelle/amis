@@ -9,8 +9,13 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
 import { createSalesOrder } from 'entities/salesOrders/model';
-import { mapSalesOrderFormToCreateDto, type SalesOrderFormValues } from 'entities/salesOrders/mappers';
-import { searchProducts } from 'entities/products/model';
+import {
+  mapSalesOrderFormToCreateDto,
+  SalesOrderContractError,
+  type SalesOrderFormValues,
+} from 'entities/salesOrders/mappers';
+import { getProductPackages, searchProducts } from 'entities/products/model';
+import type { ProductPackage } from 'entities/products/types';
 import { getCompanyByTin, getOrganizationById } from 'entities/organization/model';
 import { fetchDistrictsByRegion, fetchRegions } from 'entities/references/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
@@ -56,6 +61,9 @@ const SalesOrdersCreate = () => {
     customer?: string;
   }>({});
   const [deliveryDistanceSource, setDeliveryDistanceSource] = useState<"route" | "geo" | null>(null);
+  const [packagesByProductId, setPackagesByProductId] = useState<
+    Record<string, { loading: boolean; loaded: boolean; options: ProductPackage[] }>
+  >({});
   const companyLookupRequestRef = useRef(0);
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
   const listPath = orgId
@@ -603,6 +611,65 @@ const SalesOrdersCreate = () => {
     );
   };
 
+  const loadProductPackages = async (productId: string) => {
+    const existing = packagesByProductId[productId];
+    if (existing?.loading || existing?.loaded) {
+      return;
+    }
+
+    setPackagesByProductId((prev) => ({
+      ...prev,
+      [productId]: { loading: true, loaded: false, options: prev[productId]?.options ?? [] },
+    }));
+
+    const result = await dispatch(getProductPackages({ id: productId }));
+
+    if (getProductPackages.fulfilled.match(result)) {
+      setPackagesByProductId((prev) => ({
+        ...prev,
+        [productId]: { loading: false, loaded: true, options: result.payload },
+      }));
+    } else {
+      setPackagesByProductId((prev) => ({
+        ...prev,
+        [productId]: { loading: false, loaded: false, options: [] },
+      }));
+      toast.error(result.payload ?? t('common.error'));
+    }
+  };
+
+  const handleItemProductChange = (fieldName: number, productId?: string) => {
+    form.setFieldValue(['items', fieldName, 'packageCode'], undefined);
+    if (productId) {
+      void loadProductPackages(productId);
+    }
+  };
+
+  const getPackageLabel = (pkg: ProductPackage) =>
+    pkg.name?.[currentLanguage] || pkg.name?.ru || pkg.name?.en || pkg.code;
+
+  const isValidLocation = (value?: { latitude?: number; longitude?: number }) =>
+    Boolean(value) &&
+    Number.isFinite(Number(value?.latitude)) &&
+    Number.isFinite(Number(value?.longitude));
+
+  const locationRule = {
+    validator: (_: unknown, value: { latitude?: number; longitude?: number } | undefined) =>
+      isValidLocation(value)
+        ? Promise.resolve()
+        : Promise.reject(
+            new Error(
+              t('salesOrders.createValidation.locationRequired', {
+                defaultValue: 'Отметьте точку на карте',
+              })
+            )
+          ),
+  };
+
+  const locationValueProps = (value?: { latitude?: number; longitude?: number }) => ({
+    value: isValidLocation(value) ? `${value?.latitude}, ${value?.longitude}` : '',
+  });
+
   const handleCreateSalesOrder = async (values: SalesOrderFormValues) => {
     if (!orgId) {
       toast.error(t('salesOrders.validation.companyRequired'));
@@ -614,8 +681,18 @@ const SalesOrdersCreate = () => {
       return;
     }
 
+    let payload;
     try {
-      const payload = mapSalesOrderFormToCreateDto(values);
+      payload = mapSalesOrderFormToCreateDto(values);
+    } catch (error: unknown) {
+      if (error instanceof SalesOrderContractError) {
+        toast.error(t('salesOrders.createValidation.contractDetailsIncomplete'));
+        return;
+      }
+      throw error;
+    }
+
+    try {
       await dispatch(createSalesOrder(payload)).unwrap();
       toast.success(t('salesOrders.messages.success.create'));
       form.resetFields();
@@ -635,6 +712,7 @@ const SalesOrdersCreate = () => {
           endpointAccessMap.companiesByTin,
           endpointAccessMap.companiesRead,
           endpointAccessMap.productsList,
+          endpointAccessMap.productsPackages,
           endpointAccessMap.referencesRead,
         ]}
         errors={[companyLookupError, productsError, referencesError]}
@@ -729,12 +807,24 @@ const SalesOrdersCreate = () => {
                   />
                 </Form.Item>
               </div>
-              <Form.Item name={["sender", "addressDetails", "location", "latitude"]} hidden>
-                <InputNumber />
-              </Form.Item>
-              <Form.Item name={["sender", "addressDetails", "location", "longitude"]} hidden>
-                <InputNumber />
-              </Form.Item>
+              <div className="form-inputs">
+                <Form.Item
+                  className="input"
+                  name={["sender", "addressDetails", "location"]}
+                  label={t('salesOrders.fields.senderLocation')}
+                  getValueProps={locationValueProps}
+                  rules={[locationRule]}
+                >
+                  <Input
+                    className="input"
+                    size="large"
+                    disabled
+                    placeholder={t('salesOrders.createPlaceholders.location', {
+                      defaultValue: 'Отметьте точку на карте',
+                    })}
+                  />
+                </Form.Item>
+              </div>
               <YandexAddressMap
                 address={senderAddress}
                 forcedGeocodeAddress={forcedMapGeocodeAddress.sender}
@@ -752,6 +842,7 @@ const SalesOrdersCreate = () => {
                 }}
                 onLocationChange={(location) => {
                   form.setFieldValue(["sender", "addressDetails", "location"], location);
+                  void form.validateFields([["sender", "addressDetails", "location"]]).catch(() => undefined);
                 }}
               />
                 </div>
@@ -899,12 +990,24 @@ const SalesOrdersCreate = () => {
                   />
                 </Form.Item>
               </div>
-              <Form.Item name={["customer", "addressDetails", "location", "latitude"]} hidden>
-                <InputNumber />
-              </Form.Item>
-              <Form.Item name={["customer", "addressDetails", "location", "longitude"]} hidden>
-                <InputNumber />
-              </Form.Item>
+              <div className="form-inputs form-inputs-organization">
+                <Form.Item
+                  className="input"
+                  name={["customer", "addressDetails", "location"]}
+                  label={t('salesOrders.fields.customerLocation')}
+                  getValueProps={locationValueProps}
+                  rules={[locationRule]}
+                >
+                  <Input
+                    className="input"
+                    size="large"
+                    disabled
+                    placeholder={t('salesOrders.createPlaceholders.location', {
+                      defaultValue: 'Отметьте точку на карте',
+                    })}
+                  />
+                </Form.Item>
+              </div>
               <YandexAddressMap
                 address={customerAddress}
                 forcedGeocodeAddress={forcedMapGeocodeAddress.customer}
@@ -922,6 +1025,7 @@ const SalesOrdersCreate = () => {
                 }}
                 onLocationChange={(location) => {
                   form.setFieldValue(["customer", "addressDetails", "location"], location);
+                  void form.validateFields([["customer", "addressDetails", "location"]]).catch(() => undefined);
                 }}
               />
                 </div>
@@ -1039,6 +1143,7 @@ const SalesOrdersCreate = () => {
                     size="large"
                     className="input"
                     style={{ width: "100%" }}
+                    addonAfter={t('waybills.fields.sum', { defaultValue: 'сум' })}
                     parser={decimalParser(10, 2)}
                     inputMode="decimal"
                   />
@@ -1090,7 +1195,15 @@ const SalesOrdersCreate = () => {
               <Form.List name="items" initialValue={[{}]}>
                 {(fields, { add, remove }) => (
                   <div className="create-order-items">
-                    {fields.map((field, index) => (
+                    {fields.map((field, index) => {
+                      const rowProductId = Array.isArray(items)
+                        ? (items[field.name]?.productId as string | undefined)
+                        : undefined;
+                      const rowPackages = rowProductId
+                        ? packagesByProductId[rowProductId]
+                        : undefined;
+
+                      return (
                       <div key={field.key} className="form-inputs create-order-items-item sales-order-items-item">
                         <Form.Item
                           className="input sales-order-item sales-order-item--product"
@@ -1107,9 +1220,34 @@ const SalesOrdersCreate = () => {
                             optionLabelProp="label"
                             dropdownMatchSelectWidth={false}
                             onSearch={handleProductSearch}
+                            onChange={(value) => handleItemProductChange(field.name, value)}
                             options={products.map((product) => ({
                               value: product.id,
                               label: product.name,
+                            }))}
+                          />
+                        </Form.Item>
+
+                        <Form.Item
+                          className="input sales-order-item sales-order-item--package"
+                          name={[field.name, "packageCode"]}
+                          label={t('salesOrders.fields.packageCodeShort')}
+                          rules={[{ required: true, message: t('salesOrders.validation.itemPackageRequired') }]}
+                        >
+                          <Select
+                            className="input"
+                            size="large"
+                            placeholder={t('salesOrders.fields.packageCodeShort')}
+                            loading={rowPackages?.loading}
+                            disabled={!rowProductId || rowPackages?.loading}
+                            notFoundContent={
+                              rowPackages?.loading
+                                ? t('common.loading', { defaultValue: '...' })
+                                : undefined
+                            }
+                            options={(rowPackages?.options ?? []).map((pkg) => ({
+                              value: pkg.code,
+                              label: getPackageLabel(pkg),
                             }))}
                           />
                         </Form.Item>
@@ -1185,7 +1323,8 @@ const SalesOrdersCreate = () => {
                           />
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </Form.List>

@@ -296,6 +296,7 @@
                     region: "Select region",
                     district: "Select district",
                     address: "Address",
+                    location: "Pick a point on the map",
                     expectedDate: "Expected date"
                 },
                 createValidation: {
@@ -304,6 +305,8 @@
                     regionRequired: "Select region",
                     districtRequired: "Select district",
                     addressRequired: "Enter address",
+                    locationRequired: "Pick a point on the map",
+                    contractDetailsIncomplete: "Fill in the sender and customer address (region, district, address and map point), contract and delivery",
                     expectedDateRequired: "Expected date is required"
                 },
                 fields: {
@@ -325,6 +328,8 @@
                     priority: "Priority",
                     paymentMethod: "Payment method",
                     product: "Product",
+                    packageCode: "Unit of measure",
+                    packageCodeShort: "Unit",
                     quantity: "Quantity",
                     unitPrice: "Unit price",
                     price: "Price/unit",
@@ -383,6 +388,7 @@
                     contractNumberRequired: "Contract number is required",
                     contractDateRequired: "Contract date is required",
                     itemProductRequired: "Product is required",
+                    itemPackageRequired: "Select a unit of measure",
                     itemQuantityRequired: "Quantity is required",
                     itemUnitPriceRequired: "Unit price is required"
                 },
@@ -450,6 +456,7 @@
                     volumeCapacityM3: "Volume capacity, m3",
                     vin: "VIN",
                     registrationCertificateNumber: "Registration certificate",
+                    stateRegistrationModel: "Model (Faktura registry)",
                     status: "Status",
                     createdAt: "Created",
                     updatedAt: "Updated"
@@ -462,7 +469,13 @@
                     model: "Enter model",
                     vin: "Enter VIN",
                     registrationCertificateNumber: "AA 1234567",
+                    stateRegistrationModel: "Filled automatically from the registry",
                     selectVehicle: "Select vehicle"
+                },
+                ownership: {
+                    checking: "Checking the plate number in the Faktura registry…",
+                    notRegistered: "No record for this plate number in the Faktura registry",
+                    found: "Owner confirmed in the Faktura registry"
                 },
                 types: {
                     sedan: "Sedan",
@@ -949,6 +962,7 @@
                     deliveryType: "Delivery type",
                     costPerDistanceUnit: "Cost per distance unit",
                     costPerKilometer: "Price per 1 km",
+                    sum: "UZS",
                     totalDistance: "Total distance",
                     geoDistanceFallbackTooltip: "Route is unavailable, direct distance between selected points is shown",
                     deliveryTotalCost: "Total delivery cost",
@@ -2286,6 +2300,7 @@
                     region: "Выберите регион",
                     district: "Выберите район",
                     address: "Адрес",
+                    location: "Отметьте точку на карте",
                     expectedDate: "Ожидаемая дата"
                 },
                 createValidation: {
@@ -2294,6 +2309,8 @@
                     regionRequired: "Выберите регион",
                     districtRequired: "Выберите район",
                     addressRequired: "Введите адрес",
+                    locationRequired: "Отметьте точку на карте",
+                    contractDetailsIncomplete: "Заполните адрес отправителя и клиента (регион, район, адрес и точку на карте), договор и доставку",
                     expectedDateRequired: "Ожидаемая дата обязательна"
                 },
                 fields: {
@@ -2315,6 +2332,8 @@
                     priority: "Приоритет",
                     paymentMethod: "Способ оплаты",
                     product: "Товар",
+                    packageCode: "Единица измерения",
+                    packageCodeShort: "Ед.измерения",
                     quantity: "Количество",
                     unitPrice: "Цена за единицу",
                     price: "Цена за ед.",
@@ -2373,6 +2392,7 @@
                     contractNumberRequired: "Номер договора обязателен",
                     contractDateRequired: "Дата договора обязательна",
                     itemProductRequired: "Товар обязателен",
+                    itemPackageRequired: "Выберите единицу измерения",
                     itemQuantityRequired: "Количество обязательно",
                     itemUnitPriceRequired: "Цена за единицу обязательна"
                 },
@@ -2440,6 +2460,7 @@
                     volumeCapacityM3: "Объём, м3",
                     vin: "VIN",
                     registrationCertificateNumber: "Номер техпаспорта",
+                    stateRegistrationModel: "Модель (реестр Faktura)",
                     status: "Статус",
                     createdAt: "Создано",
                     updatedAt: "Обновлено"
@@ -2452,7 +2473,13 @@
                     model: "Введите модель",
                     vin: "Введите VIN",
                     registrationCertificateNumber: "AA 1234567",
+                    stateRegistrationModel: "Заполняется автоматически из реестра",
                     selectVehicle: "Выберите транспорт"
+                },
+                ownership: {
+                    checking: "Проверяем номер машины в реестре Faktura…",
+                    notRegistered: "В реестре Faktura нет записи по этому номеру машины",
+                    found: "Владелец подтверждён в реестре Faktura"
                 },
                 types: {
                     sedan: "Седан",
@@ -2939,6 +2966,7 @@
                     deliveryType: "Тип доставки",
                     costPerDistanceUnit: "Стоимость за единицу расстояния",
                     costPerKilometer: "Цена за 1 км",
+                    sum: "сум",
                     totalDistance: "Общее расстояние",
                     geoDistanceFallbackTooltip: "Маршрут недоступен, указано прямое расстояние между выбранными точками",
                     deliveryTotalCost: "Общая стоимость доставки",
@@ -4268,6 +4296,7 @@
                     region: "Viloyatni tanlang",
                     district: "Tumanni tanlang",
                     address: "Manzil",
+                    location: "Xaritada nuqtani belgilang",
                     expectedDate: "Kutilayotgan sana"
                 },
                 createValidation: {
@@ -4276,6 +4305,8 @@
                     regionRequired: "Viloyatni tanlang",
                     districtRequired: "Tumanni tanlang",
                     addressRequired: "Manzilni kiriting",
+                    locationRequired: "Xaritada nuqtani belgilang",
+                    contractDetailsIncomplete: "Jo'natuvchi va mijoz manzilini (viloyat, tuman, manzil va xarita nuqtasi), shartnoma va yetkazib berishni to'ldiring",
                     expectedDateRequired: "Kutilayotgan sana majburiy"
                 },
                 fields: {
@@ -4297,6 +4328,8 @@
                     priority: "Ustuvorlik",
                     paymentMethod: "To'lov usuli",
                     product: "Mahsulot",
+                    packageCode: "O'lchov birligi",
+                    packageCodeShort: "O'lchov",
                     quantity: "Miqdor",
                     unitPrice: "Birlik narxi",
                     price: "Birlik narxi",
@@ -4355,6 +4388,7 @@
                     contractNumberRequired: "Shartnoma raqami majburiy",
                     contractDateRequired: "Shartnoma sanasi majburiy",
                     itemProductRequired: "Mahsulot majburiy",
+                    itemPackageRequired: "O'lchov birligini tanlang",
                     itemQuantityRequired: "Miqdor majburiy",
                     itemUnitPriceRequired: "Birlik narxi majburiy"
                 },
@@ -4422,6 +4456,7 @@
                     volumeCapacityM3: "Hajm, m3",
                     vin: "VIN",
                     registrationCertificateNumber: "Tex pasport raqami",
+                    stateRegistrationModel: "Model (Faktura reyestri)",
                     status: "Holat",
                     createdAt: "Yaratildi",
                     updatedAt: "Yangilandi"
@@ -4434,7 +4469,13 @@
                     model: "Modelni kiriting",
                     vin: "VIN ni kiriting",
                     registrationCertificateNumber: "AA 1234567",
+                    stateRegistrationModel: "Reyestrdan avtomatik to'ldiriladi",
                     selectVehicle: "Transportni tanlang"
+                },
+                ownership: {
+                    checking: "Mashina raqami Faktura reyestrida tekshirilmoqda…",
+                    notRegistered: "Faktura reyestrida bu mashina raqami bo'yicha yozuv yo'q",
+                    found: "Egasi Faktura reyestrida tasdiqlandi"
                 },
                 types: {
                     sedan: "Sedan",
@@ -4892,6 +4933,7 @@
                     deliveryType: "Yetkazish turi",
                     costPerDistanceUnit: "Masofa birligi narxi",
                     costPerKilometer: "1 km narxi",
+                    sum: "so'm",
                     totalDistance: "Jami masofa",
                     geoDistanceFallbackTooltip: "Yo'nalish mavjud emas, tanlangan nuqtalar orasidagi to'g'ri masofa ko'rsatilgan",
                     deliveryTotalCost: "Yetkazishning umumiy narxi",

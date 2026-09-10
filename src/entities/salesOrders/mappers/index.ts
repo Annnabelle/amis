@@ -105,6 +105,7 @@ export const mapSalesOrderDtoToEntity = (
           amount: item.commercial.amount,
         }
       : undefined,
+    packageCode: item.packageCode,
     comment: item.comment,
   })),
   totals: {
@@ -178,6 +179,7 @@ export type SalesOrderFormValues = {
     productId: string;
     quantity: number;
     unitPrice: number;
+    packageCode?: string;
     comment?: string;
   }[];
   comment?: string;
@@ -204,13 +206,19 @@ const mapAddressDetails = (
   const longitude = Number(addressDetails.location?.longitude);
   const hasLocation = Number.isFinite(latitude) && Number.isFinite(longitude);
 
+  if (!hasLocation) {
+    return undefined;
+  }
+
   return {
     regionId: addressDetails.regionId,
     districtId: addressDetails.districtId,
     address: addressDetails.address.trim(),
-    location: hasLocation ? { latitude, longitude } : undefined,
+    location: { latitude, longitude },
   };
 };
+
+export class SalesOrderContractError extends Error {}
 
 export const mapSalesOrderFormToCreateDto = (
   values: SalesOrderFormValues
@@ -220,42 +228,51 @@ export const mapSalesOrderFormToCreateDto = (
   const senderAddressDetails = mapAddressDetails(values.sender?.addressDetails);
   const customerAddressDetails = mapAddressDetails(values.customer.addressDetails);
 
+  if (!senderAddressDetails) {
+    throw new SalesOrderContractError("sender.addressDetails");
+  }
+
+  if (!customerAddressDetails) {
+    throw new SalesOrderContractError("customer.addressDetails");
+  }
+
+  if (!values.contract?.number?.trim() || !contractDate) {
+    throw new SalesOrderContractError("contract");
+  }
+
+  if (!values.delivery?.type) {
+    throw new SalesOrderContractError("delivery");
+  }
+
   return {
-    sender: senderAddressDetails
-      ? {
-          addressDetails: senderAddressDetails,
-        }
-      : undefined,
+    sender: {
+      addressDetails: senderAddressDetails,
+    },
     customer: {
       id: values.customer.id,
       tin: values.customer.tin.replace(/\D/g, '').trim(),
       name: values.customer.name.trim(),
       addressDetails: customerAddressDetails,
     },
-    contract:
-      values.contract?.number && contractDate
-        ? {
-            number: values.contract.number.trim(),
-            date: contractDate,
-          }
-        : undefined,
+    contract: {
+      number: values.contract.number.trim(),
+      date: contractDate,
+    },
     fulfillment: {
       dueDate: dueDate ?? new Date().toISOString(),
       priority: values.fulfillment.priority,
       paymentMethod: values.fulfillment.paymentMethod,
     },
-    delivery:
-      values.delivery?.type
-        ? {
-            type: values.delivery.type,
-            costPerDistanceUnit: optionalNumber(values.delivery.costPerDistanceUnit),
-            totalDistance: optionalNumber(values.delivery.totalDistance),
-          }
-        : undefined,
+    delivery: {
+      type: values.delivery.type,
+      costPerDistanceUnit: optionalNumber(values.delivery.costPerDistanceUnit),
+      totalDistance: optionalNumber(values.delivery.totalDistance),
+    },
     items: values.items.map((item) => ({
       productId: item.productId,
       quantity: Number(item.quantity),
       unitPrice: Number(item.unitPrice),
+      packageCode: item.packageCode?.trim() || undefined,
       comment: item.comment?.trim() || undefined,
     })),
     comment: values.comment?.trim() || undefined,

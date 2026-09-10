@@ -106,6 +106,7 @@ export const endpointAccessMap = {
   productsList: endpoint({ method: "GET", path: "/products", permission: Permissions.ProductsList, scope: EndpointScopes.Company }),
   productsSearch: endpoint({ method: "GET", path: "/products/search", permission: Permissions.ProductsList, scope: EndpointScopes.Company }),
   productsRead: endpoint({ method: "GET", path: "/products/:id", permission: Permissions.ProductsRead, scope: EndpointScopes.Company }),
+  productsPackages: endpoint({ method: "GET", path: "/products/:id/packages", permission: Permissions.ProductsRead, scope: EndpointScopes.Company }),
   productsUpdate: endpoint({ method: "PATCH", path: "/products/:id", permission: Permissions.ProductsUpdate, scope: EndpointScopes.Company }),
   productsDelete: endpoint({ method: "DELETE", path: "/products/:id", permission: Permissions.ProductsDelete, scope: EndpointScopes.Company }),
 
@@ -134,6 +135,7 @@ export const endpointAccessMap = {
   vehiclesCreate: endpoint({ method: "POST", path: "/vehicles", permission: Permissions.VehiclesCreate, scope: EndpointScopes.Company }),
   vehiclesList: endpoint({ method: "GET", path: "/vehicles", permission: Permissions.VehiclesList, scope: EndpointScopes.Company }),
   vehiclesSearch: endpoint({ method: "GET", path: "/vehicles/search", permission: Permissions.VehiclesSearch, scope: EndpointScopes.Company }),
+  vehiclesVerifyOwnership: endpoint({ method: "GET", path: "/vehicles/ownership", permission: Permissions.VehicleVerifyOwnership, scope: EndpointScopes.Company }),
   vehiclesRead: endpoint({ method: "GET", path: "/vehicles/:id", permission: Permissions.VehiclesRead, scope: EndpointScopes.Company }),
   vehiclesUpdate: endpoint({ method: "PATCH", path: "/vehicles/:id", permission: Permissions.VehiclesUpdate, scope: EndpointScopes.Company }),
   vehiclesDelete: endpoint({ method: "DELETE", path: "/vehicles/:id", permission: Permissions.VehiclesDelete, scope: EndpointScopes.Company }),

@@ -76,6 +76,10 @@ const VehicleDetails = () => {
                     items={[
                       { label: t("vehicles.fields.brand"), value: vehicle.characteristics.brand },
                       { label: t("vehicles.fields.model"), value: vehicle.characteristics.model },
+                      {
+                        label: t("vehicles.fields.stateRegistrationModel"),
+                        value: formatValue(vehicle.stateRegistrationModel),
+                      },
                       { label: t("vehicles.fields.year"), value: formatValue(vehicle.characteristics.year) },
                       { label: t("vehicles.fields.loadCapacityKg"), value: formatValue(vehicle.characteristics.loadCapacityKg) },
                       { label: t("vehicles.fields.volumeCapacityM3"), value: formatValue(vehicle.characteristics.volumeCapacityM3) },

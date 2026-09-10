@@ -1,4 +1,4 @@
-import type {AvailablePackageType, HexString, MeasurementDto, WeightDto} from "shared/types/dtos";
+import type {AvailablePackageType, HexString, MeasurementDto, MultiLanguage, WeightDto} from "shared/types/dtos";
 
 export type ProductResponse = {
     id: string;
@@ -37,6 +37,13 @@ export type Gtin = {
 export type Measurement = {
     unit: string;
     amount: number;
+}
+
+export type ProductPackage = {
+    code: string;
+    icps: string;
+    type?: string;
+    name: MultiLanguage;
 }
 
 export type Weight = {

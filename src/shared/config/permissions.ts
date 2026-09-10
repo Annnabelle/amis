@@ -80,6 +80,7 @@ export const Permissions = {
   VehiclesUpdate: "vehicle.update",
   VehiclesDelete: "vehicle.delete",
   VehiclesSearch: "vehicle.search",
+  VehicleVerifyOwnership: "vehicle.verify-ownership",
 
   DeliveryTasksList: "delivery-tasks.list",
   DeliveryTasksRead: "delivery-tasks.read",

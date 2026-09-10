@@ -2,13 +2,14 @@ import type {ErrorDto, PaginatedResponseDto} from "shared/types/dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
-import type { ProductResponse, ProductState } from "entities/products/types";
+import type { ProductPackage, ProductResponse, ProductState } from "entities/products/types";
 import type {
     CreateProductDto,
     CreateProductResponseDto,
     DeleteProductDto,
     DeleteProductResponseDto,
     GetProductDto,
+    GetProductPackagesResponseDto,
     GetProductResponseDto,
     GetProductsDto,
     GetProductsResponseDto,
@@ -17,7 +18,8 @@ import type {
     UpdateProductResponseDto
 } from "entities/products/dtos";
 import {
-    mapProductDtoToEntity
+    mapProductDtoToEntity,
+    mapProductPackageDtoToEntity
 } from "entities/products/mappers";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 
@@ -206,6 +208,31 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
+
+export const getProductPackages = createAsyncThunk<
+  ProductPackage[],
+  { id: string },
+  { rejectValue: string }
+>("products/getProductPackages", async ({ id }, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get<GetProductPackagesResponseDto>(
+      `/products/${id}/packages`
+    );
+
+    if ("packages" in response.data && Array.isArray(response.data.packages)) {
+      return response.data.packages.map(mapProductPackageDtoToEntity);
+    }
+
+    return rejectWithValue(
+      getBackendErrorMessage(response.data, "Не удалось загрузить упаковки товара")
+    );
+  } catch (err) {
+    const responseData = (err as { response?: { data?: unknown } }).response?.data;
+    return rejectWithValue(
+      getBackendErrorMessage(responseData ?? err, "Не удалось загрузить упаковки товара")
+    );
+  }
+});
 
 export const searchProducts = createAsyncThunk(
   'products/searchProducts',

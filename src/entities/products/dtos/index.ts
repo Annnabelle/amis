@@ -1,6 +1,6 @@
 ﻿import type {
   AvailablePackageType,
-  ErrorDto, HexString, MeasurementDto, PaginatedDto, PaginatedResponseDto, ProductSortField, ProductStatus, WeightDto
+  ErrorDto, HexString, MeasurementDto, MultiLanguage, PaginatedDto, PaginatedResponseDto, ProductSortField, ProductStatus, WeightDto
 } from "shared/types/dtos";
 
 export type ProductResponseDto = {
@@ -109,6 +109,22 @@ export type UpdateProductResponseDto = {
   success: boolean;
   product: ProductResponseDto;
 } | ErrorDto;
+
+export type ProductPackageType = AvailablePackageType | string;
+
+export type ProductPackageDto = {
+  code: string;
+  icps: string;
+  type?: ProductPackageType;
+  name: MultiLanguage;
+};
+
+export type GetProductPackagesResponseDto =
+  | {
+      success: boolean;
+      packages: ProductPackageDto[];
+    }
+  | ErrorDto;
 
 
 

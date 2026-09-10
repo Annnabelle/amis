@@ -1,5 +1,5 @@
-import type { VehicleResponseDto } from "entities/vehicles/dtos";
-import type { Vehicle } from "entities/vehicles/types";
+import type { VehicleOwnershipDto, VehicleResponseDto } from "entities/vehicles/dtos";
+import type { Vehicle, VehicleOwnership } from "entities/vehicles/types";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -15,8 +15,18 @@ export const mapVehicleDtoToEntity = (dto: VehicleResponseDto): Vehicle => ({
   identification: dto.identification,
   characteristics: dto.characteristics,
   status: dto.status,
+  stateRegistrationModel: dto.stateRegistrationModel,
   createdBy: dto.createdBy,
   updatedBy: dto.updatedBy,
   createdAt: toDate(dto.createdAt),
   updatedAt: toDate(dto.updatedAt),
+});
+
+export const mapVehicleOwnershipDtoToEntity = (
+  dto: VehicleOwnershipDto
+): VehicleOwnership => ({
+  regNumber: dto.regNumber,
+  model: dto.model,
+  ownershipType: dto.ownershipType,
+  transportType: dto.transportType,
 });

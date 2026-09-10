@@ -1,16 +1,18 @@
-import { Form, Input, InputNumber, Select } from "antd";
+import { Form, Input, InputNumber, Select, Spin } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
+import { getOrganizationById } from "entities/organization/model";
 import {
   createVehicle,
   deleteVehicle,
   getVehicles,
   updateVehicle,
+  verifyVehicleOwnership,
 } from "entities/vehicles/model";
 import {
   VehicleType,
@@ -31,6 +33,7 @@ type VehicleFormValues = {
   name: string;
   type: VehicleType;
   plateNumber: string;
+  stateRegistrationModel?: string;
   brand: string;
   model: string;
   year?: number;
@@ -39,6 +42,10 @@ type VehicleFormValues = {
   vin?: string;
   registrationCertificateNumber?: string;
 };
+
+type OwnershipStatus = "idle" | "checking" | "found" | "not-registered" | "error";
+
+const TIN_OR_PINFL_PATTERN = /^(\d{9}|\d{14})$/;
 
 const normalizePlateNumber = (value: string) => {
   const raw = value.toUpperCase().replace(/[^0-9A-Z]/g, "");
@@ -106,6 +113,7 @@ const getVehiclePayload = (values: VehicleFormValues): Omit<CreateVehicleDto, "c
   type: values.type,
   displayName: values.name.trim(),
   plateNumber: normalizePayloadPlateNumber(values.plateNumber),
+  stateRegistrationModel: values.stateRegistrationModel?.trim() || undefined,
   identification: {
     vin: values.vin?.trim() || undefined,
     registrationCertificateNumber: values.registrationCertificateNumber
@@ -136,7 +144,11 @@ const Vehicles = () => {
   const canCreate = useCan(endpointAccessMap.vehiclesCreate);
   const canUpdate = useCan(endpointAccessMap.vehiclesUpdate);
   const canDelete = useCan(endpointAccessMap.vehiclesDelete);
+  const canVerifyOwnership = useCan(endpointAccessMap.vehiclesVerifyOwnership);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [companyTin, setCompanyTin] = useState<string | null>(null);
+  const [ownershipStatus, setOwnershipStatus] = useState<OwnershipStatus>("idle");
+  const ownershipRequestRef = useRef(0);
   const [modalState, setModalState] = useState({
     create: false,
     edit: false,
@@ -147,6 +159,65 @@ const Vehicles = () => {
     if (!orgId) return;
     dispatch(getVehicles({ page: 1, limit: 10, sortOrder: "asc" }));
   }, [dispatch, orgId]);
+
+  useEffect(() => {
+    if (!orgId || !canVerifyOwnership) return;
+
+    dispatch(getOrganizationById({ id: orgId }))
+      .unwrap()
+      .then((company) => setCompanyTin(company.tin ?? null))
+      .catch(() => setCompanyTin(null));
+  }, [canVerifyOwnership, dispatch, orgId]);
+
+  const resetOwnershipCheck = () => {
+    ownershipRequestRef.current += 1;
+    setOwnershipStatus("idle");
+  };
+
+  const verifyOwnership = async (plateNumber: string) => {
+    const regNumber = normalizePayloadPlateNumber(plateNumber);
+
+    if (!canVerifyOwnership || !regNumber) {
+      resetOwnershipCheck();
+      return;
+    }
+
+    if (!companyTin || !TIN_OR_PINFL_PATTERN.test(companyTin)) {
+      resetOwnershipCheck();
+      return;
+    }
+
+    const requestId = ownershipRequestRef.current + 1;
+    ownershipRequestRef.current = requestId;
+    setOwnershipStatus("checking");
+
+    const result = await dispatch(
+      verifyVehicleOwnership({ tinOrPinfl: companyTin, regNumber })
+    );
+
+    if (ownershipRequestRef.current !== requestId) return;
+
+    if (verifyVehicleOwnership.fulfilled.match(result)) {
+      if (result.payload.status === "found") {
+        form.setFieldValue("stateRegistrationModel", result.payload.ownership.model);
+        setOwnershipStatus("found");
+      } else {
+        form.setFieldValue("stateRegistrationModel", undefined);
+        setOwnershipStatus("not-registered");
+      }
+      return;
+    }
+
+    form.setFieldValue("stateRegistrationModel", undefined);
+    setOwnershipStatus("error");
+    if (result.payload) {
+      toast.error(result.payload);
+    }
+  };
+
+  const handlePlateNumberBlur = () => {
+    void verifyOwnership(form.getFieldValue("plateNumber") ?? "");
+  };
 
   const tableData = useMemo<VehiclesTableDataType[]>(
     () =>
@@ -165,6 +236,10 @@ const Vehicles = () => {
       form.resetFields();
     }
 
+    if (name === "create" || name === "edit") {
+      resetOwnershipCheck();
+    }
+
     setModalState((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -174,6 +249,10 @@ const Vehicles = () => {
 
   const handlePlateNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
     form.setFieldValue("plateNumber", normalizePlateNumber(event.target.value));
+    if (ownershipStatus !== "idle") {
+      form.setFieldValue("stateRegistrationModel", undefined);
+      resetOwnershipCheck();
+    }
   };
 
   const handleRegistrationCertificateNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -200,6 +279,7 @@ const Vehicles = () => {
         type: vehicle.type,
         name: vehicle.name,
         plateNumber: normalizePlateNumber(vehicle.plateNumber),
+        stateRegistrationModel: vehicle.stateRegistrationModel,
         brand: vehicle.characteristics.brand,
         model: vehicle.characteristics.model,
         year: vehicle.characteristics.year,
@@ -322,6 +402,7 @@ const Vehicles = () => {
             maxLength={11}
             placeholder={t("vehicles.placeholders.plateNumber")}
             onChange={handlePlateNumberChange}
+            onBlur={handlePlateNumberBlur}
           />
         </Form.Item>
 
@@ -347,6 +428,43 @@ const Vehicles = () => {
           />
         </Form.Item>
       </div>
+
+      {canVerifyOwnership && (
+        <div className="form-inputs form-inputs-row">
+          <Form.Item
+            className="input"
+            name="stateRegistrationModel"
+            label={t("vehicles.fields.stateRegistrationModel")}
+            validateStatus={
+              ownershipStatus === "checking"
+                ? "validating"
+                : ownershipStatus === "found"
+                  ? "success"
+                  : ownershipStatus === "not-registered"
+                    ? "warning"
+                    : undefined
+            }
+            hasFeedback={ownershipStatus === "checking" || ownershipStatus === "found"}
+            help={
+              ownershipStatus === "checking"
+                ? t("vehicles.ownership.checking")
+                : ownershipStatus === "not-registered"
+                  ? t("vehicles.ownership.notRegistered")
+                  : ownershipStatus === "found"
+                    ? t("vehicles.ownership.found")
+                    : undefined
+            }
+          >
+            <Input
+              className="input"
+              size="large"
+              disabled
+              placeholder={t("vehicles.placeholders.stateRegistrationModel")}
+              suffix={ownershipStatus === "checking" ? <Spin size="small" /> : undefined}
+            />
+          </Form.Item>
+        </div>
+      )}
 
       <div className="form-inputs form-inputs-row">
         <Form.Item

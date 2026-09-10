@@ -1,10 +1,11 @@
 import type {
     CreateProductDto,
     CreateProductResponseDto,
+    ProductPackageDto,
     ProductResponseDto,
     UpdateProductDto
 } from "entities/products/dtos";
-import type { CreateProduct, ProductResponse, UpdateProduct } from "entities/products/types";
+import type { CreateProduct, ProductPackage, ProductResponse, UpdateProduct } from "entities/products/types";
 import type {ErrorDto} from "shared/types/dtos";
 
 
@@ -66,6 +67,13 @@ export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse 
     },
     price: dto.price,
     companyId: dto.companyId,
+});
+
+export const mapProductPackageDtoToEntity = (dto: ProductPackageDto): ProductPackage => ({
+  code: dto.code,
+  icps: dto.icps,
+  type: dto.type,
+  name: dto.name,
 });
 
 export function mapCreateProductResponseResponse(
