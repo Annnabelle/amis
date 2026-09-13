@@ -271,6 +271,7 @@
                     fulfillment: "Fulfillment",
                     paymentMethod: "Payment method",
                     items: "Items",
+                    item: "Item",
                     comment: "Comment",
                     header: "Header",
                     totals: "Totals",
@@ -390,7 +391,8 @@
                     itemProductRequired: "Product is required",
                     itemPackageRequired: "Select a unit of measure",
                     itemQuantityRequired: "Quantity is required",
-                    itemUnitPriceRequired: "Unit price is required"
+                    itemUnitPriceRequired: "Unit price is required",
+                    costPerKilometerRequired: "Price per 1 km is required"
                 },
                 messages: {
                     success: {
@@ -2275,6 +2277,7 @@
                     fulfillment: "Исполнение",
                     paymentMethod: "Способ оплаты",
                     items: "Товары",
+                    item: "Позиция",
                     comment: "Комментарий",
                     header: "Шапка",
                     totals: "Итоги",
@@ -2394,7 +2397,8 @@
                     itemProductRequired: "Товар обязателен",
                     itemPackageRequired: "Выберите единицу измерения",
                     itemQuantityRequired: "Количество обязательно",
-                    itemUnitPriceRequired: "Цена за единицу обязательна"
+                    itemUnitPriceRequired: "Цена за единицу обязательна",
+                    costPerKilometerRequired: "Цена за 1 км обязательна"
                 },
                 messages: {
                     success: {
@@ -4271,6 +4275,7 @@
                     fulfillment: "Bajarish",
                     paymentMethod: "To'lov usuli",
                     items: "Tovarlar",
+                    item: "Band",
                     comment: "Izoh",
                     header: "Sarlavha",
                     totals: "Jami",
@@ -4390,7 +4395,8 @@
                     itemProductRequired: "Mahsulot majburiy",
                     itemPackageRequired: "O'lchov birligini tanlang",
                     itemQuantityRequired: "Miqdor majburiy",
-                    itemUnitPriceRequired: "Birlik narxi majburiy"
+                    itemUnitPriceRequired: "Birlik narxi majburiy",
+                    costPerKilometerRequired: "1 km narxi majburiy"
                 },
                 messages: {
                     success: {

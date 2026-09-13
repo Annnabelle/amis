@@ -115,13 +115,42 @@
             @include mix.flex-content(center, row)
             align-items: center
             gap: 10px
-        .sales-order-items-item
-            display: flex
-            flex-wrap: wrap
-            align-items: center
-            gap: 10px
+        .sales-order-item-card
+            width: 100%
+            background: map.get(vars.$basic, 'white')
+            border: 1px solid map.get(vars.$surface, 'border')
+            border-radius: 12px
+            padding: 16px
+            box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.06)
+            transition: box-shadow 0.3s ease, border-color 0.3s ease
+            @include mix.flex-content(start, column)
+            align-items: stretch
+            gap: 14px
+            &:hover
+                box-shadow: 0 8px 20px rgba(var(--black-rgb), 0.1)
             .ant-form-item
                 margin-bottom: 0
+            &__header
+                display: flex
+                align-items: center
+                justify-content: space-between
+                padding-bottom: 10px
+                border-bottom: 2px solid map.get(vars.$surface, 'border-soft')
+            &__title
+                +mix.typography(14px, 700, map.get(vars.$main, 'main'))
+                text-transform: uppercase
+                letter-spacing: 0.4px
+            &__actions
+                display: flex
+                align-items: center
+                gap: 8px
+            &__row
+                display: flex
+                flex-direction: row
+                justify-content: flex-start
+                flex-wrap: wrap
+                align-items: start
+                gap: 10px
             .sales-order-item
                 min-width: 0
                 .ant-select,
@@ -129,50 +158,52 @@
                 .ant-input-number
                     width: 100%
             .create-order-btn
-                width: 44px
-                min-width: 44px
+                width: 32px
+                min-width: 32px
+                height: 32px
                 padding-inline: 0
                 display: inline-flex
                 align-items: center
                 justify-content: center
-                align-self: flex-end
-                flex: 0 0 44px
-            .sales-order-item--product
-                flex: 1 1 260px
-                min-width: 220px
-                .ant-select-selector
-                    overflow: hidden
-                .ant-select-selection-overflow
-                    overflow: hidden
-                .ant-select-selection-item,
-                .ant-select-selection-placeholder
-                    display: block
-                    overflow: hidden
-                    text-overflow: ellipsis
-                    white-space: nowrap
-            .sales-order-item--package
-                flex: 0 0 120px
-                min-width: 110px
-            .sales-order-item--quantity
-                flex: 0 0 120px
-                min-width: 100px
-            .sales-order-item--unit-price
-                flex: 0 0 180px
-                min-width: 160px
-            .sales-order-item--comment
-                flex: 1 1 220px
-                min-width: 200px
+                flex: 0 0 32px
+            &__row--primary
+                .sales-order-item--product
+                    flex: 1.6 1 260px
+                    min-width: 220px
+                    .ant-select-selector
+                        overflow: hidden
+                    .ant-select-selection-overflow
+                        overflow: hidden
+                    .ant-select-selection-item,
+                    .ant-select-selection-placeholder
+                        display: block
+                        overflow: hidden
+                        text-overflow: ellipsis
+                        white-space: nowrap
+                .sales-order-item--package
+                    flex: 1 1 160px
+                    min-width: 140px
+                .sales-order-item--quantity
+                    flex: 1 1 140px
+                    min-width: 120px
+            &__row--secondary
+                .sales-order-item--unit-price
+                    flex: 1 1 200px
+                    min-width: 160px
+                .sales-order-item--comment
+                    flex: 2 1 260px
+                    min-width: 220px
 
             @media (max-width: 720px)
-                .sales-order-item--product
-                    flex-basis: 100%
-                    min-width: 0
-                .sales-order-item--comment
-                    flex-basis: 100%
-                    min-width: 0
-                .sales-order-item--quantity,
-                .sales-order-item--unit-price
-                    flex: 1 1 180px
+                &__row--primary,
+                &__row--secondary
+                    .sales-order-item--product,
+                    .sales-order-item--package,
+                    .sales-order-item--quantity,
+                    .sales-order-item--unit-price,
+                    .sales-order-item--comment
+                        flex-basis: 100%
+                        min-width: 0
 
         .sales-order-details-items-item
             display: flex
