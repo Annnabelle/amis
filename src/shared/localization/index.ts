@@ -18,6 +18,7 @@
                 crew: "Crew",
                 expandAll: "Expand all",
                 collapseAll: "Collapse all",
+                change: "Change",
                 creator: "Creator",
                 history: "History",
                 createdBy: "Created by",
@@ -271,6 +272,7 @@
                     fulfillment: "Fulfillment",
                     paymentMethod: "Payment method",
                     items: "Items",
+                    item: "Item",
                     comment: "Comment",
                     header: "Header",
                     totals: "Totals",
@@ -296,6 +298,7 @@
                     region: "Select region",
                     district: "Select district",
                     address: "Address",
+                    location: "Pick a point on the map",
                     expectedDate: "Expected date"
                 },
                 createValidation: {
@@ -304,6 +307,8 @@
                     regionRequired: "Select region",
                     districtRequired: "Select district",
                     addressRequired: "Enter address",
+                    locationRequired: "Pick a point on the map",
+                    contractDetailsIncomplete: "Fill in the sender and customer address (region, district, address and map point), contract and delivery",
                     expectedDateRequired: "Expected date is required"
                 },
                 fields: {
@@ -319,12 +324,15 @@
                     senderRegion: "Sender region",
                     senderDistrict: "Sender district",
                     senderLocation: "Sender coordinates",
+                    location: "Coordinates",
                     contractNumber: "Contract number",
                     contractDate: "Contract date",
                     dueDate: "Due date",
                     priority: "Priority",
                     paymentMethod: "Payment method",
                     product: "Product",
+                    packageCode: "Unit of measure",
+                    packageCodeShort: "Unit",
                     quantity: "Quantity",
                     unitPrice: "Unit price",
                     price: "Price/unit",
@@ -383,8 +391,10 @@
                     contractNumberRequired: "Contract number is required",
                     contractDateRequired: "Contract date is required",
                     itemProductRequired: "Product is required",
+                    itemPackageRequired: "Select a unit of measure",
                     itemQuantityRequired: "Quantity is required",
-                    itemUnitPriceRequired: "Unit price is required"
+                    itemUnitPriceRequired: "Unit price is required",
+                    costPerKilometerRequired: "Price per 1 km is required"
                 },
                 messages: {
                     success: {
@@ -450,19 +460,26 @@
                     volumeCapacityM3: "Volume capacity, m3",
                     vin: "VIN",
                     registrationCertificateNumber: "Registration certificate",
+                    stateRegistrationModel: "Model (state registry)",
                     status: "Status",
                     createdAt: "Created",
                     updatedAt: "Updated"
                 },
                 placeholders: {
                     name: "Enter vehicle name",
-                    plateNumber: "00 000AAA",
+                    plateNumber: "00 A 000 AA",
                     comment: "Add a comment",
                     brand: "Enter brand",
                     model: "Enter model",
                     vin: "Enter VIN",
                     registrationCertificateNumber: "AA 1234567",
+                    stateRegistrationModel: "Filled automatically from the registry",
                     selectVehicle: "Select vehicle"
+                },
+                ownership: {
+                    checking: "Checking the plate number in the state registry…",
+                    notRegistered: "No record for this plate number in the state registry",
+                    found: "Owner confirmed in the state registry"
                 },
                 types: {
                     sedan: "Sedan",
@@ -496,7 +513,7 @@
                     typeRequired: "Select vehicle type",
                     plateNumberRequired: "Enter plate number",
                     plateNumberLength: "Plate number must contain 8 characters without spaces",
-                    plateNumberInvalid: "Plate number must be in format: 00 000AAA, 00 A000AA or 00 000000",
+                    plateNumberInvalid: "Plate number must be in format: 00 A 000 AA or 00 000 AAA",
                     registrationCertificateNumberInvalid: "Registration certificate must be in format: AA 1234567",
                     brandRequired: "Enter brand",
                     modelRequired: "Enter model"
@@ -553,6 +570,9 @@
                     return: "Return",
                     loadingProducts: "Products for loading"
                 },
+                vehicleCard: {
+                    notFound: "No matching vehicles found"
+                },
                   fields: {
                       company: "Company",
                       routeNumber: "Route number",
@@ -592,7 +612,7 @@
                       companyRequired: "Company is required",
                       routeDateRequired: "Route date is required",
                       salesOrdersRequired: "Please select at least one sales order",
-                      plateNumberInvalid: "Plate number must be in format: 00 000AAA or 00 0AAA00"
+                      plateNumberInvalid: "Plate number must be in format: 00 A 000 AA or 00 000 AAA"
                   },
                 messages: {
                     success: {
@@ -949,6 +969,7 @@
                     deliveryType: "Delivery type",
                     costPerDistanceUnit: "Cost per distance unit",
                     costPerKilometer: "Price per 1 km",
+                    sum: "UZS",
                     totalDistance: "Total distance",
                     geoDistanceFallbackTooltip: "Route is unavailable, direct distance between selected points is shown",
                     deliveryTotalCost: "Total delivery cost",
@@ -1434,6 +1455,14 @@
                     box_lv_1: "GTIN box",
                     box_lv_2: "GTIN pallet",
                 },
+                classification: {
+                    title: "Classification",
+                    icps: "ICPS",
+                    name: "Name",
+                    source: "Source",
+                    resolvedAt: "Resolved at",
+                    empty: "Not classified yet",
+                },
                 validation: {
                     required: "This field is required",
                     min2: "Minimum length is 2 characters",
@@ -1452,6 +1481,7 @@
                         gtin: "GTIN",
                         barcode: "Barcode",
                         icps: "ICPS",
+                        brand: "Brand",
                         productType: "Product type",
                         aggregationQuantity: "Aggregation quantity",
                         expiration: "Shelf life (days)",
@@ -1508,6 +1538,24 @@
                             weightNet: "Enter a valid number (integer or decimal)"
                         }
                     }
+                },
+                details: {
+                    main: "Main information",
+                    gtin: "GTIN codes",
+                    measurement: "Measurement & weight",
+                    description: "Description",
+                    packages: "Packages",
+                },
+                packages: {
+                    empty: "No packages found for this product",
+                    fields: {
+                        code: "Code",
+                        type: "Type",
+                        name: "Name",
+                    },
+                    messages: {
+                        error: "Failed to load product packages",
+                    },
                 },
                 modalWindow: {
                     deletion: "Deletion",
@@ -2008,6 +2056,7 @@
                 crew: "Экипаж",
                 expandAll: "Развернуть все",
                 collapseAll: "Свернуть все",
+                change: "Изменить",
                 creator: "Создатель",
                 history: "История",
                 createdBy: "Создал",
@@ -2261,6 +2310,7 @@
                     fulfillment: "Исполнение",
                     paymentMethod: "Способ оплаты",
                     items: "Товары",
+                    item: "Позиция",
                     comment: "Комментарий",
                     header: "Шапка",
                     totals: "Итоги",
@@ -2286,6 +2336,7 @@
                     region: "Выберите регион",
                     district: "Выберите район",
                     address: "Адрес",
+                    location: "Отметьте точку на карте",
                     expectedDate: "Ожидаемая дата"
                 },
                 createValidation: {
@@ -2294,6 +2345,8 @@
                     regionRequired: "Выберите регион",
                     districtRequired: "Выберите район",
                     addressRequired: "Введите адрес",
+                    locationRequired: "Отметьте точку на карте",
+                    contractDetailsIncomplete: "Заполните адрес отправителя и клиента (регион, район, адрес и точку на карте), договор и доставку",
                     expectedDateRequired: "Ожидаемая дата обязательна"
                 },
                 fields: {
@@ -2309,12 +2362,15 @@
                     senderRegion: "Регион отправителя",
                     senderDistrict: "Район отправителя",
                     senderLocation: "Координаты отправителя",
+                    location: "Координаты",
                     contractNumber: "Номер договора",
                     contractDate: "Дата договора",
                     dueDate: "Срок",
                     priority: "Приоритет",
                     paymentMethod: "Способ оплаты",
                     product: "Товар",
+                    packageCode: "Единица измерения",
+                    packageCodeShort: "Ед.измерения",
                     quantity: "Количество",
                     unitPrice: "Цена за единицу",
                     price: "Цена за ед.",
@@ -2373,8 +2429,10 @@
                     contractNumberRequired: "Номер договора обязателен",
                     contractDateRequired: "Дата договора обязательна",
                     itemProductRequired: "Товар обязателен",
+                    itemPackageRequired: "Выберите единицу измерения",
                     itemQuantityRequired: "Количество обязательно",
-                    itemUnitPriceRequired: "Цена за единицу обязательна"
+                    itemUnitPriceRequired: "Цена за единицу обязательна",
+                    costPerKilometerRequired: "Цена за 1 км обязательна"
                 },
                 messages: {
                     success: {
@@ -2440,19 +2498,26 @@
                     volumeCapacityM3: "Объём, м3",
                     vin: "VIN",
                     registrationCertificateNumber: "Номер техпаспорта",
+                    stateRegistrationModel: "Модель (государственный реестр)",
                     status: "Статус",
                     createdAt: "Создано",
                     updatedAt: "Обновлено"
                 },
                 placeholders: {
                     name: "Введите название транспорта",
-                    plateNumber: "00 000AAA",
+                    plateNumber: "00 A 000 AA",
                     comment: "Добавьте комментарий",
                     brand: "Введите марку",
                     model: "Введите модель",
                     vin: "Введите VIN",
                     registrationCertificateNumber: "AA 1234567",
+                    stateRegistrationModel: "Заполняется автоматически из реестра",
                     selectVehicle: "Выберите транспорт"
+                },
+                ownership: {
+                    checking: "Проверяем номер машины в государственном реестре…",
+                    notRegistered: "В государственном реестре нет записи по этому номеру машины",
+                    found: "Владелец подтверждён в государственном реестре"
                 },
                 types: {
                     sedan: "Седан",
@@ -2486,7 +2551,7 @@
                     typeRequired: "Выберите тип транспорта",
                     plateNumberRequired: "Введите номер машины",
                     plateNumberLength: "Номер должен содержать 8 символов без пробелов",
-                    plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA, 00 A000AA или 00 000000",
+                    plateNumberInvalid: "Номер машины должен быть в формате: 00 A 000 AA или 00 000 AAA",
                     registrationCertificateNumberInvalid: "Номер техпаспорта должен быть в формате: AA 1234567",
                     brandRequired: "Введите марку",
                     modelRequired: "Введите модель"
@@ -2543,6 +2608,9 @@
                     return: "Возврат",
                     loadingProducts: "Товары для погрузки"
                 },
+                vehicleCard: {
+                    notFound: "Подходящий транспорт не найден"
+                },
                   fields: {
                       company: "Компания",
                       routeNumber: "Номер рейса",
@@ -2582,7 +2650,7 @@
                       companyRequired: "Компания обязательна",
                       routeDateRequired: "Дата рейса обязательна",
                       salesOrdersRequired: "Выберите хотя бы одну сделку",
-                      plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA или 00 0AAA00"
+                      plateNumberInvalid: "Номер машины должен быть в формате: 00 A 000 AA или 00 000 AAA"
                   },
                   messages: {
                       success: {
@@ -2939,6 +3007,7 @@
                     deliveryType: "Тип доставки",
                     costPerDistanceUnit: "Стоимость за единицу расстояния",
                     costPerKilometer: "Цена за 1 км",
+                    sum: "сум",
                     totalDistance: "Общее расстояние",
                     geoDistanceFallbackTooltip: "Маршрут недоступен, указано прямое расстояние между выбранными точками",
                     deliveryTotalCost: "Общая стоимость доставки",
@@ -3425,6 +3494,14 @@
                     box_lv_1: "GTIN коробки",
                     box_lv_2: "GTIN паллеты",
                 },
+                classification: {
+                    title: "Классификация",
+                    icps: "ИКПУ",
+                    name: "Название",
+                    source: "Источник",
+                    resolvedAt: "Дата определения",
+                    empty: "Ещё не классифицирован",
+                },
                 validation: {
                     required: "Поле обязательно для заполнения",
                     min2: "Минимальная длина — 2 символа",
@@ -3443,6 +3520,7 @@
                         gtin: 'GTIN',
                         barcode: 'Штрихкод',
                         icps: 'ИКПУ',
+                        brand: 'Бренд',
                         productType: 'Тип продукции',
                         aggregationQuantity: 'Количество в агрегации',
                         expiration: 'Срок годности в днях',
@@ -3499,6 +3577,24 @@
                             weightNet: "Введите корректное число (целое или с десятичной точкой)"
                         }
                     }
+                },
+                details: {
+                    main: "Основная информация",
+                    gtin: "Коды GTIN",
+                    measurement: "Измерения и вес",
+                    description: "Описание",
+                    packages: "Упаковки",
+                },
+                packages: {
+                    empty: "Упаковки для этого продукта не найдены",
+                    fields: {
+                        code: "Код",
+                        type: "Тип",
+                        name: "Название",
+                    },
+                    messages: {
+                        error: "Не удалось загрузить упаковки продукта",
+                    },
                 },
                 modalWindow: {
                     deletion: 'Удаление',
@@ -3998,6 +4094,7 @@
                 backToTask: "Vazifaga qaytish",
                 expandAll: "Barchasini yoyish",
                 collapseAll: "Barchasini buklash",
+                change: "O'zgartirish",
                 history: "Tarix"
             },
             welcome: {
@@ -4243,6 +4340,7 @@
                     fulfillment: "Bajarish",
                     paymentMethod: "To'lov usuli",
                     items: "Tovarlar",
+                    item: "Band",
                     comment: "Izoh",
                     header: "Sarlavha",
                     totals: "Jami",
@@ -4268,6 +4366,7 @@
                     region: "Viloyatni tanlang",
                     district: "Tumanni tanlang",
                     address: "Manzil",
+                    location: "Xaritada nuqtani belgilang",
                     expectedDate: "Kutilayotgan sana"
                 },
                 createValidation: {
@@ -4276,6 +4375,8 @@
                     regionRequired: "Viloyatni tanlang",
                     districtRequired: "Tumanni tanlang",
                     addressRequired: "Manzilni kiriting",
+                    locationRequired: "Xaritada nuqtani belgilang",
+                    contractDetailsIncomplete: "Jo'natuvchi va mijoz manzilini (viloyat, tuman, manzil va xarita nuqtasi), shartnoma va yetkazib berishni to'ldiring",
                     expectedDateRequired: "Kutilayotgan sana majburiy"
                 },
                 fields: {
@@ -4291,12 +4392,15 @@
                     senderRegion: "Jo'natuvchi viloyati",
                     senderDistrict: "Jo'natuvchi tumani",
                     senderLocation: "Jo'natuvchi koordinatalari",
+                    location: "Koordinatalar",
                     contractNumber: "Shartnoma raqami",
                     contractDate: "Shartnoma sanasi",
                     dueDate: "Muddat",
                     priority: "Ustuvorlik",
                     paymentMethod: "To'lov usuli",
                     product: "Mahsulot",
+                    packageCode: "O'lchov birligi",
+                    packageCodeShort: "O'lchov",
                     quantity: "Miqdor",
                     unitPrice: "Birlik narxi",
                     price: "Birlik narxi",
@@ -4355,8 +4459,10 @@
                     contractNumberRequired: "Shartnoma raqami majburiy",
                     contractDateRequired: "Shartnoma sanasi majburiy",
                     itemProductRequired: "Mahsulot majburiy",
+                    itemPackageRequired: "O'lchov birligini tanlang",
                     itemQuantityRequired: "Miqdor majburiy",
-                    itemUnitPriceRequired: "Birlik narxi majburiy"
+                    itemUnitPriceRequired: "Birlik narxi majburiy",
+                    costPerKilometerRequired: "1 km narxi majburiy"
                 },
                 messages: {
                     success: {
@@ -4422,19 +4528,26 @@
                     volumeCapacityM3: "Hajm, m3",
                     vin: "VIN",
                     registrationCertificateNumber: "Tex pasport raqami",
+                    stateRegistrationModel: "Model (davlat reyestri)",
                     status: "Holat",
                     createdAt: "Yaratildi",
                     updatedAt: "Yangilandi"
                 },
                 placeholders: {
                     name: "Transport nomini kiriting",
-                    plateNumber: "00 000AAA",
+                    plateNumber: "00 A 000 AA",
                     comment: "Izoh qo'shing",
                     brand: "Markani kiriting",
                     model: "Modelni kiriting",
                     vin: "VIN ni kiriting",
                     registrationCertificateNumber: "AA 1234567",
+                    stateRegistrationModel: "Reyestrdan avtomatik to'ldiriladi",
                     selectVehicle: "Transportni tanlang"
+                },
+                ownership: {
+                    checking: "Mashina raqami davlat reyestrida tekshirilmoqda…",
+                    notRegistered: "Davlat reyestrida bu mashina raqami bo'yicha yozuv yo'q",
+                    found: "Egasi davlat reyestrida tasdiqlandi"
                 },
                 types: {
                     sedan: "Sedan",
@@ -4468,7 +4581,7 @@
                     typeRequired: "Transport turini tanlang",
                     plateNumberRequired: "Mashina raqamini kiriting",
                     plateNumberLength: "Raqam probelsiz 8 ta belgidan iborat bo'lishi kerak",
-                    plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA, 00 A000AA yoki 00 000000",
+                    plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 A 000 AA yoki 00 000 AAA",
                     registrationCertificateNumberInvalid: "Tex pasport raqami AA 1234567 formatida bo'lishi kerak",
                     brandRequired: "Markani kiriting",
                     modelRequired: "Modelni kiriting"
@@ -4525,6 +4638,9 @@
                     return: "Qaytarish",
                     loadingProducts: "Yuklash uchun mahsulotlar"
                 },
+                vehicleCard: {
+                    notFound: "Mos transport topilmadi"
+                },
                   fields: {
                       company: "Kompaniya",
                       routeNumber: "Reys raqami",
@@ -4557,7 +4673,7 @@
                       companyRequired: "Kompaniya majburiy",
                       routeDateRequired: "Reys sanasi majburiy",
                       salesOrdersRequired: "Iltimos, kamida bitta sotuv buyurtmasini tanlang",
-                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA yoki 00 0AAA00"
+                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 A 000 AA yoki 00 000 AAA"
                   },
                   messages: {
                       success: {
@@ -4892,6 +5008,7 @@
                     deliveryType: "Yetkazish turi",
                     costPerDistanceUnit: "Masofa birligi narxi",
                     costPerKilometer: "1 km narxi",
+                    sum: "so'm",
                     totalDistance: "Jami masofa",
                     geoDistanceFallbackTooltip: "Yo'nalish mavjud emas, tanlangan nuqtalar orasidagi to'g'ri masofa ko'rsatilgan",
                     deliveryTotalCost: "Yetkazishning umumiy narxi",
@@ -5377,6 +5494,14 @@
                     box_lv_1: "GTIN quti",
                     box_lv_2: "GTIN palleta",
                 },
+                classification: {
+                    title: "Klassifikatsiya",
+                    icps: "IKPU",
+                    name: "Nomi",
+                    source: "Manba",
+                    resolvedAt: "Aniqlangan sana",
+                    empty: "Hali klassifikatsiya qilinmagan",
+                },
                 validation: {
                     required: "Ushbu maydon to‘ldirilishi shart",
                     min2: "Minimal uzunlik — 2 ta belgi",
@@ -5395,6 +5520,7 @@
                         gtin: "GTIN",
                         barcode: "Shtrix-kod",
                         icps: "IKPU",
+                        brand: "Brend",
                         productType: "Mahsulot turi",
                         aggregationQuantity: "Agregatsiya miqdori",
                         expiration: "Yaroqlilik muddati (kunlarda)",
@@ -5451,6 +5577,24 @@
                             weightNet: "To‘g‘ri raqam kiriting (butun yoki o‘nlik)"
                         }
                     }
+                },
+                details: {
+                    main: "Asosiy maʼlumot",
+                    gtin: "GTIN kodlari",
+                    measurement: "O‘lchov va og‘irlik",
+                    description: "Tavsif",
+                    packages: "Qadoqlar",
+                },
+                packages: {
+                    empty: "Ushbu mahsulot uchun qadoqlar topilmadi",
+                    fields: {
+                        code: "Kod",
+                        type: "Turi",
+                        name: "Nomi",
+                    },
+                    messages: {
+                        error: "Mahsulot qadoqlarini yuklab bo‘lmadi",
+                    },
                 },
                 modalWindow: {
                     deletion: "O‘chirish",

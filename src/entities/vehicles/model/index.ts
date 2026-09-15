@@ -7,9 +7,19 @@ import type {
   VehicleResponseEnvelopeDto,
   VehicleResponseDto,
   VehiclesResponseDto,
+  VerifyVehicleOwnershipDto,
+  VerifyVehicleOwnershipResponseDto,
 } from "entities/vehicles/dtos";
-import { mapVehicleDtoToEntity } from "entities/vehicles/mappers";
-import type { Vehicle, VehiclesState } from "entities/vehicles/types";
+import { VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE } from "entities/vehicles/dtos";
+import {
+  mapVehicleDtoToEntity,
+  mapVehicleOwnershipDtoToEntity,
+} from "entities/vehicles/mappers";
+import type {
+  Vehicle,
+  VehicleOwnershipCheck,
+  VehiclesState,
+} from "entities/vehicles/types";
 import axiosInstance from "shared/lib/axiosInstance";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 
@@ -133,6 +143,48 @@ export const getVehicleById = createAsyncThunk<Vehicle, string, { rejectValue: s
     }
   }
 );
+
+export const verifyVehicleOwnership = createAsyncThunk<
+  VehicleOwnershipCheck,
+  VerifyVehicleOwnershipDto,
+  { rejectValue: string }
+>("vehicles/verifyOwnership", async (params, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get<VerifyVehicleOwnershipResponseDto>(
+      "/vehicles/ownership",
+      { params }
+    );
+
+    if ("ownership" in response.data && response.data.ownership) {
+      return {
+        status: "found",
+        ownership: mapVehicleOwnershipDtoToEntity(response.data.ownership),
+      };
+    }
+
+    return rejectWithValue(
+      getBackendErrorMessage(response.data, "Не удалось проверить владельца транспорта")
+    );
+  } catch (error) {
+    const response = (error as {
+      response?: { status?: number; data?: { errorCode?: number } };
+    }).response;
+
+    if (
+      response?.status === 404 ||
+      response?.data?.errorCode === VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE
+    ) {
+      return {
+        status: "not-registered",
+        message: getBackendErrorMessage(response?.data, "Транспорт не найден в государственном реестре"),
+      };
+    }
+
+    return rejectWithValue(
+      getBackendErrorMessage(response?.data ?? error, "Не удалось проверить владельца транспорта")
+    );
+  }
+});
 
 export const createVehicle = createAsyncThunk<Vehicle, CreateVehicleDto, { rejectValue: string }>(
   "vehicles/create",

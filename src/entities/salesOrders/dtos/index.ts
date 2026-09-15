@@ -14,15 +14,15 @@ export type SalesOrderResponseDto = {
   companyId: string;
   salesOrderNumber: string;
   status: SalesOrderStatus;
-  sender?: {
-    addressDetails?: SalesOrderAddressResponseDto;
+  sender: {
+    addressDetails: SalesOrderAddressResponseDto;
   };
   customer: {
     companyId?: string;
     tin: string;
     name: string;
     address?: string;
-    addressDetails?: SalesOrderAddressResponseDto;
+    addressDetails: SalesOrderAddressResponseDto;
   };
   contract?: {
     number: string;
@@ -55,6 +55,7 @@ export type SalesOrderResponseDto = {
       unitPrice?: number;
       amount?: number;
     };
+    packageCode?: string;
     comment?: string;
   }[];
   totals: {
@@ -71,16 +72,16 @@ export type SalesOrderResponseDto = {
 };
 
 export type CreateSalesOrderDto = {
-  sender?: {
-    addressDetails?: SalesOrderAddressDto;
+  sender: {
+    addressDetails: SalesOrderAddressDto;
   };
   customer: {
     id?: HexString;
     tin: string;
     name: string;
-    addressDetails?: SalesOrderAddressDto;
+    addressDetails: SalesOrderAddressDto;
   };
-  contract?: {
+  contract: {
     number: string;
     date: string;
   };
@@ -89,7 +90,7 @@ export type CreateSalesOrderDto = {
     priority: SalesOrderPriority;
     paymentMethod: SalesOrderPaymentMethod;
   };
-  delivery?: {
+  delivery: {
     type: SalesOrderDeliveryType;
     costPerDistanceUnit?: number;
     totalDistance?: number;
@@ -98,6 +99,7 @@ export type CreateSalesOrderDto = {
     productId: HexString;
     quantity: number;
     unitPrice: number;
+    packageCode?: string;
     comment?: string;
   }[];
   comment?: string;
@@ -112,7 +114,7 @@ export type SalesOrderAddressDto = {
   regionId: HexString;
   districtId: HexString;
   address: string;
-  location?: SalesOrderLocationDto;
+  location: SalesOrderLocationDto;
 };
 
 export type SalesOrderAddressResponseDto = SalesOrderAddressDto;

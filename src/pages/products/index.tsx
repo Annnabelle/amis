@@ -91,7 +91,7 @@ const Products = () => {
             shortName: productById.shortName,
             description: productById.description,
             gtin: productById.gtin,
-            icps: productById.icps,
+            icps: productById.classification?.icps,
             productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
             unit: productById.measurement.unit,

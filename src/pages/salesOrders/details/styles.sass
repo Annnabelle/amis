@@ -1,0 +1,73 @@
+@use "sass:map"
+@use "../../../shared/styles/variables" as vars
+
+.sales-order-items-table
+  display: flex
+  flex-direction: column
+  border-radius: 14px
+  background: rgba(var(--surface-soft-rgb), 0.9)
+
+.sales-order-items-head,
+.sales-order-item-row
+  display: grid
+  grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(90px, 1fr))
+  gap: 12px
+  align-items: start
+  padding: 12px 16px
+
+.sales-order-items-head
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.10)
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: map.get(vars.$text, 'tertiary')
+
+.sales-order-item-row
+  font-size: 14px
+  color: map.get(vars.$text, 'slate')
+  border-bottom: 1px solid rgba(var(--main-primary-rgb), 0.06)
+
+  &:last-child
+    border-bottom: none
+
+.sales-order-item-product
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.sales-order-item-cell
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.sales-order-item-cell-label
+  display: none
+  font-size: 11px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: map.get(vars.$text, 'tertiary')
+
+.sales-order-item-name
+  font-weight: 600
+  color: map.get(vars.$text, 'slate')
+
+.sales-order-item-subname
+  font-size: 12px
+  color: map.get(vars.$text, 'secondary')
+
+.sales-order-item-row-empty
+  color: map.get(vars.$text, 'muted')
+
+@media (max-width: 900px)
+  .sales-order-items-head
+    display: none
+
+  .sales-order-item-row
+    display: flex
+    flex-direction: column
+    gap: 10px
+
+  .sales-order-item-cell-label
+    display: block

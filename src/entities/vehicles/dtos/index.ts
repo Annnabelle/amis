@@ -9,6 +9,7 @@ export type VehicleResponseDto = {
   identification: VehicleIdentificationDto;
   characteristics: VehicleCharacteristicsDto;
   status: VehicleStatus;
+  stateRegistrationModel?: string;
   createdBy?: string;
   updatedBy?: string;
   createdAt?: string | Date;
@@ -61,7 +62,29 @@ export type CreateVehicleDto = {
   displayName: string;
   identification?: VehicleIdentificationDto;
   characteristics: VehicleCharacteristicsDto;
+  stateRegistrationModel?: string;
 };
+
+export const VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE = 10060;
+
+export type VehicleOwnershipDto = {
+  regNumber: string;
+  model: string;
+  ownershipType: number;
+  transportType: number;
+};
+
+export type VerifyVehicleOwnershipDto = {
+  tinOrPinfl: string;
+  regNumber: string;
+};
+
+export type VerifyVehicleOwnershipResponseDto =
+  | {
+      success: boolean;
+      ownership: VehicleOwnershipDto;
+    }
+  | ErrorDto;
 
 export type UpdateVehicleDto = Partial<Omit<CreateVehicleDto, "companyId">> & {
   status?: VehicleStatus;

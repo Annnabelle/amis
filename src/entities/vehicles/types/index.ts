@@ -13,6 +13,17 @@ export type VehicleCharacteristics = {
   volumeCapacityM3?: number;
 };
 
+export type VehicleOwnership = {
+  regNumber: string;
+  model: string;
+  ownershipType: number;
+  transportType: number;
+};
+
+export type VehicleOwnershipCheck =
+  | { status: "found"; ownership: VehicleOwnership }
+  | { status: "not-registered"; message: string };
+
 export type Vehicle = {
   id: string;
   companyId: string;
@@ -22,6 +33,7 @@ export type Vehicle = {
   identification: VehicleIdentification;
   characteristics: VehicleCharacteristics;
   status: VehicleStatus;
+  stateRegistrationModel?: string;
   createdBy?: string;
   updatedBy?: string;
   createdAt?: Date;
