@@ -18,6 +18,7 @@
                 crew: "Crew",
                 expandAll: "Expand all",
                 collapseAll: "Collapse all",
+                change: "Change",
                 creator: "Creator",
                 history: "History",
                 createdBy: "Created by",
@@ -323,6 +324,7 @@
                     senderRegion: "Sender region",
                     senderDistrict: "Sender district",
                     senderLocation: "Sender coordinates",
+                    location: "Coordinates",
                     contractNumber: "Contract number",
                     contractDate: "Contract date",
                     dueDate: "Due date",
@@ -458,14 +460,14 @@
                     volumeCapacityM3: "Volume capacity, m3",
                     vin: "VIN",
                     registrationCertificateNumber: "Registration certificate",
-                    stateRegistrationModel: "Model (Faktura registry)",
+                    stateRegistrationModel: "Model (state registry)",
                     status: "Status",
                     createdAt: "Created",
                     updatedAt: "Updated"
                 },
                 placeholders: {
                     name: "Enter vehicle name",
-                    plateNumber: "00 000AAA",
+                    plateNumber: "00 A 000 AA",
                     comment: "Add a comment",
                     brand: "Enter brand",
                     model: "Enter model",
@@ -475,9 +477,9 @@
                     selectVehicle: "Select vehicle"
                 },
                 ownership: {
-                    checking: "Checking the plate number in the Faktura registry…",
-                    notRegistered: "No record for this plate number in the Faktura registry",
-                    found: "Owner confirmed in the Faktura registry"
+                    checking: "Checking the plate number in the state registry…",
+                    notRegistered: "No record for this plate number in the state registry",
+                    found: "Owner confirmed in the state registry"
                 },
                 types: {
                     sedan: "Sedan",
@@ -511,7 +513,7 @@
                     typeRequired: "Select vehicle type",
                     plateNumberRequired: "Enter plate number",
                     plateNumberLength: "Plate number must contain 8 characters without spaces",
-                    plateNumberInvalid: "Plate number must be in format: 00 000AAA, 00 A000AA or 00 000000",
+                    plateNumberInvalid: "Plate number must be in format: 00 A 000 AA or 00 000 AAA",
                     registrationCertificateNumberInvalid: "Registration certificate must be in format: AA 1234567",
                     brandRequired: "Enter brand",
                     modelRequired: "Enter model"
@@ -568,6 +570,9 @@
                     return: "Return",
                     loadingProducts: "Products for loading"
                 },
+                vehicleCard: {
+                    notFound: "No matching vehicles found"
+                },
                   fields: {
                       company: "Company",
                       routeNumber: "Route number",
@@ -607,7 +612,7 @@
                       companyRequired: "Company is required",
                       routeDateRequired: "Route date is required",
                       salesOrdersRequired: "Please select at least one sales order",
-                      plateNumberInvalid: "Plate number must be in format: 00 000AAA or 00 0AAA00"
+                      plateNumberInvalid: "Plate number must be in format: 00 A 000 AA or 00 000 AAA"
                   },
                 messages: {
                     success: {
@@ -1450,6 +1455,14 @@
                     box_lv_1: "GTIN box",
                     box_lv_2: "GTIN pallet",
                 },
+                classification: {
+                    title: "Classification",
+                    icps: "ICPS",
+                    name: "Name",
+                    source: "Source",
+                    resolvedAt: "Resolved at",
+                    empty: "Not classified yet",
+                },
                 validation: {
                     required: "This field is required",
                     min2: "Minimum length is 2 characters",
@@ -1468,6 +1481,7 @@
                         gtin: "GTIN",
                         barcode: "Barcode",
                         icps: "ICPS",
+                        brand: "Brand",
                         productType: "Product type",
                         aggregationQuantity: "Aggregation quantity",
                         expiration: "Shelf life (days)",
@@ -1524,6 +1538,24 @@
                             weightNet: "Enter a valid number (integer or decimal)"
                         }
                     }
+                },
+                details: {
+                    main: "Main information",
+                    gtin: "GTIN codes",
+                    measurement: "Measurement & weight",
+                    description: "Description",
+                    packages: "Packages",
+                },
+                packages: {
+                    empty: "No packages found for this product",
+                    fields: {
+                        code: "Code",
+                        type: "Type",
+                        name: "Name",
+                    },
+                    messages: {
+                        error: "Failed to load product packages",
+                    },
                 },
                 modalWindow: {
                     deletion: "Deletion",
@@ -2024,6 +2056,7 @@
                 crew: "Экипаж",
                 expandAll: "Развернуть все",
                 collapseAll: "Свернуть все",
+                change: "Изменить",
                 creator: "Создатель",
                 history: "История",
                 createdBy: "Создал",
@@ -2329,6 +2362,7 @@
                     senderRegion: "Регион отправителя",
                     senderDistrict: "Район отправителя",
                     senderLocation: "Координаты отправителя",
+                    location: "Координаты",
                     contractNumber: "Номер договора",
                     contractDate: "Дата договора",
                     dueDate: "Срок",
@@ -2464,14 +2498,14 @@
                     volumeCapacityM3: "Объём, м3",
                     vin: "VIN",
                     registrationCertificateNumber: "Номер техпаспорта",
-                    stateRegistrationModel: "Модель (реестр Faktura)",
+                    stateRegistrationModel: "Модель (государственный реестр)",
                     status: "Статус",
                     createdAt: "Создано",
                     updatedAt: "Обновлено"
                 },
                 placeholders: {
                     name: "Введите название транспорта",
-                    plateNumber: "00 000AAA",
+                    plateNumber: "00 A 000 AA",
                     comment: "Добавьте комментарий",
                     brand: "Введите марку",
                     model: "Введите модель",
@@ -2481,9 +2515,9 @@
                     selectVehicle: "Выберите транспорт"
                 },
                 ownership: {
-                    checking: "Проверяем номер машины в реестре Faktura…",
-                    notRegistered: "В реестре Faktura нет записи по этому номеру машины",
-                    found: "Владелец подтверждён в реестре Faktura"
+                    checking: "Проверяем номер машины в государственном реестре…",
+                    notRegistered: "В государственном реестре нет записи по этому номеру машины",
+                    found: "Владелец подтверждён в государственном реестре"
                 },
                 types: {
                     sedan: "Седан",
@@ -2517,7 +2551,7 @@
                     typeRequired: "Выберите тип транспорта",
                     plateNumberRequired: "Введите номер машины",
                     plateNumberLength: "Номер должен содержать 8 символов без пробелов",
-                    plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA, 00 A000AA или 00 000000",
+                    plateNumberInvalid: "Номер машины должен быть в формате: 00 A 000 AA или 00 000 AAA",
                     registrationCertificateNumberInvalid: "Номер техпаспорта должен быть в формате: AA 1234567",
                     brandRequired: "Введите марку",
                     modelRequired: "Введите модель"
@@ -2574,6 +2608,9 @@
                     return: "Возврат",
                     loadingProducts: "Товары для погрузки"
                 },
+                vehicleCard: {
+                    notFound: "Подходящий транспорт не найден"
+                },
                   fields: {
                       company: "Компания",
                       routeNumber: "Номер рейса",
@@ -2613,7 +2650,7 @@
                       companyRequired: "Компания обязательна",
                       routeDateRequired: "Дата рейса обязательна",
                       salesOrdersRequired: "Выберите хотя бы одну сделку",
-                      plateNumberInvalid: "Номер машины должен быть в формате: 00 000AAA или 00 0AAA00"
+                      plateNumberInvalid: "Номер машины должен быть в формате: 00 A 000 AA или 00 000 AAA"
                   },
                   messages: {
                       success: {
@@ -3457,6 +3494,14 @@
                     box_lv_1: "GTIN коробки",
                     box_lv_2: "GTIN паллеты",
                 },
+                classification: {
+                    title: "Классификация",
+                    icps: "ИКПУ",
+                    name: "Название",
+                    source: "Источник",
+                    resolvedAt: "Дата определения",
+                    empty: "Ещё не классифицирован",
+                },
                 validation: {
                     required: "Поле обязательно для заполнения",
                     min2: "Минимальная длина — 2 символа",
@@ -3475,6 +3520,7 @@
                         gtin: 'GTIN',
                         barcode: 'Штрихкод',
                         icps: 'ИКПУ',
+                        brand: 'Бренд',
                         productType: 'Тип продукции',
                         aggregationQuantity: 'Количество в агрегации',
                         expiration: 'Срок годности в днях',
@@ -3531,6 +3577,24 @@
                             weightNet: "Введите корректное число (целое или с десятичной точкой)"
                         }
                     }
+                },
+                details: {
+                    main: "Основная информация",
+                    gtin: "Коды GTIN",
+                    measurement: "Измерения и вес",
+                    description: "Описание",
+                    packages: "Упаковки",
+                },
+                packages: {
+                    empty: "Упаковки для этого продукта не найдены",
+                    fields: {
+                        code: "Код",
+                        type: "Тип",
+                        name: "Название",
+                    },
+                    messages: {
+                        error: "Не удалось загрузить упаковки продукта",
+                    },
                 },
                 modalWindow: {
                     deletion: 'Удаление',
@@ -4030,6 +4094,7 @@
                 backToTask: "Vazifaga qaytish",
                 expandAll: "Barchasini yoyish",
                 collapseAll: "Barchasini buklash",
+                change: "O'zgartirish",
                 history: "Tarix"
             },
             welcome: {
@@ -4327,6 +4392,7 @@
                     senderRegion: "Jo'natuvchi viloyati",
                     senderDistrict: "Jo'natuvchi tumani",
                     senderLocation: "Jo'natuvchi koordinatalari",
+                    location: "Koordinatalar",
                     contractNumber: "Shartnoma raqami",
                     contractDate: "Shartnoma sanasi",
                     dueDate: "Muddat",
@@ -4462,14 +4528,14 @@
                     volumeCapacityM3: "Hajm, m3",
                     vin: "VIN",
                     registrationCertificateNumber: "Tex pasport raqami",
-                    stateRegistrationModel: "Model (Faktura reyestri)",
+                    stateRegistrationModel: "Model (davlat reyestri)",
                     status: "Holat",
                     createdAt: "Yaratildi",
                     updatedAt: "Yangilandi"
                 },
                 placeholders: {
                     name: "Transport nomini kiriting",
-                    plateNumber: "00 000AAA",
+                    plateNumber: "00 A 000 AA",
                     comment: "Izoh qo'shing",
                     brand: "Markani kiriting",
                     model: "Modelni kiriting",
@@ -4479,9 +4545,9 @@
                     selectVehicle: "Transportni tanlang"
                 },
                 ownership: {
-                    checking: "Mashina raqami Faktura reyestrida tekshirilmoqda…",
-                    notRegistered: "Faktura reyestrida bu mashina raqami bo'yicha yozuv yo'q",
-                    found: "Egasi Faktura reyestrida tasdiqlandi"
+                    checking: "Mashina raqami davlat reyestrida tekshirilmoqda…",
+                    notRegistered: "Davlat reyestrida bu mashina raqami bo'yicha yozuv yo'q",
+                    found: "Egasi davlat reyestrida tasdiqlandi"
                 },
                 types: {
                     sedan: "Sedan",
@@ -4515,7 +4581,7 @@
                     typeRequired: "Transport turini tanlang",
                     plateNumberRequired: "Mashina raqamini kiriting",
                     plateNumberLength: "Raqam probelsiz 8 ta belgidan iborat bo'lishi kerak",
-                    plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA, 00 A000AA yoki 00 000000",
+                    plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 A 000 AA yoki 00 000 AAA",
                     registrationCertificateNumberInvalid: "Tex pasport raqami AA 1234567 formatida bo'lishi kerak",
                     brandRequired: "Markani kiriting",
                     modelRequired: "Modelni kiriting"
@@ -4572,6 +4638,9 @@
                     return: "Qaytarish",
                     loadingProducts: "Yuklash uchun mahsulotlar"
                 },
+                vehicleCard: {
+                    notFound: "Mos transport topilmadi"
+                },
                   fields: {
                       company: "Kompaniya",
                       routeNumber: "Reys raqami",
@@ -4604,7 +4673,7 @@
                       companyRequired: "Kompaniya majburiy",
                       routeDateRequired: "Reys sanasi majburiy",
                       salesOrdersRequired: "Iltimos, kamida bitta sotuv buyurtmasini tanlang",
-                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 000AAA yoki 00 0AAA00"
+                      plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 A 000 AA yoki 00 000 AAA"
                   },
                   messages: {
                       success: {
@@ -5425,6 +5494,14 @@
                     box_lv_1: "GTIN quti",
                     box_lv_2: "GTIN palleta",
                 },
+                classification: {
+                    title: "Klassifikatsiya",
+                    icps: "IKPU",
+                    name: "Nomi",
+                    source: "Manba",
+                    resolvedAt: "Aniqlangan sana",
+                    empty: "Hali klassifikatsiya qilinmagan",
+                },
                 validation: {
                     required: "Ushbu maydon to‘ldirilishi shart",
                     min2: "Minimal uzunlik — 2 ta belgi",
@@ -5443,6 +5520,7 @@
                         gtin: "GTIN",
                         barcode: "Shtrix-kod",
                         icps: "IKPU",
+                        brand: "Brend",
                         productType: "Mahsulot turi",
                         aggregationQuantity: "Agregatsiya miqdori",
                         expiration: "Yaroqlilik muddati (kunlarda)",
@@ -5499,6 +5577,24 @@
                             weightNet: "To‘g‘ri raqam kiriting (butun yoki o‘nlik)"
                         }
                     }
+                },
+                details: {
+                    main: "Asosiy maʼlumot",
+                    gtin: "GTIN kodlari",
+                    measurement: "O‘lchov va og‘irlik",
+                    description: "Tavsif",
+                    packages: "Qadoqlar",
+                },
+                packages: {
+                    empty: "Ushbu mahsulot uchun qadoqlar topilmadi",
+                    fields: {
+                        code: "Kod",
+                        type: "Turi",
+                        name: "Nomi",
+                    },
+                    messages: {
+                        error: "Mahsulot qadoqlarini yuklab bo‘lmadi",
+                    },
                 },
                 modalWindow: {
                     deletion: "O‘chirish",

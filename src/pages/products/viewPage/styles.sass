@@ -1,0 +1,28 @@
+@use "sass:map"
+@use "../../../shared/styles/variables" as vars
+
+.product-type-pills
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  gap: 8px
+  min-width: 0
+
+.detail-grid.product-packages-grid
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))
+
+.product-type-pill
+  display: inline-flex
+  align-items: center
+  max-width: 100%
+  min-height: 28px
+  padding: 5px 10px
+  border-radius: 999px
+  border: 1px solid rgba(var(--main-primary-rgb), 0.18)
+  background: rgba(var(--main-primary-rgb), 0.08)
+  color: map.get(vars.$main, 'main')
+  font-size: 12px
+  font-weight: 600
+  line-height: 1.2
+  white-space: normal
+  overflow-wrap: anywhere

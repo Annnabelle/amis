@@ -1,5 +1,12 @@
 import type {AvailablePackageType, HexString, MeasurementDto, MultiLanguage, WeightDto} from "shared/types/dtos";
 
+export type ProductClassification = {
+    icps: string;
+    name: string;
+    source: string;
+    resolvedAt: Date;
+};
+
 export type ProductResponse = {
     id: string;
     name: string;
@@ -12,7 +19,8 @@ export type ProductResponse = {
         box_lv_1?: string,
         box_lv_2?: string,
     };
-    icps: string;
+    classification: ProductClassification | null;
+    brand: string;
     productGroup: string;
     packageTypes: AvailablePackageType[];
 

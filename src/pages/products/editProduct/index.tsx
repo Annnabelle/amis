@@ -60,7 +60,7 @@ const ProductsEdit = () => {
             shortName: productById.shortName,
             description: productById.description,
             gtin: productById.gtin,
-            icps: productById.icps,
+            icps: productById.classification?.icps,
             productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
             unit: productById.measurement.unit,
@@ -162,7 +162,7 @@ const ProductsEdit = () => {
                                 <TextField name={['gtin', 'box_lv_2']} label={t('products.gtin.box_lv_2')} initialValue={productById.gtin.box_lv_2} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
                             </FormRow>
                             <FormRow>
-                                <TextField name="icps" label={t('products.addProductForm.label.icps')} initialValue={productById.icps} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d{14}$/, message: t('products.validation.icps') }, ]} placeholder={t('products.addProductForm.placeholder.icps')} />
+                                <TextField name="icps" label={t('products.addProductForm.label.icps')} initialValue={productById.classification?.icps} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d{14}$/, message: t('products.validation.icps') }, ]} placeholder={t('products.addProductForm.placeholder.icps')} />
                                 <SelectField
                                     name="productType"
                                     label={t('products.addProductForm.label.productType')}

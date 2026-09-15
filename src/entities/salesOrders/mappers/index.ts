@@ -33,21 +33,18 @@ const optionalNumber = (value: unknown): number | undefined => {
 };
 
 const mapAddressResponseDtoToEntity = (
-  addressDetails?: SalesOrderAddressResponseDto
-): SalesOrderResponse["customer"]["addressDetails"] | undefined =>
-  addressDetails
+  addressDetails: SalesOrderAddressResponseDto
+): SalesOrderResponse["customer"]["addressDetails"] => ({
+  regionId: addressDetails.regionId,
+  districtId: addressDetails.districtId,
+  address: addressDetails.address,
+  location: addressDetails.location
     ? {
-        regionId: addressDetails.regionId,
-        districtId: addressDetails.districtId,
-        address: addressDetails.address,
-        location: addressDetails.location
-          ? {
-              latitude: addressDetails.location.latitude,
-              longitude: addressDetails.location.longitude,
-            }
-          : undefined,
+        latitude: addressDetails.location.latitude,
+        longitude: addressDetails.location.longitude,
       }
-    : undefined;
+    : undefined,
+});
 
 export const mapSalesOrderDtoToEntity = (
   dto: SalesOrderResponseDto

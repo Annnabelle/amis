@@ -11,14 +11,14 @@ export type SalesOrderResponse = {
   salesOrderNumber: string;
   status: SalesOrderStatus;
   sender?: {
-    addressDetails?: SalesOrderAddressResponse;
+    addressDetails: SalesOrderAddressResponse;
   };
   customer: {
     companyId?: string;
     tin: string;
     name: string;
     address?: string;
-    addressDetails?: SalesOrderAddressResponse;
+    addressDetails: SalesOrderAddressResponse;
   };
   contract?: {
     number: string;

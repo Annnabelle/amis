@@ -49,7 +49,15 @@ export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse 
       box_lv_1: dto.gtin.box_lv_1,
       box_lv_2: dto.gtin.box_lv_2,
   },
-    icps: dto.icps,
+    classification: dto.classification
+      ? {
+          icps: dto.classification.icps,
+          name: dto.classification.name,
+          source: dto.classification.source,
+          resolvedAt: new Date(dto.classification.resolvedAt),
+        }
+      : null,
+    brand: dto.brand,
     productGroup: dto.productGroup ?? dto.productType ?? '',
     packageTypes: dto.packageTypes,
 

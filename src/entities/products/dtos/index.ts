@@ -3,6 +3,13 @@
   ErrorDto, HexString, MeasurementDto, MultiLanguage, PaginatedDto, PaginatedResponseDto, ProductSortField, ProductStatus, WeightDto
 } from "shared/types/dtos";
 
+export type ProductClassificationDto = {
+  icps: string;
+  name: string;
+  source: string;
+  resolvedAt: Date;
+};
+
 export type ProductResponseDto = {
   id: string;
   name: string;
@@ -15,7 +22,8 @@ export type ProductResponseDto = {
     box_lv_1?: string,
     box_lv_2?: string,
   };
-  icps: string;
+  classification: ProductClassificationDto | null;
+  brand: string;
   productGroup?: string;
   productType?: string;
   packageTypes: AvailablePackageType[];

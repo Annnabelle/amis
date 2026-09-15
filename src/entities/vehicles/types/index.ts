@@ -22,7 +22,7 @@ export type VehicleOwnership = {
 
 export type VehicleOwnershipCheck =
   | { status: "found"; ownership: VehicleOwnership }
-  | { status: "not-registered" };
+  | { status: "not-registered"; message: string };
 
 export type Vehicle = {
   id: string;

@@ -1,6 +1,5 @@
 import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
-import type { ChangeEvent } from 'react';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -17,6 +16,8 @@ import { getSalesOrders } from 'entities/salesOrders/model';
 import { searchCompanyMemberships } from 'entities/companyMemberships/model';
 import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';
 import { getVehicles } from 'entities/vehicles/model';
+import { VehicleFormModal } from 'entities/vehicles/ui/vehicleFormModal';
+import type { Vehicle } from 'entities/vehicles/types';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
 import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
@@ -58,6 +59,8 @@ const DeliveryRoutesCreate = () => {
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+  const [vehicleSearchValue, setVehicleSearchValue] = useState('');
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const isSelectingDriverRef = useRef(false);
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
@@ -70,43 +73,6 @@ const DeliveryRoutesCreate = () => {
     }),
     []
   );
-
-  const normalizePlateNumber = (value: string) => {
-    const raw = value.toUpperCase().replace(/[^0-9A-Z]/g, '');
-    const region = raw.slice(0, 2).replace(/\D/g, '');
-    const rest = raw.slice(2);
-
-    if (!region) {
-      return '';
-    }
-
-    if (/^[A-Z]/.test(rest)) {
-      const letter = rest.slice(0, 1);
-      const digits = rest.slice(1, 4).replace(/\D/g, '');
-      const tail = rest.slice(4, 7).replace(/[^A-Z]/g, '');
-      return [region, letter, digits, tail].filter(Boolean).join(' ').slice(0, 11);
-    }
-
-    const lettersIndex = rest.search(/[A-Z]/);
-    if (lettersIndex >= 0) {
-      const digits = rest.slice(0, 3).replace(/\D/g, '');
-      const tail = rest.slice(3).replace(/[^A-Z]/g, '').slice(0, 3);
-      return [region, digits, tail].filter(Boolean).join(' ').slice(0, 11);
-    }
-
-    const digits = rest.replace(/\D/g, '').slice(0, 6);
-    if (digits.length <= 3) {
-      return [region, digits].filter(Boolean).join(' ').slice(0, 6);
-    }
-
-    return [region, digits.slice(0, 3), digits.slice(3)].filter(Boolean).join(' ').slice(0, 11);
-  };
-
-  const handlePlateNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const normalized = normalizePlateNumber(event.target.value);
-    const vehicle = form.getFieldValue('vehicle') || {};
-    form.setFieldsValue({ vehicle: { ...vehicle, plateNumber: normalized } });
-  };
 
   useEffect(() => {
     if (!orgId) return;
@@ -312,6 +278,36 @@ const DeliveryRoutesCreate = () => {
     [vehicles]
   );
 
+  const hasNoVehicleMatches = useMemo(() => {
+    if (isVehiclesLoading) return false;
+    const query = vehicleSearchValue.trim().toLowerCase();
+    if (!query) return vehicleOptions.length === 0;
+    return !vehicleOptions.some((option) => option.label.toLowerCase().includes(query));
+  }, [vehicleOptions, vehicleSearchValue, isVehiclesLoading]);
+
+  const selectedVehicleId = Form.useWatch(['vehicle', 'vehicleId'], form);
+  const selectedVehicle = useMemo(
+    () => vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null,
+    [vehicles, selectedVehicleId]
+  );
+
+  const applyVehicle = (vehicle: Vehicle) => {
+    form.setFieldsValue({
+      vehicle: {
+        vehicleId: vehicle.id,
+        name: vehicle.name,
+        plateNumber: vehicle.plateNumber,
+      },
+    });
+    setVehicleSearchValue('');
+  };
+
+  const clearVehicle = () => {
+    form.setFieldsValue({
+      vehicle: { vehicleId: undefined, name: undefined, plateNumber: undefined },
+    });
+  };
+
   const availableOrdersColumns = useMemo<AdaptiveColumn<AvailableOrderRow>[]>(
     () => [
       {
@@ -472,24 +468,26 @@ const DeliveryRoutesCreate = () => {
                     options={vehicleOptions}
                     optionFilterProp="label"
                     placeholder={t('vehicles.placeholders.selectVehicle')}
-                    onSelect={(_, option) => {
-                      form.setFieldsValue({
-                        vehicle: {
-                          vehicleId: option.vehicle.id,
-                          name: option.vehicle.name,
-                          plateNumber: option.vehicle.plateNumber,
-                        },
-                      });
-                    }}
-                    onClear={() => {
-                      const vehicle = form.getFieldValue('vehicle') || {};
-                      form.setFieldsValue({
-                        vehicle: {
-                          ...vehicle,
-                          vehicleId: undefined,
-                        },
-                      });
-                    }}
+                    searchValue={vehicleSearchValue}
+                    onSearch={(value) => setVehicleSearchValue(value)}
+                    notFoundContent={
+                      hasNoVehicleMatches ? (
+                        <div className="vehicle-select-empty">
+                          <p className="vehicle-select-empty-text">
+                            {t('deliveryRoutes.vehicleCard.notFound')}
+                          </p>
+                          <CustomButton
+                            type="button"
+                            size="sm"
+                            onClick={() => setIsVehicleModalOpen(true)}
+                          >
+                            {t('vehicles.actions.create')}
+                          </CustomButton>
+                        </div>
+                      ) : null
+                    }
+                    onSelect={(_, option) => applyVehicle(option.vehicle)}
+                    onClear={clearVehicle}
                   />
                 </Form.Item>
                 <Form.Item
@@ -500,48 +498,55 @@ const DeliveryRoutesCreate = () => {
                 >
                   <DatePicker className="input" size="large" placeholder={t('deliveryRoutes.placeholders.routeDate')} />
                 </Form.Item>
-                <Form.Item className="input" name={["vehicle", "name"]} label={t('deliveryRoutes.fields.vehicleName')}>
-                  <Input className="input" size="large" placeholder={t('deliveryRoutes.placeholders.vehicle')} />
+                <Form.Item className="input" name={["vehicle", "name"]} hidden>
+                  <Input />
                 </Form.Item>
-                <Form.Item 
-                  className="input" 
-                  name={["vehicle", "plateNumber"]} 
-                  label={t('deliveryRoutes.fields.plateNumber')}
-                  rules={[
-                    {
-                      validator: async (_, value) => {
-                        if (!value) {
-                          return Promise.resolve();
-                        }
-
-                        const raw = value.replace(/\s+/g, '');
-                        const region = parseInt(raw.slice(0, 2), 10);
-                        if (Number.isNaN(region) || region < 0 || region > 95) {
-                          return Promise.reject(new Error(t('deliveryRoutes.validation.plateNumberInvalid')));
-                        }
-
-                        const privatePattern = /^\d{2}[A-Z]\d{3}[A-Z]{2}$/;
-                        const businessPattern = /^\d{2}\d{3}[A-Z]{3}$/;
-                        const foreignPattern = /^\d{2}\d{6}$/;
-
-                        if (privatePattern.test(raw) || businessPattern.test(raw) || foreignPattern.test(raw)) {
-                          return Promise.resolve();
-                        }
-
-                        return Promise.reject(new Error(t('deliveryRoutes.validation.plateNumberInvalid')));
-                      }
-                    }
-                  ]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    placeholder={t('deliveryRoutes.placeholders.plateNumber')}
-                    maxLength={11}
-                    onChange={handlePlateNumberChange}
-                  />
+                <Form.Item className="input" name={["vehicle", "plateNumber"]} hidden>
+                  <Input />
                 </Form.Item>
               </div>
+
+              {selectedVehicle && (
+                <div className="vehicle-select-card">
+                  <div className="vehicle-select-card-header">
+                    <span className="vehicle-select-card-name">{selectedVehicle.name}</span>
+                    <span className="vehicle-select-card-plate">{selectedVehicle.plateNumber}</span>
+                    <button
+                      type="button"
+                      className="vehicle-select-card-clear"
+                      onClick={clearVehicle}
+                    >
+                      {t('common.change')}
+                    </button>
+                  </div>
+                  <div className="vehicle-select-card-details">
+                    <span className="detail-item">
+                      <span className="label">{t('vehicles.fields.type')}:</span>{' '}
+                      {t(`vehicles.types.${selectedVehicle.type}`)}
+                    </span>
+                    <span className="detail-item">
+                      <span className="label">{t('vehicles.fields.brand')}:</span>{' '}
+                      {selectedVehicle.characteristics.brand}
+                    </span>
+                    <span className="detail-item">
+                      <span className="label">{t('vehicles.fields.model')}:</span>{' '}
+                      {selectedVehicle.characteristics.model}
+                    </span>
+                    {selectedVehicle.characteristics.loadCapacityKg != null && (
+                      <span className="detail-item">
+                        <span className="label">{t('vehicles.fields.loadCapacityKg')}:</span>{' '}
+                        {selectedVehicle.characteristics.loadCapacityKg}
+                      </span>
+                    )}
+                    {selectedVehicle.characteristics.volumeCapacityM3 != null && (
+                      <span className="detail-item">
+                        <span className="label">{t('vehicles.fields.volumeCapacityM3')}:</span>{' '}
+                        {selectedVehicle.characteristics.volumeCapacityM3}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="form-inputs form-inputs-organization">
                 <Form.Item className="input" name={["crew", "driverName"]} label={t('deliveryRoutes.fields.driver')}>
                   <AutoComplete
@@ -805,6 +810,17 @@ const DeliveryRoutesCreate = () => {
           </div>
         </div>
       </div>
+      <VehicleFormModal
+        mode="create"
+        open={isVehicleModalOpen}
+        onClose={() => setIsVehicleModalOpen(false)}
+        companyId={companyId}
+        initialPlateNumber={vehicleSearchValue}
+        onSaved={(vehicle) => {
+          applyVehicle(vehicle);
+          setIsVehicleModalOpen(false);
+        }}
+      />
     </MainLayout>
   );
 };

@@ -66,11 +66,7 @@ export const getAllProducts = createAsyncThunk(
 function isCreateProductSuccess(
     data: CreateProductResponseDto
 ): data is { success: true; product: ProductResponseDto } {
-    return (
-        'success' in data &&
-        data.success === true &&
-        'product' in data
-    );
+    return (data.success && 'product' in data);
 }
 
 function isErrorDto(data: unknown): data is ErrorDto {
@@ -285,7 +281,8 @@ export const productsSlice = createSlice({
             id: product.id,
             name: product.name,
             productType: product.productType,
-            icps: product.icps,
+            classification: product.classification,
+            brand: product.brand,
             gtin: product.gtin,
             measurement: product.measurement,
             status: product.status,

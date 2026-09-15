@@ -174,7 +174,10 @@ export const verifyVehicleOwnership = createAsyncThunk<
       response?.status === 404 ||
       response?.data?.errorCode === VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE
     ) {
-      return { status: "not-registered" };
+      return {
+        status: "not-registered",
+        message: getBackendErrorMessage(response?.data, "Транспорт не найден в государственном реестре"),
+      };
     }
 
     return rejectWithValue(
