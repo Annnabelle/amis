@@ -463,7 +463,10 @@
                     stateRegistrationModel: "Model (state registry)",
                     status: "Status",
                     createdAt: "Created",
-                    updatedAt: "Updated"
+                    updatedAt: "Updated",
+                    ownershipType: "Ownership",
+                    ownerTinOrPinfl: "Owner's TIN/PINFL",
+                    ownerName: "Organization name"
                 },
                 placeholders: {
                     name: "Enter vehicle name",
@@ -474,12 +477,22 @@
                     vin: "Enter VIN",
                     registrationCertificateNumber: "AA 1234567",
                     stateRegistrationModel: "Filled automatically from the registry",
-                    selectVehicle: "Select vehicle"
+                    selectVehicle: "Select vehicle",
+                    ownerTinOrPinfl: "Enter TIN (9 digits) or PINFL (14 digits)",
+                    ownerName: "Filled in automatically"
                 },
                 ownership: {
                     checking: "Checking the plate number in the state registry…",
                     notRegistered: "No record for this plate number in the state registry",
                     found: "Owner confirmed in the state registry"
+                },
+                ownershipTypes: {
+                    owned: "Company vehicle",
+                    external: "External owner"
+                },
+                ownerLookup: {
+                    checking: "Looking up the organization…",
+                    notFound: "Organization not found by this TIN/PINFL"
                 },
                 types: {
                     sedan: "Sedan",
@@ -516,7 +529,10 @@
                     plateNumberInvalid: "Plate number must be in format: 00 A 000 AA or 00 000 AAA",
                     registrationCertificateNumberInvalid: "Registration certificate must be in format: AA 1234567",
                     brandRequired: "Enter brand",
-                    modelRequired: "Enter model"
+                    modelRequired: "Enter model",
+                    ownerTinOrPinflRequired: "Enter the owner's TIN or PINFL",
+                    ownerTinOrPinflInvalid: "Enter a valid TIN (9 digits) or PINFL (14 digits)",
+                    ownerRequired: "Look up a valid organization by TIN/PINFL before saving"
                 },
                 messages: {
                     success: {
@@ -2501,7 +2517,10 @@
                     stateRegistrationModel: "Модель (государственный реестр)",
                     status: "Статус",
                     createdAt: "Создано",
-                    updatedAt: "Обновлено"
+                    updatedAt: "Обновлено",
+                    ownershipType: "Владелец транспорта",
+                    ownerTinOrPinfl: "ИНН/ПИНФЛ владельца",
+                    ownerName: "Название организации"
                 },
                 placeholders: {
                     name: "Введите название транспорта",
@@ -2512,12 +2531,22 @@
                     vin: "Введите VIN",
                     registrationCertificateNumber: "AA 1234567",
                     stateRegistrationModel: "Заполняется автоматически из реестра",
-                    selectVehicle: "Выберите транспорт"
+                    selectVehicle: "Выберите транспорт",
+                    ownerTinOrPinfl: "Введите ИНН (9 цифр) или ПИНФЛ (14 цифр)",
+                    ownerName: "Заполнится автоматически"
                 },
                 ownership: {
                     checking: "Проверяем номер машины в государственном реестре…",
                     notRegistered: "В государственном реестре нет записи по этому номеру машины",
                     found: "Владелец подтверждён в государственном реестре"
+                },
+                ownershipTypes: {
+                    owned: "Транспорт организации",
+                    external: "Внешний владелец"
+                },
+                ownerLookup: {
+                    checking: "Ищем организацию…",
+                    notFound: "Организация по этому ИНН/ПИНФЛ не найдена"
                 },
                 types: {
                     sedan: "Седан",
@@ -2554,7 +2583,10 @@
                     plateNumberInvalid: "Номер машины должен быть в формате: 00 A 000 AA или 00 000 AAA",
                     registrationCertificateNumberInvalid: "Номер техпаспорта должен быть в формате: AA 1234567",
                     brandRequired: "Введите марку",
-                    modelRequired: "Введите модель"
+                    modelRequired: "Введите модель",
+                    ownerTinOrPinflRequired: "Введите ИНН или ПИНФЛ владельца",
+                    ownerTinOrPinflInvalid: "Введите корректный ИНН (9 цифр) или ПИНФЛ (14 цифр)",
+                    ownerRequired: "Найдите организацию по ИНН/ПИНФЛ перед сохранением"
                 },
                 messages: {
                     success: {
@@ -4531,7 +4563,10 @@
                     stateRegistrationModel: "Model (davlat reyestri)",
                     status: "Holat",
                     createdAt: "Yaratildi",
-                    updatedAt: "Yangilandi"
+                    updatedAt: "Yangilandi",
+                    ownershipType: "Egalik turi",
+                    ownerTinOrPinfl: "Egasining INN/PINFL raqami",
+                    ownerName: "Tashkilot nomi"
                 },
                 placeholders: {
                     name: "Transport nomini kiriting",
@@ -4542,12 +4577,22 @@
                     vin: "VIN ni kiriting",
                     registrationCertificateNumber: "AA 1234567",
                     stateRegistrationModel: "Reyestrdan avtomatik to'ldiriladi",
-                    selectVehicle: "Transportni tanlang"
+                    selectVehicle: "Transportni tanlang",
+                    ownerTinOrPinfl: "INN (9 raqam) yoki PINFL (14 raqam) kiriting",
+                    ownerName: "Avtomatik to'ldiriladi"
                 },
                 ownership: {
                     checking: "Mashina raqami davlat reyestrida tekshirilmoqda…",
                     notRegistered: "Davlat reyestrida bu mashina raqami bo'yicha yozuv yo'q",
                     found: "Egasi davlat reyestrida tasdiqlandi"
+                },
+                ownershipTypes: {
+                    owned: "Tashkilot transporti",
+                    external: "Tashqi egasi"
+                },
+                ownerLookup: {
+                    checking: "Tashkilot qidirilmoqda…",
+                    notFound: "Ushbu INN/PINFL bo'yicha tashkilot topilmadi"
                 },
                 types: {
                     sedan: "Sedan",
@@ -4584,7 +4629,10 @@
                     plateNumberInvalid: "Mashina raqami formatda bo'lishi kerak: 00 A 000 AA yoki 00 000 AAA",
                     registrationCertificateNumberInvalid: "Tex pasport raqami AA 1234567 formatida bo'lishi kerak",
                     brandRequired: "Markani kiriting",
-                    modelRequired: "Modelni kiriting"
+                    modelRequired: "Modelni kiriting",
+                    ownerTinOrPinflRequired: "Egasining INN yoki PINFL raqamini kiriting",
+                    ownerTinOrPinflInvalid: "To'g'ri INN (9 raqam) yoki PINFL (14 raqam) kiriting",
+                    ownerRequired: "Saqlashdan oldin INN/PINFL bo'yicha tashkilotni toping"
                 },
                 messages: {
                     success: {

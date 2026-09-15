@@ -1,4 +1,4 @@
-import type { VehicleStatus, VehicleType } from "entities/vehicles/dtos";
+import type { VehicleOwnerDto, VehicleOwnershipType, VehicleStatus, VehicleType } from "entities/vehicles/dtos";
 
 export type VehicleIdentification = {
   vin?: string;
@@ -34,6 +34,8 @@ export type Vehicle = {
   characteristics: VehicleCharacteristics;
   status: VehicleStatus;
   stateRegistrationModel?: string;
+  ownershipType?: VehicleOwnershipType;
+  owner?: VehicleOwnerDto;
   createdBy?: string;
   updatedBy?: string;
   createdAt?: Date;

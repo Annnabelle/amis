@@ -16,6 +16,8 @@ export const mapVehicleDtoToEntity = (dto: VehicleResponseDto): Vehicle => ({
   characteristics: dto.characteristics,
   status: dto.status,
   stateRegistrationModel: dto.stateRegistrationModel,
+  ownershipType: dto.ownershipType,
+  owner: dto.owner,
   createdBy: dto.createdBy,
   updatedBy: dto.updatedBy,
   createdAt: toDate(dto.createdAt),

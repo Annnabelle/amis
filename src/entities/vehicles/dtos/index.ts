@@ -10,6 +10,8 @@ export type VehicleResponseDto = {
   characteristics: VehicleCharacteristicsDto;
   status: VehicleStatus;
   stateRegistrationModel?: string;
+  ownershipType?: VehicleOwnershipType;
+  owner?: VehicleOwnerDto;
   createdBy?: string;
   updatedBy?: string;
   createdAt?: string | Date;
@@ -55,6 +57,19 @@ export type VehicleCharacteristicsDto = {
   volumeCapacityM3?: number;
 };
 
+export const VehicleOwnershipType = {
+  Owned: "owned",
+  External: "external",
+} as const;
+
+export type VehicleOwnershipType = (typeof VehicleOwnershipType)[keyof typeof VehicleOwnershipType];
+
+export type VehicleOwnerDto = {
+  tin?: string;
+  pinfl?: string;
+  name: string;
+};
+
 export type CreateVehicleDto = {
   companyId: string;
   type: VehicleType;
@@ -63,6 +78,8 @@ export type CreateVehicleDto = {
   identification?: VehicleIdentificationDto;
   characteristics: VehicleCharacteristicsDto;
   stateRegistrationModel?: string;
+  ownershipType: VehicleOwnershipType;
+  owner?: VehicleOwnerDto;
 };
 
 export const VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE = 10060;

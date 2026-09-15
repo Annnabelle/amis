@@ -1,12 +1,12 @@
-import { Form, Input, InputNumber, Select } from "antd";
+import { Form, Input, InputNumber, Radio, Select, type RadioChangeEvent } from "antd";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "app/store";
 import { useCan } from "entities/access/lib";
-import { getOrganizationById } from "entities/organization/model";
+import { getCompanyByTin, getOrganizationById } from "entities/organization/model";
 import { createVehicle, updateVehicle, verifyVehicleOwnership } from "entities/vehicles/model";
-import { VehicleType, type CreateVehicleDto } from "entities/vehicles/dtos";
+import { VehicleOwnershipType, VehicleType, type CreateVehicleDto, type VehicleOwnerDto } from "entities/vehicles/dtos";
 import type { Vehicle } from "entities/vehicles/types";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
@@ -25,9 +25,13 @@ export type VehicleFormValues = {
   volumeCapacityM3?: number;
   vin?: string;
   registrationCertificateNumber?: string;
+  ownershipType: VehicleOwnershipType;
+  ownerTinOrPinfl?: string;
+  ownerName?: string;
 };
 
 type OwnershipStatus = "idle" | "checking" | "found" | "not-registered" | "error";
+type OwnerLookupStatus = "idle" | "checking" | "found" | "not-found";
 
 const TIN_OR_PINFL_PATTERN = /^(\d{9}|\d{14})$/;
 
@@ -93,7 +97,10 @@ const normalizePayloadRegistrationCertificateNumber = (value: string) =>
 const isValidRegistrationCertificateNumber = (value: string) =>
   /^[A-Z]{2}\d{7}$/.test(normalizePayloadRegistrationCertificateNumber(value));
 
-const getVehiclePayload = (values: VehicleFormValues): Omit<CreateVehicleDto, "companyId"> => ({
+const getVehiclePayload = (
+  values: VehicleFormValues,
+  owner: VehicleOwnerDto | null
+): Omit<CreateVehicleDto, "companyId"> => ({
   type: values.type,
   displayName: values.name.trim(),
   plateNumber: values.plateNumber.trim(),
@@ -111,6 +118,8 @@ const getVehiclePayload = (values: VehicleFormValues): Omit<CreateVehicleDto, "c
     loadCapacityKg: values.loadCapacityKg,
     volumeCapacityM3: values.volumeCapacityM3,
   },
+  ownershipType: values.ownershipType,
+  owner: values.ownershipType === VehicleOwnershipType.External ? owner ?? undefined : undefined,
 });
 
 type VehicleFormModalProps = {
@@ -139,14 +148,22 @@ export const VehicleFormModal = ({
   const [companyTin, setCompanyTin] = useState<string | null>(null);
   const [ownershipStatus, setOwnershipStatus] = useState<OwnershipStatus>("idle");
   const ownershipRequestRef = useRef(0);
+  const [ownerLookupStatus, setOwnerLookupStatus] = useState<OwnerLookupStatus>("idle");
+  const [ownerData, setOwnerData] = useState<VehicleOwnerDto | null>(null);
+  const ownerLookupRequestRef = useRef(0);
+  const ownershipType = Form.useWatch("ownershipType", form);
 
   useEffect(() => {
     if (!open) return;
     form.resetFields();
     ownershipRequestRef.current += 1;
     setOwnershipStatus("idle");
+    ownerLookupRequestRef.current += 1;
+    setOwnerLookupStatus("idle");
+    setOwnerData(null);
 
     if (mode === "edit" && vehicle) {
+      const isExternalOwner = vehicle.ownershipType === VehicleOwnershipType.External;
       form.setFieldsValue({
         type: vehicle.type,
         name: vehicle.name,
@@ -161,7 +178,14 @@ export const VehicleFormModal = ({
         registrationCertificateNumber: vehicle.identification.registrationCertificateNumber
           ? normalizeRegistrationCertificateNumber(vehicle.identification.registrationCertificateNumber)
           : undefined,
+        ownershipType: isExternalOwner ? VehicleOwnershipType.External : VehicleOwnershipType.Owned,
+        ownerTinOrPinfl: vehicle.owner?.tin ?? vehicle.owner?.pinfl,
+        ownerName: vehicle.owner?.name,
       });
+      if (isExternalOwner && vehicle.owner) {
+        setOwnerData(vehicle.owner);
+        setOwnerLookupStatus("found");
+      }
     } else if (initialPlateNumber) {
       form.setFieldValue("plateNumber", normalizePlateNumber(initialPlateNumber));
     }
@@ -185,15 +209,16 @@ export const VehicleFormModal = ({
     setOwnershipStatus("idle");
   };
 
-  const verifyOwnership = async (plateNumber: string) => {
+  const verifyOwnership = async (plateNumber: string, overrideTinOrPinfl?: string) => {
     const regNumber = plateNumber.trim();
 
-    if (!canVerifyOwnership || !regNumber) {
-      resetOwnershipCheck();
-      return;
-    }
+    const tinOrPinflValue =
+      overrideTinOrPinfl ??
+      (ownershipType === VehicleOwnershipType.External
+        ? ownerData?.tin ?? ownerData?.pinfl
+        : companyTin);
 
-    if (!companyTin || !TIN_OR_PINFL_PATTERN.test(companyTin)) {
+    if (!canVerifyOwnership || !regNumber || !tinOrPinflValue || !TIN_OR_PINFL_PATTERN.test(tinOrPinflValue)) {
       resetOwnershipCheck();
       return;
     }
@@ -203,7 +228,7 @@ export const VehicleFormModal = ({
     setOwnershipStatus("checking");
 
     const result = await dispatch(
-      verifyVehicleOwnership({ tinOrPinfl: companyTin, regNumber })
+      verifyVehicleOwnership({ tinOrPinfl: tinOrPinflValue, regNumber })
     );
 
     if (ownershipRequestRef.current !== requestId) return;
@@ -228,15 +253,15 @@ export const VehicleFormModal = ({
   };
 
   const handlePlateNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
-    form.setFieldValue("plateNumber", normalizePlateNumber(event.target.value));
-    if (ownershipStatus !== "idle") {
+    const normalized = normalizePlateNumber(event.target.value);
+    form.setFieldValue("plateNumber", normalized);
+
+    if (isValidPlateNumber(normalized)) {
+      void verifyOwnership(normalized);
+    } else if (ownershipStatus !== "idle") {
       form.setFieldValue("stateRegistrationModel", undefined);
       resetOwnershipCheck();
     }
-  };
-
-  const handlePlateNumberBlur = () => {
-    void verifyOwnership(form.getFieldValue("plateNumber") ?? "");
   };
 
   const handleRegistrationCertificateNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -246,12 +271,93 @@ export const VehicleFormModal = ({
     );
   };
 
+  const resetOwnerLookup = () => {
+    ownerLookupRequestRef.current += 1;
+    setOwnerLookupStatus("idle");
+    setOwnerData(null);
+    form.setFieldValue("ownerName", undefined);
+  };
+
+  const lookupOwner = async (value: string) => {
+    if (!TIN_OR_PINFL_PATTERN.test(value)) {
+      resetOwnerLookup();
+      return;
+    }
+
+    const requestId = ownerLookupRequestRef.current + 1;
+    ownerLookupRequestRef.current = requestId;
+    setOwnerLookupStatus("checking");
+    form.setFieldValue("ownerName", undefined);
+
+    try {
+      const company = await dispatch(getCompanyByTin(value)).unwrap();
+
+      if (ownerLookupRequestRef.current !== requestId) return;
+
+      if (!company) {
+        setOwnerData(null);
+        setOwnerLookupStatus("not-found");
+        toast.error(t("vehicles.ownerLookup.notFound"));
+        return;
+      }
+
+      const owner: VehicleOwnerDto = {
+        tin: value.length === 9 ? value : undefined,
+        pinfl: value.length === 14 ? value : undefined,
+        name: company.displayName || company.legalName || value,
+      };
+
+      setOwnerData(owner);
+      setOwnerLookupStatus("found");
+      form.setFieldValue("ownerName", owner.name);
+
+      const currentPlateNumber = form.getFieldValue("plateNumber");
+      if (currentPlateNumber && isValidPlateNumber(currentPlateNumber)) {
+        void verifyOwnership(currentPlateNumber, value);
+      }
+    } catch {
+      if (ownerLookupRequestRef.current !== requestId) return;
+      setOwnerData(null);
+      setOwnerLookupStatus("not-found");
+      toast.error(t("vehicles.ownerLookup.notFound"));
+    }
+  };
+
+  const handleOwnershipTypeChange = (event: RadioChangeEvent) => {
+    const nextType = event.target.value as VehicleOwnershipType;
+    form.setFieldValue("ownerTinOrPinfl", undefined);
+    resetOwnerLookup();
+    form.setFieldValue("stateRegistrationModel", undefined);
+    resetOwnershipCheck();
+
+    const currentPlateNumber = form.getFieldValue("plateNumber");
+    if (nextType === VehicleOwnershipType.Owned && currentPlateNumber && isValidPlateNumber(currentPlateNumber) && companyTin) {
+      void verifyOwnership(currentPlateNumber, companyTin);
+    }
+  };
+
+  const handleOwnerTinOrPinflChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const normalized = event.target.value.replace(/\D/g, "").slice(0, 14);
+    form.setFieldValue("ownerTinOrPinfl", normalized);
+
+    if (TIN_OR_PINFL_PATTERN.test(normalized)) {
+      void lookupOwner(normalized);
+    } else if (ownerLookupStatus !== "idle") {
+      resetOwnerLookup();
+    }
+  };
+
   const handleSubmit = async (values: VehicleFormValues) => {
+    if (values.ownershipType === VehicleOwnershipType.External && !ownerData) {
+      toast.error(t("vehicles.validation.ownerRequired"));
+      return;
+    }
+
     if (mode === "create") {
       if (!companyId) return;
 
       const result = await dispatch(
-        createVehicle({ companyId, ...getVehiclePayload(values) } as CreateVehicleDto)
+        createVehicle({ companyId, ...getVehiclePayload(values, ownerData) } as CreateVehicleDto)
       );
 
       if (createVehicle.fulfilled.match(result)) {
@@ -268,7 +374,7 @@ export const VehicleFormModal = ({
     if (!vehicle) return;
 
     const result = await dispatch(
-      updateVehicle({ id: vehicle.id, data: getVehiclePayload(values) })
+      updateVehicle({ id: vehicle.id, data: getVehiclePayload(values, ownerData) })
     );
 
     if (updateVehicle.fulfilled.match(result)) {
@@ -293,6 +399,76 @@ export const VehicleFormModal = ({
         <div className="form-inputs form-inputs-row">
           <Form.Item
             className="input"
+            name="ownershipType"
+            label={t("vehicles.fields.ownershipType")}
+            initialValue={VehicleOwnershipType.Owned}
+          >
+            <Radio.Group size="large" onChange={handleOwnershipTypeChange}>
+              <Radio value={VehicleOwnershipType.Owned}>{t("vehicles.ownershipTypes.owned")}</Radio>
+              <Radio value={VehicleOwnershipType.External}>{t("vehicles.ownershipTypes.external")}</Radio>
+            </Radio.Group>
+          </Form.Item>
+        </div>
+
+        {ownershipType === VehicleOwnershipType.External && (
+          <div className="form-inputs form-inputs-row">
+            <Form.Item
+              className="input"
+              name="ownerTinOrPinfl"
+              label={t("vehicles.fields.ownerTinOrPinfl")}
+              rules={[
+                { required: true, message: t("vehicles.validation.ownerTinOrPinflRequired") },
+                {
+                  validator: (_, value: string | undefined) =>
+                    !value || TIN_OR_PINFL_PATTERN.test(value)
+                      ? Promise.resolve()
+                      : Promise.reject(new Error(t("vehicles.validation.ownerTinOrPinflInvalid"))),
+                },
+              ]}
+              validateStatus={
+                ownerLookupStatus === "checking"
+                  ? "validating"
+                  : ownerLookupStatus === "found"
+                    ? "success"
+                    : ownerLookupStatus === "not-found"
+                      ? "error"
+                      : undefined
+              }
+              hasFeedback={ownerLookupStatus === "checking" || ownerLookupStatus === "found"}
+            >
+              <Input
+                className="input"
+                size="large"
+                maxLength={14}
+                placeholder={t("vehicles.placeholders.ownerTinOrPinfl")}
+                onChange={handleOwnerTinOrPinflChange}
+              />
+            </Form.Item>
+
+            <Form.Item
+              className="input"
+              name="ownerName"
+              label={t("vehicles.fields.ownerName")}
+            >
+              <Input
+                className="input"
+                size="large"
+                disabled
+                placeholder={
+                  ownerLookupStatus === "checking"
+                    ? t("vehicles.ownerLookup.checking")
+                    : ownerLookupStatus === "not-found"
+                      ? t("vehicles.ownerLookup.notFound")
+                      : t("vehicles.placeholders.ownerName")
+                }
+              />
+            </Form.Item>
+          </div>
+        )}
+
+        <div className="form-inputs form-inputs-row">
+          <Form.Item
+            className="input"
             name="plateNumber"
             label={t("vehicles.fields.plateNumber")}
             rules={[
@@ -311,7 +487,6 @@ export const VehicleFormModal = ({
               maxLength={11}
               placeholder={t("vehicles.placeholders.plateNumber")}
               onChange={handlePlateNumberChange}
-              onBlur={handlePlateNumberBlur}
             />
           </Form.Item>
 
@@ -330,19 +505,16 @@ export const VehicleFormModal = ({
                       : undefined
               }
               hasFeedback={ownershipStatus === "checking" || ownershipStatus === "found"}
-              help={
-                ownershipStatus === "checking"
-                  ? t("vehicles.ownership.checking")
-                  : ownershipStatus === "found"
-                    ? t("vehicles.ownership.found")
-                    : undefined
-              }
             >
               <Input
                 className="input"
                 size="large"
                 disabled
-                placeholder={t("vehicles.placeholders.stateRegistrationModel")}
+                placeholder={
+                  ownershipStatus === "checking"
+                    ? t("vehicles.ownership.checking")
+                    : t("vehicles.placeholders.stateRegistrationModel")
+                }
               />
             </Form.Item>
           )}
