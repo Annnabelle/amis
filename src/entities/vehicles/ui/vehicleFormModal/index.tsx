@@ -96,7 +96,7 @@ const isValidRegistrationCertificateNumber = (value: string) =>
 const getVehiclePayload = (values: VehicleFormValues): Omit<CreateVehicleDto, "companyId"> => ({
   type: values.type,
   displayName: values.name.trim(),
-  plateNumber: normalizePayloadPlateNumber(values.plateNumber),
+  plateNumber: values.plateNumber.trim(),
   stateRegistrationModel: values.stateRegistrationModel?.trim() || undefined,
   identification: {
     vin: values.vin?.trim() || undefined,
@@ -186,7 +186,7 @@ export const VehicleFormModal = ({
   };
 
   const verifyOwnership = async (plateNumber: string) => {
-    const regNumber = normalizePayloadPlateNumber(plateNumber);
+    const regNumber = plateNumber.trim();
 
     if (!canVerifyOwnership || !regNumber) {
       resetOwnershipCheck();
