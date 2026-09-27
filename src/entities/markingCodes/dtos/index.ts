@@ -31,6 +31,7 @@ export const OrderStatus = {
     New: "new",
     VendorPending: 'vendor_pending',
     ReadyForCodes: 'ready_for_codes',
+    CodesPartiallyReceived: 'codes_partially_received',
     CodesReceived: 'codes_received',
     CodesUtilizationRequested: 'codes_utilization_requested',
     CodesPartiallyUtilized: 'codes_partially_utilized',

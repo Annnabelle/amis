@@ -316,12 +316,14 @@ export type SalesOrderPaymentMethod =
 
 
 
+/**
+ * Внутренний контур отчёта о нанесении. Значения created/validating/in_process
+ * сюда попали по ошибке — это статусы внешней системы, они живут в
+ * UtilizationReportExternalStatus.
+ */
 export const UtilizationReportStatus = {
   New: "new",
-  Requested: 'requested',
-  Created: "created",
-  Validating: "validating",
-  InProgress: "in_process",
+  VendorPending: "vendor_pending",
   PartiallyProcessed: "partially_processed",
   Success: "success",
   Error: "error",
@@ -369,6 +371,7 @@ export const BatchStatus = {
   Created: 'created',
   VendorPending: 'vendor_pending',
   ReadyForCodes: 'ready_for_codes',
+  CodesPartiallyReceived: 'codes_partially_received',
   CodesReceived: 'codes_received',
   CodesUtilizationRequested: 'codes_utilization_requested',
   CodesUtilized: 'codes_utilized',
@@ -405,6 +408,7 @@ export const AggregationReportExternalStatus = {
   Created: "CREATED", // Создан
   Validating: "VALIDATING", // Проверяется
   InProgress: "IN_PROCESS", // Обрабатывается
+  PartiallyProcessed: "PARTIALLY_PROCESSED", // Обработан частично
   Success: "SUCCESS", // Обработан полностью
   Error: "ERROR", // Отклонен
 } as const;

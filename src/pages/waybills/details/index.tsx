@@ -16,12 +16,15 @@ import { getSalesOrderById } from "entities/salesOrders/model";
 import { getDeliveryRouteById } from "entities/deliveryRoutes/model";
 import { getDeliveryTaskById } from "entities/deliveryTasks/model";
 import { useCan } from "entities/access/lib";
+import { LifecycleTargetType } from "entities/lifecycle/lib";
+import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL, getFileNameFromDisposition } from "shared/lib";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
+import EntityTabs, { OVERVIEW_TAB_KEY } from "shared/ui/entityTabs";
 import { statusColors } from "shared/ui/statuses";
 import {
   DetailCard,
@@ -33,6 +36,8 @@ import {
   RouteMetaChip,
 } from "shared/ui/details";
 import "./styles.sass";
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const formatDate = (value?: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-");
 const formatDateTime = (value?: string) => (value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "-");
@@ -53,6 +58,10 @@ const WaybillsDetails = () => {
   const canReadSalesOrder = useCan(endpointAccessMap.salesOrdersRead);
   const canReadDeliveryRoute = useCan(endpointAccessMap.deliveryRoutesRead);
   const canReadDeliveryTask = useCan(endpointAccessMap.deliveryTasksRead);
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.Waybill,
+  });
   const [waybillFileLoading, setWaybillFileLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<WaybillDetailsSection>("overview");
 
@@ -167,7 +176,7 @@ const WaybillsDetails = () => {
   const waybillStatusKey = getWaybillStatusKey(waybill.status);
   const externalStatus = waybill.external?.status;
   const externalStatusLabel = externalStatus
-    ? t(`waybills.externalStatuses.${externalStatus}`, { defaultValue: externalStatus })
+    ? getStatusLabel(t, StatusEntity.Waybill, StatusScope.External, externalStatus)
     : "-";
 
   const metaItems = [
@@ -292,6 +301,14 @@ const WaybillsDetails = () => {
           </CustomButton>
         </div>
       </Heading>
+      {lifecycleBanner}
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t("lifecycle.tabs.overview"),
+            children: (
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -304,7 +321,7 @@ const WaybillsDetails = () => {
                   <div className="invoice-status-pair-item">
                     <span className="invoice-status-pair-label">{t("waybills.fields.internalStatus")}</span>
                     <Tag color={statusColors[waybillStatusKey] ?? "blue"} style={{ margin: 0 }}>
-                      {t(`waybills.statuses.${waybillStatusKey}`, { defaultValue: waybill.status })}
+                      {getStatusLabel(t, StatusEntity.Waybill, StatusScope.Internal, waybillStatusKey, waybill.status)}
                     </Tag>
                   </div>
                   <div className="invoice-status-pair-item">
@@ -546,6 +563,11 @@ const WaybillsDetails = () => {
           </div>
         </div>
       </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

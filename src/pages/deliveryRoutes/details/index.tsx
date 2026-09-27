@@ -35,6 +35,9 @@ import {
   DetailStatsGrid,
   RouteMetaChip,
 } from 'shared/ui/details';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import './styles.sass';
 
 const DeliveryRoutesDetails = () => {
@@ -59,6 +62,10 @@ const DeliveryRoutesDetails = () => {
   const canCloseRoute = useCan(endpointAccessMap.deliveryRoutesClose);
   const canStartHandover = useCan(endpointAccessMap.deliveryTasksStartHandover);
   const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.DeliveryRoute,
+  });
   const canOpenLoading = Boolean(
     canStartLoading &&
       route?.status &&
@@ -429,6 +436,14 @@ const DeliveryRoutesDetails = () => {
           </div>
         </Heading>
       )}
+      {lifecycleBanner}
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: (
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -702,6 +717,11 @@ const DeliveryRoutesDetails = () => {
           </div>
         </div>
       </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

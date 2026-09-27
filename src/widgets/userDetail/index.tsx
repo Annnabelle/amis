@@ -42,6 +42,9 @@ import {
 } from 'entities/companyMemberships/dtos';
 import { mapCompanyMembershipDtoToEntity } from 'entities/companyMemberships/mappers';
 import { isLanguage, type Language } from 'shared/types/dtos';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 
 type UserDetailProps =
   | { self: true; userId?: undefined }
@@ -191,6 +194,11 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
     void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
   }, [dispatch, roleReferencesLoaded, roleReferencesLoading, systemAccess]);
 
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: viewedUser?.id,
+    target: LifecycleTargetType.User,
+  });
+
   if (isUserLoading && !isViewedUserLoaded) {
     return (
       <MainLayout>
@@ -281,6 +289,16 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
           )}
         </div>
       </Heading>
+
+      {lifecycleBanner}
+
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: (
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -443,6 +461,11 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
           </div>
         </div>
       </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

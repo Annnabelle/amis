@@ -9,14 +9,19 @@ import { useCan } from "entities/access/lib";
 import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
 import { getLeadById, updateLeadStatus } from "entities/leads/model";
 import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
+import { LifecycleTargetType } from "entities/lifecycle/lib";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
+import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import CustomButton from "shared/ui/button";
+import EntityTabs, { OVERVIEW_TAB_KEY } from "shared/ui/entityTabs";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import { statusColors } from "shared/ui/statuses";
 import "../styles.sass";
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 type StatusForm = {
   comment?: string;
@@ -50,6 +55,10 @@ const LeadDetails = () => {
   const canUpdateStatus = useCan(endpointAccessMap.leadsUpdateStatus);
   const lead = useAppSelector((state) => state.leads.leadById);
   const isLoading = useAppSelector((state) => state.leads.isLoading);
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.Lead,
+  });
   const [form] = Form.useForm<StatusForm>();
   const [pendingStatus, setPendingStatus] = useState<LeadStatusType | null>(null);
   const [isStatusSaving, setIsStatusSaving] = useState(false);
@@ -140,6 +149,83 @@ const LeadDetails = () => {
   ];
   const statusActions = getAvailableLeadStatusActions(lead.status);
 
+  const overviewTabContent = (
+    <div className="box">
+      <div className="box-container">
+        <div className="box-container-items">
+          <div className="route-overview-card leads-overview-card">
+            <div className="route-overview-head">
+              <div className="route-overview-title leads-overview-title">
+                <div className="leads-overview-person">
+                  <div className="leads-overview-avatar">
+                    {lead.name.charAt(0).toUpperCase()}
+                  </div>
+                  <h2>{lead.name}</h2>
+                </div>
+              </div>
+              <div className="route-overview-status">
+                <div className="invoice-status-pair-item">
+                  <Tag
+                    className="leads-status-tag"
+                    color={statusColors[lead.status] ?? "default"}
+                    style={{ margin: 0 }}
+                  >
+                    {getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, lead.status)}
+                  </Tag>
+                </div>
+              </div>
+            </div>
+
+            <div className="route-overview-meta">
+              {metaItems.map((item) => (
+                <div className="route-meta-chip" key={item.label}>
+                  <span className="label">{item.label}</span>
+                  <span className="value">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="detail-grid detail-grid-secondary leads-details-info-grid">
+            <div className="detail-card">
+              <h4>{t("leads.fields.message")}</h4>
+              <div className="detail-text-block">{formatValue(lead.message)}</div>
+            </div>
+
+            <div className="detail-card leads-status-card">
+              <h4>{t("leads.sections.status")}</h4>
+              <div className="detail-items">
+                <div className="detail-item">
+                  <span className="label inline-label">{t("leads.fields.status")}</span>
+                  <span className="detail-separator">:</span>
+                  <Tag
+                    className="leads-status-tag"
+                    color={statusColors[lead.status] ?? "default"}
+                    style={{ margin: 0 }}
+                  >
+                    {getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, lead.status)}
+                  </Tag>
+                </div>
+                {statusItems.map((item) => (
+                  <div className="detail-item" key={item.label}>
+                    <span className="label inline-label">{item.label}</span>
+                    <span className="detail-separator">:</span>
+                    <span className="value">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="detail-card">
+              <h4>{t("leads.fields.comment")}</h4>
+              <div className="detail-text-block">{formatValue(lead.comment)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <MainLayout>
       <Heading title={t("leads.detailsTitle")} subtitle={t("common.details")}>
@@ -165,80 +251,20 @@ const LeadDetails = () => {
         </div>
       </Heading>
 
-      <div className="box">
-        <div className="box-container">
-          <div className="box-container-items">
-            <div className="route-overview-card leads-overview-card">
-              <div className="route-overview-head">
-                <div className="route-overview-title leads-overview-title">
-                  <div className="leads-overview-person">
-                    <div className="leads-overview-avatar">
-                      {lead.name.charAt(0).toUpperCase()}
-                    </div>
-                    <h2>{lead.name}</h2>
-                  </div>
-                </div>
-                <div className="route-overview-status">
-                  <div className="invoice-status-pair-item">
-                    <Tag
-                      className="leads-status-tag"
-                      color={statusColors[lead.status] ?? "default"}
-                      style={{ margin: 0 }}
-                    >
-                      {t(`leads.statuses.${lead.status}`)}
-                    </Tag>
-                  </div>
-                </div>
-              </div>
+      {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
+      {lifecycleBanner}
 
-              <div className="route-overview-meta">
-                {metaItems.map((item) => (
-                  <div className="route-meta-chip" key={item.label}>
-                    <span className="label">{item.label}</span>
-                    <span className="value">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="detail-grid detail-grid-secondary leads-details-info-grid">
-              <div className="detail-card">
-                <h4>{t("leads.fields.message")}</h4>
-                <div className="detail-text-block">{formatValue(lead.message)}</div>
-              </div>
-
-              <div className="detail-card leads-status-card">
-                <h4>{t("leads.sections.status")}</h4>
-                <div className="detail-items">
-                  <div className="detail-item">
-                    <span className="label inline-label">{t("leads.fields.status")}</span>
-                    <span className="detail-separator">:</span>
-                    <Tag
-                      className="leads-status-tag"
-                      color={statusColors[lead.status] ?? "default"}
-                      style={{ margin: 0 }}
-                    >
-                      {t(`leads.statuses.${lead.status}`)}
-                    </Tag>
-                  </div>
-                  {statusItems.map((item) => (
-                    <div className="detail-item" key={item.label}>
-                      <span className="label inline-label">{item.label}</span>
-                      <span className="detail-separator">:</span>
-                      <span className="value">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="detail-card">
-                <h4>{t("leads.fields.comment")}</h4>
-                <div className="detail-text-block">{formatValue(lead.comment)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t("lifecycle.tabs.overview"),
+            children: overviewTabContent,
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
 
       <Modal
         title={t("leads.modal.changeStatus")}
@@ -255,7 +281,7 @@ const LeadDetails = () => {
           <div className="leads-status-modal">
             <div className="leads-status-modal-summary">
               <span>{lead.name}</span>
-              <strong>{t(`leads.statuses.${pendingStatus}`)}</strong>
+              <strong>{getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, pendingStatus)}</strong>
             </div>
             <Form form={form} layout="vertical">
               <Form.Item name="comment" label={t("leads.fields.comment")}>

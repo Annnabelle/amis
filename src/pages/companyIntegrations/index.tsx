@@ -19,9 +19,12 @@ import dayjs from 'dayjs';
 import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { LifecycleTargetType, useLifecycleSummary } from 'entities/lifecycle/lib';
+import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
 import { getBackendErrorMessage, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import FormComponent from 'shared/ui/formComponent';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -29,6 +32,9 @@ import ModalWindow from 'shared/ui/modalWindow';
 import StatusBadge from 'shared/ui/statusBadge';
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import '../organizations/styles.sass';
+
+const XTRACE_LIFECYCLE_TAB_KEY = 'xtrace-lifecycle';
+const FAKTURA_UZ_LIFECYCLE_TAB_KEY = 'fakturaUz-lifecycle';
 
 type DetailItem = {
   label: string;
@@ -69,6 +75,11 @@ const CompanyIntegrations = () => {
   const dispatch = useAppDispatch();
   const navigateBack = useNavigationBack();
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { canRead: canReadXTraceLifecycle, summary: xTraceLifecycleSummary } =
+    useLifecycleSummary(orgId, LifecycleTargetType.CompanyXTraceIntegration);
+  const { canRead: canReadFakturaUzLifecycle, summary: fakturaUzLifecycleSummary } =
+    useLifecycleSummary(orgId, LifecycleTargetType.CompanyFakturaUzIntegration);
   const [xTraceForm] = Form.useForm();
   const [fakturaUzForm] = Form.useForm();
   const [isXTraceModalOpen, setIsXTraceModalOpen] = useState(false);
@@ -151,6 +162,12 @@ const CompanyIntegrations = () => {
   useEffect(() => {
     dispatch(fetchReferencesByType('productGroup'));
   }, [dispatch]);
+
+  const openLifecycleTab = (tabKey: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', tabKey);
+    setSearchParams(nextParams, { replace: true });
+  };
 
   const closeXTraceModal = () => {
     setIsXTraceModalOpen(false);
@@ -300,6 +317,60 @@ const CompanyIntegrations = () => {
   const showFakturaAction = fakturaUzIntegration ? canUpdateFakturaUz : canCreateFakturaUz;
   const isLoading = organizationLoading || integrationsLoading;
 
+  const overviewTabContent = (
+    <div className="box">
+      <div className="box-container">
+        <div className="box-container-items">
+          {isLoading ? (
+            <Spin />
+          ) : !canReadXTrace && !canReadFakturaUz ? (
+            <Empty description={t('common.missingPermissions')} />
+          ) : (
+            <div className="company-integrations-grid">
+              {canReadXTrace && (
+                <div className="detail-card company-integration-card">
+                  <div className="detail-card-header">
+                    <h4>{t('organizations.integrations.xTrace.cardTitle')}</h4>
+                    {showXTraceAction && (
+                      <CustomButton variant="outline" onClick={openXTraceModal}>
+                        {t(xTraceIntegration ? 'btn.edit' : 'btn.create')}
+                      </CustomButton>
+                    )}
+                  </div>
+                  {renderDetailItems(xTraceItems)}
+                </div>
+              )}
+
+              {canReadFakturaUz && (
+                <div className="detail-card company-integration-card">
+                  <div className="detail-card-header">
+                    <h4>{t('organizations.integrations.fakturaUz.cardTitle')}</h4>
+                    {showFakturaAction && (
+                      <CustomButton variant="outline" onClick={openFakturaUzModal}>
+                        {t(fakturaUzIntegration ? 'btn.edit' : 'btn.create')}
+                      </CustomButton>
+                    )}
+                  </div>
+                  {renderDetailItems(fakturaItems)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const lifecyclePanelBox = (target: LifecycleTargetType) => (
+    <div className="box">
+      <div className="box-container">
+        <div className="box-container-items">
+          <LifecyclePanel targetId={orgId} target={target} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <MainLayout>
       {isMobile && (
@@ -322,47 +393,76 @@ const CompanyIntegrations = () => {
         </Heading>
       )}
 
-      <div className="box">
-        <div className="box-container">
-          <div className="box-container-items">
-            {isLoading ? (
-              <Spin />
-            ) : !canReadXTrace && !canReadFakturaUz ? (
-              <Empty description={t('common.missingPermissions')} />
-            ) : (
-              <div className="company-integrations-grid">
-                {canReadXTrace && (
-                  <div className="detail-card company-integration-card">
-                    <div className="detail-card-header">
-                      <h4>{t('organizations.integrations.xTrace.cardTitle')}</h4>
-                      {showXTraceAction && (
-                        <CustomButton variant="outline" onClick={openXTraceModal}>
-                          {t(xTraceIntegration ? 'btn.edit' : 'btn.create')}
-                        </CustomButton>
-                      )}
-                    </div>
-                    {renderDetailItems(xTraceItems)}
-                  </div>
-                )}
+      {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
+      {canReadXTraceLifecycle && xTraceLifecycleSummary?.activeError && (
+        <LifecycleActiveErrorAlert
+          error={xTraceLifecycleSummary.activeError}
+          action={
+            <CustomButton
+              variant="text"
+              size="sm"
+              fullWidth={false}
+              onClick={() => openLifecycleTab(XTRACE_LIFECYCLE_TAB_KEY)}
+            >
+              {t('lifecycle.activeError.open')}
+            </CustomButton>
+          }
+        />
+      )}
+      {canReadFakturaUzLifecycle && fakturaUzLifecycleSummary?.activeError && (
+        <LifecycleActiveErrorAlert
+          error={fakturaUzLifecycleSummary.activeError}
+          action={
+            <CustomButton
+              variant="text"
+              size="sm"
+              fullWidth={false}
+              onClick={() => openLifecycleTab(FAKTURA_UZ_LIFECYCLE_TAB_KEY)}
+            >
+              {t('lifecycle.activeError.open')}
+            </CustomButton>
+          }
+        />
+      )}
 
-                {canReadFakturaUz && (
-                  <div className="detail-card company-integration-card">
-                    <div className="detail-card-header">
-                      <h4>{t('organizations.integrations.fakturaUz.cardTitle')}</h4>
-                      {showFakturaAction && (
-                        <CustomButton variant="outline" onClick={openFakturaUzModal}>
-                          {t(fakturaUzIntegration ? 'btn.edit' : 'btn.create')}
-                        </CustomButton>
-                      )}
-                    </div>
-                    {renderDetailItems(fakturaItems)}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: overviewTabContent,
+          },
+          ...(canReadXTraceLifecycle
+            ? [
+                {
+                  key: XTRACE_LIFECYCLE_TAB_KEY,
+                  label: (
+                    <>
+                      {t('organizations.integrations.xTrace.cardTitle')}
+                      {xTraceLifecycleSummary?.activeError && <span className="entity-tabs-dot" />}
+                    </>
+                  ),
+                  children: lifecyclePanelBox(LifecycleTargetType.CompanyXTraceIntegration),
+                },
+              ]
+            : []),
+          ...(canReadFakturaUzLifecycle
+            ? [
+                {
+                  key: FAKTURA_UZ_LIFECYCLE_TAB_KEY,
+                  label: (
+                    <>
+                      {t('organizations.integrations.fakturaUz.cardTitle')}
+                      {fakturaUzLifecycleSummary?.activeError && <span className="entity-tabs-dot" />}
+                    </>
+                  ),
+                  children: lifecyclePanelBox(LifecycleTargetType.CompanyFakturaUzIntegration),
+                },
+              ]
+            : []),
+        ]}
+      />
 
       <ModalWindow
         className="modal-large"

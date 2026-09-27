@@ -6,6 +6,7 @@ import {
   isAuthErrorResponse,
 } from './authSession';
 import { getRuntimeCompanyId } from './companyContext';
+import { CompanyScopeOptions } from './requestScope';
 import {
   EndpointScopes,
   resolveEndpointAccess,
@@ -59,9 +60,17 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers['X-Company-Id'];
   const companyId = explicitCompanyId ?? getCompanyIdFromLocation() ?? getRuntimeCompanyId();
   const requiresCompanyId = endpointAccess?.scope === EndpointScopes.Company;
-  const acceptsCompanyId = endpointAccess?.scope === EndpointScopes.Any;
+  const acceptsCompanyId =
+    endpointAccess?.scope === EndpointScopes.Any ||
+    endpointAccess?.scope === EndpointScopes.OptionalCompany;
+  const optsOutOfCompany =
+    (config.companyScope ?? CompanyScopeOptions.Auto) ===
+    CompanyScopeOptions.None;
 
-  if (requiresCompanyId || (acceptsCompanyId && companyId)) {
+  if (
+    requiresCompanyId ||
+    (acceptsCompanyId && companyId && !optsOutOfCompany)
+  ) {
 
     if (!companyId) {
       return Promise.reject(

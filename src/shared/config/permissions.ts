@@ -114,6 +114,8 @@ export const Permissions = {
 
   AuditList: "audit.list",
   AuditRead: "audit.read",
+
+  LifecycleRead: "lifecycle.read",
 } as const;
 
 export type Permission =

@@ -15,7 +15,12 @@ import {createUtilizationReport} from "entities/utilization/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const Batches = () => {
     const navigate = useNavigate()
@@ -27,6 +32,10 @@ const Batches = () => {
         orderId: string;
     }>();
     const markingCodeById = useAppSelector((state) => state.markingCodes.markingCodeById)
+    const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+        targetId: orderId,
+        target: LifecycleTargetType.MarkingCodeOrder,
+    });
     const [tablePage, setTablePage] = useState(1);
     const [tablePageSize, setTablePageSize] = useState(10);
 
@@ -102,7 +111,7 @@ const Batches = () => {
                 orderStatus: {
                     title: `${t('markingCodes.batches.orderStatus')}:`,
                     value: markingCodeById?.status
-                        ? t(`markingCodes.batches.orderNotExternalStatus.${markingCodeById.status}`)
+                        ? getStatusLabel(t, StatusEntity.MarkingCodeOrder, StatusScope.Internal, markingCodeById.status)
                         : ''
                 },
                 turonOrderID: {
@@ -123,34 +132,48 @@ const Batches = () => {
                 <CustomButton variant='outline' onClick={() => navigate(`/organization/${orgId}/orders`)}>{t("markingCodes.backToOrders")}</CustomButton>
             </div>
         </Heading>
-        <div className="box">
-            <div className="box-container">
-                <div className="box-container-items">
-                    <ComponentTable<BatchTableDataType>
-                        columns={MarkingCodeTableColumns(t, orgId)}
-                        data={MarkingCodeData}
-                        pagination={{
-                            current: tablePage,
-                            pageSize: tablePageSize,
-                            total: MarkingCodeData?.length || 0,
-                            showSizeChanger: { showSearch: false },
-                            pageSizeOptions: ['10', '20', '30', '40', '50'],
-                            locale: { items_per_page: '' },
-                            onChange: (page, pageSize) => {
-                                const newLimit = pageSize || tablePageSize;
-                                const isPageSizeChanged = newLimit !== tablePageSize;
-                                setTablePageSize(newLimit);
-                                setTablePage(isPageSizeChanged ? 1 : page);
-                            },
-                        }}
-                    />
-                </div>
-            </div>
-        </div>
+        {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
+        {lifecycleBanner}
+
+        <EntityTabs
+            defaultActiveKey={OVERVIEW_TAB_KEY}
+            items={[
+                {
+                    key: OVERVIEW_TAB_KEY,
+                    label: t('lifecycle.tabs.overview'),
+                    children: (
+                        <div className="box">
+                            <div className="box-container">
+                                <div className="box-container-items">
+                                    <ComponentTable<BatchTableDataType>
+                                        columns={MarkingCodeTableColumns(t, orgId)}
+                                        data={MarkingCodeData}
+                                        pagination={{
+                                            current: tablePage,
+                                            pageSize: tablePageSize,
+                                            total: MarkingCodeData?.length || 0,
+                                            showSizeChanger: { showSearch: false },
+                                            pageSizeOptions: ['10', '20', '30', '40', '50'],
+                                            locale: { items_per_page: '' },
+                                            onChange: (page, pageSize) => {
+                                                const newLimit = pageSize || tablePageSize;
+                                                const isPageSizeChanged = newLimit !== tablePageSize;
+                                                setTablePageSize(newLimit);
+                                                setTablePage(isPageSizeChanged ? 1 : page);
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ),
+                },
+                ...lifecycleTabItems,
+            ]}
+        />
     </MainLayout>
   )
 }
 
 export default Batches
-
 

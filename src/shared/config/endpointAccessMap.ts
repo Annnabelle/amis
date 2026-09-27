@@ -11,6 +11,7 @@ export const EndpointScopes = {
   Global: "GLOBAL",
   Company: "COMPANY",
   Any: "ANY",
+  OptionalCompany: "OPTIONAL_COMPANY",
   Dynamic: "DYNAMIC",
 } as const;
 
@@ -175,6 +176,9 @@ export const endpointAccessMap = {
   auditList: endpoint({ method: "GET", path: "/audit", permission: Permissions.AuditList, scope: EndpointScopes.Global }),
   auditRead: endpoint({ method: "GET", path: "/audit/:id", permission: Permissions.AuditRead, scope: EndpointScopes.Global }),
 
+  lifecycleEvents: endpoint({ method: "GET", path: "/lifecycle", permission: Permissions.LifecycleRead, scope: EndpointScopes.OptionalCompany }),
+  lifecycleSummary: endpoint({ method: "GET", path: "/lifecycle/summary", permission: Permissions.LifecycleRead, scope: EndpointScopes.OptionalCompany }),
+
   uploadsCreate: endpoint({ method: "POST", path: "/uploads", permission: Permissions.UploadsCreate, scope: EndpointScopes.Global }),
   uploadsDelete: endpoint({ method: "DELETE", path: "/uploads/:id", permission: Permissions.UploadsDelete, scope: EndpointScopes.Global }),
 } as const;
@@ -193,8 +197,18 @@ export type StaticEndpointAccess = Extract<
     scope:
       | typeof EndpointScopes.Global
       | typeof EndpointScopes.Company
-      | typeof EndpointScopes.Any;
+      | typeof EndpointScopes.Any
+      | typeof EndpointScopes.OptionalCompany;
   }
+>;
+
+/**
+ * Заголовок компании необязателен, поэтому проверяемый скоуп задаёт вызывающий:
+ * без заголовка права нужны системные, с заголовком — компанейские или системные.
+ */
+export type OptionalCompanyEndpointAccess = Extract<
+  CheckableEndpointAccess,
+  { scope: typeof EndpointScopes.OptionalCompany }
 >;
 
 export type DynamicEndpointAccess = Extract<
