@@ -116,6 +116,8 @@ export const endpointAccessMap = {
   ordersSynchronize: endpoint({ method: "GET", path: "/orders/synchronize", permission: Permissions.OrdersSynchronize, scope: EndpointScopes.Company }),
   ordersRead: endpoint({ method: "GET", path: "/orders/:id", permission: Permissions.OrdersRead, scope: EndpointScopes.Company }),
   orderBatchRead: endpoint({ method: "GET", path: "/orders/:orderId/batches/:batchId", permission: Permissions.OrdersRead, scope: EndpointScopes.Company }),
+  companyImportStart: endpoint({ method: "POST", path: "/company-imports", permission: Permissions.CompanyImportStart, scope: EndpointScopes.Company }),
+  companyImportCurrent: endpoint({ method: "GET", path: "/company-imports/current", permission: Permissions.CompanyImportRead, scope: EndpointScopes.Company }),
   codesRead: endpoint({ method: "GET", path: "/codes/batches", permission: Permissions.CodesRead, scope: EndpointScopes.Company }),
 
   salesOrdersCreate: endpoint({ method: "POST", path: "/sales-orders", permission: Permissions.SalesOrdersCreate, scope: EndpointScopes.Company }),

@@ -1,0 +1,147 @@
+.company-import
+    display: flex
+    flex-direction: column
+    gap: 16px
+    width: 100%
+    // Этапы читаются сверху вниз списком, а не таблицей: на широком мониторе
+    // строка разъезжается и счётчики уезжают от названия этапа.
+    max-width: 820px
+
+    &-header
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 12px
+        flex-wrap: wrap
+
+    &-header-main
+        display: flex
+        align-items: center
+        gap: 10px
+        flex-wrap: wrap
+
+    &-header-stage
+        color: var(--text-secondary)
+        font-size: 13px
+        line-height: 20px
+
+    &-meta
+        display: flex
+        gap: 16px
+        flex-wrap: wrap
+        color: var(--text-secondary)
+        font-size: 13px
+        line-height: 20px
+
+    &-meta-failed
+        color: var(--status-danger-color)
+        font-weight: 600
+
+    &-stages
+        display: flex
+        flex-direction: column
+        gap: 12px
+        margin: 0
+        padding: 0
+        list-style: none
+
+    &-stage
+        display: flex
+        flex-direction: column
+        gap: 8px
+        padding: 12px 14px
+        border: 1px solid var(--surface-border)
+        border-radius: 10px
+        background: var(--surface-base)
+
+    &-stage-head
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 10px
+
+    &-stage-title
+        font-size: 14px
+        font-weight: 600
+        line-height: 20px
+
+    &-stage-bar
+        position: relative
+        overflow: hidden
+        height: 6px
+        border-radius: 999px
+        background: var(--surface-muted)
+
+    &-stage-bar-fill
+        display: block
+        height: 100%
+        border-radius: 999px
+        background: var(--text-secondary)
+        transition: width .3s ease
+
+        &[data-variant="success"]
+            background: var(--event-success)
+
+        &[data-variant="info"]
+            background: var(--main-primary)
+
+        &[data-variant="danger"]
+            background: var(--event-danger)
+
+    &-stage-counters
+        display: flex
+        gap: 12px
+        flex-wrap: wrap
+        color: var(--text-secondary)
+        font-size: 12px
+        line-height: 18px
+
+    &-stage-note
+        margin: 0
+        color: var(--text-secondary)
+        font-size: 12px
+        line-height: 18px
+
+    &-stage-issues
+        display: flex
+        flex-direction: column
+        gap: 4px
+        margin: 0
+        padding-left: 18px
+        color: var(--text-secondary)
+        font-size: 12px
+        line-height: 18px
+
+.company-import-start
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+    &-hint
+        margin: 0
+        color: var(--text-secondary)
+        font-size: 13px
+        line-height: 20px
+
+    &-stages
+        display: flex
+        flex-direction: column
+        gap: 12px
+
+    &-stage
+        display: flex
+        flex-direction: column
+
+    &-stage-title
+        font-size: 14px
+        line-height: 20px
+
+    &-stage-hint
+        color: var(--text-secondary)
+        font-size: 12px
+        line-height: 18px
+
+    &-actions
+        display: flex
+        justify-content: flex-end
+        gap: 10px

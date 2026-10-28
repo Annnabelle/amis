@@ -22,6 +22,8 @@ import { toast } from 'react-toastify';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LifecycleTargetType, useLifecycleSummary } from 'entities/lifecycle/lib';
 import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
+import CompanyImportPanel from 'widgets/companyImport';
+import CompanyImportStartButton from 'widgets/companyImport/startButton';
 import { getBackendErrorMessage, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
@@ -33,6 +35,7 @@ import StatusBadge from 'shared/ui/statusBadge';
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import '../organizations/styles.sass';
 
+const COMPANY_IMPORT_TAB_KEY = 'company-import';
 const XTRACE_LIFECYCLE_TAB_KEY = 'xtrace-lifecycle';
 const FAKTURA_UZ_LIFECYCLE_TAB_KEY = 'fakturaUz-lifecycle';
 
@@ -112,6 +115,7 @@ const CompanyIntegrations = () => {
   const canValidateXTrace = hasPermission(Permissions.CompanyXTraceIntegrationsValidateToken);
   const canCreateXTrace = hasPermission(Permissions.CompanyXTraceIntegrationsCreate);
   const canUpdateXTrace = hasPermission(Permissions.CompanyXTraceIntegrationsUpdate);
+  const canReadCompanyImport = hasPermission(Permissions.CompanyImportRead);
   const canReadFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsRead);
   const canCreateFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsCreate);
   const canUpdateFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsUpdate);
@@ -331,11 +335,15 @@ const CompanyIntegrations = () => {
                 <div className="detail-card company-integration-card">
                   <div className="detail-card-header">
                     <h4>{t('organizations.integrations.xTrace.cardTitle')}</h4>
-                    {showXTraceAction && (
-                      <CustomButton variant="outline" onClick={openXTraceModal}>
-                        {t(xTraceIntegration ? 'btn.edit' : 'btn.create')}
-                      </CustomButton>
-                    )}
+                    <div className="company-integration-card-actions">
+                      {/* Импорт тянет всё тем же ключом — без интеграции запускать нечего. */}
+                      {xTraceIntegration && <CompanyImportStartButton companyId={orgId} />}
+                      {showXTraceAction && (
+                        <CustomButton variant="outline" onClick={openXTraceModal}>
+                          {t(xTraceIntegration ? 'btn.edit' : 'btn.create')}
+                        </CustomButton>
+                      )}
+                    </div>
                   </div>
                   {renderDetailItems(xTraceItems)}
                 </div>
@@ -433,6 +441,23 @@ const CompanyIntegrations = () => {
             label: t('lifecycle.tabs.overview'),
             children: overviewTabContent,
           },
+          ...(canReadCompanyImport
+            ? [
+                {
+                  key: COMPANY_IMPORT_TAB_KEY,
+                  label: t('companyImport.tabs.import'),
+                  children: (
+                    <div className="box">
+                      <div className="box-container">
+                        <div className="box-container-items">
+                          <CompanyImportPanel companyId={orgId} />
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+              ]
+            : []),
           ...(canReadXTraceLifecycle
             ? [
                 {

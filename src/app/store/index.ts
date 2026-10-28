@@ -22,6 +22,7 @@ import { companyMembershipsSlice } from "entities/companyMemberships/model";
 import { customsCodesSlice } from "entities/customsCodes/model";
 import { leadsSlice } from "entities/leads/model";
 import { lifecycleSlice } from "entities/lifecycle/model";
+import { companyImportSlice } from "entities/companyImport/model";
 import { vehiclesSlice } from "entities/vehicles/model";
 import {loaderSlice} from "./loader";
 import { setRuntimeCompanyId } from "shared/lib/companyContext";
@@ -50,6 +51,7 @@ export const store = configureStore({
         customsCodes: customsCodesSlice.reducer,
         leads: leadsSlice.reducer,
         lifecycle: lifecycleSlice.reducer,
+        companyImport: companyImportSlice.reducer,
         vehicles: vehiclesSlice.reducer,
         loader: loaderSlice.reducer
     },

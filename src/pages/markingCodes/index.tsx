@@ -21,6 +21,8 @@ import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import {searchCompanyMemberships} from "entities/companyMemberships/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import { CompanyImportStage } from 'entities/companyImport/types';
+import CompanyImportStageButton from 'widgets/companyImport/stageButton';
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
@@ -230,6 +232,7 @@ const MarkingCodes = () => {
         />
         <Heading title={t('markingCodes.title')} subtitle={t('markingCodes.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
+                <CompanyImportStageButton companyId={orgId} stage={CompanyImportStage.Orders} />
                 {canCreateOrder && (
                     <CustomButton onClick={() => handleModal('addMarkingCodes', true)}>{t('markingCodes.order')}</CustomButton>
                 )}

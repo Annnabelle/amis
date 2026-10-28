@@ -6,35 +6,13 @@ import {
   type LifecycleFeedFilters,
   type LifecycleTab,
 } from "entities/lifecycle/types";
-import { Language, type MultiLanguage } from "shared/types/dtos";
+
 import type { StatusBadgeVariant } from "shared/ui/statusBadge";
 
+export { resolveMultiLanguage } from "shared/lib/multiLanguage";
 export * from "./targets";
 export * from "./useCanReadLifecycle";
 export * from "./useLifecycleSummary";
-
-const LANGUAGE_FALLBACK_ORDER = [
-  Language.Russian,
-  Language.English,
-  Language.Uzbek,
-] as const;
-
-/** Забираем подпись на языке интерфейса, с откатом на любой заполненный. */
-export const resolveMultiLanguage = (
-  value: MultiLanguage | null | undefined,
-  language: string
-): string | null => {
-  if (!value) return null;
-
-  const preferred = value[language as Language];
-  if (preferred) return preferred;
-
-  for (const fallback of LANGUAGE_FALLBACK_ORDER) {
-    if (value[fallback]) return value[fallback];
-  }
-
-  return null;
-};
 
 export const lifecycleErrorVariants: Record<
   string,
