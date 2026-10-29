@@ -18,9 +18,12 @@ import CustomButton from 'shared/ui/button';
 import { statusColors } from 'shared/ui/statuses';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import axiosInstance from 'shared/lib/axiosInstance';
 import { BASE_URL, getFileNameFromDisposition } from 'shared/lib';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import {
   DetailCard,
   DetailGrid,
@@ -60,6 +63,10 @@ const InvoicesDetails = () => {
   const canReadDeliveryRoute = useCan(endpointAccessMap.deliveryRoutesRead);
   const canReadDeliveryTask = useCan(endpointAccessMap.deliveryTasksRead);
   const canReadCompany = useCan(endpointAccessMap.companiesRead);
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.Invoice,
+  });
   const [expandedCodesProductIds, setExpandedCodesProductIds] = useState<Set<string>>(new Set());
   const [invoiceFileLoading, setInvoiceFileLoading] = useState(false);
 
@@ -339,6 +346,14 @@ const InvoicesDetails = () => {
           </CustomButton>
         </div>
       </Heading>
+      {lifecycleBanner}
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: (
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -589,6 +604,11 @@ const InvoicesDetails = () => {
           </div>
         </div>
       </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

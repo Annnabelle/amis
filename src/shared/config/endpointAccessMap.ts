@@ -11,6 +11,7 @@ export const EndpointScopes = {
   Global: "GLOBAL",
   Company: "COMPANY",
   Any: "ANY",
+  OptionalCompany: "OPTIONAL_COMPANY",
   Dynamic: "DYNAMIC",
 } as const;
 
@@ -115,6 +116,8 @@ export const endpointAccessMap = {
   ordersSynchronize: endpoint({ method: "GET", path: "/orders/synchronize", permission: Permissions.OrdersSynchronize, scope: EndpointScopes.Company }),
   ordersRead: endpoint({ method: "GET", path: "/orders/:id", permission: Permissions.OrdersRead, scope: EndpointScopes.Company }),
   orderBatchRead: endpoint({ method: "GET", path: "/orders/:orderId/batches/:batchId", permission: Permissions.OrdersRead, scope: EndpointScopes.Company }),
+  companyImportStart: endpoint({ method: "POST", path: "/company-imports", permission: Permissions.CompanyImportStart, scope: EndpointScopes.Company }),
+  companyImportCurrent: endpoint({ method: "GET", path: "/company-imports/current", permission: Permissions.CompanyImportRead, scope: EndpointScopes.Company }),
   codesRead: endpoint({ method: "GET", path: "/codes/batches", permission: Permissions.CodesRead, scope: EndpointScopes.Company }),
 
   salesOrdersCreate: endpoint({ method: "POST", path: "/sales-orders", permission: Permissions.SalesOrdersCreate, scope: EndpointScopes.Company }),
@@ -175,6 +178,9 @@ export const endpointAccessMap = {
   auditList: endpoint({ method: "GET", path: "/audit", permission: Permissions.AuditList, scope: EndpointScopes.Global }),
   auditRead: endpoint({ method: "GET", path: "/audit/:id", permission: Permissions.AuditRead, scope: EndpointScopes.Global }),
 
+  lifecycleEvents: endpoint({ method: "GET", path: "/lifecycle", permission: Permissions.LifecycleRead, scope: EndpointScopes.OptionalCompany }),
+  lifecycleSummary: endpoint({ method: "GET", path: "/lifecycle/summary", permission: Permissions.LifecycleRead, scope: EndpointScopes.OptionalCompany }),
+
   uploadsCreate: endpoint({ method: "POST", path: "/uploads", permission: Permissions.UploadsCreate, scope: EndpointScopes.Global }),
   uploadsDelete: endpoint({ method: "DELETE", path: "/uploads/:id", permission: Permissions.UploadsDelete, scope: EndpointScopes.Global }),
 } as const;
@@ -193,8 +199,18 @@ export type StaticEndpointAccess = Extract<
     scope:
       | typeof EndpointScopes.Global
       | typeof EndpointScopes.Company
-      | typeof EndpointScopes.Any;
+      | typeof EndpointScopes.Any
+      | typeof EndpointScopes.OptionalCompany;
   }
+>;
+
+/**
+ * Заголовок компании необязателен, поэтому проверяемый скоуп задаёт вызывающий:
+ * без заголовка права нужны системные, с заголовком — компанейские или системные.
+ */
+export type OptionalCompanyEndpointAccess = Extract<
+  CheckableEndpointAccess,
+  { scope: typeof EndpointScopes.OptionalCompany }
 >;
 
 export type DynamicEndpointAccess = Extract<

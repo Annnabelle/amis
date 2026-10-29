@@ -1,0 +1,64 @@
+.entity-tabs
+    width: 100%
+
+    // Вкладка может содержать несколько карточек подряд — держим тот же шаг,
+    // что и у контента страницы за пределами вкладок. display задаём только
+    // активной панели: на .ant-tabs-tabpane это перебило бы antd-шное
+    // скрытие неактивных, и все вкладки отрисовались бы разом.
+    .ant-tabs-tabpane-active
+        display: flex
+        flex-direction: column
+        row-gap: 24px
+
+    .ant-tabs-tabpane-hidden
+        display: none
+
+    > .ant-tabs-nav
+        margin-bottom: 18px
+
+        &::before
+            border-bottom-color: var(--surface-border)
+
+    .ant-tabs-tab
+        padding: 10px 2px
+        color: var(--text-secondary)
+        font-weight: 500
+
+        + .ant-tabs-tab
+            margin-left: 26px
+
+    .ant-tabs-tab-active .ant-tabs-tab-btn
+        color: var(--main-primary)
+        font-weight: 600
+
+    .ant-tabs-ink-bar
+        background: var(--main-primary)
+
+    .ant-tabs-tab-btn
+        display: inline-flex
+        align-items: center
+        gap: 8px
+
+    .entity-tabs-count
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        min-width: 20px
+        height: 20px
+        padding: 0 6px
+        border-radius: 999px
+        background: var(--surface-muted)
+        color: var(--text-secondary)
+        font-size: 11px
+        font-weight: 600
+        line-height: 20px
+
+    .ant-tabs-tab-active .entity-tabs-count
+        background: var(--status-default-bg)
+        color: var(--status-default-color)
+
+    .entity-tabs-dot
+        width: 7px
+        height: 7px
+        border-radius: 50%
+        background: var(--status-danger-color)

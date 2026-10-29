@@ -7,6 +7,8 @@ import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { AvailablePackageType, BatchStatus } from 'shared/types/dtos';
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, canCreateCustomsCode: boolean, customsCodeBatchIds: ReadonlySet<string>, creatingCustomsCodeBatchIds: ReadonlySet<string>, handleAppoint: (
     e: React.MouseEvent,
@@ -153,7 +155,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
                  textOverflow: "ellipsis",
              }}
         >
-          {t(`markingCodes.batches.batchesOrderStatus.${status?.toLowerCase()}`)}
+          {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, StatusScope.Internal, status?.toLowerCase())}
         </Tag>
       )
     ),
@@ -175,7 +177,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
                      textOverflow: "ellipsis",
                  }}
             >
-              {t(`markingCodes.markingCodesOrderStatus.${status?.toLowerCase()}`)}
+              {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, StatusScope.External, status)}
             </Tag>
         )
     ),

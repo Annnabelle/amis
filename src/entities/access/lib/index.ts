@@ -9,6 +9,7 @@ import {
   type CheckableEndpointAccess,
   type DynamicEndpointAccess,
   type DynamicEndpointScope,
+  type OptionalCompanyEndpointAccess,
   type StaticEndpointAccess,
 } from "shared/config/endpointAccessMap";
 
@@ -60,7 +61,11 @@ export const canAccessEndpoint = ({
   canAccess({
     access,
     permission: endpoint.permission,
-    scope: endpoint.scope,
+    /** Вне хука считаем, что заголовок компании уходит: это контур клиента. */
+    scope:
+      endpoint.scope === EndpointScopes.OptionalCompany
+        ? EndpointScopes.Any
+        : endpoint.scope,
     companyId,
   });
 
@@ -68,6 +73,10 @@ export function useCan(endpoint: StaticEndpointAccess): boolean;
 export function useCan(
   endpoint: DynamicEndpointAccess,
   dynamicScope: DynamicEndpointScope
+): boolean;
+export function useCan(
+  endpoint: OptionalCompanyEndpointAccess,
+  dynamicScope?: DynamicEndpointScope
 ): boolean;
 export function useCan(
   endpoint: CheckableEndpointAccess,
@@ -86,12 +95,28 @@ export function useCan(
       ? pathSegments[1]
       : null;
 
-  const scope: PermissionScope =
-    endpoint.scope === EndpointScopes.Dynamic
-      ? dynamicScope === DynamicEndpointScopes.System
+  const resolveScope = (): PermissionScope => {
+    if (endpoint.scope === EndpointScopes.Dynamic) {
+      return dynamicScope === DynamicEndpointScopes.System
         ? EndpointScopes.Global
-        : EndpointScopes.Company
-      : endpoint.scope;
+        : EndpointScopes.Company;
+    }
+
+    /**
+     * Запрос без x-company-id читает журнал без ограничения по компании —
+     * такое доступно только системной роли. С заголовком хватает прав
+     * компании либо системных, то есть обычного Any.
+     */
+    if (endpoint.scope === EndpointScopes.OptionalCompany) {
+      return dynamicScope === DynamicEndpointScopes.System
+        ? EndpointScopes.Global
+        : EndpointScopes.Any;
+    }
+
+    return endpoint.scope;
+  };
+
+  const scope: PermissionScope = resolveScope();
 
   return canAccess({
     access,

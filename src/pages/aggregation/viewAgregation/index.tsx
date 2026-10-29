@@ -20,6 +20,9 @@ import { Pagination, Select, Tooltip } from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import "./styles.sass";
 
 type ExportLoadingState = {
@@ -51,6 +54,10 @@ const AggregationReportPage: React.FC = () => {
     const exportError = useAppSelector(state => state.export.error);
     const dispatch = useAppDispatch();
     const canExportAggregation = useCan(endpointAccessMap.aggregationReportsExport);
+    const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+        targetId: id,
+        target: LifecycleTargetType.AggregationReport,
+    });
 
     const units = useAppSelector((state) => state.aggregations.units)
     const unitsData = id ? (units[id]?.data ?? []) : [];
@@ -58,7 +65,6 @@ const AggregationReportPage: React.FC = () => {
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
     const [groupsLimit, setGroupsLimit] = useState<1 | 2 | 3 | 4>(1);
     const [page, setPage] = useState(1);
-
 
     useEffect(() => {
         if (!exportError) return;
@@ -186,10 +192,21 @@ const AggregationReportPage: React.FC = () => {
                             </CustomButton>
                     </div>
             </Heading>
-            <AgregationReport/>
-            <div className="box">
-                <div className="box-container">
-                    <Select
+            {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
+            {lifecycleBanner}
+
+            <EntityTabs
+                defaultActiveKey={OVERVIEW_TAB_KEY}
+                items={[
+                    {
+                        key: OVERVIEW_TAB_KEY,
+                        label: t('lifecycle.tabs.overview'),
+                        children: (
+                            <>
+                                <AgregationReport/>
+                                <div className="box">
+                                    <div className="box-container">
+                                        <Select
                         value={groupsLimit}
                         style={{ width: 220 }}
                         onChange={(value) => {
@@ -252,13 +269,17 @@ const AggregationReportPage: React.FC = () => {
                         }}
                         style={{ marginLeft: "auto" }}
                     />
-                </div>
-            </div>
+                                </div>
+                                </div>
+                            </>
+                        ),
+                    },
+                    ...lifecycleTabItems,
+                ]}
+            />
         </MainLayout>
     );
 };
 
 export default AggregationReportPage;
-
-
 

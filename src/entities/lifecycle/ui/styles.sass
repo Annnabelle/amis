@@ -1,0 +1,359 @@
+.lifecycle
+    // Лента — колонка для чтения, а не таблица: на широком мониторе строка
+    // в 1600px разъезжается и глаз теряет начало следующей записи.
+    &-panel
+        display: flex
+        flex-direction: column
+        gap: 16px
+        width: 100%
+        max-width: 820px
+
+    &-timeline
+        display: flex
+        flex-direction: column
+        gap: 20px
+
+    &-group
+        display: flex
+        flex-direction: column
+        gap: 12px
+
+    &-group-date
+        position: sticky
+        top: 0
+        z-index: 1
+        align-self: flex-start
+        padding: 4px 10px
+        border-radius: 999px
+        background: var(--surface-muted)
+        color: var(--text-secondary)
+        font-size: 12px
+        font-weight: 600
+        line-height: 18px
+
+    &-events
+        display: flex
+        flex-direction: column
+        margin: 0
+        padding: 0
+        list-style: none
+
+    &-event
+        position: relative
+        display: flex
+        gap: 14px
+        padding: 0 0 16px 0
+
+        &:last-child
+            padding-bottom: 0
+
+            .lifecycle-event-line
+                display: none
+
+    &-event-rail
+        position: relative
+        display: flex
+        flex-direction: column
+        align-items: center
+        flex: 0 0 12px
+        padding-top: 6px
+
+    &-event-dot
+        width: 9px
+        height: 9px
+        border-radius: 50%
+        background: var(--status-default-color)
+        box-shadow: 0 0 0 3px var(--status-default-bg)
+        flex: 0 0 auto
+
+        &[data-scope="external"]
+            background: var(--status-purple-color)
+            box-shadow: 0 0 0 3px var(--status-purple-bg)
+
+        // Ошибка перебивает скоуп: красная точка важнее принадлежности.
+        &[data-kind="error"]
+            background: var(--status-danger-color)
+            box-shadow: 0 0 0 3px var(--status-danger-bg)
+
+    &-event-line
+        flex: 1 1 auto
+        width: 2px
+        margin-top: 5px
+        background: var(--surface-border)
+
+    &-event-body
+        flex: 1 1 auto
+        min-width: 0
+        display: flex
+        flex-direction: column
+        gap: 8px
+        padding: 12px 14px
+        border: 1px solid var(--surface-border)
+        border-radius: 14px
+        background: var(--surface-base)
+
+        // Полоса слева — легенда скоупа: синяя у наших статусов, фиолетовая
+        // у вендорских. Тот же цвет несёт точка таймлайна.
+        &[data-scope="internal"]
+            border-color: var(--status-default-border)
+            box-shadow: inset 3px 0 0 var(--status-default-color)
+
+        &[data-scope="external"]
+            border-color: var(--status-purple-border)
+            box-shadow: inset 3px 0 0 var(--status-purple-color)
+
+    &-event-head
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 10px
+        flex-wrap: wrap
+
+    &-event-status
+        display: flex
+        align-items: center
+        gap: 8px
+        flex-wrap: wrap
+        min-width: 0
+
+    &-event-arrow
+        color: var(--text-tertiary)
+        font-size: 12px
+
+    // Теги события живут в одной строке со статусами, прижатые вправо.
+    &-event-tags
+        display: flex
+        align-items: center
+        justify-content: flex-end
+        gap: 8px
+        flex-wrap: wrap
+        margin-left: auto
+        min-width: 0
+
+    &-event-vendor
+        display: inline-flex
+        align-items: center
+        gap: 6px
+        min-height: 28px
+        padding: 3px 10px
+        border-radius: 999px
+        border: 1px solid var(--status-purple-border)
+        background: var(--status-purple-bg)
+        color: var(--status-purple-color)
+        font-size: 12px
+        font-weight: 600
+        line-height: 18px
+        white-space: nowrap
+
+        .anticon
+            font-size: 12px
+
+    &-event-scope
+        display: inline-flex
+        align-items: center
+        padding: 3px 10px
+        border-radius: 999px
+        border: 1px dashed var(--status-purple-border)
+        color: var(--status-purple-color)
+        font-size: 12px
+        line-height: 18px
+        white-space: nowrap
+
+    &-event-time
+        color: var(--text-tertiary)
+        font-size: 12px
+        white-space: nowrap
+
+    &-event-meta
+        display: flex
+        align-items: center
+        gap: 8px
+        flex-wrap: wrap
+        color: var(--text-secondary)
+        font-size: 12px
+
+        // Карточка пользователя задаёт размер инлайном — выравниваем её по
+        // соседним чипам, иначе одна строка выбивается из масштаба события.
+        a,
+        .ant-typography
+            font-size: 13px !important
+            line-height: 18px !important
+
+    &-event-chip
+        display: inline-flex
+        align-items: center
+        gap: 6px
+        padding: 3px 10px
+        border-radius: 999px
+        background: var(--surface-muted)
+        color: var(--text-secondary)
+        font-size: 12px
+        line-height: 18px
+        max-width: 100%
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+
+    // Чип «начальный статус» стоит в паре с бейджем — держим общую высоту строки.
+    &-event-status &-event-chip
+        min-height: 28px
+
+    &-event-note
+        color: var(--text-primary)
+        font-size: 13px
+        line-height: 20px
+        word-break: break-word
+
+    &-event-error
+        display: flex
+        flex-direction: column
+        gap: 6px
+        padding: 10px 12px
+        border-radius: 12px
+        border: 1px solid var(--status-danger-border)
+        background: var(--status-danger-bg)
+
+    &-event-error-head
+        display: flex
+        align-items: center
+        gap: 8px
+        flex-wrap: wrap
+
+    &-event-error-message
+        color: var(--text-primary)
+        font-size: 13px
+        line-height: 20px
+        word-break: break-word
+
+    &-event-error-hint
+        color: var(--text-secondary)
+        font-size: 12px
+        line-height: 18px
+
+    &-code
+        color: var(--text-tertiary)
+        font-size: 11px
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace
+        letter-spacing: 0.2px
+
+    &-technical
+        margin-top: 2px
+
+        .ant-collapse-header
+            padding: 4px 0 !important
+            color: var(--text-tertiary) !important
+            font-size: 12px
+
+        .ant-collapse-content-box
+            padding: 6px 0 0 0 !important
+
+    &-technical-items
+        display: flex
+        flex-direction: column
+        gap: 5px
+
+    &-technical-item
+        display: flex
+        gap: 8px
+        font-size: 12px
+        color: var(--text-secondary)
+        word-break: break-all
+
+        .label
+            flex: 0 0 auto
+            color: var(--text-tertiary)
+
+    &-technical-json
+        margin: 4px 0 0
+        padding: 8px 10px
+        border-radius: 10px
+        background: var(--surface-muted)
+        color: var(--text-secondary)
+        font-size: 11px
+        line-height: 17px
+        max-height: 220px
+        overflow: auto
+        white-space: pre-wrap
+        word-break: break-word
+
+    &-active-error
+        margin-bottom: 16px
+
+        .ant-alert-message
+            display: flex
+            align-items: center
+            gap: 8px
+            flex-wrap: wrap
+            font-weight: 600
+
+    &-active-error-meta
+        display: flex
+        align-items: center
+        gap: 10px
+        flex-wrap: wrap
+        margin-top: 4px
+        color: var(--text-secondary)
+        font-size: 12px
+
+    &-panel-head
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 12px
+        flex-wrap: wrap
+
+    &-panel-total
+        color: var(--text-secondary)
+        font-size: 13px
+
+    &-feed-tabs
+        .ant-tabs-nav
+            margin-bottom: 14px
+
+            &::before
+                border-bottom-color: var(--surface-border)
+
+        .ant-tabs-tab
+            padding: 9px 0
+            color: var(--text-secondary)
+
+        .ant-tabs-tab-active .ant-tabs-tab-btn
+            color: var(--main-primary)
+
+    &-tab-label
+        display: inline-flex
+        align-items: center
+        gap: 7px
+
+    &-tab-count
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        min-width: 20px
+        height: 20px
+        padding: 0 6px
+        border-radius: 999px
+        background: var(--surface-muted)
+        color: var(--text-secondary)
+        font-size: 11px
+        font-weight: 600
+        line-height: 20px
+
+    &-feed-tabs .ant-tabs-tab-active &-tab-count
+        background: var(--status-default-bg)
+        color: var(--status-default-color)
+
+    &-footer
+        display: flex
+        align-items: center
+        justify-content: center
+        gap: 12px
+        flex-wrap: wrap
+        padding-top: 6px
+
+        .btn
+            width: auto
+
+    &-shown
+        color: var(--text-tertiary)
+        font-size: 12px
