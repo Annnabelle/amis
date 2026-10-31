@@ -172,6 +172,7 @@
                 leads: "Leads",
                 audit: "System logs",
                 markingCodes: "Marking codes",
+                ownedCodes: "Owned codes",
                 agregations: "Aggregations",
                 implementation: "Execution",
                 deals: "Deals",
@@ -399,6 +400,45 @@
                 errors: {
                     loadEvents: "Failed to load the timeline",
                     loadSummary: "Failed to load the history summary",
+                },
+            },
+            ownedCodes: {
+                title: "Owned codes",
+                subtitle: "Codes owned by the company, total",
+                filters: {
+                    gtin: "Search by GTIN-14",
+                },
+                tabs: {
+                    summary: "Summary",
+                    codes: "Codes",
+                },
+                summary: {
+                    product: "Product",
+                    packages: "Packaging",
+                    total: "Codes",
+                    freshestAt: "Latest confirmation",
+                    oldestAt: "Oldest confirmation",
+                    neverSynced: "Ownership has never been confirmed by the vendor",
+                    unknownGtins: "GTINs outside the catalogue",
+                },
+                tableTitles: {
+                    code: "Code",
+                    gtin: "GTIN",
+                    packageType: "Packaging",
+                    status: "Vendor status",
+                    parentCode: "Parent code",
+                    lastSyncedAt: "Owned as of",
+                },
+                statuses: {
+                    RECEIVED: "Received",
+                    APPLIED: "Applied",
+                    INTRODUCED: "In circulation",
+                    WITHDRAWN: "Withdrawn",
+                    WRITTEN_OFF: "Written off",
+                },
+                errors: {
+                    load: "Failed to load the owned codes",
+                    loadSummary: "Failed to load the summary",
                 },
             },
             companyImport: {
@@ -2510,6 +2550,7 @@
                 leads: "Заявки",
                 audit: "Логи системы",
                 markingCodes: "Коды маркировки",
+                ownedCodes: "Коды во владении",
                 agregations: "Агрегации",
                 implementation: "Реализация",
                 deals: "Сделки",
@@ -2737,6 +2778,45 @@
                 errors: {
                     loadEvents: "Не удалось загрузить таймлайн",
                     loadSummary: "Не удалось загрузить сводку истории",
+                },
+            },
+            ownedCodes: {
+                title: "Коды во владении",
+                subtitle: "Кодов во владении компании",
+                filters: {
+                    gtin: "Поиск по GTIN-14",
+                },
+                tabs: {
+                    summary: "Сводка",
+                    codes: "Коды",
+                },
+                summary: {
+                    product: "Товар",
+                    packages: "Упаковка",
+                    total: "Кодов",
+                    freshestAt: "Последнее подтверждение",
+                    oldestAt: "Самое старое подтверждение",
+                    neverSynced: "Владение у вендора ещё не подтверждалось",
+                    unknownGtins: "GTIN вне каталога",
+                },
+                tableTitles: {
+                    code: "Код",
+                    gtin: "GTIN",
+                    packageType: "Упаковка",
+                    status: "Статус у вендора",
+                    parentCode: "Родительский код",
+                    lastSyncedAt: "Владение на момент",
+                },
+                statuses: {
+                    RECEIVED: "Получен",
+                    APPLIED: "Нанесён",
+                    INTRODUCED: "В обороте",
+                    WITHDRAWN: "Выведен из оборота",
+                    WRITTEN_OFF: "Списан",
+                },
+                errors: {
+                    load: "Не удалось загрузить коды во владении",
+                    loadSummary: "Не удалось загрузить сводку",
                 },
             },
             companyImport: {
@@ -4840,6 +4920,7 @@
                 leads: "Arizalar",
                 audit: "Tizim jurnallari",
                 markingCodes: "Markirovka kodlari",
+                ownedCodes: "Egalikdagi kodlar",
                 agregations: "Agregatsiyalar",
                 implementation: "Ijro",
                 deals: "Bitimlar",
@@ -5067,6 +5148,45 @@
                 errors: {
                     loadEvents: "Tarixni yuklab boʻlmadi",
                     loadSummary: "Tarix xulosasini yuklab boʻlmadi",
+                },
+            },
+            ownedCodes: {
+                title: "Egalikdagi kodlar",
+                subtitle: "Kompaniya egalikdagi kodlari",
+                filters: {
+                    gtin: "GTIN-14 bo‘yicha qidirish",
+                },
+                tabs: {
+                    summary: "Xulosa",
+                    codes: "Kodlar",
+                },
+                summary: {
+                    product: "Tovar",
+                    packages: "Qadoqlash",
+                    total: "Kodlar",
+                    freshestAt: "Oxirgi tasdiq",
+                    oldestAt: "Eng qadimgi tasdiq",
+                    neverSynced: "Egalik vendor tomonidan hali tasdiqlanmagan",
+                    unknownGtins: "Katalogdan tashqari GTIN lar",
+                },
+                tableTitles: {
+                    code: "Kod",
+                    gtin: "GTIN",
+                    packageType: "Qadoqlash",
+                    status: "Vendordagi holat",
+                    parentCode: "Ota kod",
+                    lastSyncedAt: "Egalik holati sanasi",
+                },
+                statuses: {
+                    RECEIVED: "Olingan",
+                    APPLIED: "Tushirilgan",
+                    INTRODUCED: "Aylanmada",
+                    WITHDRAWN: "Aylanmadan chiqarilgan",
+                    WRITTEN_OFF: "Hisobdan chiqarilgan",
+                },
+                errors: {
+                    load: "Egalikdagi kodlarni yuklab bo‘lmadi",
+                    loadSummary: "Xulosani yuklab bo‘lmadi",
                 },
             },
             companyImport: {

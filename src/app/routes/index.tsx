@@ -31,6 +31,7 @@ const OrganizationsEdit = lazy(() => import("pages/organizations/organizationEdi
 const ProductsEdit = lazy(() => import("pages/products/editProduct"))
 const MarkingCodes = lazy(() => import("pages/markingCodes"))
 const Batches = lazy(() => import("pages/batches"));
+const OwnedCodes = lazy(() => import("pages/ownedCodes"));
 const MarkingCodeProduct = lazy(() => import("pages/markingCodeProduct"));
 const Aggregations = lazy(() => import("pages/aggregation"));
 const AggregationReportPage = lazy(() => import("pages/aggregation/viewAgregation"))
@@ -88,6 +89,7 @@ const Router: React.FC = () => {
         <Route path='/organization/:id/edit' element={protectedPage(routeAccess.companiesUpdate, <OrganizationsEdit/>)}/>
         <Route path='/organization/:orgId/products/:id/edit' element={protectedPage(routeAccess.productsUpdate, <ProductsEdit/>)}/>
         <Route path='/organization/:id/orders' element={protectedPage(routeAccess.ordersList, <MarkingCodes/>)}/>
+        <Route path='/organization/:orgId/codes' element={protectedPage(routeAccess.ownedCodesList, <OwnedCodes/>)}/>
         <Route path='/organization/:orgId/orders/:orderId' element={protectedPage(routeAccess.ordersRead, <Batches/>)}/>
         <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={protectedPage(routeAccess.codesRead, <MarkingCodeProduct/>)}/>
         <Route path='/organization/:id/agregations' element={protectedPage(routeAccess.reportsList, <Aggregations/>)}/>
