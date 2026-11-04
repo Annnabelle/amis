@@ -91,7 +91,7 @@ const OwnedCodes = () => {
   const summaryTab = (
     <div className="box">
       <div className="box-container">
-        <div className="box-container-items owned-codes">
+        <div className="box-container-items owned-codes owned-codes-tab">
           {/* Владение верно на момент заявки, поэтому возраст снимка — часть ответа. */}
           <div className="owned-codes-freshness">
             {summary?.freshness ? (
@@ -131,7 +131,7 @@ const OwnedCodes = () => {
   const codesTab = (
     <div className="box">
       <div className="box-container">
-        <div className="box-container-items">
+        <div className="box-container-items owned-codes-tab">
           <div className="box-container-items-item">
             <FilterBar>
               <FilterBarItem>

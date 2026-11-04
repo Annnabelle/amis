@@ -22,6 +22,7 @@ export const OwnedCodesSummaryColumns = (
     dataIndex: "product",
     key: "product",
     flex: 2,
+    minWidth: 200,
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
@@ -29,6 +30,7 @@ export const OwnedCodesSummaryColumns = (
     dataIndex: "packages",
     key: "packages",
     flex: 3,
+    minWidth: 320,
     render: (_, record) => (
       <div className="owned-codes-packages">
         {record.packages.map((item) => (
@@ -48,6 +50,7 @@ export const OwnedCodesSummaryColumns = (
     dataIndex: "total",
     key: "total",
     align: "right",
+    minWidth: 110,
     render: (text) => <p className="table-text">{text}</p>,
   },
 ];
