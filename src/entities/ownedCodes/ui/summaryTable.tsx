@@ -11,8 +11,12 @@ export type OwnedCodesSummaryRow = {
 
 /**
  * Сводка свёрнута по товару: у одного товара до четырёх GTIN, и коробка —
- * не отдельный товар. Разбивка по упаковке идёт второй строкой в той же ячейке,
+ * не отдельный товар. Разбивка по упаковке идёт строками в одной ячейке,
  * чтобы колонок не стало по одной на уровень.
+ *
+ * Итог стоит вторым, сразу за названием: он и есть ответ на вопрос «сколько
+ * кодов какого товара», а разбивка — подробность. Последней колонкой он
+ * оказывался у правого края, далеко от названия, к которому относится.
  */
 export const OwnedCodesSummaryColumns = (
   t: TFunction
@@ -21,16 +25,25 @@ export const OwnedCodesSummaryColumns = (
     title: t("ownedCodes.summary.product"),
     dataIndex: "product",
     key: "product",
-    flex: 2,
-    minWidth: 200,
+    flex: 3,
+    render: (text) => <p className="table-text">{text}</p>,
+  },
+  {
+    title: t("ownedCodes.summary.total"),
+    dataIndex: "total",
+    key: "total",
+    // Числа читают столбиком, поэтому по правому краю — но сама колонка
+    // узкая, так что от названия они не отрываются.
+    align: "right",
+    flex: 1,
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: t("ownedCodes.summary.packages"),
     dataIndex: "packages",
     key: "packages",
-    flex: 3,
-    minWidth: 320,
+    // Самое длинное содержимое: свободное место забирает оно, а не итог.
+    flex: 4,
     render: (_, record) => (
       <div className="owned-codes-packages">
         {record.packages.map((item) => (
@@ -44,13 +57,5 @@ export const OwnedCodesSummaryColumns = (
         ))}
       </div>
     ),
-  },
-  {
-    title: t("ownedCodes.summary.total"),
-    dataIndex: "total",
-    key: "total",
-    align: "right",
-    minWidth: 110,
-    render: (text) => <p className="table-text">{text}</p>,
   },
 ];

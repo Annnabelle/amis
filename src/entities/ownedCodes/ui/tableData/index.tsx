@@ -21,10 +21,6 @@ export const OwnedCodesTableColumns = (
     title: t("ownedCodes.tableTitles.code"),
     dataIndex: "code",
     key: "code",
-    // Код длиннее всех остальных колонок вместе: ему нужен свой минимум,
-    // иначе равная доля сжимает его до многоточия на второй же букве.
-    flex: 2,
-    minWidth: 260,
     // Код длинный и его читают глазами по частям: моноширинный и целиком.
     render: (text) => <p className="table-text table-text-mono">{text}</p>,
   },
@@ -32,14 +28,12 @@ export const OwnedCodesTableColumns = (
     title: t("ownedCodes.tableTitles.gtin"),
     dataIndex: "gtin",
     key: "gtin",
-    minWidth: 150,
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
     title: t("ownedCodes.tableTitles.packageType"),
     dataIndex: "packageType",
     key: "packageType",
-    minWidth: 130,
     render: (text) => (
       <p className="table-text">{t(`markingCodes.packageType.${text}`)}</p>
     ),
@@ -48,7 +42,6 @@ export const OwnedCodesTableColumns = (
     title: t("ownedCodes.tableTitles.status"),
     dataIndex: "status",
     key: "status",
-    minWidth: 160,
     render: (status: CodeExternalStatus | undefined) =>
       status ? (
         <StatusBadge variant={statusVariants[status] ?? "default"}>
@@ -62,14 +55,12 @@ export const OwnedCodesTableColumns = (
     title: t("ownedCodes.tableTitles.parentCode"),
     dataIndex: "parentCode",
     key: "parentCode",
-    minWidth: 200,
     render: (text) => <p className="table-text table-text-mono">{text}</p>,
   },
   {
     title: t("ownedCodes.tableTitles.lastSyncedAt"),
     dataIndex: "lastSyncedAt",
     key: "lastSyncedAt",
-    minWidth: 160,
     render: (text) => <p className="table-text">{text}</p>,
   },
 ];
