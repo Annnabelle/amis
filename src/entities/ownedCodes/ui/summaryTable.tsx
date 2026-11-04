@@ -25,7 +25,8 @@ export const OwnedCodesSummaryColumns = (
     title: t("ownedCodes.summary.product"),
     dataIndex: "product",
     key: "product",
-    flex: 3,
+    // Название — самое длинное из того, что читают: ему и место.
+    flex: 6,
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
@@ -35,6 +36,7 @@ export const OwnedCodesSummaryColumns = (
     // Числа читают столбиком, поэтому по правому краю — но сама колонка
     // узкая, так что от названия они не отрываются.
     align: "right",
+    // Узко по делу: в ячейке число, а в заголовке одно короткое слово.
     flex: 1,
     render: (text) => <p className="table-text">{text}</p>,
   },
@@ -42,7 +44,8 @@ export const OwnedCodesSummaryColumns = (
     title: t("ownedCodes.summary.packages"),
     dataIndex: "packages",
     key: "packages",
-    // Самое длинное содержимое: свободное место забирает оно, а не итог.
+    // Содержимое ячейки предсказуемой ширины — подпись уровня, GTIN и число,
+    // — поэтому забирать остаток незачем.
     flex: 4,
     render: (_, record) => (
       <div className="owned-codes-packages">
