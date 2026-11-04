@@ -22,18 +22,23 @@
         font-size: 13px
         line-height: 20px
 
+    // Сетка на весь блок, а не флекс по строкам: при флексе каждая строка
+    // считает ширины сама, и подпись «Потребительская» сдвигает GTIN только
+    // в своей строке. Колонки сетки общие для всех строк, поэтому части
+    // выстраиваются друг под друга при любой длине подписи — и без фиксированной
+    // ширины, которая такую подпись обрезала бы.
     &-packages
-        display: flex
-        flex-direction: column
-        gap: 4px
-
-    &-package
-        display: flex
-        gap: 10px
+        display: grid
+        grid-template-columns: minmax(0, auto) minmax(0, auto) auto
+        column-gap: 12px
+        row-gap: 4px
         align-items: baseline
 
+    &-package
+        // Строка не создаёт своего контекста: её части — элементы общей сетки.
+        display: contents
+
     &-package-type
-        min-width: 110px
         font-size: 13px
 
     &-package-gtin

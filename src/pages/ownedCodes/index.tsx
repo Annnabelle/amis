@@ -108,11 +108,18 @@ const OwnedCodes = () => {
             )}
           </div>
 
+          {/*
+            Без scroll.x: с ним antd ставит таблице width: max-content, и длинное
+            название растягивает колонку поверх заданной доли. Сводке прокрутка
+            по ширине не нужна — три колонки всегда укладываются в бокс, —
+            а с фиксированной раскладкой лишнее название режется многоточием.
+          */}
           <ComponentTable<OwnedCodesSummaryRow>
             loading={summaryLoading}
             columns={OwnedCodesSummaryColumns(t)}
             data={summaryRows}
             pagination={false}
+            scroll={false}
           />
 
           {summary && summary.unknownGtins.length > 0 && (

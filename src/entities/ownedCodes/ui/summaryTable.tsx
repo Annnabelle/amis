@@ -25,8 +25,9 @@ export const OwnedCodesSummaryColumns = (
     title: t("ownedCodes.summary.product"),
     dataIndex: "product",
     key: "product",
-    // Название — самое длинное из того, что читают: ему и место.
-    flex: 6,
+    // Половина ширины и ни пикселем больше: доли дают ровно 5 из 10, то есть
+    // ограничение держится само, а не проверяется в рантайме.
+    flex: 5,
     render: (text) => <p className="table-text">{text}</p>,
   },
   {
