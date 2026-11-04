@@ -33,9 +33,6 @@ export const OwnedCodesSummaryColumns = (
     title: t("ownedCodes.summary.total"),
     dataIndex: "total",
     key: "total",
-    // Числа читают столбиком, поэтому по правому краю — но сама колонка
-    // узкая, так что от названия они не отрываются.
-    align: "right",
     // Узко по делу: в ячейке число, а в заголовке одно короткое слово.
     flex: 1,
     render: (text) => <p className="table-text">{text}</p>,
