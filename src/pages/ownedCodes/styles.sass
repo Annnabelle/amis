@@ -1,0 +1,57 @@
+.owned-codes
+    // Вкладка как колонка с общим ритмом в 24 пикселя: отступ под поиском
+    // раньше давал margin-bottom у antd Form.Item, а формы на странице нет.
+    &-tab
+        display: flex
+        flex-direction: column
+        gap: 24px
+        width: 100%
+
+        // Переполнение остаётся внутри бокса таблицы, а не растягивает страницу:
+        // .box-container — флекс-колонка, и у флекс-элемента по умолчанию
+        // min-width: auto, то есть уже своего содержимого он стать не может.
+        // Ширину таблицы это не меняет — только то, кто прокручивается.
+        > *
+            min-width: 0
+
+    &-freshness
+        display: flex
+        gap: 16px
+        flex-wrap: wrap
+        color: var(--text-secondary)
+        font-size: 13px
+        line-height: 20px
+
+    // Сетка на весь блок, а не флекс по строкам: при флексе каждая строка
+    // считает ширины сама, и подпись «Потребительская» сдвигает GTIN только
+    // в своей строке. Колонки сетки общие для всех строк, поэтому части
+    // выстраиваются друг под друга при любой длине подписи — и без фиксированной
+    // ширины, которая такую подпись обрезала бы.
+    &-packages
+        display: grid
+        grid-template-columns: minmax(0, auto) minmax(0, auto) auto
+        column-gap: 12px
+        row-gap: 4px
+        align-items: baseline
+
+    &-package
+        // Строка не создаёт своего контекста: её части — элементы общей сетки.
+        display: contents
+
+    &-package-type
+        font-size: 13px
+
+    &-package-gtin
+        color: var(--text-secondary)
+        font-family: var(--mono, ui-monospace, Consolas, monospace)
+        font-size: 12px
+
+    &-package-count
+        font-weight: 600
+        font-size: 13px
+
+    &-unknown
+        margin: 0
+        color: var(--text-secondary)
+        font-size: 13px
+        line-height: 20px

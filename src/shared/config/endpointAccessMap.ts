@@ -118,6 +118,8 @@ export const endpointAccessMap = {
   orderBatchRead: endpoint({ method: "GET", path: "/orders/:orderId/batches/:batchId", permission: Permissions.OrdersRead, scope: EndpointScopes.Company }),
   companyImportStart: endpoint({ method: "POST", path: "/company-imports", permission: Permissions.CompanyImportStart, scope: EndpointScopes.Company }),
   companyImportCurrent: endpoint({ method: "GET", path: "/company-imports/current", permission: Permissions.CompanyImportRead, scope: EndpointScopes.Company }),
+  ownedCodesList: endpoint({ method: "GET", path: "/codes", permission: Permissions.CodesRead, scope: EndpointScopes.Company }),
+  ownedCodesSummary: endpoint({ method: "GET", path: "/codes/summary", permission: Permissions.CodesRead, scope: EndpointScopes.Company }),
   codesRead: endpoint({ method: "GET", path: "/codes/batches", permission: Permissions.CodesRead, scope: EndpointScopes.Company }),
 
   salesOrdersCreate: endpoint({ method: "POST", path: "/sales-orders", permission: Permissions.SalesOrdersCreate, scope: EndpointScopes.Company }),

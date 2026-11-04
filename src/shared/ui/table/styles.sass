@@ -54,6 +54,11 @@
                 white-space: nowrap
                 overflow: hidden
                 text-overflow: ellipsis
+            // Код маркировки читают глазами по частям, поэтому моноширинный.
+            .table-text-mono
+                font-family: var(--mono, ui-monospace, 'Cascadia Mono', Consolas, monospace)
+                font-size: 13px
+                letter-spacing: 0.01em
             .table-link
                 +mix.typography(14px, 400, map.get(vars.$basic, 'black'))
                 display: block

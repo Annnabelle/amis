@@ -326,6 +326,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         label: t('navigation.markingCodes'),
       },
       {
+        module: AccessModules.Orders,
+        access: endpointAccessMap.ownedCodesList,
+        key: 'codes',
+        icon: <CodeOutlined />,
+        path: `/organization/${companyId}/codes`,
+        label: t('navigation.ownedCodes'),
+      },
+      {
         module: AccessModules.Reports,
         access: endpointAccessMap.aggregationReportsList,
         key: 'agregations',
