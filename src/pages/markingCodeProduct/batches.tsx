@@ -11,6 +11,8 @@ import "./styles.sass"
 import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
@@ -124,14 +126,17 @@ const MarkingCodeProductBatches = () => {
                     <div className="grid">
                         <BatchItem label={t('markingCodes.batches.batchData.batchStatus')}>
                             <Tag color={getStatusColor(orderProductBatch?.status)}>
-                                {t(`markingCodes.batches.batchesOrderStatus.${orderProductBatch?.status?.toLowerCase()}`)}
+                                {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, StatusScope.Internal, orderProductBatch?.status?.toLowerCase())}
                             </Tag>
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.batchStatusInTuron')}>
                             <Tag color={getStatusColor(orderProductBatch?.externalStatus)}>
-                                {t(
-                                    `markingCodes.batches.batchData.externalStatus.${orderProductBatch?.externalStatus?.toLowerCase()}`
+                                {getStatusLabel(
+                                    t,
+                                    StatusEntity.MarkingCodeOrderBatch,
+                                    StatusScope.External,
+                                    orderProductBatch?.externalStatus
                                 )}
                             </Tag>
                         </BatchItem>
@@ -145,13 +150,13 @@ const MarkingCodeProductBatches = () => {
                     <div className="grid">
                         <BatchItem label={t('markingCodes.batches.batchData.orderStatus')}>
                             <Tag color={getStatusColor(orderProductBatch?.order?.status)}>
-                                {t(`markingCodes.batches.orderNotExternalStatus.${orderProductBatch?.order?.status?.toLowerCase()}`)}
+                                {getStatusLabel(t, StatusEntity.MarkingCodeOrder, StatusScope.Internal, orderProductBatch?.order?.status?.toLowerCase())}
                             </Tag>
                         </BatchItem>
 
                         <BatchItem label={t('markingCodes.batches.batchData.turonOrderStatus')}>
                             <Tag color={getStatusColor(orderProductBatch?.order?.externalStatus)} >
-                                {t(`markingCodes.markingCodesOrderStatus.${orderProductBatch?.order?.externalStatus?.toLowerCase()}`)}
+                                {getStatusLabel(t, StatusEntity.MarkingCodeOrder, StatusScope.External, orderProductBatch?.order?.externalStatus)}
                             </Tag>
                         </BatchItem>
                     </div>

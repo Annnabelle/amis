@@ -5,12 +5,15 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { getVehicleById } from "entities/vehicles/model";
+import { LifecycleTargetType } from "entities/lifecycle/lib";
+import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import CustomButton from "shared/ui/button";
 import {
   DetailCard,
   DetailGrid,
   DetailItems,
 } from "shared/ui/details";
+import EntityTabs, { OVERVIEW_TAB_KEY } from "shared/ui/entityTabs";
 import FormComponent from "shared/ui/formComponent";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
@@ -27,6 +30,10 @@ const VehicleDetails = () => {
   const navigateBack = useNavigationBack();
   const vehicle = useAppSelector((state) => state.vehicles.vehicleById);
   const loading = useAppSelector((state) => state.vehicles.loadingById);
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.Vehicle,
+  });
 
   useEffect(() => {
     if (id) {
@@ -55,69 +62,84 @@ const VehicleDetails = () => {
         </CustomButton>
       </Heading>
 
-      <div className="box">
-        <div className="box-container">
-          <div className="box-container-items">
-            <FormComponent>
-              <DetailGrid className="vehicle-details-grid">
-                <DetailCard title={t("vehicles.details.main")}>
-                  <DetailItems
-                    items={[
-                      { label: t("vehicles.fields.name"), value: vehicle.name },
-                      { label: t("vehicles.fields.plateNumber"), value: vehicle.plateNumber },
-                      { label: t("vehicles.fields.type"), value: t(`vehicles.types.${vehicle.type}`) },
-                      { label: t("vehicles.fields.status"), value: t(`vehicles.statuses.${vehicle.status}`) },
-                    ]}
-                  />
-                </DetailCard>
+      {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
+      {lifecycleBanner}
 
-                <DetailCard title={t("vehicles.details.characteristics")}>
-                  <DetailItems
-                    items={[
-                      { label: t("vehicles.fields.brand"), value: vehicle.characteristics.brand },
-                      { label: t("vehicles.fields.model"), value: vehicle.characteristics.model },
-                      {
-                        label: t("vehicles.fields.stateRegistrationModel"),
-                        value: formatValue(vehicle.stateRegistrationModel),
-                      },
-                      { label: t("vehicles.fields.year"), value: formatValue(vehicle.characteristics.year) },
-                      { label: t("vehicles.fields.loadCapacityKg"), value: formatValue(vehicle.characteristics.loadCapacityKg) },
-                      { label: t("vehicles.fields.volumeCapacityM3"), value: formatValue(vehicle.characteristics.volumeCapacityM3) },
-                    ]}
-                  />
-                </DetailCard>
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t("lifecycle.tabs.overview"),
+            children: (
+              <div className="box">
+                <div className="box-container">
+                  <div className="box-container-items">
+                    <FormComponent>
+                      <DetailGrid className="vehicle-details-grid">
+                        <DetailCard title={t("vehicles.details.main")}>
+                          <DetailItems
+                            items={[
+                              { label: t("vehicles.fields.name"), value: vehicle.name },
+                              { label: t("vehicles.fields.plateNumber"), value: vehicle.plateNumber },
+                              { label: t("vehicles.fields.type"), value: t(`vehicles.types.${vehicle.type}`) },
+                              { label: t("vehicles.fields.status"), value: t(`vehicles.statuses.${vehicle.status}`) },
+                            ]}
+                          />
+                        </DetailCard>
 
-                <DetailCard title={t("vehicles.details.identification")}>
-                  <DetailItems
-                    items={[
-                      { label: t("vehicles.fields.vin"), value: formatValue(vehicle.identification.vin) },
-                      {
-                        label: t("vehicles.fields.registrationCertificateNumber"),
-                        value: formatValue(vehicle.identification.registrationCertificateNumber),
-                      },
-                    ]}
-                  />
-                </DetailCard>
+                        <DetailCard title={t("vehicles.details.characteristics")}>
+                          <DetailItems
+                            items={[
+                              { label: t("vehicles.fields.brand"), value: vehicle.characteristics.brand },
+                              { label: t("vehicles.fields.model"), value: vehicle.characteristics.model },
+                              {
+                                label: t("vehicles.fields.stateRegistrationModel"),
+                                value: formatValue(vehicle.stateRegistrationModel),
+                              },
+                              { label: t("vehicles.fields.year"), value: formatValue(vehicle.characteristics.year) },
+                              { label: t("vehicles.fields.loadCapacityKg"), value: formatValue(vehicle.characteristics.loadCapacityKg) },
+                              { label: t("vehicles.fields.volumeCapacityM3"), value: formatValue(vehicle.characteristics.volumeCapacityM3) },
+                            ]}
+                          />
+                        </DetailCard>
 
-                <DetailCard title={t("vehicles.details.system")}>
-                  <DetailItems
-                    items={[
-                      {
-                        label: t("vehicles.fields.createdAt"),
-                        value: vehicle.createdAt ? dayjs(vehicle.createdAt).format("DD.MM.YYYY") : "-",
-                      },
-                      {
-                        label: t("vehicles.fields.updatedAt"),
-                        value: vehicle.updatedAt ? dayjs(vehicle.updatedAt).format("DD.MM.YYYY") : "-",
-                      },
-                    ]}
-                  />
-                </DetailCard>
-              </DetailGrid>
-            </FormComponent>
-          </div>
-        </div>
-      </div>
+                        <DetailCard title={t("vehicles.details.identification")}>
+                          <DetailItems
+                            items={[
+                              { label: t("vehicles.fields.vin"), value: formatValue(vehicle.identification.vin) },
+                              {
+                                label: t("vehicles.fields.registrationCertificateNumber"),
+                                value: formatValue(vehicle.identification.registrationCertificateNumber),
+                              },
+                            ]}
+                          />
+                        </DetailCard>
+
+                        <DetailCard title={t("vehicles.details.system")}>
+                          <DetailItems
+                            items={[
+                              {
+                                label: t("vehicles.fields.createdAt"),
+                                value: vehicle.createdAt ? dayjs(vehicle.createdAt).format("DD.MM.YYYY") : "-",
+                              },
+                              {
+                                label: t("vehicles.fields.updatedAt"),
+                                value: vehicle.updatedAt ? dayjs(vehicle.updatedAt).format("DD.MM.YYYY") : "-",
+                              },
+                            ]}
+                          />
+                        </DetailCard>
+                      </DetailGrid>
+                    </FormComponent>
+                  </div>
+                </div>
+              </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

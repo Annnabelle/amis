@@ -27,7 +27,7 @@ export type CustomsCodeExternal = {
 
 export type CustomsCodeOrder = {
   id: string;
-  accOrderNumber?: string;
+  accOrderNumber: string | null;
   userId: string;
   productId: string;
   orderId: string;
@@ -37,67 +37,4 @@ export type CustomsCodeOrder = {
   measurement: string | null;
   status: AggregatedCustomsCodeOrderStatus;
   external: CustomsCodeExternal;
-};
-
-export type GetCustomsCodesParams = {
-  page?: number;
-  limit?: number;
-};
-
-export type CreateCustomsCodePayload = {
-  companyId: string;
-  batchId: string;
-};
-
-export type GetCustomsCodesResponseDto = {
-  success: true;
-  data: CustomsCodeOrder[];
-  total: number;
-  page: number;
-  limit: number;
-};
-
-export type GetCustomsCodeResponseDto = {
-  success: true;
-  accOrder: CustomsCodeOrder;
-};
-
-export type CreateCustomsCodeResponseDto = {
-  success: true;
-  aggregatedCustomsCode: CustomsCodeOrder;
-};
-
-export type SignRegistrationAggregatedCustomsCodeOrderPayload = {
-  accOrderId: string;
-  signedDocumentBase64: string;
-};
-
-export type SignRegistrationAggregatedCustomsCodeOrderResponseDto = {
-  success: true;
-  aggregatedCustomsCode: CustomsCodeOrder;
-};
-
-export type InitiateDissolutionAggregatedCustomsCodeOrderResponseDto = {
-  success: true;
-  aggregatedCustomsCode: CustomsCodeOrder;
-};
-
-export type SignDissolutionAggregatedCustomsCodeOrderPayload = {
-  accOrderId: string;
-  signedDocumentBase64: string;
-};
-
-export type SignDissolutionAggregatedCustomsCodeOrderResponseDto = {
-  success: true;
-  aggregatedCustomsCode: CustomsCodeOrder;
-};
-
-export type ApiErrorResponse = {
-  success: false;
-  errorCode: number;
-  errorMessage: {
-    ru: string;
-    en: string;
-    uz: string;
-  };
 };

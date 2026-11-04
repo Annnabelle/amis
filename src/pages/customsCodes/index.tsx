@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Select, Space, Tag } from 'antd';
+import { Alert, Select, Space } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import {
@@ -21,12 +21,14 @@ import {
 } from 'entities/customsCodes/types';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { AvailablePackageType } from 'shared/types/dtos';
+import { StatusEntity } from 'shared/config/statusCatalog';
 import { useCan } from 'entities/access/lib';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
 import ModalWindow from 'shared/ui/modalWindow';
 import CustomButton from 'shared/ui/button';
+import EntityStatusBadge from 'shared/ui/statusBadge/entityStatus';
 import type { AdaptiveColumn } from 'shared/ui/table/types';
 import {
   eImzoClient,
@@ -52,20 +54,6 @@ type CustomsCodeTableRow = {
 
 type SignMode = 'registration' | 'dissolution';
 
-const statusColors: Partial<Record<AggregatedCustomsCodeOrderStatus, string>> = {
-  [AggregatedCustomsCodeOrderStatus.New]: 'default',
-  [AggregatedCustomsCodeOrderStatus.Generated]: 'geekblue',
-  [AggregatedCustomsCodeOrderStatus.ReadyForSign]: 'processing',
-  [AggregatedCustomsCodeOrderStatus.SignedForRegistration]: 'blue',
-  [AggregatedCustomsCodeOrderStatus.Verified]: 'cyan',
-  [AggregatedCustomsCodeOrderStatus.VerifiedForRegistration]: 'cyan',
-  [AggregatedCustomsCodeOrderStatus.Registered]: 'success',
-  [AggregatedCustomsCodeOrderStatus.DissolutionInitialized]: 'warning',
-  [AggregatedCustomsCodeOrderStatus.SignedForDissolution]: 'orange',
-  [AggregatedCustomsCodeOrderStatus.VerifiedForDissolution]: 'magenta',
-  [AggregatedCustomsCodeOrderStatus.Dissolved]: 'purple',
-};
-
 const canSignRegistration = (order: CustomsCodeOrder) =>
   order.status === AggregatedCustomsCodeOrderStatus.ReadyForSign &&
   Boolean(order.external.registration.documentBase64);
@@ -83,8 +71,10 @@ const E_IMZO_ERROR_KEY_PREFIX = 'customsCodes.eImzoErrors.';
 const CustomsCodesPage = () => {
   const { t } = useTranslation();
   const { orgId } = useParams();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const canCreate = useCan(endpointAccessMap.customsCodesCreate);
+  const canRead = useCan(endpointAccessMap.customsCodesRead);
   const canSignRegistrationOrder = useCan(endpointAccessMap.customsCodesSignRegistration);
   const canDissolve = useCan(endpointAccessMap.customsCodesInitiateDissolution);
   const canSignDissolutionOrder = useCan(endpointAccessMap.customsCodesSignDissolution);
@@ -364,7 +354,7 @@ const CustomsCodesPage = () => {
       key: 'status',
       minWidth: 180,
       render: (status: AggregatedCustomsCodeOrderStatus) => (
-        <Tag color={statusColors[status]}>{t(`customsCodes.statuses.${status}`)}</Tag>
+        <EntityStatusBadge entity={StatusEntity.CustomsCodeOrder} status={status} />
       ),
     },
     {
@@ -462,6 +452,11 @@ const CustomsCodesPage = () => {
               columns={columns}
               data={rows}
               loading={loading}
+              onRowClick={
+                canRead && orgId
+                  ? (record) => navigate(`/organization/${orgId}/customs-codes/${record.id}`)
+                  : undefined
+              }
               pagination={{
                 current: page,
                 pageSize: limit,

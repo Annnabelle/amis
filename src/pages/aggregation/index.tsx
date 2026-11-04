@@ -24,6 +24,8 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const packageTypeOrder: Record<string, number> = {
     [AvailablePackageType.BoxLv2]: 0,
@@ -271,12 +273,12 @@ const Aggregations = () => {
                                             }
                                             allowClear
                                             options={[
-                                                { label: t('aggregations.aggregationReportStatus.new'), value: 'new' },
-                                                { label: t('aggregations.aggregationReportStatus.requested'), value: 'requested' },
-                                                { label: t('aggregations.aggregationReportStatus.vendor_pending'), value: 'vendor_pending' },
-                                                { label: t('aggregations.aggregationReportStatus.partially_processed'), value: 'partially_processed' },
-                                                { label: t('aggregations.aggregationReportStatus.success'), value: 'success' },
-                                                { label: t('aggregations.aggregationReportStatus.error'), value: 'error' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'new'), value: 'new' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'requested'), value: 'requested' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'vendor_pending'), value: 'vendor_pending' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'partially_processed'), value: 'partially_processed' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'success'), value: 'success' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'error'), value: 'error' },
                                             ]}
                                             onChange={(value) =>
                                                 setFilters(prev => ({

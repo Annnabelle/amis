@@ -17,6 +17,8 @@ import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import ComponentTable from "shared/ui/table";
 import "./styles.sass";
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const formatValue = (value?: string | null) => value || "-";
 
@@ -111,7 +113,7 @@ const Leads = () => {
     () =>
       LeadStatuses.map((status) => ({
         value: status,
-        label: t(`leads.statuses.${status}`),
+        label: getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, status),
       })),
     [t]
   );
@@ -193,7 +195,7 @@ const Leads = () => {
           <div className="leads-status-modal">
             <div className="leads-status-modal-summary">
               <span>{pendingStatusChange.lead.name}</span>
-              <strong>{t(`leads.statuses.${pendingStatusChange.status}`)}</strong>
+              <strong>{getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, pendingStatusChange.status)}</strong>
             </div>
             <Form form={statusForm} layout="vertical">
               <Form.Item name="comment" label={t("leads.fields.comment")}>

@@ -7,6 +7,8 @@ import { FormatUzbekPhoneNumber } from "shared/lib";
 import { statusColors } from "shared/ui/statuses";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { LeadTableDataType } from "./types";
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 type LeadStatusChangeHandler = (
   record: LeadTableDataType,
@@ -64,7 +66,7 @@ export const LeadsTableColumns = (
     flex: 1.4,
     render: (status: LeadStatusType) => (
       <Tag color={statusColors[status] ?? "default"} style={{ margin: 0 }}>
-        {t(`leads.statuses.${status}`)}
+        {getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, status)}
       </Tag>
     ),
   },

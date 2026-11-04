@@ -5,7 +5,6 @@ import type {
   ApiErrorResponse,
   CreateCustomsCodePayload,
   CreateCustomsCodeResponseDto,
-  CustomsCodeOrder,
   GetCustomsCodeResponseDto,
   GetCustomsCodesParams,
   GetCustomsCodesResponseDto,
@@ -14,11 +13,15 @@ import type {
   SignDissolutionAggregatedCustomsCodeOrderResponseDto,
   SignRegistrationAggregatedCustomsCodeOrderPayload,
   SignRegistrationAggregatedCustomsCodeOrderResponseDto,
-} from 'entities/customsCodes/types';
+} from 'entities/customsCodes/dtos';
+import { mapCustomsCodeOrderDtoToEntity } from 'entities/customsCodes/mappers';
+import type { CustomsCodeOrder } from 'entities/customsCodes/types';
 
 type CustomsCodesState = {
   data: CustomsCodeOrder[];
   selected: CustomsCodeOrder | null;
+  selectedLoading: boolean;
+  selectedError: ApiErrorResponse | null;
   total: number;
   page: number;
   limit: number;
@@ -32,6 +35,8 @@ type CustomsCodesState = {
 const initialState: CustomsCodesState = {
   data: [],
   selected: null,
+  selectedLoading: false,
+  selectedError: null,
   total: 0,
   page: 1,
   limit: 10,
@@ -75,7 +80,7 @@ export const fetchCustomsCodes = createAsyncThunk<
 
     if (response.data.success) {
       return {
-        data: response.data.data,
+        data: response.data.data.map(mapCustomsCodeOrderDtoToEntity),
         total: response.data.total,
         page: response.data.page,
         limit: response.data.limit,
@@ -99,7 +104,7 @@ export const fetchCustomsCodeById = createAsyncThunk<
     );
 
     if (response.data.success) {
-      return response.data.accOrder;
+      return mapCustomsCodeOrderDtoToEntity(response.data.accOrder);
     }
 
     return rejectWithValue(fallbackError(-1));
@@ -120,7 +125,7 @@ export const createCustomsCode = createAsyncThunk<
     );
 
     if (response.data.success) {
-      return response.data.aggregatedCustomsCode;
+      return mapCustomsCodeOrderDtoToEntity(response.data.aggregatedCustomsCode);
     }
 
     return rejectWithValue(fallbackError(-1));
@@ -141,7 +146,7 @@ export const signRegistrationAggregatedCustomsCodeOrder = createAsyncThunk<
     );
 
     if (response.data.success) {
-      return response.data.aggregatedCustomsCode;
+      return mapCustomsCodeOrderDtoToEntity(response.data.aggregatedCustomsCode);
     }
 
     return rejectWithValue(fallbackError(-1));
@@ -161,7 +166,7 @@ export const initiateDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
     );
 
     if (response.data.success) {
-      return response.data.aggregatedCustomsCode;
+      return mapCustomsCodeOrderDtoToEntity(response.data.aggregatedCustomsCode);
     }
 
     return rejectWithValue(fallbackError(-1));
@@ -182,7 +187,7 @@ export const signDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
     );
 
     if (response.data.success) {
-      return response.data.aggregatedCustomsCode;
+      return mapCustomsCodeOrderDtoToEntity(response.data.aggregatedCustomsCode);
     }
 
     return rejectWithValue(fallbackError(-1));
@@ -212,8 +217,17 @@ export const customsCodesSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? fallbackError(-1);
       })
+      .addCase(fetchCustomsCodeById.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
       .addCase(fetchCustomsCodeById.fulfilled, (state, action) => {
+        state.selectedLoading = false;
         state.selected = action.payload;
+      })
+      .addCase(fetchCustomsCodeById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload ?? fallbackError(-1);
       })
       .addCase(createCustomsCode.pending, (state) => {
         state.creating = true;

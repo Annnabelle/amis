@@ -8,6 +8,7 @@ import { setCurrentCompanyId } from 'entities/access/model';
 import { AccessModules, type AccessModule } from 'entities/access/types';
 import { getOrganizationById } from 'entities/organization/model';
 import type { CompanyResponse } from 'entities/organization/types';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
 import { FormatUzbekPhoneNumber, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import {
@@ -17,10 +18,12 @@ import {
   RouteMetaChip,
   type DetailItemData,
 } from 'shared/ui/details';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import StatusBadge from 'shared/ui/statusBadge';
 import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 
 const hasValue = (value?: string | number | null) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
@@ -47,6 +50,10 @@ const OrganizationsInner = () => {
   const organizationById = useAppSelector((state) => state.organizations.organizationById);
   const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? []);
   const isLoading = useAppSelector((state) => state.organizations.isLoading);
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.Company,
+  });
 
   useEffect(() => {
     if (id) {
@@ -227,83 +234,98 @@ const OrganizationsInner = () => {
         </Heading>
       )}
 
-      <div className="box">
-        <div className="box-container">
-          <div className="box-container-items">
-            <div className="route-overview-card">
-              <div className="route-overview-head">
-                <div className="route-overview-title">
-                  <h2>{organization.displayName}</h2>
-                </div>
-                <div className="route-overview-status">
-                  <span className="label inline-label">{t('organizations.status')}</span>
-                  <span className="detail-separator">:</span>
-                  <StatusBadge variant={getCompanyStatusBadgeVariant(organization.status)}>
-                    {statusLabel}
-                  </StatusBadge>
+      {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
+      {lifecycleBanner}
+
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: (
+              <div className="box">
+                <div className="box-container">
+                  <div className="box-container-items">
+                    <div className="route-overview-card">
+                      <div className="route-overview-head">
+                        <div className="route-overview-title">
+                          <h2>{organization.displayName}</h2>
+                        </div>
+                        <div className="route-overview-status">
+                          <span className="label inline-label">{t('organizations.status')}</span>
+                          <span className="detail-separator">:</span>
+                          <StatusBadge variant={getCompanyStatusBadgeVariant(organization.status)}>
+                            {statusLabel}
+                          </StatusBadge>
+                        </div>
+                      </div>
+
+                      <div className="route-overview-meta">
+                        {overviewItems.map((item) => (
+                          <RouteMetaChip
+                            key={String(item.label)}
+                            label={item.label}
+                            value={item.value}
+                            valueTitle={String(item.value)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <DetailGrid variant="main">
+                      <DetailCard title={t('organizations.subtitles.name')}>
+                        <DetailItems items={nameItems} />
+                      </DetailCard>
+
+                      <DetailCard title={t('organizations.subtitles.address')}>
+                        <DetailItems items={addressItems} />
+                      </DetailCard>
+                    </DetailGrid>
+
+                    <DetailGrid variant="main">
+                      <DetailCard title={t('organizations.addUserForm.label.director')}>
+                        <DetailItems items={directorItems} />
+                      </DetailCard>
+
+                      <DetailCard title={t('organizations.addUserForm.label.accountant')}>
+                        <DetailItems items={accountantItems} />
+                      </DetailCard>
+                    </DetailGrid>
+
+                    <DetailGrid variant="main">
+                      {hasContactDetails && (
+                        <DetailCard title={t('organizations.subtitles.contactDetails')}>
+                          <DetailItems items={contactItems} />
+                        </DetailCard>
+                      )}
+
+                      <DetailCard title={t('common.details')}>
+                        <DetailItems items={registrationItems} />
+                      </DetailCard>
+                    </DetailGrid>
+
+                    {hasBankDetails && (
+                      <DetailGrid variant="single">
+                        <DetailCard full title={t('organizations.subtitles.bankDetails')}>
+                          <DetailItems items={bankItems} />
+                        </DetailCard>
+                      </DetailGrid>
+                    )}
+
+                    <div className="btns-group">
+                      <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+                        {t('common.backToList')}
+                      </CustomButton>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div className="route-overview-meta">
-                {overviewItems.map((item) => (
-                  <RouteMetaChip
-                    key={String(item.label)}
-                    label={item.label}
-                    value={item.value}
-                    valueTitle={String(item.value)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <DetailGrid variant="main">
-              <DetailCard title={t('organizations.subtitles.name')}>
-                <DetailItems items={nameItems} />
-              </DetailCard>
-
-              <DetailCard title={t('organizations.subtitles.address')}>
-                <DetailItems items={addressItems} />
-              </DetailCard>
-            </DetailGrid>
-
-            <DetailGrid variant="main">
-              <DetailCard title={t('organizations.addUserForm.label.director')}>
-                <DetailItems items={directorItems} />
-              </DetailCard>
-
-              <DetailCard title={t('organizations.addUserForm.label.accountant')}>
-                <DetailItems items={accountantItems} />
-              </DetailCard>
-            </DetailGrid>
-
-            <DetailGrid variant="main">
-              {hasContactDetails && (
-                <DetailCard title={t('organizations.subtitles.contactDetails')}>
-                  <DetailItems items={contactItems} />
-                </DetailCard>
-              )}
-
-              <DetailCard title={t('common.details')}>
-                <DetailItems items={registrationItems} />
-              </DetailCard>
-            </DetailGrid>
-
-            {hasBankDetails && (
-              <DetailGrid variant="single">
-                <DetailCard full title={t('organizations.subtitles.bankDetails')}>
-                  <DetailItems items={bankItems} />
-                </DetailCard>
-              </DetailGrid>
-            )}
-
-            <div className="btns-group">
-              <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
-                {t('common.backToList')}
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

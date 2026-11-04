@@ -4,6 +4,9 @@ import CustomButton from 'shared/ui/button';
 import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import 'shared/ui/details/styles.sass';
 
 const DeliveryTasksDetails = () => {
@@ -15,42 +18,59 @@ const DeliveryTasksDetails = () => {
   const scanPath = orgId
     ? `/organization/${orgId}/delivery-tasks/${taskId}/scan`
     : '/organization';
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: taskId,
+    target: LifecycleTargetType.DeliveryTask,
+  });
 
   return (
     <MainLayout>
       <Heading title={t('deliveryTasks.detailsTitle')} subtitle={t('common.details')} />
-      <div className="box">
-        <div className="box-container">
-          <div className="box-container-items">
-            <div className="detail-grid">
-              <div className="detail-card">
-                <h4>{t('deliveryTasks.sections.header')}</h4>
-                <Empty description={t('deliveryTasks.details.headerEmpty')} />
+      {lifecycleBanner}
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: (
+              <div className="box">
+                <div className="box-container">
+                  <div className="box-container-items">
+                    <div className="detail-grid">
+                      <div className="detail-card">
+                        <h4>{t('deliveryTasks.sections.header')}</h4>
+                        <Empty description={t('deliveryTasks.details.headerEmpty')} />
+                      </div>
+                      <div className="detail-card">
+                        <h4>{t('deliveryTasks.sections.items')}</h4>
+                        <Empty description={t('deliveryTasks.details.itemsEmpty')} />
+                      </div>
+                      <div className="detail-card">
+                        <h4>{t('deliveryTasks.sections.session')}</h4>
+                        <Empty description={t('deliveryTasks.details.sessionEmpty')} />
+                        <CustomButton variant="outline" onClick={() => navigate(scanPath)}>
+                          {t('deliveryTasks.actions.openScan')}
+                        </CustomButton>
+                      </div>
+                      <div className="detail-card">
+                        <h4>{t('deliveryTasks.sections.invoice')}</h4>
+                        <Empty description={t('deliveryTasks.details.invoiceEmpty')} />
+                      </div>
+                    </div>
+                    <div className="btns-group">
+                      <CustomButton variant="outline" onClick={() => navigate(backPath)}>
+                        {t('common.backToList')}
+                      </CustomButton>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="detail-card">
-                <h4>{t('deliveryTasks.sections.items')}</h4>
-                <Empty description={t('deliveryTasks.details.itemsEmpty')} />
-              </div>
-              <div className="detail-card">
-                <h4>{t('deliveryTasks.sections.session')}</h4>
-                <Empty description={t('deliveryTasks.details.sessionEmpty')} />
-                <CustomButton variant="outline" onClick={() => navigate(scanPath)}>
-                  {t('deliveryTasks.actions.openScan')}
-                </CustomButton>
-              </div>
-              <div className="detail-card">
-                <h4>{t('deliveryTasks.sections.invoice')}</h4>
-                <Empty description={t('deliveryTasks.details.invoiceEmpty')} />
-              </div>
-            </div>
-            <div className="btns-group">
-              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
-                {t('common.backToList')}
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };

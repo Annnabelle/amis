@@ -25,6 +25,8 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import { CompanyImportStage } from 'entities/companyImport/types';
+import CompanyImportStageButton from 'widgets/companyImport/stageButton';
 
 const Products = () => {
     const { id } = useParams<{ id: string }>();
@@ -278,6 +280,7 @@ const Products = () => {
         <MainLayout>
             <Heading title={t('products.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
                 <FormActions>
+                    <CompanyImportStageButton companyId={orgId} stage={CompanyImportStage.Products} />
                     {canReadAudit && (
                         <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
                     )}

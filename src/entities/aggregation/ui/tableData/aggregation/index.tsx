@@ -4,6 +4,8 @@ import type {AggregationDataType} from "./types.ts";
 import {statusColors} from "shared/ui/statuses.tsx";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
+import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 export const AggregationColumns = (t: TFunction, orgId: string | undefined) : TableProps<AggregationDataType>["columns"] => [
     {
@@ -89,7 +91,7 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
             status ? (
                 <Tag color={statusColors[status]}
                 >
-                    {t(`aggregations.aggregationReportStatus.${status}`)}
+                    {getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, status)}
                 </Tag>
             ) : null
         ),

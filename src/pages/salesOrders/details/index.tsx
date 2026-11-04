@@ -23,6 +23,9 @@ import {
   DetailStatsGrid,
   RouteMetaChip,
 } from 'shared/ui/details';
+import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
+import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import './styles.sass';
 
 const SalesOrdersDetails = () => {
@@ -39,6 +42,10 @@ const SalesOrdersDetails = () => {
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
     : '/organization';
+  const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
+    targetId: id,
+    target: LifecycleTargetType.SalesOrder,
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -179,6 +186,14 @@ const SalesOrdersDetails = () => {
           </CustomButton>
         </div>
       </Heading>
+      {lifecycleBanner}
+      <EntityTabs
+        defaultActiveKey={OVERVIEW_TAB_KEY}
+        items={[
+          {
+            key: OVERVIEW_TAB_KEY,
+            label: t('lifecycle.tabs.overview'),
+            children: (
       <div className="box">
         <div className="box-container">
           <div className="box-container-items">
@@ -325,6 +340,11 @@ const SalesOrdersDetails = () => {
           </div>
         </div>
       </div>
+            ),
+          },
+          ...lifecycleTabItems,
+        ]}
+      />
     </MainLayout>
   );
 };
