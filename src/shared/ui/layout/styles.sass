@@ -638,3 +638,95 @@
                 font-size: 13px
                 font-weight: 600
                 line-height: 1.1
+
+// ---- AMIS v2: визуальное обновление layout ----
+// Тени заменены на hairline-границы, сайдбар стал скруглённой карточкой.
+// Группы и отступы трогают только меню компании — системное меню
+// остаётся как было.
+.layout
+    .layout-header
+        box-shadow: none
+        border-bottom: 1px solid map.get(vars.$surface, 'border')
+        .logo
+            font-size: 22px !important
+            font-weight: 700 !important
+            letter-spacing: 0.5px
+    .layout-content-wrapper
+        margin-top: 0
+        height: calc(100% - 64px)
+        .layout-content
+            padding: 20px 24px
+            .layout-sider
+                border-radius: 14px
+                box-shadow: none
+                border: 1px solid map.get(vars.$surface, 'border')
+                padding: 12px 8px
+                .layout-sider-menu
+                    .ant-menu-submenu-title,
+                    .ant-menu-item
+                        font-size: 14px !important
+                        font-weight: 500 !important
+                        height: 38px
+                        line-height: 38px
+                        border-radius: 8px
+                    .ant-menu-item-selected
+                        background: map.get(vars.$main, 'main-light') !important
+                        font-weight: 600 !important
+                        // Текст выбранного пункта перебивается правилом выше
+                        // (.ant-menu-title-content color !important), поэтому
+                        // акцентный цвет задаётся на тех же селекторах.
+                        .ant-menu-title-content,
+                        .ant-menu-title-content a,
+                        .anticon
+                            color: map.get(vars.$main, 'main') !important
+                .layout-company-menu
+                    .ant-menu-item-group-title
+                        font-size: 11px
+                        font-weight: 600
+                        text-transform: uppercase
+                        letter-spacing: 0.8px
+                        color: map.get(vars.$text, 'secondary')
+                        padding: 14px 12px 6px
+                .layout-company-selector
+                    margin: 4px 4px 4px
+
+.layout-content-container-mobile
+    padding-bottom: 76px
+
+// Нижняя панель на телефоне. Число колонок приходит инлайном из layout,
+// repeat(4, …) здесь — запасной вариант.
+.mobile-tabbar
+    position: fixed
+    left: 0
+    right: 0
+    bottom: 0
+    z-index: 20
+    display: grid
+    grid-template-columns: repeat(4, minmax(0, 1fr))
+    background: map.get(vars.$surface, 'base')
+    border-top: 1px solid map.get(vars.$surface, 'border')
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom))
+    &-item
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        gap: 2px
+        min-height: 48px
+        padding: 0 4px
+        border-radius: 10px
+        font-size: 12px
+        font-weight: 500
+        color: map.get(vars.$text, 'secondary')
+        text-decoration: none
+        &.is-active
+            color: map.get(vars.$main, 'main')
+            background: map.get(vars.$main, 'main-light')
+    &-icon
+        font-size: 20px
+        line-height: 1
+    &-label
+        max-width: 100%
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
