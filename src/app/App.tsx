@@ -28,6 +28,13 @@ const getAntdThemeTokens = () => ({
   colorPrimary: getCssVariable('--main-primary'),
   colorBgBase: getCssVariable('--main-bg'),
   colorTextBase: getCssVariable('--basic-black'),
+  colorBorder: getCssVariable('--surface-border'),
+  colorError: getCssVariable('--status-danger-color'),
+  colorWarning: getCssVariable('--status-warning-color'),
+  colorSuccess: getCssVariable('--status-success-color'),
+  fontFamily: '"Onest", system-ui, sans-serif',
+  borderRadius: 8,
+  borderRadiusLG: 12,
 });
 
 const THEME_MODES: readonly ThemeMode[] = [AppTheme.Light, AppTheme.Dark, AppTheme.System];
@@ -214,6 +221,20 @@ function App() {
         theme={{
           algorithm: isDarkTheme ? darkAlgorithm : defaultAlgorithm,
           token: antdThemeTokens,
+          components: {
+            Menu: {
+              itemHeight: 38,
+              itemBorderRadius: 8,
+              itemMarginInline: 4,
+              groupTitleFontSize: 11,
+            },
+            Table: {
+              headerBg: 'var(--surface-soft)',
+              headerColor: 'var(--text-secondary)',
+              rowHoverBg: 'var(--main-more-lighter)',
+            },
+            Button: { fontWeight: 500 },
+          },
         }}
       >
         <GlobalLoader loading={loading} />

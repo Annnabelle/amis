@@ -184,7 +184,13 @@
                 invoices: "Invoices",
                 waybills: "Waybills",
                 companyMemberships: "Employees",
-                integrations: "Integrations"
+                integrations: "Integrations",
+                mobileTabs: "Sections",
+                groups: {
+                    marking: "Marking",
+                    shipping: "Shipments",
+                    company: "Company"
+                }
             },
             statusCatalog: {
                 lead: {
@@ -2563,6 +2569,12 @@
                 waybills: "ТТН",
                 companyMemberships: "Сотрудники",
                 integrations: "Интеграции",
+                mobileTabs: "Разделы",
+                groups: {
+                    marking: "Маркировка",
+                    shipping: "Отгрузки",
+                    company: "Компания",
+                },
             },
             statusCatalog: {
                 lead: {
@@ -4933,6 +4945,12 @@
                 waybills: "TTN",
                 companyMemberships: "Xodimlar",
                 integrations: "Integratsiyalar",
+                mobileTabs: "Bo'limlar",
+                groups: {
+                    marking: "Markirovka",
+                    shipping: "Jo'natmalar",
+                    company: "Kompaniya",
+                },
             },
             statusCatalog: {
                 lead: {

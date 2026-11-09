@@ -66,6 +66,16 @@ import {
 
 const { Header, Content, Sider } = Layout;
 
+// Порядок групп в меню компании. Системное меню не группируется.
+const COMPANY_MENU_GROUPS = ['marking', 'shipping', 'company'] as const;
+
+type CompanyMenuGroup = (typeof COMPANY_MENU_GROUPS)[number];
+
+// Разделы нижней панели на телефоне, в порядке приоритета. Пункты
+// отбираются из доступных пользователю, поэтому панель не ведёт туда,
+// где нет прав.
+const MOBILE_TABBAR_KEYS = ['orders', 'delivery-routes', 'waybills', 'products'] as const;
+
 interface MainLayoutProps {
   children: ReactNode;
 }
@@ -294,6 +304,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     icon: ReactNode;
     path: string;
     label: string;
+    group: CompanyMenuGroup;
   };
 
   const getCompanyModuleItems = (
@@ -305,6 +316,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.CompanyMemberships,
         access: endpointAccessMap.companyMembershipsList,
         key: 'memberships',
+        group: 'company',
         icon: <TeamOutlined />,
         path: `/organization/${companyId}/memberships`,
         label: t('navigation.companyMemberships'),
@@ -313,6 +325,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Products,
         access: endpointAccessMap.productsList,
         key: 'products',
+        group: 'marking',
         icon: <AppstoreOutlined />,
         path: `/organization/${companyId}/products`,
         label: t('navigation.products'),
@@ -321,6 +334,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Orders,
         access: endpointAccessMap.ordersList,
         key: 'orders',
+        group: 'marking',
         icon: <CodeOutlined />,
         path: `/organization/${companyId}/orders`,
         label: t('navigation.markingCodes'),
@@ -329,6 +343,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Orders,
         access: endpointAccessMap.ownedCodesList,
         key: 'codes',
+        group: 'marking',
         icon: <CodeOutlined />,
         path: `/organization/${companyId}/codes`,
         label: t('navigation.ownedCodes'),
@@ -337,6 +352,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Reports,
         access: endpointAccessMap.aggregationReportsList,
         key: 'agregations',
+        group: 'marking',
         icon: <ClusterOutlined />,
         path: `/organization/${companyId}/agregations`,
         label: t('navigation.agregations'),
@@ -345,6 +361,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Reports,
         access: endpointAccessMap.customsCodesList,
         key: 'customs-codes',
+        group: 'marking',
         icon: <SafetyCertificateOutlined />,
         path: `/organization/${companyId}/customs-codes`,
         label: 'АИК',
@@ -353,6 +370,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.SalesOrders,
         access: endpointAccessMap.salesOrdersList,
         key: 'sales-orders',
+        group: 'shipping',
         icon: <ShoppingCartOutlined />,
         path: `/organization/${companyId}/sales-orders`,
         label: t('navigation.deals'),
@@ -361,6 +379,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.DeliveryRoutes,
         access: endpointAccessMap.deliveryRoutesList,
         key: 'delivery-routes',
+        group: 'shipping',
         icon: <CarOutlined />,
         path: `/organization/${companyId}/delivery-routes`,
         label: t('navigation.routes'),
@@ -369,6 +388,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Vehicles,
         access: endpointAccessMap.vehiclesList,
         key: 'vehicles',
+        group: 'company',
         icon: <CarOutlined />,
         path: `/organization/${companyId}/vehicles`,
         label: t('navigation.vehicles'),
@@ -377,6 +397,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Invoices,
         access: endpointAccessMap.invoicesList,
         key: 'invoices',
+        group: 'shipping',
         icon: <FileDoneOutlined />,
         path: `/organization/${companyId}/invoices`,
         label: t('navigation.invoices'),
@@ -385,6 +406,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         module: AccessModules.Waybills,
         access: endpointAccessMap.waybillsList,
         key: 'waybills',
+        group: 'shipping',
         icon: <FileProtectOutlined />,
         path: `/organization/${companyId}/waybills`,
         label: t('navigation.waybills'),
@@ -396,6 +418,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           endpointAccessMap.integrationsFakturaUzRead,
         ],
         key: 'integrations',
+        group: 'company',
         icon: <ApiOutlined />,
         path: `/organization/${companyId}/integrations`,
         label: t('navigation.integrations'),
@@ -539,13 +562,35 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     ? getCompanyModuleItems(selectedCompany.companyId, selectedCompany.modules)
     : [];
 
-  const companyMenuItems: MenuProps['items'] = selectedCompanyModuleItems.map(
-    (item) => ({
-      key: item.path,
-      icon: item.icon,
-      label: <Link to={item.path}>{item.label}</Link>,
+  const companyMenuGroupLabels: Record<CompanyMenuGroup, string> = {
+    marking: t('navigation.groups.marking'),
+    shipping: t('navigation.groups.shipping'),
+    company: t('navigation.groups.company'),
+  };
+
+  // Пункты компании раскладываются по группам в фиксированном порядке.
+  // Группа без доступных пунктов не рендерится, в свёрнутом сайдбаре
+  // заголовки скрыты — иначе они ломают узкую колонку.
+  const companyMenuItems: NonNullable<MenuProps['items']> = COMPANY_MENU_GROUPS
+    .map((group) => {
+      const children = selectedCompanyModuleItems
+        .filter((item) => item.group === group)
+        .map((item) => ({
+          key: item.path,
+          icon: item.icon,
+          label: <Link to={item.path}>{item.label}</Link>,
+        }));
+
+      return children.length > 0
+        ? {
+            key: `group-${group}`,
+            type: 'group' as const,
+            label: collapsed ? null : companyMenuGroupLabels[group],
+            children,
+          }
+        : null;
     })
-  );
+    .filter((item): item is NonNullable<typeof item> => item !== null);
 
   if (isSystemCompanyContext && selectedCompany) {
     companyMenuItems.push({
@@ -574,6 +619,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       ? [topLevel]
       : [];
   }, [location.pathname, selectedCompanyModuleItems, systemMenuItems]);
+
+  const mobileTabbarItems = MOBILE_TABBAR_KEYS
+    .map((key) => selectedCompanyModuleItems.find((item) => item.key === key))
+    .filter((item): item is CompanyModuleMenuItem => item !== undefined);
 
   const handleCompanyChange = (companyId: string) => {
     const company =
@@ -873,7 +922,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     inlineCollapsed={collapsed}
                     selectedKeys={selectedKeys}
                     items={companyMenuItems}
-                    inlineIndent={24}
+                    inlineIndent={16}
                     className="layout-sider-menu layout-company-menu"
                   />
                 </>
@@ -935,6 +984,29 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             )}
 
             {children}
+
+            {isMobile && orgId && mobileTabbarItems.length > 0 && (
+              <nav
+                className="mobile-tabbar"
+                style={{
+                  gridTemplateColumns: `repeat(${mobileTabbarItems.length}, minmax(0, 1fr))`,
+                }}
+                aria-label={t('navigation.mobileTabs')}
+              >
+                {mobileTabbarItems.map((item) => (
+                  <Link
+                    key={item.key}
+                    to={item.path}
+                    className={`mobile-tabbar-item ${section === item.key ? 'is-active' : ''}`}
+                  >
+                    <span className="mobile-tabbar-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    <span className="mobile-tabbar-label">{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            )}
           </Content>
         </Layout>
       </div>
