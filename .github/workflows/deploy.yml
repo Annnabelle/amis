@@ -32,6 +32,8 @@ jobs:
 
       - name: Install deps
         run: npm ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: npm run build
