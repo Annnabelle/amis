@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from 'app/store'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { BatchTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
@@ -12,10 +12,13 @@ import CustomButton from 'shared/ui/button'
 import {OrderStatus} from "entities/markingCodes/dtos";
 import {toast} from "react-toastify";
 import {createUtilizationReport} from "entities/utilization/model";
+import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { useStatusChangeRefresh } from 'shared/lib/statusChanges';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -45,6 +48,27 @@ const Batches = () => {
         }
     }, [dispatch, orderId])
 
+    const refreshOrder = useCallback(() => {
+        if (orderId) {
+            dispatch(getMarkingCodeById({ id: orderId }));
+        }
+    }, [dispatch, orderId]);
+
+    // Статус заказа меняет обработчик очереди: карточка перечитывает себя сама.
+    useStatusChangeRefresh(StatusChangeEntity.MarkingCodeOrder, orderId, refreshOrder);
+    // Переходы партий приходят отдельными событиями со своими id, поэтому
+    // карточка слушает набор id своих партий.
+    const batchIds = useMemo(
+        () => markingCodeById?.batches?.map((batch) => batch.id) ?? [],
+        [markingCodeById?.batches],
+    );
+
+    useStatusChangeRefresh(
+        StatusChangeEntity.MarkingCodeOrderBatch,
+        batchIds,
+        refreshOrder,
+    );
+
     const batchData = markingCodeById?.batches
 
     const MarkingCodeData = useMemo(() => {
@@ -70,6 +94,9 @@ const Batches = () => {
             return;
         }
 
+        const created: string[] = [];
+        let failure: unknown = null;
+
         for (const batch of batchData) {
             try {
                 const results = await dispatch(
@@ -79,17 +106,16 @@ const Batches = () => {
                     })
                 ).unwrap();
 
-                results.forEach((report) => {
-                    toast.success(
-                        `Батч ${batch.batchNumber}: отчет №${report.reportNumber} создан`
-                    );
-                });
-
-            } catch (error: any) {
-                toast.error(
-                    getBackendErrorMessage(error, t('common.error'))
-                );
+                created.push(...results.map((report) => report.reportNumber));
+            } catch (error: unknown) {
+                failure = failure ?? error;
             }
+        }
+
+        notifyUtilizationReportsCreated(t, created);
+
+        if (failure) {
+            toast.error(getBackendErrorMessage(failure, t('common.error')));
         }
 
         dispatch(getMarkingCodeById({ id: markingCodeById.id }));

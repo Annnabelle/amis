@@ -20,7 +20,6 @@ export type AuditLogResponse = {
   message?: string,
   metadata?: Record<string, unknown>,
   requestId?: string,
-  correlationId?: string,
   ip?: string,
   userAgent?: string,
   actor: UserResponseDto | null,

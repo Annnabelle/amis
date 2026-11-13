@@ -371,3 +371,17 @@ input:-webkit-autofill:active
     font-size: 12px
     font-weight: 500
     color: map.get(vars.$text, 'secondary')
+
+// Шрифт и кегль как в таблицах и остальном тексте приложения: свой пакет
+// toastify не задаёт, и кегль наследуется от body.
+.Toastify__toast-container
+  --toastify-font-family: "Onest", system-ui, sans-serif
+  font-size: 14px
+
+// Уведомление о переходе статуса несёт две подписи статуса в строке. Карточка
+// растёт под их длину до предела и остаётся шириной как остальные тосты, пока
+// содержимое в неё укладывается.
+.Toastify__toast.lifecycle-toast-card
+  width: fit-content
+  min-width: var(--toastify-toast-width)
+  max-width: min(440px, calc(100vw - 32px))

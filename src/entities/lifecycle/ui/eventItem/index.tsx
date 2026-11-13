@@ -64,9 +64,6 @@ const LifecycleEventItem = ({
     event.requestId
       ? { label: t("lifecycle.fields.requestId"), value: event.requestId }
       : null,
-    event.correlationId
-      ? { label: t("lifecycle.fields.correlationId"), value: event.correlationId }
-      : null,
     event.causedByEventId
       ? { label: t("lifecycle.fields.causedBy"), value: event.causedByEventId }
       : null,

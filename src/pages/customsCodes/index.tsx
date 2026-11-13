@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
+import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 import {
   createCustomsCode,
   fetchCustomsCodeById,
@@ -107,11 +109,24 @@ const CustomsCodesPage = () => {
     [t]
   );
 
-  useEffect(() => {
+  const refreshCustomsCodes = useCallback(() => {
     if (!orgId) return;
 
     dispatch(fetchCustomsCodes({ page, limit }));
   }, [dispatch, orgId, page, limit]);
+
+  useEffect(() => {
+    refreshCustomsCodes();
+  }, [refreshCustomsCodes]);
+
+  useStatusChangeListRefresh(
+    StatusChangeEntity.AggregatedCustomsCodeOrder,
+    refreshCustomsCodes
+  );
+
+  const recentStatusChanges = useRecentStatusChanges(
+    StatusChangeEntity.AggregatedCustomsCodeOrder
+  );
 
   useEffect(() => {
     if (!error) return;
@@ -452,6 +467,9 @@ const CustomsCodesPage = () => {
               columns={columns}
               data={rows}
               loading={loading}
+              rowClassName={(record) =>
+                recentStatusChanges.has(record.id) ? 'row-status-changed' : ''
+              }
               onRowClick={
                 canRead && orgId
                   ? (record) => navigate(`/organization/${orgId}/customs-codes/${record.id}`)

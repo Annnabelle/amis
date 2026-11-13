@@ -1,6 +1,10 @@
 ﻿export const resources = {
     en:{
         translation:{
+            statusChange: {
+                refresh: "Refresh the list",
+                open: "Open",
+            },
             common:{
                 yes: "Yes",
                 no: "No",
@@ -394,7 +398,6 @@
                     occurrences: "Repeats",
                     lastOccurredAt: "Last occurrence",
                     requestId: "Request ID",
-                    correlationId: "Correlation ID",
                     causedBy: "Caused by event",
                     technical: "Technical details",
                 },
@@ -2045,7 +2048,6 @@
                 subtitle: "Monitoring and analysis of user activity",
                 ip: "IP address",
                 id: "Request ID",
-                session: "Session",
                 committed: "Performed by",
                 target: "Action purpose",
 
@@ -2062,10 +2064,13 @@
                 orderNumber: "Order",
                 applyAll: {
                     confirmApplyAll: "Create utilization reports for all {{count}} batches?",
-                    applyAllSuccess: "Successfully created reports: {{success}} out of {{total}}",
                     applyAllPartialError: "Failed to create {{error}} report(s)",
                     noBatchesToApply: "No batches available to apply",
                     unexpectedError: "An unexpected error occurred"
+                },
+                utilization: {
+                    createdOne: "Utilization report {{number}} created",
+                    createdMany: "Utilization reports created: {{count}}",
                 },
                 markingCodesStatusProduct: {
                     received: "Received",
@@ -2385,6 +2390,10 @@
     },
     ru:{
         translation:{
+            statusChange: {
+                refresh: "Обновить список",
+                open: "Открыть",
+            },
             common:{
                 yes: "Да",
                 no: "Нет",
@@ -2778,7 +2787,6 @@
                     occurrences: "Повторов",
                     lastOccurredAt: "Последний раз",
                     requestId: "Request ID",
-                    correlationId: "Correlation ID",
                     causedBy: "Связано с событием",
                     technical: "Технические детали",
                 },
@@ -4431,7 +4439,6 @@
                 subtitle: "Мониторинг и анализ активности пользователей",
                 ip: "IP адрес",
                 id: "ID запроса",
-                session: "Сессия",
                 committed: "Совершил",
                 target: "Цель действия",
             },
@@ -4447,10 +4454,13 @@
                 backToBatches: "Вернуться партиям",
                 applyAll: {
                     confirmApplyAll: "Создать отчеты о нанесении для всех {{count}} батчей?",
-                    applyAllSuccess: "Успешно создано отчетов: {{success}} из {{total}}",
                     applyAllPartialError: "Не удалось создать {{error}} отчет(ов)",
                     noBatchesToApply: "Нет батчей для нанесения",
                     unexpectedError: "Произошла непредвиденная ошибка"
+                },
+                utilization: {
+                    createdOne: "Отчёт о нанесении {{number}} создан",
+                    createdMany: "Создано отчётов о нанесении: {{count}}",
                 },
                 markingCodesStatusProduct: {
                     received: "Получен",
@@ -4770,6 +4780,10 @@
     },
     uz:{
         translation:{
+            statusChange: {
+                refresh: "Roʻyxatni yangilash",
+                open: "Ochish",
+            },
             common:{
                 yes: "Ha",
                 no: "Yoʻq",
@@ -5154,7 +5168,6 @@
                     occurrences: "Takrorlanish",
                     lastOccurredAt: "Oxirgi marta",
                     requestId: "Request ID",
-                    correlationId: "Correlation ID",
                     causedBy: "Bogʻliq hodisa",
                     technical: "Texnik tafsilotlar",
                 },
@@ -6776,7 +6789,6 @@
                 subtitle: "Foydalanuvchi faolligini kuzatish va tahlil qilish",
                 ip: "IP manzil",
                 id: "So‘rov ID",
-                session: "Sessiya",
                 committed: "Amalni bajargan",
                 target: "Harakat maqsadi",
             },
@@ -6792,10 +6804,13 @@
                 orderNumber: "Buyurtma",
                 applyAll: {
                     confirmApplyAll: "Barcha {{count}} ta partiya uchun qo‘llash hisobotlarini yaratishni tasdiqlaysizmi?",
-                    applyAllSuccess: "Muvaffaqiyatli yaratildi: {{total}} tadan {{success}} ta hisobot",
                     applyAllPartialError: "{{error}} ta hisobotni yaratib bo‘lmadi",
                     noBatchesToApply: "Qo‘llash uchun partiyalar mavjud emas",
                     unexpectedError: "Kutilmagan xatolik yuz berdi"
+                },
+                utilization: {
+                    createdOne: "{{number}} qo‘llash hisoboti yaratildi",
+                    createdMany: "Yaratilgan qo‘llash hisobotlari: {{count}}",
                 },
                 markingCodesStatusProduct: {
                     received: "Qabul qilindi",

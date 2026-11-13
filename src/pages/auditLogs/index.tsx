@@ -94,8 +94,6 @@ const AuditLogsPage: React.FC = () => {
       firstName: actor.firstName || "",
       lastName: actor.lastName || "",
       requestId: log.requestId || "",
-      correlationId: log.correlationId 
-      || "",
       user: actor.firstName && actor.lastName
         ? `${actor.firstName} ${actor.lastName}`
         : "Неизвестно",
@@ -445,11 +443,6 @@ const AuditLogsPage: React.FC = () => {
                     label: `${t('auditLog.id')}`,
                     value: item.requestId,
                     icon: <TagOutlined style={{ color: "var(--status-cyan-color)" }} />,
-                  },
-                  {
-                    label:`${t('auditLog.session')}`,
-                      value: item.correlationId ? item.correlationId.slice(-50) : "",
-                    icon: <TagOutlined style={{ color: "var(--status-orange-color)" }} />,
                   },
                 ];
                 return (

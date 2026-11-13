@@ -16,6 +16,7 @@ import type { OrderBatchPopulatedResponse } from 'entities/markingCodes/types'
 import {type OrderListQueryParams} from 'entities/markingCodes/dtos'
 import { searchProducts } from 'entities/products/model'
 import {createUtilizationReport} from "entities/utilization/model";
+import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import { createCustomsCode, fetchCustomsCodes } from "entities/customsCodes/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
@@ -29,6 +30,8 @@ import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 
 const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
@@ -129,6 +132,26 @@ const MarkingCodes = () => {
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
+
+    const refreshMarkingCodes = () => {
+        dispatch(fetchMarkingCodes(queryParams));
+    };
+
+    const handleOrderCreated = () => {
+        handleModal('addMarkingCodes', false);
+        refreshMarkingCodes();
+    };
+
+    useStatusChangeListRefresh(
+        [StatusChangeEntity.MarkingCodeOrder, StatusChangeEntity.MarkingCodeOrderBatch],
+        refreshMarkingCodes
+    );
+
+    const recentStatusChanges = useRecentStatusChanges([
+        StatusChangeEntity.MarkingCodeOrder,
+        StatusChangeEntity.MarkingCodeOrderBatch,
+    ]);
+
     const statusOptions = useMemo(() => {
         const statuses = t('markingCodes.batches.orderNotExternalStatus', { returnObjects: true }) as Record<string, string>;
 
@@ -176,7 +199,10 @@ const MarkingCodes = () => {
                 })
             ).unwrap();
 
-            toast.success(`Созданы отчеты о нанесении: номер ${result[0].reportNumber}`);
+            notifyUtilizationReportsCreated(
+                t,
+                result.map((report) => report.reportNumber)
+            );
         } catch (error: unknown) {
             toast.error(
                 getBackendErrorMessage(error, t('common.error'))
@@ -327,6 +353,12 @@ const MarkingCodes = () => {
                             handleCreateCustomsCode
                         )}
                         data={MarkingCodesData}
+                        rowClassName={(record) =>
+                            recentStatusChanges.has(record.batchId) ||
+                            recentStatusChanges.has(record.orderId)
+                                ? 'row-status-changed'
+                                : ''
+                        }
                         scroll={{ x: 1620 }}
                         pagination={{
                             current: queryParams.page,
@@ -354,7 +386,7 @@ const MarkingCodes = () => {
             closeModal={() => handleModal('addMarkingCodes', false)}
             title={t('markingCodes.orderCreation.title')}
         >
-            <OrderForm />
+            <OrderForm onCreated={handleOrderCreated} />
         </ModalWindow>
 
     </MainLayout>

@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from 'app/store'
-import {useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
@@ -24,6 +24,8 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
@@ -71,7 +73,7 @@ const Aggregations = () => {
         dateTo?: Date;
     }>({});
 
-    useEffect(() => {
+    const refreshAggregations = useCallback(() => {
         if (!orgId) return;
 
         dispatch(
@@ -92,6 +94,19 @@ const Aggregations = () => {
         filters,
         selectedProductId,
     ]);
+
+    useEffect(() => {
+        refreshAggregations();
+    }, [refreshAggregations]);
+
+    useStatusChangeListRefresh(
+        StatusChangeEntity.AggregationReport,
+        refreshAggregations
+    );
+
+    const recentStatusChanges = useRecentStatusChanges(
+        StatusChangeEntity.AggregationReport
+    );
 
     useEffect(() => {
         if (modalState.addAggregation) {
@@ -346,6 +361,9 @@ const Aggregations = () => {
                         <ComponentTable<AggregationDataType>
                             columns={AggregationColumns(t, orgId)}
                             data={AggregationsData}
+                            rowClassName={(record) =>
+                                recentStatusChanges.has(record.id) ? 'row-status-changed' : ''
+                            }
                             pagination={{
                                 current: dataPage,
                                 pageSize: dataLimit || 10,

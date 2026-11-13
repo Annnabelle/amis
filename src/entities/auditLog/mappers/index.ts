@@ -14,7 +14,6 @@ export function mapAuditLogResponseDtoToEntity(dto: AuditLogResponseDto): AuditL
     message: dto.message,
     metadata: dto.metadata,
     requestId: dto.requestId,
-    correlationId: dto.correlationId,
     ip: dto.ip,
     userAgent: dto.userAgent,
     actor: dto.actor,
