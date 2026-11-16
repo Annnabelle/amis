@@ -41,6 +41,56 @@ const ActionLink = ({
   </a>
 );
 
+const nameOf = (
+  notification: StatusChangeNotification,
+  language: string,
+): string =>
+  [
+    resolveMultiLanguage(notification.target.type.label, language),
+    notification.target.title,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+/** Переход статуса тегами каталога: `[откуда] → [куда]` либо один тег. */
+const Transition = ({
+  notification,
+  language,
+}: {
+  notification: StatusChangeNotification;
+  language: string;
+}) => {
+  const entity = resolveStatusChangeStatusEntity(notification.target.type.name);
+
+  return (
+    <>
+      {notification.status.from ? (
+        <>
+          <EntityStatusBadge
+            entity={entity}
+            status={notification.status.from}
+            fallbackLabel={resolveMultiLanguage(
+              notification.status.fromLabel,
+              language,
+            )}
+            mode="compact"
+          />
+          <span aria-hidden="true">→</span>
+        </>
+      ) : null}
+      <EntityStatusBadge
+        entity={entity}
+        status={notification.status.to}
+        fallbackLabel={resolveMultiLanguage(
+          notification.status.toLabel,
+          language,
+        )}
+        mode="compact"
+      />
+    </>
+  );
+};
+
 /**
  * Тело тоста: имя записи и переход статуса тегами.
  *
@@ -56,43 +106,14 @@ const StatusChangeToast = ({
   const { i18n } = useTranslation();
   const language = i18n.language;
 
-  const statusEntity = resolveStatusChangeStatusEntity(
-    notification.target.type.name,
-  );
-  const typeLabel = resolveMultiLanguage(
-    notification.target.type.label,
-    language,
-  );
-  const name = [typeLabel, notification.target.title].filter(Boolean).join(" ");
+  const name = nameOf(notification, language);
 
   return (
     <div className="lifecycle-toast">
       <div>{open ? <ActionLink {...open}>{name}</ActionLink> : name}</div>
 
       <div className="lifecycle-toast-transition">
-        {notification.status.from ? (
-          <>
-            <EntityStatusBadge
-              entity={statusEntity}
-              status={notification.status.from}
-              fallbackLabel={resolveMultiLanguage(
-                notification.status.fromLabel,
-                language,
-              )}
-              mode="compact"
-            />
-            <span aria-hidden="true">→</span>
-          </>
-        ) : null}
-        <EntityStatusBadge
-          entity={statusEntity}
-          status={notification.status.to}
-          fallbackLabel={resolveMultiLanguage(
-            notification.status.toLabel,
-            language,
-          )}
-          mode="compact"
-        />
+        <Transition notification={notification} language={language} />
       </div>
 
       {refresh ? (

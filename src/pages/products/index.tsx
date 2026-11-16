@@ -26,6 +26,7 @@ import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { CompanyImportStage } from 'entities/companyImport/types';
+import { useSubmitGuard } from 'shared/lib';
 import CompanyImportStageButton from 'widgets/companyImport/stageButton';
 
 const Products = () => {
@@ -161,9 +162,10 @@ const Products = () => {
 
             form.resetFields();
 
-            setTimeout(() => {
-                handleModal("addProduct", false);
-            }, 1000);
+            // даём пользователю увидеть тост об успехе, прежде чем закрыть модалку;
+            // ожидание внутри обработчика держит кнопку заблокированной всё это время
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            handleModal("addProduct", false);
 
         } catch (error: unknown) {
             toast.error(
@@ -171,6 +173,9 @@ const Products = () => {
             );
         }
     };
+
+    const { isSubmitting: isCreatingProduct, onSubmit: submitRegisterProduct } =
+        useSubmitGuard(handleRegisterProduct);
 
 
 
@@ -355,7 +360,7 @@ const Products = () => {
                 ]}
                 errors={[companyError, referencesError]}
             />
-            <FormComponent onFinish={handleRegisterProduct}
+            <FormComponent onFinish={submitRegisterProduct}
               form={form}
                 onValuesChange={(changedValues) => {
                     // если пользователь сам вводит shortName — запоминаем
@@ -478,6 +483,7 @@ const Products = () => {
                 <FormActions>
                     <CustomButton
                         type="submit"
+                        loading={isCreatingProduct}
                         disabled={
                             companyLoading ||
                             referencesLoading ||

@@ -19,6 +19,7 @@ import {useParams} from "react-router-dom";
 import { AvailablePackageType, type AggregationReportStatus } from "shared/types/dtos";
 import { searchProducts} from "entities/products/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import {useSubmitGuard} from "shared/lib/useSubmitGuard";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
@@ -204,7 +205,7 @@ const Aggregations = () => {
         return str.slice(0, num) + '...';
     }
 
-    const handleCreateAggregation = (values: any) => {
+    const handleCreateAggregation = async (values: any) => {
         const [parentOrderId, parentBatchId] = values.parent.split('|');
         const [childOrderId, childBatchId] = values.child.split('|');
 
@@ -216,19 +217,20 @@ const Aggregations = () => {
             childBatchId,
         };
 
-        dispatch(createAggregationReport(payload))
-            .unwrap()
-            .then(() => {
-                toast.success(t("aggregations.messages.createSuccess"));
-                handleModal("addAggregation", false);
-                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
-            })
-            .catch((err: ApiErrorResponse) => {
-                toast.error(
-                    getBackendErrorMessage(err, t("aggregations.messages.createError"))
-                );
-            });
+        try {
+            await dispatch(createAggregationReport(payload)).unwrap();
+            toast.success(t("aggregations.messages.createSuccess"));
+            handleModal("addAggregation", false);
+            await dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
+        } catch (err) {
+            toast.error(
+                getBackendErrorMessage(err as ApiErrorResponse, t("aggregations.messages.createError"))
+            );
+        }
     };
+
+    const { isSubmitting: isCreatingAggregation, onSubmit: submitCreateAggregation } =
+        useSubmitGuard(handleCreateAggregation);
 
     const handleProductSearch = (value: string) => {
         if (!value) return;
@@ -398,7 +400,7 @@ const Aggregations = () => {
                         endpoints={[endpointAccessMap.ordersList]}
                         errors={[ordersError]}
                     />
-                    <FormComponent form={aggregationForm} onFinish={handleCreateAggregation}>
+                    <FormComponent form={aggregationForm} onFinish={submitCreateAggregation}>
                         <div className="form-inputs">
                             <Form.Item
                                 name="parent"
@@ -451,6 +453,7 @@ const Aggregations = () => {
 
                         <CustomButton
                             type="submit"
+                            loading={isCreatingAggregation}
                             disabled={ordersLoading || Boolean(ordersError)}
                         >
                             {t('btn.create')}

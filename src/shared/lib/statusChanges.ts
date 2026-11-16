@@ -26,6 +26,8 @@ export type StatusChangeNotification = {
   at: string;
   /** Кто перевёл запись. Пусто у переходов системы и вендора. */
   actorUserId: string | null;
+  /** Единица работы: переходы одного действия приходят с общим ключом. */
+  groupId: string | null;
 };
 
 export const STATUS_CHANGE_EVENT = "status-change";

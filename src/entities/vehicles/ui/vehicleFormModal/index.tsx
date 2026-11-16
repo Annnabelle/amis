@@ -9,6 +9,7 @@ import { createVehicle, updateVehicle, verifyVehicleOwnership } from "entities/v
 import { VehicleOwnershipType, VehicleType, type CreateVehicleDto, type VehicleOwnerDto } from "entities/vehicles/dtos";
 import type { Vehicle } from "entities/vehicles/types";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
+import { useSubmitGuard } from "shared/lib";
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
 import ModalWindow from "shared/ui/modalWindow";
@@ -387,6 +388,8 @@ export const VehicleFormModal = ({
     toast.error(result.payload ?? t("vehicles.messages.error.update"));
   };
 
+  const { isSubmitting, onSubmit } = useSubmitGuard(handleSubmit);
+
   return (
     <ModalWindow
       className="modal-large"
@@ -395,7 +398,7 @@ export const VehicleFormModal = ({
       openModal={open}
       closeModal={onClose}
     >
-      <FormComponent form={form} onFinish={handleSubmit}>
+      <FormComponent form={form} onFinish={onSubmit}>
         <div className="form-inputs form-inputs-row">
           <Form.Item
             className="input"
@@ -617,7 +620,7 @@ export const VehicleFormModal = ({
           </Form.Item>
         </div>
 
-        <CustomButton type="submit">{mode === "create" ? t("btn.create") : t("btn.save")}</CustomButton>
+        <CustomButton type="submit" loading={isSubmitting}>{mode === "create" ? t("btn.create") : t("btn.save")}</CustomButton>
       </FormComponent>
     </ModalWindow>
   );

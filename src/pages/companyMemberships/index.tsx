@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
+import { useSubmitGuard } from "shared/lib";
 import { fetchAssignableRoles, fetchRoleReferences } from "entities/access/model";
 import {
   getRoleReferenceCacheKey,
@@ -413,6 +414,8 @@ const CompanyMemberships = () => {
     toast.error(result.payload ?? t("companyMemberships.messages.error.invite"));
   };
 
+  const { isSubmitting: isInviting, onSubmit: submitInvite } = useSubmitGuard(handleInvite);
+
   const handleUpdateRoles = async (values: RolesForm) => {
     if (!selectedMembership || !companyId) return;
 
@@ -538,7 +541,7 @@ const CompanyMemberships = () => {
         openModal={modalState.invite}
         closeModal={() => openModal("invite", false)}
       >
-        <FormComponent form={inviteForm} onFinish={handleInvite}>
+        <FormComponent form={inviteForm} onFinish={submitInvite}>
           <Form.Item
             className="input"
             name="email"
@@ -592,7 +595,7 @@ const CompanyMemberships = () => {
               placeholder={t("companyMemberships.placeholders.selectRoles")}
             />
           </Form.Item>
-          <CustomButton type="submit">{t("companyMemberships.actions.sendInvitation")}</CustomButton>
+          <CustomButton type="submit" loading={isInviting}>{t("companyMemberships.actions.sendInvitation")}</CustomButton>
         </FormComponent>
       </ModalWindow>
 

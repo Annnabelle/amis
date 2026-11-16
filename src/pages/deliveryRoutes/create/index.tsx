@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createDeliveryRoute } from 'entities/deliveryRoutes/model';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
+import { useSubmitGuard } from 'shared/lib';
 import { getSalesOrders } from 'entities/salesOrders/model';
 import { searchCompanyMemberships } from 'entities/companyMemberships/model';
 import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';
@@ -138,6 +139,8 @@ const DeliveryRoutesCreate = () => {
       );
     }
   };
+
+  const { isSubmitting, onSubmit } = useSubmitGuard(handleCreateDeliveryRoute);
 
   const handleUserSearch = async (value: string, role: CompanyRole) => {
     if (!value.trim() || !companyId) return;
@@ -423,7 +426,7 @@ const DeliveryRoutesCreate = () => {
             <FormComponent
               form={form}
               initialValues={initialValues}
-              onFinish={handleCreateDeliveryRoute}
+              onFinish={onSubmit}
               onValuesChange={(changedValues) => {
                 if (changedValues.companyId) {
                   setSelectedCompanyId(changedValues.companyId);
@@ -799,6 +802,7 @@ const DeliveryRoutesCreate = () => {
                 </CustomButton>
                 <CustomButton
                   type="submit"
+                  loading={isSubmitting}
                   disabled={
                     isOrdersLoading || Boolean(ordersError) || Boolean(companyMembershipsError)
                   }
