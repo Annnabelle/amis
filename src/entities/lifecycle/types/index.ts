@@ -102,7 +102,6 @@ export type LifecycleEvent = {
   error?: LifecycleError;
   origin?: LifecycleOrigin;
   requestId?: string;
-  correlationId?: string;
   causedByEventId?: string;
 };
 

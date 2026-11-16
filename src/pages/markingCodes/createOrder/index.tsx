@@ -46,7 +46,12 @@ const packageTypeOrder: Record<string, number> = {
 const getPackageTypeOrder = (packageType: string) =>
     packageTypeOrder[packageType.toLowerCase()] ?? Number.MAX_SAFE_INTEGER;
 
-const OrderForm = () => {
+type OrderFormProps = {
+  /** Заказ создан: закрыть окно и перечитать список. */
+  onCreated?: () => void;
+};
+
+const OrderForm = ({ onCreated }: OrderFormProps) => {
   const [form] = Form.useForm<OrderFormValues>();
   const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -191,7 +196,9 @@ const OrderForm = () => {
 
     if (createOrder.fulfilled.match(resultAction)) {
       toast.success(t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated"));
-      setTimeout(() => window.location.reload(), 1000);
+      form.resetFields();
+      setIsSubmitting(false);
+      onCreated?.();
     } else if (createOrder.rejected.match(resultAction)) {
       toast.error(
           getBackendErrorMessage(resultAction.payload, t('common.error'))

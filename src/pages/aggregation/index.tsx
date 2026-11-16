@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from 'app/store'
-import {useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
@@ -19,11 +19,14 @@ import {useParams} from "react-router-dom";
 import { AvailablePackageType, type AggregationReportStatus } from "shared/types/dtos";
 import { searchProducts} from "entities/products/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import {useSubmitGuard} from "shared/lib/useSubmitGuard";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
+import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
@@ -71,7 +74,7 @@ const Aggregations = () => {
         dateTo?: Date;
     }>({});
 
-    useEffect(() => {
+    const refreshAggregations = useCallback(() => {
         if (!orgId) return;
 
         dispatch(
@@ -92,6 +95,19 @@ const Aggregations = () => {
         filters,
         selectedProductId,
     ]);
+
+    useEffect(() => {
+        refreshAggregations();
+    }, [refreshAggregations]);
+
+    useStatusChangeListRefresh(
+        StatusChangeEntity.AggregationReport,
+        refreshAggregations
+    );
+
+    const recentStatusChanges = useRecentStatusChanges(
+        StatusChangeEntity.AggregationReport
+    );
 
     useEffect(() => {
         if (modalState.addAggregation) {
@@ -189,7 +205,7 @@ const Aggregations = () => {
         return str.slice(0, num) + '...';
     }
 
-    const handleCreateAggregation = (values: any) => {
+    const handleCreateAggregation = async (values: any) => {
         const [parentOrderId, parentBatchId] = values.parent.split('|');
         const [childOrderId, childBatchId] = values.child.split('|');
 
@@ -201,19 +217,20 @@ const Aggregations = () => {
             childBatchId,
         };
 
-        dispatch(createAggregationReport(payload))
-            .unwrap()
-            .then(() => {
-                toast.success(t("aggregations.messages.createSuccess"));
-                handleModal("addAggregation", false);
-                dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
-            })
-            .catch((err: ApiErrorResponse) => {
-                toast.error(
-                    getBackendErrorMessage(err, t("aggregations.messages.createError"))
-                );
-            });
+        try {
+            await dispatch(createAggregationReport(payload)).unwrap();
+            toast.success(t("aggregations.messages.createSuccess"));
+            handleModal("addAggregation", false);
+            await dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
+        } catch (err) {
+            toast.error(
+                getBackendErrorMessage(err as ApiErrorResponse, t("aggregations.messages.createError"))
+            );
+        }
     };
+
+    const { isSubmitting: isCreatingAggregation, onSubmit: submitCreateAggregation } =
+        useSubmitGuard(handleCreateAggregation);
 
     const handleProductSearch = (value: string) => {
         if (!value) return;
@@ -346,6 +363,9 @@ const Aggregations = () => {
                         <ComponentTable<AggregationDataType>
                             columns={AggregationColumns(t, orgId)}
                             data={AggregationsData}
+                            rowClassName={(record) =>
+                                recentStatusChanges.has(record.id) ? 'row-status-changed' : ''
+                            }
                             pagination={{
                                 current: dataPage,
                                 pageSize: dataLimit || 10,
@@ -380,7 +400,7 @@ const Aggregations = () => {
                         endpoints={[endpointAccessMap.ordersList]}
                         errors={[ordersError]}
                     />
-                    <FormComponent form={aggregationForm} onFinish={handleCreateAggregation}>
+                    <FormComponent form={aggregationForm} onFinish={submitCreateAggregation}>
                         <div className="form-inputs">
                             <Form.Item
                                 name="parent"
@@ -433,6 +453,7 @@ const Aggregations = () => {
 
                         <CustomButton
                             type="submit"
+                            loading={isCreatingAggregation}
                             disabled={ordersLoading || Boolean(ordersError)}
                         >
                             {t('btn.create')}

@@ -16,6 +16,7 @@ import {
   setCurrentCompanyId,
 } from 'entities/access/model';
 import { AUTH_SESSION_EXPIRED_EVENT, isStoredSessionExpired } from 'shared/lib/authSession';
+import StatusChangeListener from './statusChangeListener';
 import './styles/App.sass';
 
 const THEME_STORAGE_KEY = 'amis-theme-mode';
@@ -242,6 +243,7 @@ function App() {
           <AuthSessionGuard />
           <AccessBootstrap />
           <CompanyRouteSync />
+          <StatusChangeListener />
           <Router />
         </BrowserRouter>
       </ConfigProvider>

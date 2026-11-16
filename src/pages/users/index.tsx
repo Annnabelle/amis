@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSubmitGuard } from 'shared/lib'
 import { createUser, deleteUser, getAllUsers, getUserById, searchUsers } from 'entities/users/model'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
 import type { AddUserForm, UserResponse } from 'entities/users/types'
@@ -97,6 +98,9 @@ const Users = () => {
             toast.error((err as string) || t('users.messages.error.createUser'));
         }
     };
+
+    const { isSubmitting: isCreatingUser, onSubmit: submitCreateUser } =
+        useSubmitGuard(handleCreateUser);
 
     const handleRowClick = (
         type: "User",
@@ -242,7 +246,7 @@ const Users = () => {
             </div>
         </div>
         <ModalWindow  className="modal-large" titleAction={t('users.modalWindow.adding')} title={t('users.modalWindow.user')} openModal={modalState.addUser} closeModal={() => { handleModal('addUser', false); addUserForm.resetFields(); }}>
-            <FormComponent form={addUserForm} onFinish={handleCreateUser}>
+            <FormComponent form={addUserForm} onFinish={submitCreateUser}>
                 <div className="form-inputs form-inputs-row">
                     <Form.Item
                         className="input"
@@ -327,7 +331,7 @@ const Users = () => {
 
                 <p className="form-hint">{t('users.addUserForm.activationHint')}</p>
 
-                <CustomButton type="submit">{t('btn.create')}</CustomButton>
+                <CustomButton type="submit" loading={isCreatingUser}>{t('btn.create')}</CustomButton>
             </FormComponent>
         </ModalWindow>
         <ModalWindow

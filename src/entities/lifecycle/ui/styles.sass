@@ -357,3 +357,28 @@
     &-shown
         color: var(--text-tertiary)
         font-size: 12px
+
+    &-toast
+        display: flex
+        flex-direction: column
+        align-items: flex-start
+        gap: 8px
+        min-width: 0
+        // Крестик закрытия выставлен абсолютно поверх содержимого.
+        padding-right: 16px
+
+    // Ширина карточки тоста ограничена сверху, а сжать себя её содержимое не
+    // даёт: тег в одну строку растолкал бы его за края, поэтому подпись
+    // статуса здесь переносится.
+    &-toast-transition
+        display: flex
+        align-items: center
+        flex-wrap: wrap
+        gap: 6px
+
+        .status-badge
+            white-space: normal
+            text-align: left
+
+    &-toast-action .btn
+        width: auto

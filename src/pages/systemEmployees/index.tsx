@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
+import { useSubmitGuard } from "shared/lib";
 import { fetchAssignableRoles, fetchRoleReferences } from "entities/access/model";
 import { RoleReferenceScope, type RoleReference } from "entities/access/types";
 import {
@@ -293,6 +294,8 @@ const SystemEmployees = () => {
     toast.error(result.payload ?? t("systemEmployees.messages.error.invite"));
   };
 
+  const { isSubmitting: isInviting, onSubmit: submitInvite } = useSubmitGuard(handleInvite);
+
   const handleUpdateRoles = async (values: RolesForm) => {
     if (!selectedEmployee) return;
 
@@ -410,7 +413,7 @@ const SystemEmployees = () => {
         openModal={modalState.invite}
         closeModal={() => openModal("invite", false)}
       >
-        <FormComponent form={inviteForm} onFinish={handleInvite}>
+        <FormComponent form={inviteForm} onFinish={submitInvite}>
           <Form.Item
             className="input"
             name="userId"
@@ -451,7 +454,7 @@ const SystemEmployees = () => {
               placeholder={t("systemEmployees.placeholders.selectRoles")}
             />
           </Form.Item>
-          <CustomButton type="submit">{t("systemEmployees.actions.sendInvitation")}</CustomButton>
+          <CustomButton type="submit" loading={isInviting}>{t("systemEmployees.actions.sendInvitation")}</CustomButton>
         </FormComponent>
       </ModalWindow>
 

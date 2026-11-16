@@ -24,7 +24,6 @@ export const mapLifecycleEventDtoToEntity = (
   error: dto.error,
   origin: dto.origin,
   requestId: dto.requestId,
-  correlationId: dto.correlationId,
   causedByEventId: dto.causedByEventId,
 });
 

@@ -19,6 +19,7 @@ import type { ProductPackage } from 'entities/products/types';
 import { getCompanyByTin, getOrganizationById } from 'entities/organization/model';
 import { fetchDistrictsByRegion, fetchRegions } from 'entities/references/model';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
+import { useSubmitGuard } from 'shared/lib';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
@@ -710,6 +711,8 @@ const SalesOrdersCreate = () => {
     }
   };
 
+  const { isSubmitting, onSubmit } = useSubmitGuard(handleCreateSalesOrder);
+
   return (
     <MainLayout>
       <Heading title={t('salesOrders.title')} subtitle={t('common.create')} />
@@ -728,7 +731,7 @@ const SalesOrdersCreate = () => {
           <div className="box-container-items">
             <FormComponent
               form={form}
-              onFinish={handleCreateSalesOrder}
+              onFinish={onSubmit}
               initialValues={{
                 fulfillment: {
                   priority: 'normal',
@@ -1365,6 +1368,7 @@ const SalesOrdersCreate = () => {
                 </CustomButton>
                 <CustomButton
                   type="submit"
+                  loading={isSubmitting}
                   disabled={
                     !isCompanyFound ||
                     productsLoading ||
