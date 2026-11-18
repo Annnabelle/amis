@@ -1,430 +1,117 @@
-import type { CompanyResponseDto } from "entities/organization/dtos";
-import type { ProductResponseDto } from "entities/products/dtos";
-import type { UserResponseDto } from "entities/users/dtos/login";
-import type {OrderResponseDto} from "entities/markingCodes/dtos";
+import type {
+  CompanyAddressResponseDto as AddressDto,
+  CompanyBankDetailsResponseDto as BankDetailsDto,
+  CompanyContactsResponseDto as ContactsDto,
+  PaginatedResponseDto,
+  TargetResponseDto,
+} from '@edem2000/amis.contracts/api/common/responses';
+import type { AccessCodesDto } from '@edem2000/amis.contracts/api/companies/requests';
 
-export type HexString = string;
+export type {
+  AccessCodesDto,
+  AddressDto,
+  BankDetailsDto,
+  ContactsDto,
+  PaginatedResponseDto,
+  TargetResponseDto,
+};
 
-export const Language = {
-  Russian: 'ru',
-  English: 'en',
-  Uzbek: 'uz',
-} as const;
+import type {
+  HexString,
+  MultiLanguage,
+  UserPreferences,
+} from '@edem2000/amis.contracts';
 
-export const AllLanguages = Object.values(Language);
+export type {
+  HexString,
+  MultiLanguage,
+  UserPreferences,
+};
+
+import type {
+  ErrorDto,
+  PaginatedDto,
+} from '@edem2000/amis.contracts/api/common/requests';
+
+export type {
+  ErrorDto,
+  PaginatedDto,
+};
+
+import {
+  Actor,
+  AllLanguages,
+  AggregationReportExternalStatus,
+  AggregationReportStatus,
+  AppTheme,
+  AuditCategory,
+  AuditType,
+  BatchStatus,
+  CompanySortField,
+  CompanyStatus,
+  CompanyType,
+  DeliveryRouteStatus,
+  DeliveryTaskStatus,
+  ExternalBatchStatus,
+  ExternalOrderStatus,
+  Language,
+  MarkingCodeExternalStatus,
+  MarkingCodeStatus,
+  PackageType,
+  ProductSortField,
+  ProductStatus,
+  SalesOrderPaymentMethod,
+  SalesOrderPriorities,
+  SalesOrderPriority,
+  SalesOrderStatus,
+  TargetEntity,
+  UserSortField,
+  UserStatus,
+  UtilizationReportExternalStatus,
+  UtilizationReportStatus,
+} from '@edem2000/amis.contracts'
+
+export {
+  Actor,
+  AllLanguages,
+  AggregationReportExternalStatus,
+  AggregationReportStatus,
+  AppTheme,
+  AuditCategory,
+  AuditType,
+  BatchStatus,
+  CompanySortField,
+  CompanyStatus,
+  CompanyType,
+  DeliveryRouteStatus,
+  DeliveryTaskStatus,
+  ExternalBatchStatus,
+  ExternalOrderStatus,
+  Language,
+  MarkingCodeExternalStatus,
+  MarkingCodeStatus,
+  PackageType,
+  ProductSortField,
+  ProductStatus,
+  SalesOrderPaymentMethod,
+  SalesOrderPriorities,
+  SalesOrderPriority,
+  SalesOrderStatus,
+  TargetEntity,
+  UserSortField,
+  UserStatus,
+  UtilizationReportExternalStatus,
+  UtilizationReportStatus,
+}
+
 
 export const isLanguage = (value: string): value is Language =>
   (AllLanguages as string[]).includes(value);
 
-export type Language = (typeof Language)[keyof typeof Language];
-
-export const AppTheme = {
-  Light: 'light',
-  Dark: 'dark',
-  System: 'system',
-} as const;
-
-export type AppTheme = (typeof AppTheme)[keyof typeof AppTheme];
-
-export type UserPreferences = {
-  language: Language;
-  theme: AppTheme;
-};
-
-export type MultiLanguage = Record<Language, string>;
-
-export type ErrorDto = {
-  success: boolean,
-  errorMessage: MultiLanguage,
-  errorCode: number,
-}
-
-export const UserStatus = {
-  Active: "active",
-  Inactive: "inactive",
-} as const;
-
-export const UserStatuses = Object.values(UserStatus);
-
-export type UserStatus = typeof UserStatus[keyof typeof UserStatus];
-
-
-export type PaginatedResponseDto<T> = {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-export type PaginatedDto = {
-  page: number;
-  limit: number;
-  sortOrder: 'asc' | 'desc';
-}
-
-export const UserSortField = {
-  Id: '_id',
-  Name: 'name',
-  Email: 'email',
-  Phone: 'phone',
-} as const;
-
-export const UserSortFields = Object.values(UserSortField);
-
-export type UserSortField = typeof UserSortField[keyof typeof UserSortField];
-
-export const CompanyStatus = {
-  Active: "active",
-  Inactive: "inactive",
-  Prospective: "prospective",
-} as const;
-
-export const CompanyStatuses = Object.values(CompanyStatus);
-
-export type CompanyStatus = typeof CompanyStatus[keyof typeof CompanyStatus];
-
-export const CompanyType = {
-  Type1: "type1",
-  Inactive: "inactive",
-} as const;
-
-export const CompanyTypes = Object.values(CompanyType);
-
-export type CompanyType = typeof CompanyType[keyof typeof CompanyType];
-
-export type AddressDto = {
-  region?: string;
-  district?: string;
-  address?: string;
-}
-
-export type BankDetailsDto = {
-  bankName?: string;
-  ccea?: string;
-  account?: string;
-  mfo?: string;
-}
-
-export type ContactsDto = {
-  phone?: string;
-  email?: string;
-  url?: string;
-  person?: string;
-}
-
-export type XTraceTokenData = {
-  id?: string;
-  token: string;
-  expireDate: string | Date;
-  updateDate?: string;
-}
-
-export type AccessCodesDto = {
-  gcpCode?: string;
-  xTrace: XTraceTokenData;
-}
-
-
-export const CompanySortField = {
-  Id: '_id',
-  Name: 'name',
-} as const;
-
-export const CompanySortFields = Object.values(CompanySortField);
-
-export type CompanySortField = typeof CompanySortField[keyof typeof CompanySortField];
-
-
-export type MeasurementDto = {
-  unit?: string;
-  amount?: number;
-}
-
-export type WeightDto = {
-  net?: number;
-  gross?: number;
-}
-
-export const ProductStatus = {
-  Active: "active",
-  Inactive: "inactive",
-} as const;
-
-export const ProductStatuses = Object.values(ProductStatus);
-
-export type ProductStatus = typeof ProductStatus[keyof typeof ProductStatus];
-
-export const SalesOrderPriority = {
-  Low: "low",
-  Normal: "normal",
-  High: "high",
-  Urgent: "urgent",
-} as const;
-
-export const SalesOrderPriorities = Object.values(SalesOrderPriority);
-
-export type SalesOrderPriority =
-  (typeof SalesOrderPriority)[keyof typeof SalesOrderPriority];
-
-export const SalesOrderStatus = {
-  Draft: "draft",
-  Confirmed: "confirmed",
-  PartiallyAssigned: "partially_assigned",
-  Assigned: "assigned",
-  PartiallyDelivered: "partially_delivered",
-  Delivered: "delivered",
-  Cancelled: "cancelled",
-  Closed: "closed",
-} as const;
-
-export type SalesOrderStatus = (typeof SalesOrderStatus)[keyof typeof SalesOrderStatus];
-
-export const DeliveryRouteStatus = {
-  Draft: "draft",
-  AssignedToWarehouse: "assigned_to_warehouse",
-  ReadyForLoading: "ready_for_loading",
-  Loading: "loading",
-  Loaded: "loaded",
-  InTransit: "in_transit",
-  PartiallyDelivered: "partially_delivered",
-  Delivered: "delivered",
-  Returning: "returning",
-  Returned: "returned",
-  Closed: "closed",
-  Cancelled: "cancelled",
-  Failed: "failed",
-} as const;
-
-export const DeliveryRouteStatuses = Object.values(DeliveryRouteStatus);
-
-export type DeliveryRouteStatus =
-  (typeof DeliveryRouteStatus)[keyof typeof DeliveryRouteStatus];
-
-export const DeliveryTaskStatus = {
-  Planned: "planned",
-  Loading: "loading",
-  Loaded: "loaded",
-  HandoverInProgress: "handover_in_progress",
-  Delivering: "delivering",
-  PartiallyDelivered: "partially_delivered",
-  Delivered: "delivered",
-  IssueFailed: "issue_failed",
-  Cancelled: "cancelled",
-} as const;
-
-export type DeliveryTaskStatus =
-  (typeof DeliveryTaskStatus)[keyof typeof DeliveryTaskStatus];
-
-export const ProductSortField = {
-  Id: '_id',
-  Name: 'name',
-  Gtin: 'gtin',
-  Price: 'price',
-} as const;
-
-export const ProductSortFields = Object.values(ProductSortField);
-
-export type ProductSortField = typeof ProductSortField[keyof typeof ProductSortField];
-
-export type Actor = {
-  User: "user",
-  System: "system",
-} ;
-
-export type TargetEntity = {
-  User: "user",
-  Company: "company",
-  Product: "product",
-};
-
-export const TargetEntity = {
-  User: "user",
-  Company: "company",
-  Product: "product",
-  MarkingCodeOrder: "markingCodeOrder",
-} as const;
-
-export const AuditCategory = {
-  Auth: 'auth',
-  User: 'user',
-  Product: 'product',
-  Order: 'order',
-  Company: 'company',
-} as const;
-
-export type AuditCategory = typeof AuditCategory[keyof typeof AuditCategory];
-
-export const AuditType = {
-  Login: 'login',
-  Logout: 'logout',
-  UserRegistration: 'userRegistration',
-  PasswordChange: 'passwordChange',
-  UserDelete: 'userDelete',
-  UserUpdate: 'userUpdate',
-  AssignCompanyToUser: 'assignCompanyToUser',
-  UnassignCompanyFromUser: 'unassignCompanyFromUser',
-
-  ProductCreate: 'productCreate',
-  ProductUpdate: 'productUpdate',
-  ProductDelete: 'productDelete',
-
-  // ...
-
-  CompanyCreate: 'companyCreate',
-  CompanyUpdate: 'companyUpdate',
-  CompanyDelete: 'companyDelete',
-
-  OrderCreate: 'orderCreate',
-  OrderStatusChanged: 'orderStatusChanged',
-  OrderBatchStatusChanged: 'orderBatchStatusChanged',
-  OrderCodesRegistered: 'orderCodesRegistered',
-  OrderCodesUtilized: 'orderCodesUtilized',
-  OrderReportCreated: 'orderReportCreated',
-  OrderClosed: 'orderClosed',
-  OrderRejected: 'orderRejected',
-
-  // ...
-} as const;
-
-export type AuditType = typeof AuditType[keyof typeof AuditType];
-
-export type TargetResponseDto = UserResponseDto | CompanyResponseDto | ProductResponseDto | OrderResponseDto | null;
 
 export type Identifier = {
   type: 'Identifier';
 
   toString(): string;
 }
-
-
-export const AvailablePackageType = {
-  Unit: "unit",
-  Group: "group",
-  BoxLv1: "box_lv_1",
-  BoxLv2: "box_lv_2",
-} as const;
-
-export type AvailablePackageType = (typeof AvailablePackageType)[keyof typeof AvailablePackageType];
-
-export const SalesOrderPaymentMethod = {
-  Cash: "cash",
-  Transfer: "transfer",
-} as const;
-
-export type SalesOrderPaymentMethod =
-  (typeof SalesOrderPaymentMethod)[keyof typeof SalesOrderPaymentMethod];
-
-
-
-/**
- * Внутренний контур отчёта о нанесении. Значения created/validating/in_process
- * сюда попали по ошибке — это статусы внешней системы, они живут в
- * UtilizationReportExternalStatus.
- */
-export const UtilizationReportStatus = {
-  New: "new",
-  VendorPending: "vendor_pending",
-  PartiallyProcessed: "partially_processed",
-  Success: "success",
-  Error: "error",
-} as const;
-
-export type UtilizationReportStatus = (typeof UtilizationReportStatus)[keyof typeof UtilizationReportStatus];
-
-export const UtilizationReportExternalStatus = {
-  Created: "CREATED", // Создан
-  Validating: "VALIDATING", // Проверяется
-  InProgress: "IN_PROCESS", // Обрабатывается
-  PartiallyProcessed: "PARTIALLY_PROCESSED", // Обработан частично (по одному или нескольким кодам выполнение операции было отклонено)
-  Success: "SUCCESS", // Обработан полностью (операции выполнены по всемкодам)
-  Error: "ERROR", // Отклонен (операции по кодам не выполнялись)
-} as const;
-
-export type UtilizationReportExternalStatus = (typeof UtilizationReportExternalStatus)[keyof typeof UtilizationReportExternalStatus];
-
-
-export const MarkingCodeStatus = {
-  // trash
-  Uploaded: 'UPLOADED',
-  Aggregated: 'AGGREGATED',
-
-
-  // actual
-  Received: "RECEIVED", // Получен
-  Applied: "APPLIED", // Нанесен
-  Introduced: "INTRODUCED", // В обороте
-  Withdrawn: "WITHDRAWN", // Выведен из оборота
-  WrittenOff: "WRITTEN_OFF", // Списан
-
-} as const;
-export type MarkingCodeStatus = typeof MarkingCodeStatus[keyof typeof MarkingCodeStatus];
-
-export const MarkingCodeState = {
-  Used: 'used',
-  NotUsed: 'notUsed',
-} as const;
-export type MarkingCodeState = typeof MarkingCodeState[keyof typeof MarkingCodeState];
-
-
-export const BatchStatus = {
-  New: "new",
-  Created: 'created',
-  VendorPending: 'vendor_pending',
-  ReadyForCodes: 'ready_for_codes',
-  CodesPartiallyReceived: 'codes_partially_received',
-  CodesReceived: 'codes_received',
-  CodesUtilizationRequested: 'codes_utilization_requested',
-  CodesUtilized: 'codes_utilized',
-  CodesAggregated: 'codes_aggregated',
-  Rejected: 'rejected',
-  Closed: 'closed',
-  Error: 'error',
-} as const;
-
-export type BatchStatus = typeof BatchStatus[keyof typeof BatchStatus];
-
-export const ExternalBatchStatus = {
-  Pending: "PENDING",
-  Active: "ACTIVE",
-  Exhausted: "EXHAUSTED",
-  Rejected: "REJECTED",
-  Closed: "CLOSED",
-} as const;
-
-export type ExternalBatchStatus = typeof ExternalBatchStatus[keyof typeof ExternalBatchStatus];
-
-export const ExternalOrderStatus = {
-  Created: "CREATED",
-  Pending: "PENDING",
-  Ready: "READY",
-  Rejected: "REJECTED",
-  Closed: "CLOSED",
-  Outsourced: "OUTSOURCED",
-} as const;
-
-export type ExternalOrderStatus = typeof ExternalOrderStatus[keyof typeof ExternalOrderStatus];
-
-export const AggregationReportExternalStatus = {
-  Created: "CREATED", // Создан
-  Validating: "VALIDATING", // Проверяется
-  InProgress: "IN_PROCESS", // Обрабатывается
-  PartiallyProcessed: "PARTIALLY_PROCESSED", // Обработан частично
-  Success: "SUCCESS", // Обработан полностью
-  Error: "ERROR", // Отклонен
-} as const;
-
-export type AggregationReportExternalStatus = (typeof AggregationReportExternalStatus)[keyof typeof AggregationReportExternalStatus];
-
-export const AggregationReportStatus = {
-  New: "new",
-  Requested: 'requested',
-  VendorPending: "vendor_pending",
-  PartiallyProcessed: 'partially_processed',
-  Success: "success",
-  Error: "error",
-} as const;
-
-export type AggregationReportStatus = (typeof AggregationReportStatus)[keyof typeof AggregationReportStatus];
-
-
 

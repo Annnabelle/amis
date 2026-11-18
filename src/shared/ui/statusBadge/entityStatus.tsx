@@ -1,6 +1,6 @@
 import {
   resolveStatusVariant,
-  StatusScope,
+  LifecycleScope,
   type StatusEntity,
 } from "shared/config/statusCatalog";
 import { useStatusLabel } from "shared/lib/useStatusLabel";
@@ -9,7 +9,7 @@ import StatusBadge, { type StatusBadgeMode } from "shared/ui/statusBadge";
 type EntityStatusBadgeProps = {
   /** Не задана — цвет берётся из общей карты по коду, текст из fallbackLabel. */
   entity?: StatusEntity;
-  scope?: StatusScope;
+  scope?: LifecycleScope;
   status?: string | null;
   mode?: StatusBadgeMode;
   className?: string;
@@ -19,7 +19,7 @@ type EntityStatusBadgeProps = {
 
 const EntityStatusBadge = ({
   entity,
-  scope = StatusScope.Internal,
+  scope = LifecycleScope.Internal,
   status,
   mode = "full",
   className,

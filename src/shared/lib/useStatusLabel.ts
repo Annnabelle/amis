@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import {
   getStatusLabelKey,
   hasStatusInCatalog,
-  StatusScope,
+  LifecycleScope,
   type StatusEntity,
 } from "shared/config/statusCatalog";
 
@@ -15,11 +15,11 @@ type TranslateFn = (key: string, options?: Record<string, unknown>) => string;
 export const getStatusLabel = (
   t: TranslateFn,
   entity: StatusEntity | undefined,
-  scope: StatusScope | undefined,
+  scope: LifecycleScope | undefined,
   status?: string | null,
   fallbackLabel?: string | null
 ): string => {
-  const resolvedScope = scope ?? StatusScope.Internal;
+  const resolvedScope = scope ?? LifecycleScope.Internal;
 
   if (entity && hasStatusInCatalog(entity, resolvedScope, status)) {
     return t(getStatusLabelKey(entity, resolvedScope, status as string));
@@ -35,7 +35,7 @@ export const getStatusLabel = (
  */
 export const useStatusLabel = (
   entity: StatusEntity | undefined,
-  scope: StatusScope | undefined,
+  scope: LifecycleScope | undefined,
   status?: string | null,
   fallbackLabel?: string | null
 ): string => {

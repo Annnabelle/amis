@@ -4,10 +4,7 @@ import type {
   DeliveryTaskStatus,
   SalesOrderStatus,
 } from 'shared/types/dtos';
-import type {
-  ExternalInvoiceStatus,
-  InvoiceStatus,
-} from 'entities/invoices/dtos';
+import type { ExternalInvoiceStatus, InvoiceStatus } from '@edem2000/amis.contracts';
 
 export type StatusBadgeVariant =
   | 'default'
@@ -44,6 +41,7 @@ const companyStatusVariants: Record<CompanyStatus, StatusBadgeVariant> = {
   active: 'success',
   inactive: 'danger',
   prospective: 'warning',
+  archived: 'neutral',
 };
 
 const salesOrderStatusVariants: Record<SalesOrderStatus, StatusBadgeVariant> = {
@@ -77,12 +75,13 @@ const deliveryTaskStatusVariants: Record<DeliveryTaskStatus, StatusBadgeVariant>
   planned: 'warning',
   loading: 'info',
   loaded: 'success',
+  in_transit: 'cyan',
   handover_in_progress: 'info',
-  delivering: 'cyan',
-  partially_delivered: 'orange',
   delivered: 'success',
   issue_failed: 'danger',
   cancelled: 'danger',
+  closed: 'neutral',
+  invoiced: 'info',
 };
 
 const invoiceStatusVariants: Record<InvoiceStatus, StatusBadgeVariant> = {
@@ -102,6 +101,7 @@ const invoiceStatusVariants: Record<InvoiceStatus, StatusBadgeVariant> = {
 
 const externalInvoiceStatusVariants: Record<ExternalInvoiceStatus, StatusBadgeVariant> = {
   None: 'neutral',
+  sent: 'info',
   AwaitContractor: 'warning',
   AwaitAction: 'info',
   Rejected: 'danger',

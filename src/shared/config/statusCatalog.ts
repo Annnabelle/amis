@@ -1,3 +1,12 @@
+import { EntityType } from '@edem2000/amis.contracts';
+import {
+  LifecycleScope,
+} from '@edem2000/amis.contracts'
+
+export {
+  LifecycleScope,
+}
+
 import type { StatusBadgeVariant } from "shared/ui/statusBadge";
 
 /**
@@ -11,27 +20,21 @@ import type { StatusBadgeVariant } from "shared/ui/statusBadge";
  *    в ленте lifecycle и на карточках сущностей.
  */
 export const StatusEntity = {
-  Lead: "lead",
-  Waybill: "waybill",
-  MarkingCodeOrder: "markingCodeOrder",
-  MarkingCodeOrderBatch: "markingCodeOrderBatch",
-  UtilizationReport: "utilizationReport",
-  AggregationReport: "aggregationReport",
-  CustomsCodeOrder: "customsCodeOrder",
+  Lead: EntityType.Lead,
+  Waybill: EntityType.Waybill,
+  MarkingCodeOrder: EntityType.MarkingCodeOrder,
+  MarkingCodeOrderBatch: EntityType.MarkingCodeOrderBatch,
+  UtilizationReport: EntityType.UtilizationReport,
+  AggregationReport: EntityType.AggregationReport,
+  AggregatedCustomsCodeOrder: EntityType.AggregatedCustomsCodeOrder,
 } as const;
 
 export type StatusEntity = (typeof StatusEntity)[keyof typeof StatusEntity];
 
-export const StatusScope = {
-  Internal: "internal",
-  External: "external",
-} as const;
-
-export type StatusScope = (typeof StatusScope)[keyof typeof StatusScope];
 
 type StatusVariantMap = Record<string, StatusBadgeVariant>;
 
-type EntityStatusVariants = Partial<Record<StatusScope, StatusVariantMap>>;
+type EntityStatusVariants = Partial<Record<LifecycleScope, StatusVariantMap>>;
 
 /**
  * Семантическая шкала, одна на все сущности:
@@ -46,7 +49,7 @@ type EntityStatusVariants = Partial<Record<StatusScope, StatusVariantMap>>;
  */
 export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
   [StatusEntity.Lead]: {
-    [StatusScope.Internal]: {
+    [LifecycleScope.Internal]: {
       new: "info",
       in_progress: "warning",
       completed: "success",
@@ -55,7 +58,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
   },
 
   [StatusEntity.Waybill]: {
-    [StatusScope.Internal]: {
+    [LifecycleScope.Internal]: {
       draft: "neutral",
       ready: "info",
       sending: "warning",
@@ -65,7 +68,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
       send_failed: "danger",
       cancelled: "danger",
     },
-    [StatusScope.External]: {
+    [LifecycleScope.External]: {
       Sent: "info",
       AwaitCounterparty: "warning",
       AwaitAction: "warning",
@@ -84,7 +87,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
   },
 
   [StatusEntity.MarkingCodeOrder]: {
-    [StatusScope.Internal]: {
+    [LifecycleScope.Internal]: {
       new: "info",
       vendor_pending: "warning",
       ready_for_codes: "info",
@@ -97,8 +100,9 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
       codes_aggregated: "success",
       rejected: "danger",
       closed: "neutral",
+      error: "danger",
     },
-    [StatusScope.External]: {
+    [LifecycleScope.External]: {
       CREATED: "info",
       PENDING: "warning",
       READY: "info",
@@ -109,7 +113,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
   },
 
   [StatusEntity.MarkingCodeOrderBatch]: {
-    [StatusScope.Internal]: {
+    [LifecycleScope.Internal]: {
       new: "info",
       created: "info",
       vendor_pending: "warning",
@@ -123,7 +127,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
       closed: "neutral",
       error: "danger",
     },
-    [StatusScope.External]: {
+    [LifecycleScope.External]: {
       PENDING: "warning",
       ACTIVE: "success",
       EXHAUSTED: "neutral",
@@ -133,14 +137,14 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
   },
 
   [StatusEntity.UtilizationReport]: {
-    [StatusScope.Internal]: {
+    [LifecycleScope.Internal]: {
       new: "info",
       vendor_pending: "warning",
       partially_processed: "orange",
       success: "success",
       error: "danger",
     },
-    [StatusScope.External]: {
+    [LifecycleScope.External]: {
       CREATED: "info",
       VALIDATING: "warning",
       IN_PROCESS: "warning",
@@ -151,7 +155,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
   },
 
   [StatusEntity.AggregationReport]: {
-    [StatusScope.Internal]: {
+    [LifecycleScope.Internal]: {
       new: "info",
       requested: "warning",
       vendor_pending: "warning",
@@ -159,7 +163,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
       success: "success",
       error: "danger",
     },
-    [StatusScope.External]: {
+    [LifecycleScope.External]: {
       CREATED: "info",
       VALIDATING: "warning",
       IN_PROCESS: "warning",
@@ -169,15 +173,17 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
     },
   },
 
-  [StatusEntity.CustomsCodeOrder]: {
-    [StatusScope.Internal]: {
+  [StatusEntity.AggregatedCustomsCodeOrder]: {
+    [LifecycleScope.Internal]: {
       new: "neutral",
       generated: "info",
       ready_for_sign: "warning",
       signed_for_registration: "info",
       verified: "cyan",
       verified_for_registration: "cyan",
+      registration_requested: "warning",
       registered: "success",
+      registration_failed: "danger",
       dissolution_initialized: "warning",
       signed_for_dissolution: "orange",
       verified_for_dissolution: "purple",
@@ -193,6 +199,7 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
  */
 export const fallbackStatusVariants: StatusVariantMap = {
   draft: "neutral",
+  archived: "neutral",
   closed: "neutral",
   deleted: "neutral",
   returned: "neutral",
@@ -203,11 +210,11 @@ export const fallbackStatusVariants: StatusVariantMap = {
   created: "info",
   registered: "info",
   sent: "info",
+  invoiced: "info",
   invited: "info",
   confirmed: "info",
   assigned: "cyan",
   in_transit: "cyan",
-  delivering: "cyan",
   pending: "warning",
   requested: "warning",
   validating: "warning",
@@ -251,14 +258,14 @@ const normalizeCode = (code?: string | null) => code?.trim() ?? "";
 
 export const resolveStatusVariant = (
   entity: StatusEntity | undefined,
-  scope: StatusScope | undefined,
+  scope: LifecycleScope | undefined,
   code?: string | null
 ): StatusBadgeVariant => {
   const normalized = normalizeCode(code);
   if (!normalized) return "neutral";
 
   const entityVariants = entity ? statusVariants[entity] : undefined;
-  const scopeVariants = entityVariants?.[scope ?? StatusScope.Internal];
+  const scopeVariants = entityVariants?.[scope ?? LifecycleScope.Internal];
   const exact = scopeVariants?.[normalized];
   if (exact) return exact;
 
@@ -272,18 +279,18 @@ export const resolveStatusVariant = (
 /** Ключ i18n для подписи статуса. Один и тот же в ленте и на карточках. */
 export const getStatusLabelKey = (
   entity: StatusEntity,
-  scope: StatusScope,
+  scope: LifecycleScope,
   code: string
 ) => `statusCatalog.${entity}.${scope}.${code}`;
 
 /** Знает ли каталог этот код — нужно, чтобы не печатать ключ вместо текста. */
 export const hasStatusInCatalog = (
   entity: StatusEntity | undefined,
-  scope: StatusScope | undefined,
+  scope: LifecycleScope | undefined,
   code?: string | null
 ): boolean => {
   const normalized = normalizeCode(code);
   if (!entity || !normalized) return false;
 
-  return Boolean(statusVariants[entity]?.[scope ?? StatusScope.Internal]?.[normalized]);
+  return Boolean(statusVariants[entity]?.[scope ?? LifecycleScope.Internal]?.[normalized]);
 };

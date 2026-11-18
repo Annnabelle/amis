@@ -5,6 +5,5 @@ export { resolveMultiLanguage } from "./multiLanguage";
 export { getFileNameFromDisposition, useNavigationBack, FormatUzbekPhoneNumber } from "./utils";
 export { useIsMobile } from "./useIsMobile";
 export type { LanguageKey } from "./utils";
-export * from "./validateCompanyXTraceFunction";
 export * from "./scanner/zxingVideoScanner";
 export { useSubmitGuard } from "./useSubmitGuard";
