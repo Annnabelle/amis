@@ -35,7 +35,7 @@ import {
   DetailStatsGrid,
   RouteMetaChip,
 } from 'shared/ui/details';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import './styles.sass';
@@ -64,7 +64,7 @@ const DeliveryRoutesDetails = () => {
   const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.DeliveryRoute,
+    target: LifecycleTargetEntity.DeliveryRoute,
   });
   const canOpenLoading = Boolean(
     canStartLoading &&
@@ -588,10 +588,6 @@ const DeliveryRoutesDetails = () => {
                                   <span className="route-task-metric-value">{task.totals.plannedQuantity}</span>
                                 </div>
                                 <div className="route-task-metric">
-                                  <span className="route-task-metric-label">{t('deliveryRoutes.taskTable.loadedQuantity')}</span>
-                                  <span className="route-task-metric-value">{task.totals.loadedQuantity}</span>
-                                </div>
-                                <div className="route-task-metric">
                                   <span className="route-task-metric-label">{t('deliveryRoutes.taskTable.deliveredQuantity')}</span>
                                   <span className="route-task-metric-value">{task.totals.deliveredQuantity}</span>
                                 </div>
@@ -623,9 +619,7 @@ const DeliveryRoutesDetails = () => {
                                 >
                                   {t('deliveryTasks.actions.startDelivery', {
                                     defaultValue:
-                                      task.status === 'delivering' || task.status === 'partially_delivered'
-                                        ? 'Открыть выдачу'
-                                        : 'Начать выдачу',
+                                      task.status === 'in_transit' ? 'Открыть выдачу' : 'Начать выдачу',
                                   })}
                                 </CustomButton>
                               )}
@@ -654,7 +648,6 @@ const DeliveryRoutesDetails = () => {
                                 <div className="route-task-items-head">
                                   <span>{t('salesOrders.fields.product')}</span>
                                   <span>{t('deliveryRoutes.taskTable.plannedQuantity')}</span>
-                                  <span>{t('deliveryRoutes.taskTable.loadedQuantity')}</span>
                                   <span>{t('deliveryRoutes.taskTable.deliveredQuantity')}</span>
                                   <span>{t('deliveryRoutes.taskTable.amount')}</span>
                                 </div>
@@ -669,10 +662,6 @@ const DeliveryRoutesDetails = () => {
                                     <div className="route-task-item-cell">
                                       <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.plannedQuantity')}</span>
                                       <span>{item.quantities.planned}</span>
-                                    </div>
-                                    <div className="route-task-item-cell">
-                                      <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.loadedQuantity')}</span>
-                                      <span>{item.quantities.loaded}</span>
                                     </div>
                                     <div className="route-task-item-cell">
                                       <span className="route-task-item-cell-label">{t('deliveryRoutes.taskTable.deliveredQuantity')}</span>

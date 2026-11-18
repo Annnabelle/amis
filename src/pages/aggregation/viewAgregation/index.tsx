@@ -20,7 +20,7 @@ import { Pagination, Select, Tooltip } from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import "./styles.sass";
@@ -56,7 +56,7 @@ const AggregationReportPage: React.FC = () => {
     const canExportAggregation = useCan(endpointAccessMap.aggregationReportsExport);
     const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
         targetId: id,
-        target: LifecycleTargetType.AggregationReport,
+        target: LifecycleTargetEntity.AggregationReport,
     });
 
     const units = useAppSelector((state) => state.aggregations.units)

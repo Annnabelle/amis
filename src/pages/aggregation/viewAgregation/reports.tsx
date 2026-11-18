@@ -8,7 +8,7 @@ import { Tag } from "antd";
 import { statusColors } from "shared/ui/statuses.tsx";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const getStatusColor = (status?: string | null) => {
@@ -108,7 +108,7 @@ const AgregationReport: React.FC = () => {
                                 {/*{reportData?.status}*/}
 
                                 <Tag color={getStatusColor(reportData?.status)}>
-                                    {getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, reportData?.status)}
+                                    {getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, reportData?.status)}
                                 </Tag>
                             </BatchItem>
                         )}

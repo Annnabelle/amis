@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useSubmitGuard } from 'shared/lib'
 import { createUser, deleteUser, getAllUsers, getUserById, searchUsers } from 'entities/users/model'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
-import type { AddUserForm, UserResponse } from 'entities/users/types'
+import type { AddUserForm, User } from 'entities/users/types'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
@@ -65,7 +65,7 @@ const Users = () => {
         editUser: boolean;
         retrieveUser: boolean;
         deleteUser: boolean;
-        userData: UserResponse | null; 
+        userData: User | null; 
       }>({
         addUser: false,
         editUser: false,

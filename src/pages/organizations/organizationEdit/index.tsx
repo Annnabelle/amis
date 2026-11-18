@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "app/store";
 import {useEffect} from "react";
 import { getOrganizationById, updateOrganization } from "entities/organization/model";
-import type { UpdateCompanyDto } from "entities/organization/dtos";
+import type { UpdateCompanyDto } from '@edem2000/amis.contracts/api/companies/requests';
 import { toast } from "react-toastify";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";

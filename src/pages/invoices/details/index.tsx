@@ -18,7 +18,7 @@ import CustomButton from 'shared/ui/button';
 import { statusColors } from 'shared/ui/statuses';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { useCan } from 'entities/access/lib';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import axiosInstance from 'shared/lib/axiosInstance';
@@ -65,7 +65,7 @@ const InvoicesDetails = () => {
   const canReadCompany = useCan(endpointAccessMap.companiesRead);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.Invoice,
+    target: LifecycleTargetEntity.Invoice,
   });
   const [expandedCodesProductIds, setExpandedCodesProductIds] = useState<Set<string>>(new Set());
   const [invoiceFileLoading, setInvoiceFileLoading] = useState(false);

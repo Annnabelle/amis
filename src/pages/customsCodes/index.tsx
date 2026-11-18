@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 import {
   createCustomsCode,
@@ -22,7 +22,7 @@ import {
   type CustomsCodeOrder,
 } from 'entities/customsCodes/types';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { AvailablePackageType } from 'shared/types/dtos';
+import { PackageType } from 'shared/types/dtos';
 import { StatusEntity } from 'shared/config/statusCatalog';
 import { useCan } from 'entities/access/lib';
 import MainLayout from 'shared/ui/layout';
@@ -120,12 +120,12 @@ const CustomsCodesPage = () => {
   }, [refreshCustomsCodes]);
 
   useStatusChangeListRefresh(
-    StatusChangeEntity.AggregatedCustomsCodeOrder,
+    LifecycleTargetEntity.AggregatedCustomsCodeOrder,
     refreshCustomsCodes
   );
 
   const recentStatusChanges = useRecentStatusChanges(
-    StatusChangeEntity.AggregatedCustomsCodeOrder
+    LifecycleTargetEntity.AggregatedCustomsCodeOrder
   );
 
   useEffect(() => {
@@ -167,7 +167,7 @@ const CustomsCodesPage = () => {
         page: 1,
         limit: 50,
         status: OrderStatusType.CodesAggregated,
-        packageType: AvailablePackageType.Unit,
+        packageType: PackageType.Unit,
       })
     );
   }, [canListOrders, createModalOpen, dispatch]);
@@ -183,7 +183,7 @@ const CustomsCodesPage = () => {
       productId: order.productId,
       quantity: order.quantity,
       customsCode: order.customsCode ?? '-',
-      measurement: order.measurement ?? '-',
+      measurement: order.measurement?.value ?? '-',
       status: order.status,
       order,
     }));
@@ -369,7 +369,7 @@ const CustomsCodesPage = () => {
       key: 'status',
       minWidth: 180,
       render: (status: AggregatedCustomsCodeOrderStatus) => (
-        <EntityStatusBadge entity={StatusEntity.CustomsCodeOrder} status={status} />
+        <EntityStatusBadge entity={StatusEntity.AggregatedCustomsCodeOrder} status={status} />
       ),
     },
     {
@@ -443,7 +443,7 @@ const CustomsCodesPage = () => {
 
   const batchOptions = useMemo(() => {
     return batches
-      .filter((batch) => batch.packageType?.toLowerCase() === AvailablePackageType.Unit)
+      .filter((batch) => batch.packageType?.toLowerCase() === PackageType.Unit)
       .map((batch) => ({
         value: batch.batchId,
         label: `${batch.batchNumber} | ${batch.orderNumber} | ${batch.productName}`,

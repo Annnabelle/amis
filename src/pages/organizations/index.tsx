@@ -9,7 +9,7 @@ import ComponentTable from 'shared/ui/table'
 import { createOrganization, deleteOrganization, getAllOrganizations, getCompanyByTin, getOrganizationById, searchOrganizations } from 'entities/organization/model'
 import { OrganizationsTableColumns } from 'entities/organization/ui/tableData/organizations'
 import type { OrganizationTableDataType } from 'entities/organization/ui/tableData/organizations/types'
-import type {CompanyResponse} from 'entities/organization/types'
+import type {Company} from 'entities/organization/types'
 import { toast } from 'react-toastify'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
@@ -58,8 +58,8 @@ const Organizations = () => {
     const [form] = Form.useForm();
     const [xTraceForm] = Form.useForm();
     const [fakturaUzForm] = Form.useForm();
-    const [searchedCompanyByTin, setSearchedCompanyByTin] = useState<CompanyResponse | null>(null);
-    const [activatedCompany, setActivatedCompany] = useState<CompanyResponse | null>(null);
+    const [searchedCompanyByTin, setSearchedCompanyByTin] = useState<Company | null>(null);
+    const [activatedCompany, setActivatedCompany] = useState<Company | null>(null);
     const [createCompanyStep, setCreateCompanyStep] = useState<CreateCompanyStep>("company");
     const [isSearchingCompanyByTin, setIsSearchingCompanyByTin] = useState(false);
     const [isActivatingCompany, setIsActivatingCompany] = useState(false);
@@ -94,7 +94,7 @@ const Organizations = () => {
         return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
     }, [organizations, searchQuery, searchedOrganizations]);
 
-    const formatEmployeeName = (employee?: CompanyResponse["responsibleEmployees"]["director"]) => {
+    const formatEmployeeName = (employee?: Company["responsibleEmployees"]["director"]) => {
         if (!employee?.name) return "";
 
         return [employee.name.last, employee.name.first, employee.name.middle]
@@ -102,7 +102,7 @@ const Organizations = () => {
             .join(" ");
     };
 
-    const formatContacts = (contacts: CompanyResponse["contacts"]) => {
+    const formatContacts = (contacts: Company["contacts"]) => {
         return [contacts.phone ? FormatUzbekPhoneNumber(contacts.phone) : "", contacts.email]
             .filter(Boolean)
             .join(" / ");
@@ -149,7 +149,7 @@ const Organizations = () => {
         editCompany: boolean;
         retrieveCompany: boolean;
         deleteCompany: boolean;
-        companyData: CompanyResponse | null; 
+        companyData: Company | null; 
       }>({
         addCompany: false,
         editCompany: false,
@@ -241,18 +241,8 @@ const Organizations = () => {
         }
     };
 
-    const isSuccessfulXTraceValidation =
-        xTraceValidation &&
-        "success" in xTraceValidation &&
-        xTraceValidation.success === true &&
-        "data" in xTraceValidation;
-    const xTraceValidationData =
-        xTraceValidation &&
-        "success" in xTraceValidation &&
-        xTraceValidation.success === true &&
-        "data" in xTraceValidation
-            ? xTraceValidation.data
-            : null;
+    const xTraceValidationData = xTraceValidation;
+    const isSuccessfulXTraceValidation = Boolean(xTraceValidationData);
 
     const handleXTraceTokenChange = (event: ChangeEvent<HTMLInputElement>) => {
         const token = event.target.value.trim();

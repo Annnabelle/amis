@@ -12,8 +12,8 @@ import type { MarkingCodesTableDataType } from 'entities/markingCodes/ui/tableDa
 import { fetchMarkingCodes  } from 'entities/markingCodes/model'
 import OrderForm from './createOrder'
 import { fetchReferencesByType } from 'entities/references/model'
-import type { OrderBatchPopulatedResponse } from 'entities/markingCodes/types'
-import {type OrderListQueryParams} from 'entities/markingCodes/dtos'
+import type { OrderBatchPopulated } from 'entities/markingCodes/types'
+import type { OrderListQueryParams } from '@edem2000/amis.contracts/api/orders/requests';
 import { searchProducts } from 'entities/products/model'
 import {createUtilizationReport} from "entities/utilization/model";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
@@ -30,7 +30,7 @@ import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
-import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 
 const MarkingCodes = () => {
@@ -122,7 +122,7 @@ const MarkingCodes = () => {
     const [modalState, setModalState] = useState<{
         addMarkingCodes: boolean;
         retrieveMarkingCodes: boolean;
-        markingCodesData: OrderBatchPopulatedResponse | null; 
+        markingCodesData: OrderBatchPopulated | null; 
       }>({
         addMarkingCodes: false,
         retrieveMarkingCodes: false,
@@ -143,13 +143,13 @@ const MarkingCodes = () => {
     };
 
     useStatusChangeListRefresh(
-        [StatusChangeEntity.MarkingCodeOrder, StatusChangeEntity.MarkingCodeOrderBatch],
+        [LifecycleTargetEntity.MarkingCodeOrder, LifecycleTargetEntity.MarkingCodeOrderBatch],
         refreshMarkingCodes
     );
 
     const recentStatusChanges = useRecentStatusChanges([
-        StatusChangeEntity.MarkingCodeOrder,
-        StatusChangeEntity.MarkingCodeOrderBatch,
+        LifecycleTargetEntity.MarkingCodeOrder,
+        LifecycleTargetEntity.MarkingCodeOrderBatch,
     ]);
 
     const statusOptions = useMemo(() => {

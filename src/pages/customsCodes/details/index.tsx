@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { fetchCustomsCodeById } from 'entities/customsCodes/model';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { StatusEntity } from 'shared/config/statusCatalog';
@@ -32,7 +32,7 @@ const CustomsCodeDetails = () => {
   const listPath = orgId ? `/organization/${orgId}/customs-codes` : '/organization';
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.CustomsCodeOrder,
+    target: LifecycleTargetEntity.AggregatedCustomsCodeOrder,
   });
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const CustomsCodeDetails = () => {
     { label: t('customsCodes.details.fields.batchId'), value: order.batchId },
     { label: t('customsCodes.details.fields.productId'), value: order.productId },
     { label: t('customsCodes.table.quantity'), value: order.quantity },
-    { label: t('customsCodes.table.measurement'), value: order.measurement ?? '-' },
+    { label: t('customsCodes.table.measurement'), value: order.measurement?.value ?? '-' },
   ];
 
   const documentItems = [
@@ -118,7 +118,7 @@ const CustomsCodeDetails = () => {
                           <span className="label inline-label">{t('customsCodes.table.status')}</span>
                           <span className="detail-separator">:</span>
                           <EntityStatusBadge
-                            entity={StatusEntity.CustomsCodeOrder}
+                            entity={StatusEntity.AggregatedCustomsCodeOrder}
                             status={order.status}
                           />
                         </div>

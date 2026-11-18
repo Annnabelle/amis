@@ -65,7 +65,17 @@ export const TypeMap: Record<string, string> = {
     orderCodesUtilized: "logsActions.order.orderCodesUtilized",
     orderReportCreated: "logsActions.order.orderReportCreated",
     orderClosed: "logsActions.order.orderClosed",
-    orderRejected: "logsActions.order.orderRejected"
+    orderRejected: "logsActions.order.orderRejected",
+    systemEmployeeCreate: "logsActions.types.systemEmployeeCreate",
+    systemEmployeeUpdate: "logsActions.types.systemEmployeeUpdate",
+    systemEmployeeDelete: "logsActions.types.systemEmployeeDelete",
+    companyMembershipCreate: "logsActions.types.companyMembershipCreate",
+    companyMembershipUpdate: "logsActions.types.companyMembershipUpdate",
+    companyMembershipDelete: "logsActions.types.companyMembershipDelete",
+    emailVerified: "logsActions.types.emailVerified",
+    passwordReset: "logsActions.types.passwordReset",
+    passwordSet: "logsActions.types.passwordSet",
+    userCreatedByAdmin: "logsActions.types.userCreatedByAdmin",
   };
 
 

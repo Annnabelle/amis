@@ -24,8 +24,8 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { isLanguage, SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
-import { SalesOrderDeliveryType } from 'entities/waybills/dtos';
-import type { CompanyResponse } from 'entities/organization/types';
+import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
+import type { Company } from 'entities/organization/types';
 import type { Reference } from 'entities/references/types';
 import YandexAddressMap, { calculateYandexRouteDistanceKm, type YandexResolvedAddress } from './YandexAddressMap';
 
@@ -48,7 +48,7 @@ const SalesOrdersCreate = () => {
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
   const [isCompanyFound, setIsCompanyFound] = useState(false);
   const [companyLookupError, setCompanyLookupError] = useState<string | null>(null);
-  const [senderCompany, setSenderCompany] = useState<CompanyResponse | null>(null);
+  const [senderCompany, setSenderCompany] = useState<Company | null>(null);
   const [districtsLoadingByOwner, setDistrictsLoadingByOwner] = useState({
     sender: false,
     customer: false,
@@ -339,7 +339,7 @@ const SalesOrdersCreate = () => {
     return found ? getReferenceValue(found) : undefined;
   };
 
-  const getCompanyAddressDetails = async (company: CompanyResponse) => {
+  const getCompanyAddressDetails = async (company: Company) => {
     const address = company.address.address?.trim();
     const regionId = resolveReferenceValue(regions, company.address.region);
 

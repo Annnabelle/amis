@@ -2,24 +2,14 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { resources } from 'shared/localization/index.ts';
 import { getStoredLanguage } from 'shared/lib/languagePreference';
-
-
-export const Language = {
-  Russian: 'ru',
-  Uzbek: 'uz',
-  English: 'en',
-} as const;
-
-const Languages = Object.values(Language);
-
-export type Language = typeof Language[keyof typeof Language];
+import { AllLanguages } from '@edem2000/amis.contracts';
 
 i18n
   .use(initReactI18next)
   .init({
     debug: false,
     lng: getStoredLanguage(),
-    fallbackLng: Languages,
+    fallbackLng: AllLanguages,
     interpolation: {
       escapeValue: false, 
     },
@@ -27,5 +17,4 @@ i18n
   });
 
 export default i18n;
-
 

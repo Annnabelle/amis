@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { useEffect } from 'react';
 import { getProductById, updateProduct } from 'entities/products/model';
-import type { UpdateProductDto } from 'entities/products/dtos';
+import type { UpdateProductDto } from '@edem2000/amis.contracts/api/products/requests';
 import { toast } from 'react-toastify';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -63,10 +63,10 @@ const ProductsEdit = () => {
             icps: productById.classification?.icps,
             productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
-            unit: productById.measurement.unit,
-            amount: productById.measurement.amount,
-            net: productById.weight.net,
-            gross: productById.weight.gross,
+            unit: productById.measurement?.unit,
+            amount: productById.measurement?.amount,
+            net: productById.weight?.net,
+            gross: productById.weight?.gross,
             price: productById.price,
             })
         }
@@ -181,15 +181,15 @@ const ProductsEdit = () => {
                             <FormRow>
                                 {/* <TextField name="expiration" label={t('products.addProductForm.label.expiration')} initialValue={productById.expiration} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+$/, message: t('products.validation.number') }, ]} placeholder={t('products.addProductForm.placeholder.expiration')} /> */}
                                 <TextField name="aggregationQuantity" label={t('products.addProductForm.label.aggregationQuantity')} initialValue={productById.aggregationQuantity} rules={[ { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') }, { pattern: /^\d+$/, message: t('products.validation.number') }, ]} placeholder={t('products.addProductForm.placeholder.aggregationQuantity')} />
-                                <TextField name={['measurement', 'unit']} label={t('products.addProductForm.label.unit')} initialValue={productById.measurement.unit} rules={[ { required: true, message: t('products.addProductForm.validation.required.measurementUnit') }, { max: 10, message: t('products.validation.max10') }, ]} placeholder={t('products.addProductForm.placeholder.unit')} />
+                                <TextField name={['measurement', 'unit']} label={t('products.addProductForm.label.unit')} initialValue={productById.measurement?.unit} rules={[ { required: true, message: t('products.addProductForm.validation.required.measurementUnit') }, { max: 10, message: t('products.validation.max10') }, ]} placeholder={t('products.addProductForm.placeholder.unit')} />
 
                             </FormRow>
                             <FormRow>
-                                <TextField name={['measurement', 'amount']} label={t('products.addProductForm.label.amount')} initialValue={productById.measurement.amount} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.amount')} />
-                                <TextField name={['weight', 'net']} label={t('products.addProductForm.label.net')} initialValue={productById.weight.net} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.net')} />
+                                <TextField name={['measurement', 'amount']} label={t('products.addProductForm.label.amount')} initialValue={productById.measurement?.amount} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.amount')} />
+                                <TextField name={['weight', 'net']} label={t('products.addProductForm.label.net')} initialValue={productById.weight?.net} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.net')} />
                             </FormRow>
                             <FormRow>
-                                <TextField name={['weight', 'gross']} label={t('products.addProductForm.label.gross')} initialValue={productById.weight.gross} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.gross')} />
+                                <TextField name={['weight', 'gross']} label={t('products.addProductForm.label.gross')} initialValue={productById.weight?.gross} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.gross')} />
                                 <TextField name='price' label={t('products.addProductForm.label.price')} initialValue={productById.price} rules={[ { required: true, message: t('products.validation.required') }, { pattern: /^\d+(\.\d{1,2})?$/, message: t('products.validation.price') }, ]} placeholder={t('products.addProductForm.placeholder.price')} />
                             </FormRow>
                             <FormActions>

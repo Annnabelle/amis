@@ -4,7 +4,7 @@ import CustomButton from 'shared/ui/button';
 import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import 'shared/ui/details/styles.sass';
@@ -20,7 +20,7 @@ const DeliveryTasksDetails = () => {
     : '/organization';
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: taskId,
-    target: LifecycleTargetType.DeliveryTask,
+    target: LifecycleTargetEntity.DeliveryTask,
   });
 
   return (

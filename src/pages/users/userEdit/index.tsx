@@ -13,7 +13,7 @@ import CustomButton from 'shared/ui/button'
 import PhoneInput from 'shared/ui/phoneInput'
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import type { UpdateUserDto } from 'entities/users/dtos/login';
+import type { UpdateUserDto } from '@edem2000/amis.contracts/api/users/requests';
 import './styles.sass'
 
 const UsersEdit = () => {

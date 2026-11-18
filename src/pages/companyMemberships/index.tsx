@@ -11,7 +11,7 @@ import { useSubmitGuard } from "shared/lib";
 import { fetchAssignableRoles, fetchRoleReferences } from "entities/access/model";
 import {
   getRoleReferenceCacheKey,
-  RoleReferenceScope,
+  RoleScope,
   type RoleReference,
 } from "entities/access/types";
 import {
@@ -32,7 +32,7 @@ import {
 } from "entities/companyMemberships/ui/tableData/companyMemberships";
 import type { CompanyMembershipTableDataType } from "entities/companyMemberships/ui/tableData/companyMemberships/types";
 import { searchUsers } from "entities/users/model";
-import type { UserPreview, UserResponse } from "entities/users/types";
+import type { UserPreview, User } from "entities/users/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
@@ -65,7 +65,7 @@ type RoleOption = {
 };
 
 type SearchUsersPayload = {
-  data?: UserResponse[];
+  data?: User[];
 };
 
 const getLocalizedText = (
@@ -119,7 +119,7 @@ const CompanyMemberships = () => {
   const dispatch = useAppDispatch();
   const companyId = orgId ?? "";
   const companyRoleReferenceKey = getRoleReferenceCacheKey(
-    RoleReferenceScope.Company,
+    RoleScope.Company,
     companyId
   );
   const canRead = useCan(endpointAccessMap.companyMembershipsRead);
@@ -159,7 +159,7 @@ const CompanyMemberships = () => {
     limit: 10,
   });
   const [selectedMembership, setSelectedMembership] = useState<CompanyMembership | null>(null);
-  const [inviteUser, setInviteUser] = useState<UserResponse | null>(null);
+  const [inviteUser, setInviteUser] = useState<User | null>(null);
   const [isInviteUserSearching, setIsInviteUserSearching] = useState(false);
   const [lastSearchedInviteEmail, setLastSearchedInviteEmail] = useState("");
   const [modalState, setModalState] = useState({
@@ -236,7 +236,7 @@ const CompanyMemberships = () => {
     }
 
     if (!companyId) return;
-    void dispatch(fetchAssignableRoles({ scope: RoleReferenceScope.Company, companyId }));
+    void dispatch(fetchAssignableRoles({ scope: RoleScope.Company, companyId }));
   }, [areRolesLoaded, areRolesLoading, companyId, dispatch]);
 
   useEffect(() => {
@@ -245,7 +245,7 @@ const CompanyMemberships = () => {
     }
 
     if (!companyId) return;
-    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.Company, companyId }));
+    void dispatch(fetchRoleReferences({ scope: RoleScope.Company, companyId }));
   }, [areRoleReferencesLoaded, areRoleReferencesLoading, companyId, dispatch]);
 
   const searchInviteUserByEmail = useCallback(async (email: string) => {

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import {
   useLifecycleSummary,
-  type LifecycleTargetType,
+  type LifecycleTargetEntity,
 } from "entities/lifecycle/lib";
 import LifecycleActiveErrorAlert from "entities/lifecycle/ui/activeErrorAlert";
 import CustomButton from "shared/ui/button";
@@ -13,7 +13,7 @@ export const LIFECYCLE_TAB_KEY = "lifecycle";
 
 type UseLifecycleTabOptions = {
   targetId?: string;
-  target: LifecycleTargetType;
+  target: LifecycleTargetEntity;
   /** Должен совпадать с paramName у EntityTabs на этой карточке. */
   paramName?: string;
 };

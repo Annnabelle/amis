@@ -7,8 +7,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { setCurrentCompanyId } from 'entities/access/model';
 import { AccessModules, type AccessModule } from 'entities/access/types';
 import { getOrganizationById } from 'entities/organization/model';
-import type { CompanyResponse } from 'entities/organization/types';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import type { Company } from 'entities/organization/types';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { FormatUzbekPhoneNumber, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import {
@@ -29,7 +29,7 @@ const hasValue = (value?: string | number | null) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
 
 const formatFullName = (
-  employee?: CompanyResponse['responsibleEmployees']['director']
+  employee?: Company['responsibleEmployees']['director']
 ) => {
   if (!employee?.name) return '-';
 
@@ -52,7 +52,7 @@ const OrganizationsInner = () => {
   const isLoading = useAppSelector((state) => state.organizations.isLoading);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.Company,
+    target: LifecycleTargetEntity.Company,
   });
 
   useEffect(() => {

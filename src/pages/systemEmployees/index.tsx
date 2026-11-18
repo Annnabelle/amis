@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
 import { useSubmitGuard } from "shared/lib";
 import { fetchAssignableRoles, fetchRoleReferences } from "entities/access/model";
-import { RoleReferenceScope, type RoleReference } from "entities/access/types";
+import { RoleScope, type RoleReference } from "entities/access/types";
 import {
   createSystemEmployeeInvitation,
   deleteSystemEmployee,
@@ -17,7 +17,7 @@ import {
   updateSystemEmployeeRoles,
 } from "entities/systemEmployees/model";
 import {
-  UserSystemAccessState,
+  UserSystemAccessStates,
   type SystemRole,
   type SystemEmployee,
   type SystemEmployeeListQuery,
@@ -27,7 +27,7 @@ import {
 } from "entities/systemEmployees/ui/tableData/systemEmployees";
 import type { SystemEmployeeTableDataType } from "entities/systemEmployees/ui/tableData/systemEmployees/types";
 import { searchUsers } from "entities/users/model";
-import type { UserResponse } from "entities/users/types";
+import type { User } from "entities/users/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
@@ -103,22 +103,22 @@ const SystemEmployees = () => {
   const currentUser = useAppSelector((state) => state.users.currentUser);
   const searchedUsers = useAppSelector((state) => state.users.searchedUsers);
   const assignableSystemRoles = useAppSelector(
-    (state) => (state.access.assignableRoles[RoleReferenceScope.System] ?? []) as RoleReference<SystemRole>[]
+    (state) => (state.access.assignableRoles[RoleScope.System] ?? []) as RoleReference<SystemRole>[]
   );
   const systemRoleReferences = useAppSelector(
-    (state) => (state.access.roleReferences[RoleReferenceScope.System] ?? []) as RoleReference<SystemRole>[]
+    (state) => (state.access.roleReferences[RoleScope.System] ?? []) as RoleReference<SystemRole>[]
   );
   const areRolesLoading = useAppSelector((state) =>
-    Boolean(state.access.assignableRolesLoading[RoleReferenceScope.System])
+    Boolean(state.access.assignableRolesLoading[RoleScope.System])
   );
   const areRolesLoaded = useAppSelector((state) =>
-    Boolean(state.access.assignableRolesLoaded[RoleReferenceScope.System])
+    Boolean(state.access.assignableRolesLoaded[RoleScope.System])
   );
   const areRoleReferencesLoading = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoading[RoleReferenceScope.System])
+    Boolean(state.access.roleReferencesLoading[RoleScope.System])
   );
   const areRoleReferencesLoaded = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoaded[RoleReferenceScope.System])
+    Boolean(state.access.roleReferencesLoaded[RoleScope.System])
   );
   const [inviteForm] = Form.useForm<InviteForm>();
   const [rolesForm] = Form.useForm<RolesForm>();
@@ -175,7 +175,7 @@ const SystemEmployees = () => {
   }, [roleReferenceOptions, t]);
   const stateOptions = useMemo(
     () =>
-      Object.values(UserSystemAccessState).map((state) => ({
+      Object.values(UserSystemAccessStates).map((state) => ({
         value: state,
         label: t(`systemEmployees.states.${state}`),
       })),
@@ -191,7 +191,7 @@ const SystemEmployees = () => {
       return;
     }
 
-    void dispatch(fetchAssignableRoles({ scope: RoleReferenceScope.System }));
+    void dispatch(fetchAssignableRoles({ scope: RoleScope.System }));
   }, [areRolesLoaded, areRolesLoading, dispatch]);
 
   useEffect(() => {
@@ -199,7 +199,7 @@ const SystemEmployees = () => {
       return;
     }
 
-    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+    void dispatch(fetchRoleReferences({ scope: RoleScope.System }));
   }, [areRoleReferencesLoaded, areRoleReferencesLoading, dispatch]);
 
   useEffect(() => {
@@ -229,7 +229,7 @@ const SystemEmployees = () => {
 
   const userOptions = useMemo(
     () =>
-      searchedUsers.map((user: UserResponse) => ({
+      searchedUsers.map((user: User) => ({
         value: user.id,
         label: `${user.firstName} ${user.lastName} · ${user.email}`,
       })),
@@ -253,8 +253,8 @@ const SystemEmployees = () => {
 
     if (
       (action === "delete" || action === "edit") &&
-      (record.state === UserSystemAccessState.Declined ||
-        record.state === UserSystemAccessState.Disabled)
+      (record.state === UserSystemAccessStates.Declined ||
+        record.state === UserSystemAccessStates.Disabled)
     ) {
       return;
     }
