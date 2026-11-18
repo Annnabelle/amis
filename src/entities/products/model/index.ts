@@ -1,22 +1,10 @@
-import type {ErrorDto, PaginatedResponseDto} from "shared/types/dtos";
+import type {ErrorDto, } from "shared/types/dtos";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
-import type { ProductPackage, ProductResponse, ProductState } from "entities/products/types";
-import type {
-    CreateProductDto,
-    CreateProductResponseDto,
-    DeleteProductDto,
-    DeleteProductResponseDto,
-    GetProductDto,
-    GetProductPackagesResponseDto,
-    GetProductResponseDto,
-    GetProductsDto,
-    GetProductsResponseDto,
-    ProductResponseDto,
-    UpdateProductDto,
-    UpdateProductResponseDto
-} from "entities/products/dtos";
+import type { ProductPackage, Product, ProductState, CreateProduct } from "entities/products/types";
+import type { DeleteProductDto, GetProductDto, GetProductsDto, UpdateProductDto } from '@edem2000/amis.contracts/api/products/requests';
+import type { CreateProductResponseDto, DeleteProductResponseDto, GetProductPackagesResponseDto, GetProductResponseDto, GetProductsResponseDto, UpdateProductResponseDto } from '@edem2000/amis.contracts/api/products/responses';
 import {
     mapProductDtoToEntity,
     mapProductPackageDtoToEntity
@@ -37,10 +25,6 @@ const initialState: ProductState = {
 };
 
 
-function isSuccessResponse(res: GetProductsResponseDto): res is { success: boolean } & PaginatedResponseDto<ProductResponseDto> {
-  return "success" in res && res.success === true;
-}
-
 export const getAllProducts = createAsyncThunk(
   'products/getAllProducts',
   async (params: GetProductsDto, { rejectWithValue }) => {
@@ -48,7 +32,7 @@ export const getAllProducts = createAsyncThunk(
       const response = await axiosInstance.get<GetProductsResponseDto>(`${BASE_URL}/products`, {
         params,
       });
-      if (isSuccessResponse(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapProductDtoToEntity),
           total: response.data.total,
@@ -63,11 +47,6 @@ export const getAllProducts = createAsyncThunk(
   }
 );
 
-function isCreateProductSuccess(
-    data: CreateProductResponseDto
-): data is { success: true; product: ProductResponseDto } {
-    return (data.success && 'product' in data);
-}
 
 function isErrorDto(data: unknown): data is ErrorDto {
     return (
@@ -78,8 +57,8 @@ function isErrorDto(data: unknown): data is ErrorDto {
 }
 
 export const createProduct = createAsyncThunk<
-    ProductResponse,
-    CreateProductDto,
+    Product,
+    CreateProduct,
     { rejectValue: ErrorDto }
 >(
     'products/createProduct',
@@ -90,7 +69,7 @@ export const createProduct = createAsyncThunk<
                 payload
             );
 
-            if (isCreateProductSuccess(data)) {
+            if (data.success) {
                 return mapProductDtoToEntity(data.product);
             }
 
@@ -126,12 +105,6 @@ export const createProduct = createAsyncThunk<
 );
 
 
-function isGetProductSuccessResponse(
-  res: GetProductResponseDto
-): res is { success: boolean; product: ProductResponseDto } {
-  return "success" in res && res.success === true && "product" in res;
-}
-
 export const getProductById = createAsyncThunk(
   "products/getProductById",
   async (params: GetProductDto, { rejectWithValue }) => {
@@ -140,7 +113,7 @@ export const getProductById = createAsyncThunk(
         `${BASE_URL}/products/${params.id}`
       );
 
-      if (isGetProductSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapProductDtoToEntity(response.data.product  );
       }
 
@@ -152,12 +125,6 @@ export const getProductById = createAsyncThunk(
 );
 
 
-function isUpdateOrganizationSuccessResponse(
-  res: UpdateProductResponseDto
-): res is { success: boolean; product: ProductResponseDto } {
-  return "success" in res && res.success === true && "product" in res;
-}
-
 export const updateProduct = createAsyncThunk(
   "products/updateProduct",
   async ({ id, data }: { id: string; data: UpdateProductDto }, { rejectWithValue }) => {
@@ -167,7 +134,7 @@ export const updateProduct = createAsyncThunk(
         data
       );
 
-      if (isUpdateOrganizationSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapProductDtoToEntity(response.data.product);
       }
 
@@ -179,12 +146,6 @@ export const updateProduct = createAsyncThunk(
 );
 
 
-function isDeleteProductSuccessResponse(
-  res: DeleteProductResponseDto
-): res is { success: boolean } {
-  return "success" in res && res.success === true;
-}
-
 export const deleteProduct = createAsyncThunk(
   "products/deleteProduct",
   async ({ id }: DeleteProductDto, { rejectWithValue }) => {
@@ -193,7 +154,7 @@ export const deleteProduct = createAsyncThunk(
         `${BASE_URL}/products/${id}`
       );
 
-      if (isDeleteProductSuccessResponse(response.data)) {
+      if (response.data.success) {
         return { id }; 
       }
 
@@ -233,10 +194,17 @@ export const getProductPackages = createAsyncThunk<
 export const searchProducts = createAsyncThunk(
   'products/searchProducts',
   async ({ query, page = 1, limit = 10, sortOrder = 'asc', companyId }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc'; companyId?: string; }) => {
-    const response = await axiosInstance.get(`/products/search`, {
+    const response = await axiosInstance.get<GetProductsResponseDto>(`/products/search`, {
       params: { query, page, limit, sortOrder, companyId }
     });
-    return response.data;
+
+    if (!response.data.success) {
+      throw new Error(getBackendErrorMessage(response.data, "Не удалось выполнить поиск продуктов"));
+    }
+
+    const { data, total, page: current, limit: perPage } = response.data;
+
+    return { data, total, page: current, limit: perPage };
   }
 );
 
@@ -253,7 +221,7 @@ export const productsSlice = createSlice({
         })
         .addCase(getAllProducts.fulfilled, ( state,
             action: PayloadAction<{
-                data: ProductResponse[];
+                data: Product[];
                 total: number;
                 page: number;
                 limit: number;
@@ -277,16 +245,7 @@ export const productsSlice = createSlice({
         .addCase(searchProducts.fulfilled, (state, action) => {
           const { data = [], total, page, limit } = action.payload;
 
-          state.products = data.map((product: any) => ({
-            id: product.id,
-            name: product.name,
-            productType: product.productType,
-            classification: product.classification,
-            brand: product.brand,
-            gtin: product.gtin,
-            measurement: product.measurement,
-            status: product.status,
-          }));
+          state.products = data.map(mapProductDtoToEntity);
 
           state.total = total;
           state.page = page;
@@ -302,7 +261,7 @@ export const productsSlice = createSlice({
             state.isLoading = true;
             state.error = null;
         })
-        .addCase(createProduct.fulfilled, (state, action: PayloadAction<ProductResponse>) => {
+        .addCase(createProduct.fulfilled, (state, action: PayloadAction<Product>) => {
             state.isLoading = false;
             state.products.push(action.payload); 
         })
@@ -317,7 +276,7 @@ export const productsSlice = createSlice({
             state.isLoading = true;
             state.error = null;
         })
-        .addCase(getProductById.fulfilled, (state, action: PayloadAction<ProductResponse>) => {
+        .addCase(getProductById.fulfilled, (state, action: PayloadAction<Product>) => {
             state.isLoading = false;
             state.productById = action.payload;
         })
@@ -356,6 +315,5 @@ export const productsSlice = createSlice({
 });
 
 export default productsSlice.reducer;
-
 
 

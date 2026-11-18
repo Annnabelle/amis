@@ -1,10 +1,10 @@
-import type { WaybillResponseDto } from "entities/waybills/dtos";
+import type { WaybillResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 
-export type WaybillResponse = WaybillResponseDto;
+export type Waybill = WaybillResponseDto;
 
 export type WaybillsState = {
-  waybills: WaybillResponse[];
-  waybillById: WaybillResponse | null;
+  waybills: Waybill[];
+  waybillById: Waybill | null;
   total: number;
   page: number;
   limit: number;

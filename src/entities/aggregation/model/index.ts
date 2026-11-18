@@ -1,3 +1,10 @@
+import type {
+  AggregationUnitCodeResponseDto,
+  CreateAggregationReportResponseDto,
+  GetAggregationReportUnitsResponseDto,
+  GetAggregationReportsResponseDto,
+  GetOneAggregationReportResponseDto,
+} from '@edem2000/amis.contracts/api/reports/responses';
 import {
   createAsyncThunk,
   createSlice,
@@ -7,7 +14,7 @@ import { BASE_URL } from "shared/lib/consts";
 import type { AggregationReportStatus } from "shared/types/dtos";
 import axiosInstance from "shared/lib/axiosInstance";
 import type {
-  AggregationReportResponse,
+  AggregationReport,
   CreateAggregationReport,
   GetAggregationReportsResponseTypes,
 } from "entities/aggregation/types";
@@ -15,35 +22,20 @@ import {
   mapAggregationListDtoToEntity,
   mapGetAggregationDtoToEntity,
 } from "entities/aggregation/mappers";
-import type {
-  AggregationReportResponseDto,
-  GetAggregationReportsParamsDto,
-  GetAggregationReportsResponse,
-  GetAggregationReportsResponseDto,
-  GetOneAggregationReportDto,
-  GetOneAggregationReportResponseDto,
-} from "entities/aggregation/dtos";
-import type { PaginatedResponseDto } from "shared/types/dtos";
-import type { AggregationUnitCodeResponse } from "entities/aggregation/types/units";
-import type { AggregationUnitCodeResponseDto } from "entities/aggregation/dtos/units";
+import type { GetAggregationReportsParamsDto, GetOneAggregationReportDto } from '@edem2000/amis.contracts/api/reports/requests';
+import type { ErrorDto } from "@edem2000/amis.contracts/api/common/requests";
+import type { AggregationUnitCode } from "entities/aggregation/types/units";
 import { mapUnitsDtoToEntity } from "entities/aggregation/mappers/units.ts";
 
-export interface ApiErrorResponse {
-  success: false;
-  errorCode: number;
-  errorMessage: {
-    ru: string;
-    en: string;
-    uz: string;
-  };
-}
+
+export type { ErrorDto };
 
 export type AggregationState = {
-  aggregation: AggregationReportResponse[];
+  aggregation: AggregationReport[];
   aggregations: GetAggregationReportsResponseTypes[];
-  oneAggregation: AggregationReportResponse | null;
+  oneAggregation: AggregationReport | null;
   isLoading: boolean;
-  error: ApiErrorResponse | null; // ✅ всегда объект
+  error: ErrorDto | null; // ✅ всегда объект
   status: string | null;
   total: number;
   page: number;
@@ -51,7 +43,7 @@ export type AggregationState = {
   units: Record<
     string, // aggregationId
     {
-      data: AggregationUnitCodeResponse[];
+      data: AggregationUnitCode[];
       total: number;
       page: number;
       limit: number;
@@ -87,7 +79,7 @@ export const fetchAggregationUnits = createAsyncThunk<
     aggregationId: string;
   }, // TS выведет тип
   FetchAggregationUnitsParams,
-  { rejectValue: ApiErrorResponse }
+  { rejectValue: ErrorDto }
 >("aggregation/fetchAggregationUnits", async (params, { rejectWithValue }) => {
   try {
     const { aggregationId, page, limit } = params;
@@ -101,16 +93,12 @@ export const fetchAggregationUnits = createAsyncThunk<
       queryParams.limit = limit;
     }
 
-    const response = await axiosInstance.get<{
-      data: AggregationUnitCodeResponseDto[];
-      total: number;
-      page: number;
-      limit: number;
-    }>(`${BASE_URL}/reports/aggregation/${aggregationId}/units`, {
-      params: queryParams,
-    });
+    const response = await axiosInstance.get<GetAggregationReportUnitsResponseDto>(
+      `${BASE_URL}/reports/aggregation/${aggregationId}/units`,
+      { params: queryParams },
+    );
 
-    if (Array.isArray(response.data.data)) {
+    if (response.data.success) {
       return {
         data: response.data.data.map(mapUnitsDtoToEntity),
         total: response.data.total,
@@ -143,28 +131,28 @@ export const fetchAggregationUnits = createAsyncThunk<
 });
 
 export const createAggregationReport = createAsyncThunk<
-  AggregationReportResponse,
+  AggregationReport,
   CreateAggregationReport,
-  { rejectValue: ApiErrorResponse }
+  { rejectValue: ErrorDto }
 >(
   "aggregation/createAggregationReport",
   async (payload, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.post(
+      const { data } = await axiosInstance.post<CreateAggregationReportResponseDto>(
         `${BASE_URL}/reports/aggregation`,
         payload,
       );
 
-      if (data.success && data.report) {
+      if (data.success) {
         return mapAggregationListDtoToEntity(data.report);
       }
 
-      return rejectWithValue(data as ApiErrorResponse);
+      return rejectWithValue(data as ErrorDto);
     } catch (err: any) {
       const backendError = err?.response?.data;
 
       if (backendError?.errorMessage) {
-        return rejectWithValue(backendError as ApiErrorResponse);
+        return rejectWithValue(backendError as ErrorDto);
       }
 
       return rejectWithValue({
@@ -180,19 +168,6 @@ export const createAggregationReport = createAsyncThunk<
   },
 );
 
-export function isGetAggregationReportsSuccess(
-  res: GetAggregationReportsResponseDto,
-): res is {
-  success: true;
-} & PaginatedResponseDto<GetAggregationReportsResponse> {
-  return (
-    typeof res === "object" &&
-    res !== null &&
-    "success" in res &&
-    res.success === true
-  );
-}
-
 export const fetchAggregations = createAsyncThunk<
   {
     data: GetAggregationReportsResponseTypes[];
@@ -201,21 +176,18 @@ export const fetchAggregations = createAsyncThunk<
     limit: number;
   },
   GetAggregationReportsParamsDto,
-  { rejectValue: ApiErrorResponse }
+  { rejectValue: ErrorDto }
 >("aggregation/fetchAggregations", async (params, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.get<GetAggregationReportsResponseDto>(
       `${BASE_URL}/reports/aggregation`,
       {
-        params: {
-          ...params,
-          dateFrom: params.dateFrom?.toISOString(),
-          dateTo: params.dateTo?.toISOString(),
-        },
+        // Даты приходят строками.
+        params,
       },
     );
 
-    if (isGetAggregationReportsSuccess(response.data)) {
+    if (response.data.success) {
       return {
         data: response.data.data.map(mapGetAggregationDtoToEntity),
         total: response.data.total,
@@ -246,16 +218,11 @@ export const fetchAggregations = createAsyncThunk<
   }
 });
 
-function isGetOneAggregationSuccess(
-  data: GetOneAggregationReportResponseDto,
-): data is { success: true; report: AggregationReportResponseDto } {
-  return (data as any).success === true && "report" in data;
-}
 
 export const fetchOneAggregationReport = createAsyncThunk<
-  AggregationReportResponse,
+  AggregationReport,
   GetOneAggregationReportDto,
-  { rejectValue: ApiErrorResponse }
+  { rejectValue: ErrorDto }
 >(
   "aggregation/fetchOneAggregationReport",
   async ({ id }, { rejectWithValue }) => {
@@ -265,7 +232,7 @@ export const fetchOneAggregationReport = createAsyncThunk<
           `${BASE_URL}/reports/aggregation/${id}`,
         );
 
-      if (isGetOneAggregationSuccess(data)) {
+      if (data.success) {
         return mapAggregationListDtoToEntity(data.report);
       }
 

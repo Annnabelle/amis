@@ -2,16 +2,10 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import type { ErrorDto } from "shared/types/dtos";
-import type {
-  CompleteDeliveryRouteLoadingDto,
-  CreateDeliveryRouteDto,
-  CreateDeliveryRouteResponseDto,
-  GetDeliveryRouteResponseDto,
-  GetDeliveryRoutesDto,
-  GetDeliveryRoutesResponseDto,
-  DeliveryRouteResponseDto,
-} from "entities/deliveryRoutes/dtos";
-import type { DeliveryRouteResponse, DeliveryRoutesState } from "entities/deliveryRoutes/types";
+import type { CompleteDeliveryRouteLoadingDto, GetDeliveryRoutesDto } from '@edem2000/amis.contracts/api/delivery-routes/requests';
+import type { CreateDeliveryRouteResponseDto, GetDeliveryRouteResponseDto, GetDeliveryRoutesResponseDto } from '@edem2000/amis.contracts/api/delivery-routes/responses';
+import type { CreateDeliveryRouteRequestDto } from 'entities/deliveryRoutes/dtos';
+import type { DeliveryRoute, DeliveryRoutesState } from "entities/deliveryRoutes/types";
 import { mapCreateDeliveryRouteResponseDtoToEntity, mapDeliveryRouteDtoToEntity } from "entities/deliveryRoutes/mappers";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage.ts";
 
@@ -58,8 +52,8 @@ export const getDeliveryRoutes = createAsyncThunk(
 );
 
 export const createDeliveryRoute = createAsyncThunk<
-  DeliveryRouteResponse,
-  CreateDeliveryRouteDto,
+  DeliveryRoute,
+  CreateDeliveryRouteRequestDto,
   { rejectValue: ErrorDto }
 >("deliveryRoutes/createDeliveryRoute", async (payload, { rejectWithValue }) => {
   try {
@@ -107,14 +101,11 @@ export const getDeliveryRouteById = createAsyncThunk(
   "deliveryRoutes/getDeliveryRouteById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<{
-        success: boolean;
-        deliveryRoute?: DeliveryRouteResponseDto;
-        errorCode?: number;
-        errorMessage?: any;
-      }>(`${BASE_URL}/delivery-routes/${id}`);
+      const response = await axiosInstance.get<GetDeliveryRouteResponseDto>(
+        `${BASE_URL}/delivery-routes/${id}`
+      );
 
-      if (response.data.success && response.data.deliveryRoute) {
+      if (response.data.success) {
         const data = mapDeliveryRouteDtoToEntity(response.data.deliveryRoute);
         return data;
       }
@@ -128,7 +119,7 @@ export const getDeliveryRouteById = createAsyncThunk(
 
 const mapSingleRouteResponse = (
   data: GetDeliveryRouteResponseDto
-): { success: boolean; deliveryRoute?: DeliveryRouteResponse; error?: ErrorDto } => {
+): { success: boolean; deliveryRoute?: DeliveryRoute; error?: ErrorDto } => {
   if ("errorCode" in data) {
     return { success: false, error: data };
   }
@@ -155,7 +146,7 @@ const mapSingleRouteResponse = (
 };
 
 export const startDeliveryRouteLoading = createAsyncThunk<
-  DeliveryRouteResponse,
+  DeliveryRoute,
   string,
   { rejectValue: ErrorDto }
 >("deliveryRoutes/startDeliveryRouteLoading", async (id, { rejectWithValue }) => {
@@ -188,7 +179,7 @@ export const startDeliveryRouteLoading = createAsyncThunk<
 });
 
 export const completeDeliveryRouteLoading = createAsyncThunk<
-  DeliveryRouteResponse,
+  DeliveryRoute,
   { id: string; payload?: CompleteDeliveryRouteLoadingDto },
   { rejectValue: ErrorDto }
 >("deliveryRoutes/completeDeliveryRouteLoading", async ({ id, payload }, { rejectWithValue }) => {
@@ -222,7 +213,7 @@ export const completeDeliveryRouteLoading = createAsyncThunk<
 });
 
 export const startDeliveryRouteTransit = createAsyncThunk<
-  DeliveryRouteResponse,
+  DeliveryRoute,
   string,
   { rejectValue: ErrorDto }
 >("deliveryRoutes/startDeliveryRouteTransit", async (id, { rejectWithValue }) => {
@@ -255,7 +246,7 @@ export const startDeliveryRouteTransit = createAsyncThunk<
 });
 
 export const startDeliveryRouteReturn = createAsyncThunk<
-  DeliveryRouteResponse,
+  DeliveryRoute,
   string,
   { rejectValue: ErrorDto }
 >("deliveryRoutes/startDeliveryRouteReturn", async (id, { rejectWithValue }) => {
@@ -288,7 +279,7 @@ export const startDeliveryRouteReturn = createAsyncThunk<
 });
 
 export const completeDeliveryRouteReturn = createAsyncThunk<
-  DeliveryRouteResponse,
+  DeliveryRoute,
   string,
   { rejectValue: ErrorDto }
 >("deliveryRoutes/completeDeliveryRouteReturn", async (id, { rejectWithValue }) => {
@@ -321,7 +312,7 @@ export const completeDeliveryRouteReturn = createAsyncThunk<
 });
 
 export const closeDeliveryRoute = createAsyncThunk<
-  DeliveryRouteResponse,
+  DeliveryRoute,
   string,
   { rejectValue: ErrorDto }
 >("deliveryRoutes/closeDeliveryRoute", async (id, { rejectWithValue }) => {
@@ -368,7 +359,7 @@ export const deliveryRoutesSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: DeliveryRouteResponse[];
+            data: DeliveryRoute[];
             total: number;
             page: number;
             limit: number;
@@ -391,7 +382,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(
         createDeliveryRoute.fulfilled,
-        (state, action: PayloadAction<DeliveryRouteResponse>) => {
+        (state, action: PayloadAction<DeliveryRoute>) => {
           state.isLoading = false;
           state.createdRoute = action.payload;
         }
@@ -409,7 +400,7 @@ export const deliveryRoutesSlice = createSlice({
       })
       .addCase(
         getDeliveryRouteById.fulfilled,
-        (state, action: PayloadAction<DeliveryRouteResponse>) => {
+        (state, action: PayloadAction<DeliveryRoute>) => {
           state.loadingById = false;
           state.routeById = action.payload;
         }

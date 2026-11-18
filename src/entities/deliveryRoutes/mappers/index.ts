@@ -1,11 +1,9 @@
 import type { Dayjs } from "dayjs";
-import type {
-  CreateDeliveryRouteDto,
-  CreateDeliveryRouteResponseDto,
-  DeliveryRouteResponseDto,
-} from "entities/deliveryRoutes/dtos";
+import type { DeliveryRouteResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { CreateDeliveryRouteResponseDto } from '@edem2000/amis.contracts/api/delivery-routes/responses';
+import type { CreateDeliveryRouteRequestDto } from 'entities/deliveryRoutes/dtos';
 import type { ErrorDto } from "shared/types/dtos";
-import type { DeliveryRouteResponse } from "entities/deliveryRoutes/types";
+import type { DeliveryRoute } from "entities/deliveryRoutes/types";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -24,7 +22,7 @@ const toDateString = (value: string | Date | Dayjs | undefined): string | undefi
 
 export const mapDeliveryRouteDtoToEntity = (
   dto: DeliveryRouteResponseDto
-): DeliveryRouteResponse => ({
+): DeliveryRoute => ({
   id: dto.id,
   companyId: dto.companyId,
   routeNumber: dto.routeNumber,
@@ -81,11 +79,11 @@ export const mapDeliveryRouteDtoToEntity = (
 
 export const mapDeliveryRoutesDtoToEntities = (
   dtos: DeliveryRouteResponseDto[]
-): DeliveryRouteResponse[] => dtos.map(mapDeliveryRouteDtoToEntity);
+): DeliveryRoute[] => dtos.map(mapDeliveryRouteDtoToEntity);
 
 export const mapCreateDeliveryRouteResponseDtoToEntity = (
   dto: CreateDeliveryRouteResponseDto
-): { success: boolean; deliveryRoute?: DeliveryRouteResponse; error?: ErrorDto } => {
+): { success: boolean; deliveryRoute?: DeliveryRoute; error?: ErrorDto } => {
   if ("errorCode" in dto) {
     return { success: false, error: dto };
   }
@@ -134,7 +132,7 @@ export type DeliveryRouteFormValues = {
 export const mapDeliveryRouteFormToCreateDto = (
   values: DeliveryRouteFormValues,
   companyId: string
-): CreateDeliveryRouteDto => {
+): CreateDeliveryRouteRequestDto => {
   const routeDate = toDateString(values.schedule?.routeDate);
   const driverName = values.crew?.driverName?.trim();
   const agentName = values.crew?.agentName?.trim();

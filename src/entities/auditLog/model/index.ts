@@ -1,26 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type {
-  GetAuditLogsDto,
-  GetAuditLogsResponseDto,
-  AuditLogResponseDto,
-} from "entities/auditLog/dtos";
-import type { PaginatedResponseDto } from "shared/types/dtos";
+import type { GetAuditLogsDto } from '@edem2000/amis.contracts/api/audit-logs/requests';
+import type { GetAuditLogsResponseDto } from '@edem2000/amis.contracts/api/audit-logs/responses';
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import { mapAuditLogResponseDtoToEntity } from "entities/auditLog/mappers";
-import type { AuditLogResponse } from "entities/auditLog/types";
+import type { AuditLog } from "entities/auditLog/types";
 
-// 🔹 Type Guard
-function isSuccessResponse(
-  res: GetAuditLogsResponseDto
-): res is { success: true } & PaginatedResponseDto<AuditLogResponseDto> {
-  return "success" in res && res.success === true;
-}
 
 // 🔹 AsyncThunk возвращает уже отмапленный удобный формат
 export const fetchAuditLogs = createAsyncThunk<
-  { data: AuditLogResponse[]; total: number; page: number; limit: number }, // return type
+  { data: AuditLog[]; total: number; page: number; limit: number }, // return type
   GetAuditLogsDto, // аргументы
   { rejectValue: string } // ошибки
 >(
@@ -31,7 +21,7 @@ export const fetchAuditLogs = createAsyncThunk<
         params,
       });
 
-      if (isSuccessResponse(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapAuditLogResponseDtoToEntity),
           total: response.data.total,
@@ -47,7 +37,7 @@ export const fetchAuditLogs = createAsyncThunk<
 );
 
 type AuditLogsState = {
-  data: AuditLogResponse[];
+  data: AuditLog[];
   page: number;
   total: number;
   limit: number;
@@ -85,7 +75,7 @@ export const auditLogsSlice = createSlice({
         fetchAuditLogs.fulfilled,
         (
           state,
-          action: PayloadAction<{ data: AuditLogResponse[]; total: number; page: number; limit: number }>
+          action: PayloadAction<{ data: AuditLog[]; total: number; page: number; limit: number }>
         ) => {
           state.data = action.payload.data;
           state.page = action.payload.page;
@@ -103,9 +93,5 @@ export const auditLogsSlice = createSlice({
 
 export const { resetAuditLogs } = auditLogsSlice.actions;
 export default auditLogsSlice.reducer;
-
-
-
-
 
 

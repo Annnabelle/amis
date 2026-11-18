@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   groupLifecycleEventsByDay,
-  type LifecycleTargetType,
+  type LifecycleTargetEntity,
 } from "entities/lifecycle/lib";
 import type { LifecycleEvent } from "entities/lifecycle/types";
 import LifecycleEventItem from "entities/lifecycle/ui/eventItem";
@@ -12,7 +12,7 @@ import "../styles.sass";
 
 type LifecycleTimelineProps = {
   events: LifecycleEvent[];
-  target: LifecycleTargetType;
+  target: LifecycleTargetEntity;
   emptyText?: string;
 };
 

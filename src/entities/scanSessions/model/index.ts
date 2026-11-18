@@ -2,16 +2,10 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL } from "shared/lib/consts";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
-import type { AvailablePackageType } from "shared/types/dtos";
-import type {
-  CancelScanDto,
-  CancelScanResponseDto,
-  CompleteScanSessionResponseDto,
-  CreateScanSessionDto,
-  CreateScanSessionResponseDto,
-  ScanCodeResponseDto,
-} from "entities/scanSessions/dtos";
-import { ScanSessionType, type ScanSessionResponse, type ScanSessionsState } from "entities/scanSessions/types";
+import type { PackageType } from "shared/types/dtos";
+import type { CancelScanDto, CreateScanSessionDto } from '@edem2000/amis.contracts/api/scan-sessions/requests';
+import type { CancelScanResponseDto, CompleteScanSessionResponseDto, CreateScanSessionResponseDto, ScanCodeResponseDto } from '@edem2000/amis.contracts/api/scan-sessions/responses';
+import { ScanSessionType, type ScanSession, type ScanSessionsState } from "entities/scanSessions/types";
 import {
   mapCancelScanResponseDtoToEntity,
   mapCompleteScanSessionResponseDtoToEntity,
@@ -39,7 +33,7 @@ type ScanCodeSuccessPayload = {
   code: string;
   productId: string;
   gtin: string;
-  packageType: AvailablePackageType;
+  packageType: PackageType;
 };
 
 type CancelScanSuccessPayload = {
@@ -52,7 +46,7 @@ const createScanAttempt = (payload: {
   reason?: string;
   productId?: string;
   gtin?: string;
-  packageType?: AvailablePackageType;
+  packageType?: PackageType;
 }): ScanAttempt => ({
   code: payload.code,
   status: payload.status,
@@ -80,7 +74,7 @@ const extractErrorDto = (error: any): ErrorDto => {
 };
 
 export const createScanSession = createAsyncThunk<
-  ScanSessionResponse,
+  ScanSession,
   CreateScanSessionDto,
   { rejectValue: ErrorDto }
 >("scanSessions/createScanSession", async (payload, { rejectWithValue }) => {
@@ -112,7 +106,7 @@ export const createScanSession = createAsyncThunk<
 });
 
 export const completeScanSession = createAsyncThunk<
-  ScanSessionResponse,
+  ScanSession,
   string,
   { rejectValue: ErrorDto }
 >("scanSessions/completeScanSession", async (sessionId, { rejectWithValue }) => {

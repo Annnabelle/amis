@@ -1,28 +1,15 @@
+import {
+  CompanyMembershipState,
+  CompanyRole,
+} from '@edem2000/amis.contracts'
+
+export {
+  CompanyMembershipState,
+  CompanyRole,
+}
+
 import type { UserStatus } from "shared/types/dtos";
 
-export const CompanyMembershipState = {
-  Active: "active",
-  Invited: "invited",
-  Declined: "declined",
-  Disabled: "disabled",
-} as const;
-
-export type CompanyMembershipState =
-  (typeof CompanyMembershipState)[keyof typeof CompanyMembershipState];
-
-export const CompanyRole = {
-  Owner: "owner",
-  Admin: "admin",
-  Operator: "operator",
-  Accountant: "accountant",
-  Logistician: "logistician",
-  WarehouseManager: "warehouse_manager",
-  DeliveryAgent: "delivery_agent",
-  Driver: "driver",
-  Auditor: "auditor",
-} as const;
-
-export type CompanyRole = (typeof CompanyRole)[keyof typeof CompanyRole];
 
 export type CompanyMembership = {
   id: string;

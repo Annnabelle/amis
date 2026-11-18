@@ -1,19 +1,16 @@
+import type { BatchWithOrderResponseDto, OrderResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { CreateOrderDto, CreateOrderProducts } from '@edem2000/amis.contracts/api/orders/requests';
+import type { OrderBatchPopulatedResponseDto } from '@edem2000/amis.contracts/api/orders/responses';
 import type {
-    BatchResponseDto,
-    CreateOrderDto, CreateOrderProducts,
-    GetOrderProductResponseDto, OrderBatchPopulatedResponseDto, OrderResponseDto
-} from "entities/markingCodes/dtos";
-import type {
-    BatchResponse,
+    Batch,
     CreateOrder,
-    OrderBatchPopulatedResponse, OrderProductResponse,
-    OrderResponse
+    OrderBatchPopulated, Order
 } from "entities/markingCodes/types";
 import type {ErrorDto} from "shared/types/dtos";
-import type {CodeRowDto, GetOrderProductCodesResponseDto} from "entities/markingCodes/dtos/order-product.ts";
-import type {CodeRow, GetOrderProductCodesResponse} from "entities/markingCodes/types/order-product.ts";
+import type { CodeRow, GetOrderProductCodesResponseDto } from '@edem2000/amis.contracts/api/codes/responses';
+import type {OrderProductCode, OrderProductCodes} from "entities/markingCodes/types/order-product.ts";
 
-export function mapMarkingCodesDtoToEntity(dto: OrderBatchPopulatedResponseDto): OrderBatchPopulatedResponse {
+export function mapMarkingCodesDtoToEntity(dto: OrderBatchPopulatedResponseDto): OrderBatchPopulated {
     return {
         batchId: dto.batchId,
         batchNumber: dto.batchNumber,
@@ -36,7 +33,7 @@ export function mapMarkingCodesDtoToEntity(dto: OrderBatchPopulatedResponseDto):
     }
 }
 
-export function mapMarkingCodeDtoToEntity (dto: OrderResponseDto): OrderResponse{
+export function mapMarkingCodeDtoToEntity (dto: OrderResponseDto): Order{
     return {
         id: dto.id,
         orderNumber: dto.orderNumber,
@@ -56,13 +53,13 @@ export function mapMarkingCodeDtoToEntity (dto: OrderResponseDto): OrderResponse
         })),
         productGroup: dto.productGroup,
         businessPlaceId: dto.businessPlaceId,
-        releaseMethodType: dto.releaseMethodType,
+        markingPurpose: dto.markingPurpose,
         isPaid: dto.isPaid,
         externalStatus: dto.externalStatus,
         providerOrderId: dto.providerOrderId,
         rejectionReason: dto.rejectionReason,
         status: dto.status,
-        orderedAt: dto.orderedAt,
+        orderedAt: new Date(dto.orderedAt),
     }
 }
 
@@ -75,64 +72,29 @@ export const mapMarkingCodesDtoArrayToEntityArray = (dtos: CreateOrderDto) : Cre
     }))
 })
 
-function isErrorDto(
-    dto: GetOrderProductResponseDto
-): dto is ErrorDto {
-    return !('orderProduct' in dto);
-}
-
-export function mapGetOrderProductDtoToEntity(
-    dto: GetOrderProductResponseDto
-): OrderProductResponse {
-    if (isErrorDto(dto)) {
-        throw new Error("Invalid DTO");
-    }
-
-    return {
-        id: dto.orderProduct.id,
-        orderNumber: dto.orderProduct.orderNumber,
-        product: {
-            productId: dto.orderProduct.product.productId,
-            name: dto.orderProduct.product.name,
-            gtin: dto.orderProduct.product.gtin,
-            quantity: dto.orderProduct.product.quantity,
-            cisType: dto.orderProduct.product.cisType,
-            serialNumberType: dto.orderProduct.product.serialNumberType,
-            serialNumbers: dto.orderProduct.product.serialNumbers,
-        },
-        comment: dto.orderProduct.comment,
-        turonOrderId: dto.orderProduct.turonOrderId,
-        orderedAt: dto.orderProduct.orderedAt,
-        rejectionReason: dto.orderProduct.rejectionReason,
-    };
-}
-
-
 function isErrorProductDto(
     dto: GetOrderProductCodesResponseDto
 ): dto is ErrorDto {
     return 'message' in dto;
 }
 
-export function mapCodeRowDtoToEntity(dto: CodeRowDto): CodeRow {
+export function mapCodeRowDtoToEntity(dto: CodeRow): OrderProductCode {
     return {
         id: dto.id,
         code: dto.code,
         productName: dto.productName,
-        state: dto.state,
         status: dto.status,
     };
 }
 
 export function mapGetOrderProductCodesDtoToEntity(
     dto: GetOrderProductCodesResponseDto
-): GetOrderProductCodesResponse {
+): OrderProductCodes {
     if (isErrorProductDto(dto)) {
         throw new Error( "Invalid DTO");
     }
 
     return {
-        success: dto.success,
         data: dto.data.map(mapCodeRowDtoToEntity),
         total: dto.total,
         page: dto.page,
@@ -140,7 +102,7 @@ export function mapGetOrderProductCodesDtoToEntity(
     };
 }
 
-export function mapBatchesDtoToEntity(dto: BatchResponseDto): BatchResponse {
+export function mapBatchesDtoToEntity(dto: BatchWithOrderResponseDto): Batch {
     return {
         id: dto.id,
         batchNumber: dto.batchNumber,
@@ -169,13 +131,5 @@ export function mapBatchesDtoToEntity(dto: BatchResponseDto): BatchResponse {
         },
     }
 }
-
-
-
-
-
-
-
-
 
 

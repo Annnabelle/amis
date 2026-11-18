@@ -1,10 +1,8 @@
-import type {
-  CompanyResponseDto,
-  UpdateCompanyDto,
-} from "entities/organization/dtos";
-import {type CompanyResponse, UpdateCompany} from "entities/organization/types";
+import type { CompanyResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { UpdateCompanyRequestDto } from 'entities/organization/dtos';
+import {type Company, UpdateCompany} from "entities/organization/types";
 
-export const mapOrganizationDtoToEntity = (dto: CompanyResponseDto): CompanyResponse => ({
+export const mapOrganizationDtoToEntity = (dto: CompanyResponseDto): Company => ({
   id: dto.id,
   tin: dto.tin,
   displayName: dto.displayName,
@@ -44,8 +42,8 @@ export const mapOrganizationDtoToEntity = (dto: CompanyResponseDto): CompanyResp
 
 export const mapUpdateCompanyResponseToUpdateEntity = (
     dto: UpdateCompany
-): UpdateCompanyDto => {
-  const result: UpdateCompanyDto = {};
+): UpdateCompanyRequestDto => {
+  const result: UpdateCompanyRequestDto = {};
 
   // Поля, которые почти всегда приходят
   if (dto.displayName !== undefined) result.displayName = dto.displayName;
@@ -97,7 +95,7 @@ export const mapUpdateCompanyResponseToUpdateEntity = (
           {
             id:         dto.accessCodes.xTrace.id,
             token:      dto.accessCodes.xTrace.token,
-            expireDate: new Date(dto.accessCodes.xTrace.expireDate),
+            expireDate: (new Date(dto.accessCodes.xTrace.expireDate)).toISOString(),
           }
     };
   }
@@ -105,7 +103,7 @@ export const mapUpdateCompanyResponseToUpdateEntity = (
   return result;
 };
 
-export const mapCreateOrganizationDtoToEntity = (dto: CompanyResponseDto): CompanyResponse => ({
+export const mapCreateOrganizationDtoToEntity = (dto: CompanyResponseDto): Company => ({
   id: dto.id,
   tin: dto.tin,
   displayName: dto.displayName,

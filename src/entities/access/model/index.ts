@@ -1,23 +1,16 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import {
-  isCompanyMembershipInvitationActionSuccessResponse,
-  isSystemAccessInvitationActionSuccessResponse,
-  isGetCurrentUserAccessSuccessResponse,
-  isGetRoleReferencesSuccessResponse,
-  type CompanyMembershipInvitationActionResponseDto,
-  type CompanyMembershipInvitationDecisionDto,
-  type GetCurrentUserAccessResponseDto,
-  type GetRoleReferencesResponseDto,
-  type SystemAccessInvitationActionResponseDto,
-  type SystemAccessInvitationDecisionDto,
-} from "entities/access/dtos";
+import type { RespondCompanyMembershipInvitationDto } from '@edem2000/amis.contracts/api/company-memberships/requests';
+import type { RespondCompanyMembershipInvitationResponseDto } from '@edem2000/amis.contracts/api/company-memberships/responses';
+import type { GetRoleReferencesResponseDto } from '@edem2000/amis.contracts/api/reference-book/responses';
+import type { RespondSystemAccessInvitationDto } from '@edem2000/amis.contracts/api/users/requests';
+import type { GetMeAccessResponseDto, RespondSystemAccessInvitationResponseDto } from '@edem2000/amis.contracts/api/users/responses';
 import { mapCurrentUserAccessDtoToEntity } from "entities/access/mappers";
 import {
   getRoleReferenceCacheKey,
   type AccessState,
   type RoleReference,
   type RoleReferenceCacheKey,
-  type RoleReferenceScope,
+  type RoleScope,
   type UserAccess,
 } from "entities/access/types";
 import axiosInstance from "shared/lib/axiosInstance";
@@ -46,11 +39,11 @@ export const fetchCurrentUserAccess = createAsyncThunk<
   "access/fetchCurrentUserAccess",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<GetCurrentUserAccessResponseDto>(
+      const response = await axiosInstance.get<GetMeAccessResponseDto>(
         "/users/me/access"
       );
 
-      if (isGetCurrentUserAccessSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapCurrentUserAccessDtoToEntity(response.data);
       }
 
@@ -77,7 +70,7 @@ export const fetchCurrentUserAccess = createAsyncThunk<
 
 export const fetchAssignableRoles = createAsyncThunk<
   { key: RoleReferenceCacheKey; roles: RoleReference[] },
-  { scope: RoleReferenceScope; companyId?: string },
+  { scope: RoleScope; companyId?: string },
   { rejectValue: string }
 >(
   "access/fetchAssignableRoles",
@@ -89,7 +82,7 @@ export const fetchAssignableRoles = createAsyncThunk<
         companyId ? { headers: { "x-company-id": companyId } } : undefined
       );
 
-      if (isGetRoleReferencesSuccessResponse(response.data)) {
+      if (response.data.success) {
         return { key, roles: response.data.roles };
       }
 
@@ -110,7 +103,7 @@ export const fetchAssignableRoles = createAsyncThunk<
 
 export const fetchRoleReferences = createAsyncThunk<
   { key: RoleReferenceCacheKey; roles: RoleReference[] },
-  { scope: RoleReferenceScope; companyId?: string },
+  { scope: RoleScope; companyId?: string },
   { rejectValue: string }
 >(
   "access/fetchRoleReferences",
@@ -122,7 +115,7 @@ export const fetchRoleReferences = createAsyncThunk<
         companyId ? { headers: { "x-company-id": companyId } } : undefined
       );
 
-      if (isGetRoleReferencesSuccessResponse(response.data)) {
+      if (response.data.success) {
         return { key, roles: response.data.roles };
       }
 
@@ -150,13 +143,13 @@ export const acceptSystemAccessInvitation = createAsyncThunk<
   async ({ id }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch<
-        SystemAccessInvitationActionResponseDto
+        RespondSystemAccessInvitationResponseDto
       >(
         `/users/me/system-access/invitations/${id}`,
-        { decision: "accept" } satisfies SystemAccessInvitationDecisionDto
+        { decision: "accept" } satisfies RespondSystemAccessInvitationDto
       );
 
-      if (isSystemAccessInvitationActionSuccessResponse(response.data)) {
+      if (response.data.success) {
         await dispatch(fetchCurrentUserAccess());
         return;
       }
@@ -185,13 +178,13 @@ export const declineSystemAccessInvitation = createAsyncThunk<
   async ({ id }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch<
-        SystemAccessInvitationActionResponseDto
+        RespondSystemAccessInvitationResponseDto
       >(
         `/users/me/system-access/invitations/${id}`,
-        { decision: "decline" } satisfies SystemAccessInvitationDecisionDto
+        { decision: "decline" } satisfies RespondSystemAccessInvitationDto
       );
 
-      if (isSystemAccessInvitationActionSuccessResponse(response.data)) {
+      if (response.data.success) {
         await dispatch(fetchCurrentUserAccess());
         return;
       }
@@ -213,20 +206,20 @@ export const declineSystemAccessInvitation = createAsyncThunk<
 
 export const respondCompanyMembershipInvitation = createAsyncThunk<
   void,
-  { id: string; decision: CompanyMembershipInvitationDecisionDto["decision"] },
+  { id: string; decision: RespondCompanyMembershipInvitationDto["decision"] },
   { rejectValue: string }
 >(
   "access/respondCompanyMembershipInvitation",
   async ({ id, decision }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch<
-        CompanyMembershipInvitationActionResponseDto
+        RespondCompanyMembershipInvitationResponseDto
       >(
         `/users/me/company-membership/invitations/${id}`,
-        { decision } satisfies CompanyMembershipInvitationDecisionDto
+        { decision } satisfies RespondCompanyMembershipInvitationDto
       );
 
-      if (isCompanyMembershipInvitationActionSuccessResponse(response.data)) {
+      if (response.data.success) {
         await dispatch(fetchCurrentUserAccess());
         return;
       }

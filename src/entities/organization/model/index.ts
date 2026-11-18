@@ -1,22 +1,10 @@
-import type { PaginatedResponseDto } from "shared/types/dtos";
+import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
-import type {CompanyResponse, OrganizationState} from "entities/organization/types";
-import type {
-    ActivateCompanyResponseDto,
-    CompanyResponseDto,
-    CreateCompanyDto,
-    DeleteCompanyDto,
-    DeleteCompanyResponseDto,
-    GetCompanyByTinResponseDto,
-    GetCompaniesDto,
-    GetCompaniesResponseDto,
-    GetCompanyDto,
-    GetCompanyResponseDto,
-    UpdateCompanyDto,
-    UpdateCompanyResponseDto,
-} from "entities/organization/dtos";
+import type {Company, OrganizationState} from "entities/organization/types";
+import type { ActivateCompanyDto, DeleteCompanyDto, GetCompaniesDto, GetCompanyDto, UpdateCompanyDto } from '@edem2000/amis.contracts/api/companies/requests';
+import type { ActivateCompanyResponseDto, DeleteCompanyResponseDto, GetCompaniesResponseDto, GetCompanyByTinResponseDto, GetCompanyResponseDto, UpdateCompanyResponseDto } from '@edem2000/amis.contracts/api/companies/responses';
 import {mapCreateOrganizationDtoToEntity, mapOrganizationDtoToEntity} from "entities/organization/mappers";
 
 const initialState: OrganizationState = {
@@ -34,10 +22,6 @@ const initialState: OrganizationState = {
 };
 
 
-function isSuccessResponse(res: GetCompaniesResponseDto): res is { success: boolean } & PaginatedResponseDto<CompanyResponseDto> {
-  return "success" in res && res.success === true;
-}
-
 export const getAllOrganizations = createAsyncThunk(
   'organizations/getAllOrganizations',
   async (params: GetCompaniesDto, { rejectWithValue }) => {
@@ -45,7 +29,7 @@ export const getAllOrganizations = createAsyncThunk(
       const response = await axiosInstance.get<GetCompaniesResponseDto>(`${BASE_URL}/companies`, {
         params,
       });
-      if (isSuccessResponse(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapOrganizationDtoToEntity),
           total: response.data.total,
@@ -63,14 +47,14 @@ export const getAllOrganizations = createAsyncThunk(
 
 export const createOrganization = createAsyncThunk(
   "organizations/createOrganization",
-  async (payload: CreateCompanyDto, { rejectWithValue }) => {
+  async (payload: ActivateCompanyDto, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post<ActivateCompanyResponseDto>(
         `${BASE_URL}/companies`,
         payload
       );
 
-      if (isActivateCompanySuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapCreateOrganizationDtoToEntity(response.data.company);
       }
 
@@ -84,18 +68,6 @@ export const createOrganization = createAsyncThunk(
   }
 );
 
-function isActivateCompanySuccessResponse(
-  res: ActivateCompanyResponseDto
-): res is { success: true; company: CompanyResponseDto } {
-  return "success" in res && res.success === true && "company" in res;
-}
-
-
-function isGetCompanySuccessResponse(
-  res: GetCompanyResponseDto
-): res is { success: boolean; company: CompanyResponseDto } {
-  return "success" in res && res.success === true && "company" in res;
-}
 
 export const getOrganizationById = createAsyncThunk(
   "organizations/getOrganizationById",
@@ -105,7 +77,7 @@ export const getOrganizationById = createAsyncThunk(
         `${BASE_URL}/companies/${params.id}`
       );
 
-      if (isGetCompanySuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapOrganizationDtoToEntity(response.data.company);
       }
 
@@ -117,12 +89,6 @@ export const getOrganizationById = createAsyncThunk(
 );
 
 
-function isUpdateOrganizationSuccessResponse(
-  res: UpdateCompanyResponseDto
-): res is { success: boolean; company: CompanyResponseDto } {
-  return "success" in res && res.success === true && "company" in res;
-}
-
 export const updateOrganization = createAsyncThunk(
   "company/updateOrganization",
   async ({ id, data }: { id: string; data: UpdateCompanyDto }, { rejectWithValue }) => {
@@ -132,7 +98,7 @@ export const updateOrganization = createAsyncThunk(
         data
       );
 
-      if (isUpdateOrganizationSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapOrganizationDtoToEntity(response.data.company);
       }
 
@@ -144,12 +110,6 @@ export const updateOrganization = createAsyncThunk(
 );
 
 
-function isDeleteOrganizationSuccessResponse(
-  res: DeleteCompanyResponseDto
-): res is { success: boolean } {
-  return "success" in res && res.success === true;
-}
-
 export const deleteOrganization = createAsyncThunk(
   "company/deleteOrganization",
   async ({ id }: DeleteCompanyDto, { rejectWithValue }) => {
@@ -158,7 +118,7 @@ export const deleteOrganization = createAsyncThunk(
         `${BASE_URL}/companies/${id}`
       );
 
-      if (isDeleteOrganizationSuccessResponse(response.data)) {
+      if (response.data.success) {
         return { id }; 
       }
 
@@ -173,10 +133,17 @@ export const deleteOrganization = createAsyncThunk(
 export const searchOrganizations = createAsyncThunk(
   'organizations/searchOrganizations',
   async ({ query, page = 1, limit = 10, sortOrder = 'asc' }: { query: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }) => {
-    const response = await axiosInstance.get(`/companies/search`, {
+    const response = await axiosInstance.get<GetCompaniesResponseDto>(`/companies/search`, {
       params: { query, page, limit, sortOrder }
     });
-    return response.data;
+
+    if (!response.data.success) {
+      throw new Error(getBackendErrorMessage(response.data, "Не удалось выполнить поиск компаний"));
+    }
+
+    const { data, total, page: current, limit: perPage } = response.data;
+
+    return { data, total, page: current, limit: perPage };
   }
 );
 
@@ -188,14 +155,22 @@ export const getCompanyByTin = createAsyncThunk(
         `/companies/by-tin/${encodeURIComponent(tin)}`
       );
 
-      return mapOrganizationDtoToEntity(response.data);
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data ?? err.message ?? "Ошибка загрузки компании по ИНН");
+      if (response.data.success) {
+        return mapOrganizationDtoToEntity(response.data.company);
+      }
+
+      return rejectWithValue(
+        getBackendErrorMessage(response.data, "Не удалось загрузить компанию по ИНН")
+      );
+    } catch (error: unknown) {
+      const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+      return rejectWithValue(
+        getBackendErrorMessage(responseData ?? error, "Не удалось загрузить компанию по ИНН")
+      );
     }
   }
 );
-
-
 
 
 export const organizationsSlice = createSlice({ 
@@ -214,7 +189,7 @@ export const organizationsSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: CompanyResponse[];
+            data: Company[];
             total: number;
             page: number;
             limit: number;
@@ -254,7 +229,7 @@ export const organizationsSlice = createSlice({
         state.isLoading = true;
         state.error = null;
     })
-    .addCase(createOrganization.fulfilled, (state, action: PayloadAction<CompanyResponse>) => {
+    .addCase(createOrganization.fulfilled, (state, action: PayloadAction<Company>) => {
         state.isLoading = false;
         state.organizations.push(action.payload); 
     })
@@ -266,7 +241,7 @@ export const organizationsSlice = createSlice({
         state.isLoading = true;
         state.error = null;
     })
-    .addCase(getOrganizationById.fulfilled, (state, action: PayloadAction<CompanyResponse>) => {
+    .addCase(getOrganizationById.fulfilled, (state, action: PayloadAction<Company>) => {
         state.isLoading = false;
         state.organizationById = action.payload;
     })
@@ -305,7 +280,5 @@ export const organizationsSlice = createSlice({
 });
 
 export default organizationsSlice.reducer;
-
-
 
 

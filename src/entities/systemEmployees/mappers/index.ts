@@ -1,7 +1,4 @@
-import type {
-  SystemEmployeeAccessDto,
-  SystemEmployeeResponseDto,
-} from "entities/systemEmployees/dtos";
+import type { SystemEmployeeAccessResponseDto, SystemEmployeeResponseDto } from '@edem2000/amis.contracts/api/employees/responses';
 import type {
   SystemEmployee,
   SystemEmployeeAccess,
@@ -30,7 +27,7 @@ export const mapSystemEmployeeDtoToEntity = (
 });
 
 export const mapSystemEmployeeAccessDtoToEntity = (
-  dto: SystemEmployeeAccessDto
+  dto: SystemEmployeeAccessResponseDto
 ): SystemEmployeeAccess => ({
   id: dto.id,
   userId: dto.userId,

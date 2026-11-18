@@ -1,141 +1,20 @@
-﻿import type {
-  AvailablePackageType,
-  ErrorDto, HexString, MeasurementDto, MultiLanguage, PaginatedDto, PaginatedResponseDto, ProductSortField, ProductStatus, WeightDto
-} from "shared/types/dtos";
+import type { CreateProductDto, UpdateProductDto } from '@edem2000/amis.contracts/api/products/requests';
 
-export type ProductClassificationDto = {
+
+/**
+ * Фактическая форма запроса.
+ *
+ * icps, productType и companyId сервер отбрасывает (whitelist: true).
+ * Обязательный productGroup форма не заполняет.
+ */
+export type CreateProductRequestDto = Omit<CreateProductDto, 'productGroup'> & {
   icps: string;
-  name: string;
-  source: string;
-  resolvedAt: Date;
-};
-
-export type ProductResponseDto = {
-  id: string;
-  name: string;
-  shortName: string;
-  description?: string | null;
-
-  gtin: {
-    unit: string,
-    group?: string,
-    box_lv_1?: string,
-    box_lv_2?: string,
-  };
-  classification: ProductClassificationDto | null;
-  brand: string;
-  productGroup?: string;
-  productType?: string;
-  packageTypes: AvailablePackageType[];
-
-  aggregationQuantity: number;
-  expiration?: number | null;
-  manufacturerCountry: string
-
-  measurement: { unit: string; amount: number };
-  weight: { net: number; gross: number };
-
-  price: number;
+  productType: string;
   companyId: string;
 };
 
-export type GtinDto = {
-  unit: string;
-  group?: string;
-  box_lv_1?: string;
-  box_lv_2?: string;
-}
-
-export type CreateProductDto  = {
-  name: string;
-  shortName: string;
-  description?: string;
-  gtin: GtinDto;
-  icps?: string;
-  productType: string;
-  manufacturerCountry: string;
-  aggregationQuantity: number;
-  expiration: number;
-  measurement?: MeasurementDto;
-  weight?: WeightDto;
-  price?: number;
-  companyId: HexString;
-}
-
-export type CreateProductResponseDto = {
-  success: boolean,
-  product: ProductResponseDto,
-} | ErrorDto;
-
-export type DeleteProductDto = {
-  id: string;
-}
-
-export type DeleteProductResponseDto = {
-  success: boolean,
-} | ErrorDto;
-
-export type GetProductDto = {
-  id: string;
-}
-
-export type GetProductResponseDto = {
-  success: boolean;
-  product: ProductResponseDto;
-} | ErrorDto;
-
-export type GetProductsDto = PaginatedDto &{
-  status?: ProductStatus;
-  sortBy?: ProductSortField;
-}
-
-export type GetProductsResponseDto = {
-  success: boolean;
-} & PaginatedResponseDto<ProductResponseDto> | ErrorDto;
-
-export type SearchProductsDto = PaginatedDto & {
-  query: string;
-}
-
-export type UpdateProductDto = {
-  name?: string;
-  shortName?: string;
-  description?: string;
-  gtin?: GtinDto;
-  icps?: string;
-  productType?: string;
-  aggregationQuantity?: number;
-  manufacturerCountry?: string;
-  expiration?: number;
-  measurement?: MeasurementDto;
-  weight?: WeightDto;
-  price?: number;
-  companyId?: HexString;
-}
-
-export type UpdateProductResponseDto = {
-  success: boolean;
-  product: ProductResponseDto;
-} | ErrorDto;
-
-export type ProductPackageType = AvailablePackageType | string;
-
-export type ProductPackageDto = {
-  code: string;
+/** Фактическая форма запроса: icps и companyId сервер отбрасывает. */
+export type UpdateProductRequestDto = UpdateProductDto & {
   icps: string;
-  type?: ProductPackageType;
-  name: MultiLanguage;
+  companyId: string;
 };
-
-export type GetProductPackagesResponseDto =
-  | {
-      success: boolean;
-      packages: ProductPackageDto[];
-    }
-  | ErrorDto;
-
-
-
-
-
-

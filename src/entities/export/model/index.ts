@@ -3,11 +3,11 @@ import axiosInstance from "shared/lib/axiosInstance.ts";
 import {BASE_URL} from "shared/lib/consts.ts";
 import type {ExportAggregationReportParams} from "entities/export/types";
 import {getFileNameFromDisposition} from "shared/lib";
-import type {ApiErrorResponse} from "entities/aggregation/model";
+import type {ErrorDto} from "entities/aggregation/model";
 
 interface ExportState {
     loading: boolean;
-    error: ApiErrorResponse | null;
+    error: ErrorDto | null;
 }
 
 const initialState: ExportState = {
@@ -21,7 +21,7 @@ export const downloadReport = createAsyncThunk<
         aggregationId: string;
         params: ExportAggregationReportParams;
     },
-    { rejectValue: ApiErrorResponse }
+    { rejectValue: ErrorDto }
 >(
     'export/downloadReport',
     async ({ aggregationId, params }, { rejectWithValue }) => {

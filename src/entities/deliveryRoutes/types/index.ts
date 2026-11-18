@@ -68,7 +68,7 @@ export interface DeliveryRouteModel extends BaseModel {
   updatedAt: Date;
 }
 
-export type DeliveryRouteResponse = {
+export type DeliveryRoute = {
   id: string;
   companyId: string;
   routeNumber: string;
@@ -142,12 +142,12 @@ export type CreateDeliveryRoutePayload = {
 };
 
 export type DeliveryRoutesState = {
-  routes: DeliveryRouteResponse[];
-  routeById: DeliveryRouteResponse | null;
+  routes: DeliveryRoute[];
+  routeById: DeliveryRoute | null;
   total: number;
   page: number;
   limit: number;
-  createdRoute: DeliveryRouteResponse | null;
+  createdRoute: DeliveryRoute | null;
   isLoading: boolean;
   loadingById: boolean;
   error: string | null;

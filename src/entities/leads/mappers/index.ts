@@ -1,4 +1,4 @@
-import type { LeadResponseDto } from "entities/leads/dtos";
+import type { LeadResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import type { Lead } from "entities/leads/types";
 
 export const mapLeadDtoToEntity = (dto: LeadResponseDto): Lead => ({

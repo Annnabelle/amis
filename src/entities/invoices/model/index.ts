@@ -1,26 +1,25 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL } from "shared/lib/consts";
-import type { GetInvoicesDto, GetInvoicesResponseDto } from "entities/invoices/dtos";
-import type {
-  GetInvoiceCodesDto,
-  GetInvoiceCodesResponseDto,
-  GetInvoiceDto,
-  GetInvoiceItemsDto,
-  GetInvoiceItemsResponseDto,
-  GetInvoiceResponseDto,
-} from "entities/invoices/dtos";
+import type { GetInvoicesDto } from '@edem2000/amis.contracts/api/invoices/requests';
+import type { GetInvoicesResponseDto } from '@edem2000/amis.contracts/api/invoices/responses';
+import type { GetInvoiceCodesDto, GetInvoiceDto, GetInvoiceItemsDto } from '@edem2000/amis.contracts/api/invoices/requests';
+import type { GetInvoiceCodesResponseDto, GetInvoiceItemsResponseDto, GetInvoiceResponseDto } from '@edem2000/amis.contracts/api/invoices/responses';
 import {
   mapInvoiceDtoToEntity,
   mapInvoiceItemDtoToEntity,
   mapInvoiceMarkingCodeDtoToEntity,
 } from "entities/invoices/mappers";
 import type {
-  InvoiceItemResponse,
-  InvoiceMarkingCodeResponse,
-  InvoiceResponse,
+  InvoiceItem,
+  InvoiceMarkingCode,
+  Invoice,
   InvoicesState,
 } from "entities/invoices/types";
+
+/** Контрактные GetInvoice*Dto описывают только query; id — часть пути. */
+type GetInvoiceItemsParams = GetInvoiceItemsDto & { id: string };
+type GetInvoiceCodesParams = GetInvoiceCodesDto & { id: string };
 
 const initialState: InvoicesState = {
   invoices: [],
@@ -39,12 +38,6 @@ const initialState: InvoicesState = {
   error: null,
 };
 
-function isInvoicesListSuccess(
-  res: GetInvoicesResponseDto
-): res is { success: boolean; data: any[]; total: number; page: number; limit: number } {
-  return "success" in res && res.success === true && "data" in res;
-}
-
 export const getInvoices = createAsyncThunk(
   "invoices/getInvoices",
   async (params: GetInvoicesDto, { rejectWithValue }) => {
@@ -54,7 +47,7 @@ export const getInvoices = createAsyncThunk(
         { params }
       );
 
-      if (isInvoicesListSuccess(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapInvoiceDtoToEntity),
           total: response.data.total,
@@ -70,12 +63,6 @@ export const getInvoices = createAsyncThunk(
   }
 );
 
-function isInvoiceSuccess(
-  res: GetInvoiceResponseDto
-): res is { success: boolean; invoice: any } {
-  return "success" in res && res.success === true && "invoice" in res;
-}
-
 export const getInvoiceById = createAsyncThunk(
   "invoices/getInvoiceById",
   async ({ id }: GetInvoiceDto, { rejectWithValue }) => {
@@ -84,7 +71,7 @@ export const getInvoiceById = createAsyncThunk(
         `${BASE_URL}/invoices/${id}`
       );
 
-      if (isInvoiceSuccess(response.data)) {
+      if (response.data.success) {
         return mapInvoiceDtoToEntity(response.data.invoice);
       }
 
@@ -95,24 +82,18 @@ export const getInvoiceById = createAsyncThunk(
   }
 );
 
-function isInvoiceItemsSuccess(
-  res: GetInvoiceItemsResponseDto
-): res is { success: boolean; data: any[]; total: number; page: number; limit: number } {
-  return "success" in res && res.success === true && "data" in res;
-}
-
 export const getInvoiceItems = createAsyncThunk(
   "invoices/getInvoiceItems",
-  async ({ id, ...params }: GetInvoiceItemsDto, { rejectWithValue }) => {
+  async ({ id, ...params }: GetInvoiceItemsParams, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get<GetInvoiceItemsResponseDto>(
         `${BASE_URL}/invoices/${id}/items`,
         { params }
       );
 
-      if (isInvoiceItemsSuccess(response.data)) {
+      if (response.data.success) {
         return {
-          data: response.data.data.map(mapInvoiceItemDtoToEntity),
+          data: response.data.data.map((item) => mapInvoiceItemDtoToEntity(id, item)),
           total: response.data.total,
           page: response.data.page,
           limit: response.data.limit,
@@ -126,22 +107,16 @@ export const getInvoiceItems = createAsyncThunk(
   }
 );
 
-function isInvoiceCodesSuccess(
-  res: GetInvoiceCodesResponseDto
-): res is { success: true; data: any[]; total: number; page: number; limit: number } {
-  return "success" in res && res.success === true && "data" in res;
-}
-
 export const getInvoiceCodes = createAsyncThunk(
   "invoices/getInvoiceCodes",
-  async ({ id, productId, ...params }: GetInvoiceCodesDto, { rejectWithValue }) => {
+  async ({ id, productId, ...params }: GetInvoiceCodesParams, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get<GetInvoiceCodesResponseDto>(
         `${BASE_URL}/invoices/${id}/codes`,
         { params: { ...params, productId } }
       );
 
-      if (isInvoiceCodesSuccess(response.data)) {
+      if (response.data.success) {
         return {
           productId,
           data: response.data.data.map(mapInvoiceMarkingCodeDtoToEntity),
@@ -173,7 +148,7 @@ export const invoicesSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: InvoiceResponse[];
+            data: Invoice[];
             total: number;
             page: number;
             limit: number;
@@ -195,7 +170,7 @@ export const invoicesSlice = createSlice({
         state.loadingById = true;
         state.error = null;
       })
-      .addCase(getInvoiceById.fulfilled, (state, action: PayloadAction<InvoiceResponse>) => {
+      .addCase(getInvoiceById.fulfilled, (state, action: PayloadAction<Invoice>) => {
         state.loadingById = false;
         state.invoiceById = action.payload;
         state.codesByProductId = {};
@@ -214,7 +189,7 @@ export const invoicesSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: InvoiceItemResponse[];
+            data: InvoiceItem[];
             total: number;
             page: number;
             limit: number;
@@ -252,7 +227,7 @@ export const invoicesSlice = createSlice({
           state,
           action: PayloadAction<{
             productId: string;
-            data: InvoiceMarkingCodeResponse[];
+            data: InvoiceMarkingCode[];
             total: number;
             page: number;
             limit: number;

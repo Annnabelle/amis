@@ -1,7 +1,7 @@
-import type { AuditLogResponseDto } from "entities/auditLog/dtos";
-import type { AuditLogResponse } from "entities/auditLog/types";
+import type { AuditLogResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { AuditLog } from "entities/auditLog/types";
 
-export function mapAuditLogResponseDtoToEntity(dto: AuditLogResponseDto): AuditLogResponse {
+export function mapAuditLogResponseDtoToEntity(dto: AuditLogResponseDto): AuditLog {
   return {
     id: dto.id,
     occurredAt: new Date(dto.occurredAt),

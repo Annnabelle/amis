@@ -1,33 +1,12 @@
+import { OrderStatus as OrderStatusEnum } from '@edem2000/amis.contracts';
 import type {BatchStatus, ErrorDto, ExternalBatchStatus, ExternalOrderStatus, HexString} from "shared/types/dtos";
 
-export const OrderStatusType = {
-    New: "new",
-    VendorPending: 'vendor_pending',
-    ReadyForCodes: 'ready_for_codes',
-    CodesPartiallyReceived: 'codes_partially_received',
-    CodesReceived: 'codes_received',
-    CodesUtilizationRequested: 'codes_utilization_requested',
-    CodesPartiallyUtilized: 'codes_partially_utilized',
-    CodesUtilized: 'codes_utilized',
-    CodesPartiallyAggregated: 'codes_partially_aggregated',
-    CodesAggregated: 'codes_aggregated',
-    Rejected: 'rejected',
-    Closed: 'closed',
-} as const;
+export const OrderStatusType = OrderStatusEnum;
 
-export type OrderStatus = typeof OrderStatusType[keyof typeof OrderStatusType];
+export type OrderStatus = typeof OrderStatusEnum[keyof typeof OrderStatusEnum];
 
-export const OrderInternalStatusType = {
-    Created: 'created',
-    Rejected: 'rejected',
-    PendingExternal: 'pending_external',
-    ReadyForCodes: 'ready_for_codes',
-    CodesUploaded: 'codes_uploaded',
-} as const;
 
-export type OrderInternalStatus = typeof OrderInternalStatusType[keyof typeof OrderInternalStatusType];
-
-export type OrderResponse = {
+export type Order = {
     id: HexString;
     orderNumber: string;
     userId: HexString; //needed just for now, should be populated from usecase
@@ -48,7 +27,7 @@ export type OrderResponse = {
 
     productGroup: string;
     businessPlaceId: number;
-    releaseMethodType: string;
+    markingPurpose: string;
     isPaid: boolean;
 
     externalStatus: ExternalOrderStatus | undefined;
@@ -70,7 +49,7 @@ export type CreateOrder = {
     products: CreateOrderProducts[];
 }
 
-export type OrderBatchPopulatedResponse = {
+export type OrderBatchPopulated = {
     batchId: HexString;
     batchNumber: string;
     productId: HexString;
@@ -94,11 +73,11 @@ export type OrderBatchPopulatedResponse = {
     orderNumber: string;
     isPaid: boolean;
     orderStatus: OrderStatus;
-    orderExternalStatus: ExternalOrderStatus;
+    orderExternalStatus?: ExternalOrderStatus;
     orderedAt: string; // Date.toISOString()
 }
 
-export type GetOrderProductResponse = {
+export type OrderProductDetails = {
     success: boolean;
     orderProduct: {
         id: HexString;
@@ -119,7 +98,7 @@ export type GetOrderProductResponse = {
     };
 } | ErrorDto;
 
-export type OrderProductResponse = {
+export type OrderProductRow = {
     id: HexString;
     orderNumber: string;
     product: {
@@ -137,7 +116,7 @@ export type OrderProductResponse = {
     rejectionReason: string | undefined;
 }
 
-export type BatchResponse = {
+export type Batch = {
     id: HexString;
     batchNumber: string;
     productId: HexString;
@@ -164,6 +143,5 @@ export type BatchResponse = {
         userId: HexString;
     };
 }
-
 
 

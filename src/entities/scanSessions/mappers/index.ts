@@ -1,12 +1,7 @@
-import type {
-  CancelScanResponseDto,
-  CompleteScanSessionResponseDto,
-  CreateScanSessionResponseDto,
-  ScanCodeResponseDto,
-  ScanSessionResponseDto,
-} from "entities/scanSessions/dtos";
-import type { ScanSessionResponse } from "entities/scanSessions/types";
-import type { AvailablePackageType, ErrorDto } from "shared/types/dtos";
+import type { ScanSessionResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { CancelScanResponseDto, CompleteScanSessionResponseDto, CreateScanSessionResponseDto, ScanCodeResponseDto } from '@edem2000/amis.contracts/api/scan-sessions/responses';
+import type { ScanSession } from "entities/scanSessions/types";
+import type { PackageType, ErrorDto } from "shared/types/dtos";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -15,7 +10,7 @@ const toDate = (value: string | Date | undefined): Date | undefined => {
 
 export const mapScanSessionDtoToEntity = (
   dto: ScanSessionResponseDto
-): ScanSessionResponse => ({
+): ScanSession => ({
   id: dto.id,
   companyId: dto.companyId,
   status: dto.status,
@@ -52,7 +47,7 @@ const isErrorDto = (
 
 export const mapCreateScanSessionResponseDtoToEntity = (
   dto: CreateScanSessionResponseDto
-): { success: boolean; scanSession?: ScanSessionResponse; error?: ErrorDto } => {
+): { success: boolean; scanSession?: ScanSession; error?: ErrorDto } => {
   if (isErrorDto(dto)) {
     return { success: false, error: dto };
   }
@@ -65,7 +60,7 @@ export const mapCreateScanSessionResponseDtoToEntity = (
 
 export const mapCompleteScanSessionResponseDtoToEntity = (
   dto: CompleteScanSessionResponseDto
-): { success: boolean; scanSession?: ScanSessionResponse; error?: ErrorDto } => {
+): { success: boolean; scanSession?: ScanSession; error?: ErrorDto } => {
   if (isErrorDto(dto)) {
     return { success: false, error: dto };
   }
@@ -84,7 +79,7 @@ export const mapScanCodeResponseDtoToEntity = (
   markingCode?: {
     productId: string;
     gtin: string;
-    packageType: AvailablePackageType;
+    packageType: PackageType;
   };
 } => {
   if (isErrorDto(dto)) {

@@ -1,14 +1,11 @@
+import type { InvoiceItemResponseDto, InvoiceResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { CompanyMarkingCodeRow } from '@edem2000/amis.contracts/api/invoices/responses';
+import type { ExternalInvoiceStatus } from '@edem2000/amis.contracts';
+import { ExternalInvoiceStatusNumericToSymbol } from 'entities/invoices/lib/externalStatus';
 import type {
-  ExternalInvoiceStatus,
-  InvoiceItemResponseDto,
-  InvoiceResponseDto,
-  MarkingCodeRowDto,
-} from "entities/invoices/dtos";
-import { ExternalInvoiceStatusNumericToSymbol } from "entities/invoices/dtos";
-import type {
-  InvoiceItemResponse,
-  InvoiceMarkingCodeResponse,
-  InvoiceResponse,
+  InvoiceItem,
+  InvoiceMarkingCode,
+  Invoice,
 } from "entities/invoices/types";
 
 const toDate = (value: string | Date | undefined): Date => {
@@ -28,7 +25,7 @@ const toExternalStatus = (
 
 export const mapInvoiceDtoToEntity = (
   dto: InvoiceResponseDto
-): InvoiceResponse => ({
+): Invoice => ({
   id: dto.id,
   invoiceNumber: dto.invoiceNumber,
   deliveryRouteId: dto.deliveryRouteId,
@@ -75,11 +72,13 @@ export const mapInvoiceDtoToEntity = (
   createdAt: toDate(dto.createdAt),
 });
 
+/** invoiceId в ответе не приходит — передаёт вызывающая сторона. */
 export const mapInvoiceItemDtoToEntity = (
+  invoiceId: string,
   dto: InvoiceItemResponseDto
-): InvoiceItemResponse => ({
-  id: dto.id ?? `${dto.invoiceId}-${dto.productId}`,
-  invoiceId: dto.invoiceId,
+): InvoiceItem => ({
+  id: dto.id,
+  invoiceId,
   productId: dto.productId,
   productName: dto.productName,
   quantity: dto.quantity,
@@ -97,8 +96,8 @@ export const mapInvoiceItemDtoToEntity = (
 });
 
 export const mapInvoiceMarkingCodeDtoToEntity = (
-  dto: MarkingCodeRowDto
-): InvoiceMarkingCodeResponse => ({
+  dto: CompanyMarkingCodeRow
+): InvoiceMarkingCode => ({
   id: dto.id,
   code: dto.code,
   status: dto.status,

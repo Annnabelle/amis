@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "app/store";
-import {
-  isLifecycleEventsResponseSuccess,
-  isLifecycleSummaryResponseSuccess,
-  type GetLifecycleEventsResponseDto,
-  type GetLifecycleSummaryResponseDto,
-} from "entities/lifecycle/dtos";
+import type { GetLifecycleEventsResponseDto, GetLifecycleSummaryResponseDto } from '@edem2000/amis.contracts/api/lifecycle/responses';
 import {
   mapLifecycleEventDtoToEntity,
   mapLifecycleSummaryDtoToEntity,
@@ -78,7 +73,7 @@ export const getLifecycleSummary = createAsyncThunk<
         { params: { targetId }, companyScope }
       );
 
-      if (isLifecycleSummaryResponseSuccess(response.data)) {
+      if (response.data.success) {
         return {
           targetId,
           summary: mapLifecycleSummaryDtoToEntity(response.data),
@@ -141,7 +136,7 @@ export const getLifecycleEvents = createAsyncThunk<
         }
       );
 
-      if (isLifecycleEventsResponseSuccess(response.data)) {
+      if (response.data.success) {
         const data = response.data.data.map(mapLifecycleEventDtoToEntity);
 
         return {

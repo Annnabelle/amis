@@ -1,8 +1,8 @@
-import type { GetCurrentUserAccessSuccessResponseDto } from "entities/access/dtos";
+import type { GetMeAccessResponseDto } from '@edem2000/amis.contracts/api/users/responses';
 import type { UserAccess } from "entities/access/types";
 
 export const mapCurrentUserAccessDtoToEntity = (
-  dto: GetCurrentUserAccessSuccessResponseDto
+  dto: Extract<GetMeAccessResponseDto, { success: true }>
 ): UserAccess => ({
   system: {
     roles: dto.system.roles,

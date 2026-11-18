@@ -1,6 +1,7 @@
+import type { ChangePasswordQueryDto } from '@edem2000/amis.contracts/api/users/requests';
 import type { ErrorDto, HexString, UserPreferences, UserStatus } from "shared/types/dtos";
 
-export type UserResponse = {
+export type User = {
     id: HexString,
     firstName: string,
     lastName: string,
@@ -28,22 +29,22 @@ export type LoginForm = {
   password: string;
 }
 
-export type LoginResponse = {
+export type LoginResult = {
   success: boolean;
-  user?: UserResponse;
+  user?: User;
   accessToken?: string;
   refreshToken?: string;
   error?: ErrorDto;
 };
 
 export type UsersState = {
-    user: UserResponse | null;
-    userById: UserResponse | null;
+    user: User | null;
+    userById: User | null;
     userPreviewById: Record<HexString, UserPreview>;
     userPreviewLoadingById: Record<HexString, boolean>;
-    updateUser: UserResponse | null;
-    searchedUsers: UserResponse[];
-    users: UserResponse[];
+    updateUser: User | null;
+    searchedUsers: User[];
+    users: User[];
     accessToken: string | null;
     refreshToken: string | null;
     isLoading: boolean;
@@ -54,7 +55,7 @@ export type UsersState = {
     total: number,
     page: number,
     limit: number,
-    currentUser: UserResponse | null,
+    currentUser: User | null,
 };
 
 // admin "create user" form — no password, the user sets it via the activation email
@@ -83,18 +84,16 @@ export type ChangePassword= {
   newPasswordConfirmation: string;
 }
 
-export type ChangePasswordQueryDto = {
-  id: HexString;
-}
 
-export type ChangePasswordResponse = {
+export type { ChangePasswordQueryDto };
+
+export type ChangePasswordResult = {
   success: boolean,
-  user: UserResponse,
+  user: User,
   tokens: {
     accessToken: string,
     refreshToken: string,
   }
 } | ErrorDto;
-
 
 

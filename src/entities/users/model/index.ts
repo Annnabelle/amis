@@ -1,9 +1,9 @@
-import type { AddUserForm, ChangePassword, LoginForm, RegisterForm, UserResponse, UsersState } from "entities/users/types";
-import type { AccountActionResponseDto, ChangePasswordDto, ChangePasswordResponseDto, DeleteUserDto, DeleteUserResponseDto, ForgotPasswordDto, ForgotPasswordResponseDto, GetUserDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersDto, GetUsersResponseDto, LoginResponseDto, ResetPasswordDto, ResetPasswordResponseDto, SetPasswordDto, UpdateUserResponseDto, UserPreviewDto, UserResponseDto, VerifyEmailDto } from "entities/users/dtos/login";
-import type { PaginatedResponseDto } from "shared/types/dtos";
+import type { AddUserForm, ChangePassword, LoginForm, RegisterForm, User, UsersState } from "entities/users/types";
+import type { ChangePasswordDto, DeleteUserDto, ForgotPasswordDto, GetUserDto, GetUsersDto, ResetPasswordDto, SetPasswordDto, VerifyEmailDto } from '@edem2000/amis.contracts/api/users/requests';
+import type { AccountActionResponseDto, ChangePasswordResponseDto, DeleteUserResponseDto, ForgotPasswordResponseDto, GetUserPreviewResponseDto, GetUserResponseDto, GetUsersResponseDto, LoginResponseDto, ResetPasswordResponseDto, UpdateUserResponseDto } from '@edem2000/amis.contracts/api/users/responses';
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { UpdateUserPreferencesDto, UpdateUserPreferencesResponseDto } from "entities/users/dtos/login";
-import { isAccountActionSuccess, mapChangePwdDtoToEntity, mapChangePwdFormToChangePwdDto, mapCreateUserFormToDto, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapRegisterFormToDto, mapUpdateUserDtoToEntity, mapUpdateUserFormToDto, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
+import type { UpdateUserPreferencesDto } from '@edem2000/amis.contracts/api/users/requests';
+import { mapChangePwdDtoToEntity, mapChangePwdFormToChangePwdDto, mapCreateUserFormToDto, mapLoginFormToLoginDto, mapLoginResponseDtoToLoginResponse, mapRegisterFormToDto, mapUpdateUserDtoToEntity, mapUpdateUserFormToDto, mapUserPreviewDtoToEntity, mapUsersDtoToEntity } from "entities/users/mappers";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import { clearAuthStorage } from "shared/lib/authSession";
@@ -64,10 +64,6 @@ export const Login = createAsyncThunk(
     }
 );
 
-function isSuccessResponse(res: GetUsersResponseDto): res is { success: boolean } & PaginatedResponseDto<UserResponseDto> {
-  return "success" in res && res.success === true;
-}
-
 export const getAllUsers = createAsyncThunk(
   'users/getAllUsers',
   async (params: GetUsersDto, { rejectWithValue }) => {
@@ -75,7 +71,7 @@ export const getAllUsers = createAsyncThunk(
       const response = await axiosInstance.get<GetUsersResponseDto>(`${BASE_URL}/users`, {
         params,
       });
-      if (isSuccessResponse(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapUsersDtoToEntity),
           total: response.data.total,
@@ -94,19 +90,13 @@ export const getAllUsers = createAsyncThunk(
 
 
 
-function isSuccessChangePasswordResponseDto(
-  res: ChangePasswordResponseDto
-): res is { success: boolean; user: UserResponseDto, tokens: { accessToken: string; refreshToken: string } } {
-  return "success" in res && res.success === true && "user" in res;
-}
-
 export const changeUserPassword = createAsyncThunk(
   'users/changeUserPassword',
   async ( { userId, data }: { userId: string; data: ChangePasswordDto },
     thunkAPI) => {
     try {
       const response = await axiosInstance.patch<ChangePasswordResponseDto>(`${BASE_URL}/users/${userId}/change-password`, data);
-      if (isSuccessChangePasswordResponseDto(response.data)) {
+      if (response.data.success) {
         return mapChangePwdDtoToEntity(response.data);
       }
       return thunkAPI.rejectWithValue(
@@ -129,7 +119,7 @@ export const createUser = createAsyncThunk(
         dto
       );
 
-      if (isAccountActionSuccess(response.data)) {
+      if (response.data.success) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -155,7 +145,7 @@ export const registerAccount = createAsyncThunk(
         dto
       );
 
-      if (isAccountActionSuccess(response.data)) {
+      if (response.data.success) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -178,7 +168,7 @@ export const verifyEmail = createAsyncThunk(
         payload
       );
 
-      if (isAccountActionSuccess(response.data)) {
+      if (response.data.success) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -203,7 +193,7 @@ export const setPassword = createAsyncThunk(
         payload
       );
 
-      if (isAccountActionSuccess(response.data)) {
+      if (response.data.success) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -218,12 +208,6 @@ export const setPassword = createAsyncThunk(
   }
 );
 
-function isGetUserSuccessResponse(
-  res: GetUserResponseDto
-): res is { success: boolean; user: UserResponseDto } {
-  return "success" in res && res.success === true && "user" in res;
-}
-
 export const getUserById = createAsyncThunk(
   "users/getUserById",
   async (params: GetUserDto, { rejectWithValue }) => {
@@ -232,7 +216,7 @@ export const getUserById = createAsyncThunk(
         `${BASE_URL}/users/${params.id}`
       );
 
-      if (isGetUserSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -245,12 +229,6 @@ export const getUserById = createAsyncThunk(
   }
 );
 
-function isGetUserPreviewSuccessResponse(
-  res: GetUserPreviewResponseDto
-): res is { success: boolean; data: UserPreviewDto } {
-  return "success" in res && res.success === true && "data" in res;
-}
-
 export const getUserPreview = createAsyncThunk(
   "users/getUserPreview",
   async (params: GetUserDto, { rejectWithValue }) => {
@@ -259,7 +237,7 @@ export const getUserPreview = createAsyncThunk(
         `${BASE_URL}/users/${params.id}/preview`
       );
 
-      if (isGetUserPreviewSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapUserPreviewDtoToEntity(response.data.data);
       }
 
@@ -283,15 +261,9 @@ export const getUserPreview = createAsyncThunk(
   }
 );
 
-function isUpdateUserSuccessResponse(
-  res: UpdateUserResponseDto
-): res is { success: boolean; user: UserResponseDto } {
-  return "success" in res && res.success === true && "user" in res;
-}
-
 export const updateUser = createAsyncThunk(
   "users/updateUser",
-  async ({ id, data }: { id: string; data: Partial<UserResponse> }, { rejectWithValue }) => {
+  async ({ id, data }: { id: string; data: Partial<User> }, { rejectWithValue }) => {
     try {
       const dto = mapUpdateUserFormToDto(data);
       const response = await axiosInstance.patch<UpdateUserResponseDto>(
@@ -299,7 +271,7 @@ export const updateUser = createAsyncThunk(
         dto
       );
 
-      if (isUpdateUserSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapUpdateUserDtoToEntity(response.data.user);
       }
 
@@ -318,10 +290,16 @@ export const updateUserPreferences = createAsyncThunk(
   "users/updateUserPreferences",
   async (preferences: UpdateUserPreferencesDto, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch<UpdateUserPreferencesResponseDto>(
+      const response = await axiosInstance.patch<UpdateUserResponseDto>(
         `${BASE_URL}/users/me/preferences`,
         preferences
       );
+
+      if (!response.data.success) {
+        return rejectWithValue(
+          getBackendErrorMessage(response.data, "Ошибка обновления настроек пользователя")
+        );
+      }
 
       return mapUsersDtoToEntity(response.data.user);
     } catch (err: any) {
@@ -346,7 +324,7 @@ export const fetchCurrentUser = createAsyncThunk(
     try {
       const response = await axiosInstance.get<GetUserResponseDto>(`${BASE_URL}/users/me`);
 
-      if (isGetUserSuccessResponse(response.data)) {
+      if (response.data.success) {
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -418,7 +396,13 @@ export const resetPassword = createAsyncThunk(
         payload
       );
 
-      if (isAccountActionSuccess(response.data)) {
+      if (response.data.success) {
+        if (!response.data.success) {
+          return rejectWithValue(
+            getBackendErrorMessage(response.data, "Ошибка обновления настроек пользователя")
+          );
+        }
+
         return mapUsersDtoToEntity(response.data.user);
       }
 
@@ -433,12 +417,6 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-function isDeleteUserSuccessResponse(
-  res: DeleteUserResponseDto
-): res is { success: boolean } {
-  return "success" in res && res.success === true;
-}
-
 export const deleteUser = createAsyncThunk(
   "users/deleteUser",
   async ({ id }: DeleteUserDto, { rejectWithValue }) => {
@@ -447,7 +425,7 @@ export const deleteUser = createAsyncThunk(
         `${BASE_URL}/users/${id}`
       );
 
-      if (isDeleteUserSuccessResponse(response.data)) {
+      if (response.data.success) {
         return { id };
       }
 
@@ -474,10 +452,19 @@ export const searchUsers = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get(`/users/search`, {
+      const response = await axiosInstance.get<GetUsersResponseDto>(`/users/search`, {
         params: { query, page, limit, sortOrder }
       });
-      return response.data;
+
+      if (!response.data.success) {
+        return rejectWithValue(
+          getBackendErrorMessage(response.data, "Ошибка поиска пользователей")
+        );
+      }
+
+      const { data, total, page: current, limit: perPage } = response.data;
+
+      return { data, total, page: current, limit: perPage };
     } catch (error: any) {
       return rejectWithValue(getBackendErrorMessage(error.response?.data ?? error, "Ошибка поиска пользователей"));
     }
@@ -548,7 +535,7 @@ export const usersSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: UserResponse[];
+            data: User[];
             total: number;
             page: number;
             limit: number;
@@ -613,7 +600,7 @@ export const usersSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+      .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.isLoading = false;
         state.user = action.payload;
         state.currentUser = action.payload;
@@ -699,7 +686,7 @@ export const usersSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(updateUser.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+      .addCase(updateUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.isLoading = false;
 
         if (state.updateUser?.id === action.payload.id) {
@@ -714,7 +701,7 @@ export const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(updateUserPreferences.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+      .addCase(updateUserPreferences.fulfilled, (state, action: PayloadAction<User>) => {
         state.user = action.payload;
         state.currentUser = action.payload;
         localStorage.setItem("user", JSON.stringify(action.payload));

@@ -1,4 +1,4 @@
-import type { CodeExternalStatus, PackageType } from "entities/ownedCodes/types";
+import type { MarkingCodeExternalStatus, PackageType } from "entities/ownedCodes/types";
 
 export type OwnedCodesTableDataType = {
   key: string;
@@ -6,6 +6,6 @@ export type OwnedCodesTableDataType = {
   gtin: string;
   packageType: PackageType;
   parentCode: string;
-  status?: CodeExternalStatus;
+  status?: MarkingCodeExternalStatus;
   lastSyncedAt: string;
 };

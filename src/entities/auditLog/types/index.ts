@@ -1,5 +1,5 @@
-import type { Actor, AuditCategory, AuditType, HexString, TargetEntity, TargetResponseDto } from "shared/types/dtos";
-import type { UserResponseDto } from "entities/users/dtos/login";
+import type { MultiLanguage, Actor, AuditCategory, AuditType, HexString, TargetEntity, TargetResponseDto } from "shared/types/dtos";
+import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 
 export type auditLogState = {
     auditLog: null,
@@ -8,7 +8,7 @@ export type auditLogState = {
     status: null,
 };
 
-export type AuditLogResponse = {
+export type AuditLog = {
   id: string;
   occurredAt: Date,
   actorType: Actor,
@@ -17,7 +17,7 @@ export type AuditLogResponse = {
   targetId?: HexString,
   category: AuditCategory,
   type: AuditType,
-  message?: string,
+  message?: MultiLanguage,
   metadata?: Record<string, unknown>,
   requestId?: string,
   ip?: string,
@@ -25,6 +25,5 @@ export type AuditLogResponse = {
   actor: UserResponseDto | null,
   target: TargetResponseDto | null,
 };
-
 
 

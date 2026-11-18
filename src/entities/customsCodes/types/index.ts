@@ -1,19 +1,11 @@
-export const AggregatedCustomsCodeOrderStatus = {
-  New: 'new',
-  Generated: 'generated',
-  ReadyForSign: 'ready_for_sign',
-  SignedForRegistration: 'signed_for_registration',
-  Verified: 'verified',
-  VerifiedForRegistration: 'verified_for_registration',
-  Registered: 'registered',
-  DissolutionInitialized: 'dissolution_initialized',
-  SignedForDissolution: 'signed_for_dissolution',
-  VerifiedForDissolution: 'verified_for_dissolution',
-  Dissolved: 'dissolved',
-} as const;
+import {
+  AggregatedCustomsCodeOrderStatus,
+} from '@edem2000/amis.contracts'
 
-export type AggregatedCustomsCodeOrderStatus =
-  (typeof AggregatedCustomsCodeOrderStatus)[keyof typeof AggregatedCustomsCodeOrderStatus];
+export {
+  AggregatedCustomsCodeOrderStatus,
+}
+
 
 export type CustomsCodeExternalDocument = {
   documentId: string | null;
@@ -34,7 +26,7 @@ export type CustomsCodeOrder = {
   batchId: string;
   quantity: number;
   customsCode: string | null;
-  measurement: string | null;
+  measurement: { value: string; quantity: number } | null;
   status: AggregatedCustomsCodeOrderStatus;
   external: CustomsCodeExternal;
 };

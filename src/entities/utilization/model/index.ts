@@ -1,14 +1,15 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
-import type { UtilizationReportResponse} from "entities/utilization/types";
-import type {CreateUtilizationReportDto, CreateUtilizationReportResponseDto} from "entities/utilization/dtos";
+import type { UtilizationReport} from "entities/utilization/types";
+import type { CreateUtilizationReportDto } from '@edem2000/amis.contracts/api/reports/requests';
+import type { CreateUtilizationReportResponseDto } from '@edem2000/amis.contracts/api/reports/responses';
 import {mapCreateUtilizationReportResponse} from "entities/utilization/mappers";
 import type {ErrorDto} from "shared/types/dtos";
 
 
 export type UtilizationState = {
-    utilization: UtilizationReportResponse[];
+    utilization: UtilizationReport[];
     isLoading: boolean;
     error: string | null;
     status: string | null;
@@ -27,7 +28,7 @@ const initialState: UtilizationState = {
 };
 
 export const createUtilizationReport = createAsyncThunk<
-    UtilizationReportResponse[], // успешный результат — массив entity
+    UtilizationReport[], // успешный результат — массив entity
     CreateUtilizationReportDto,
     { rejectValue: ErrorDto } // ошибка
 >(
@@ -71,7 +72,7 @@ export const utilizationSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(createUtilizationReport.fulfilled, (state, action: PayloadAction<UtilizationReportResponse[]>) => {
+            .addCase(createUtilizationReport.fulfilled, (state, action: PayloadAction<UtilizationReport[]>) => {
                 state.isLoading = false;
                 state.utilization.push(...action.payload); // добавляем все отчёты
             })

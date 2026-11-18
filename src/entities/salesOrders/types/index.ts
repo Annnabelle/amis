@@ -5,20 +5,20 @@ import type {
   SalesOrderStatus,
 } from "shared/types/dtos";
 
-export type SalesOrderResponse = {
+export type SalesOrder = {
   id: string;
   companyId: string;
   salesOrderNumber: string;
   status: SalesOrderStatus;
   sender?: {
-    addressDetails: SalesOrderAddressResponse;
+    addressDetails: SalesOrderAddress;
   };
   customer: {
     companyId?: string;
     tin: string;
     name: string;
     address?: string;
-    addressDetails: SalesOrderAddressResponse;
+    addressDetails: SalesOrderAddress;
   };
   contract?: {
     number: string;
@@ -72,7 +72,7 @@ export type SalesOrderLocation = {
   longitude: number;
 };
 
-export type SalesOrderAddressResponse = {
+export type SalesOrderAddress = {
   regionId: HexString;
   districtId: HexString;
   address: string;
@@ -108,12 +108,12 @@ export type CreateSalesOrderPayload = {
 };
 
 export type SalesOrdersState = {
-  orders: SalesOrderResponse[];
-  orderById: SalesOrderResponse | null;
+  orders: SalesOrder[];
+  orderById: SalesOrder | null;
   total: number;
   page: number;
   limit: number;
-  createdOrder: SalesOrderResponse | null;
+  createdOrder: SalesOrder | null;
   isLoading: boolean;
   error: string | null;
 };

@@ -6,8 +6,8 @@ import {statusColors} from "shared/ui/statuses.tsx";
 import type {AdaptiveColumn} from "shared/ui/table/types.ts";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { AvailablePackageType, BatchStatus } from 'shared/types/dtos';
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { PackageType, BatchStatus } from 'shared/types/dtos';
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined, canCreateUtilization: boolean, canCreateCustomsCode: boolean, customsCodeBatchIds: ReadonlySet<string>, creatingCustomsCodeBatchIds: ReadonlySet<string>, handleAppoint: (
@@ -155,7 +155,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
                  textOverflow: "ellipsis",
              }}
         >
-          {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, StatusScope.Internal, status?.toLowerCase())}
+          {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, LifecycleScope.Internal, status?.toLowerCase())}
         </Tag>
       )
     ),
@@ -177,7 +177,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
                      textOverflow: "ellipsis",
                  }}
             >
-              {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, StatusScope.External, status)}
+              {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, LifecycleScope.External, status)}
             </Tag>
         )
     ),
@@ -191,7 +191,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       const canCreateAik =
         canCreateCustomsCode &&
         !customsCodeBatchIds.has(record.batchId) &&
-        record.packageType?.toLowerCase() === AvailablePackageType.Unit &&
+        record.packageType?.toLowerCase() === PackageType.Unit &&
         record.status === BatchStatus.CodesAggregated;
       const isCreatingAik = creatingCustomsCodeBatchIds.has(record.batchId);
 

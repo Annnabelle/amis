@@ -6,7 +6,7 @@ export type CreateUtilizationReport = {
 }
 
 
-export type UtilizationReportResponse = {
+export type UtilizationReport = {
     id: HexString;
     reportNumber: string;
     userId: HexString;

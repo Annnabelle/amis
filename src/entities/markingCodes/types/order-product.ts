@@ -1,4 +1,4 @@
-import type {ErrorDto, MarkingCodeState, MarkingCodeStatus, PaginatedResponseDto} from "shared/types/dtos";
+import type {MarkingCodeStatus, PaginatedResponseDto} from "shared/types/dtos";
 
 
 export type GetBatchCodesParams= {
@@ -8,17 +8,13 @@ export type GetBatchCodesParams= {
     batchId: string;
 }
 
-export type GetOrderProductCodesResponse = {
-    success: boolean;
-} & PaginatedResponseDto<CodeRow> | ErrorDto;
+export type OrderProductCodes = PaginatedResponseDto<OrderProductCode>;
 
-export type CodeRow = {
+export type OrderProductCode = {
     id: string;
     code: string;
     productName: string;
-    state: MarkingCodeState;
     status: MarkingCodeStatus;
 }
-
 
 

@@ -1,33 +1,13 @@
+/**
+ * Подключение сущности к таймлайну: конфиг ниже и <LifecyclePanel target=… />
+ * на карточке.
+ */
+import { LifecycleTargetEntity } from '@edem2000/amis.contracts';
+
+export { LifecycleTargetEntity };
+
 import { CompanyScopeOptions, type CompanyScopeOption } from "shared/lib/requestScope";
 
-/**
- * Реестр типов сущностей, у которых есть таймлайн.
- * Подключение новой сущности = строка здесь + <LifecyclePanel target=... />
- * на её карточке.
- */
-export const LifecycleTargetType = {
-  Lead: "lead",
-  SalesOrder: "salesOrder",
-  DeliveryRoute: "deliveryRoute",
-  DeliveryTask: "deliveryTask",
-  ScanSession: "scanSession",
-  Invoice: "invoice",
-  Waybill: "waybill",
-  MarkingCodeOrder: "markingCodeOrder",
-  MarkingCodeOrderBatch: "markingCodeOrderBatch",
-  UtilizationReport: "utilizationReport",
-  AggregationReport: "aggregationReport",
-  CustomsCodeOrder: "customsCodeOrder",
-  Product: "product",
-  Vehicle: "vehicle",
-  User: "user",
-  Company: "company",
-  CompanyXTraceIntegration: "companyXTraceIntegration",
-  CompanyFakturaUzIntegration: "companyFakturaUzIntegration",
-} as const;
-
-export type LifecycleTargetType =
-  (typeof LifecycleTargetType)[keyof typeof LifecycleTargetType];
 
 export type LifecycleTargetConfig = {
   /**
@@ -39,38 +19,38 @@ export type LifecycleTargetConfig = {
 };
 
 export const lifecycleTargets: Record<
-  LifecycleTargetType,
+  LifecycleTargetEntity,
   LifecycleTargetConfig
 > = {
-  [LifecycleTargetType.Lead]: { companyScope: CompanyScopeOptions.None },
-  [LifecycleTargetType.SalesOrder]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.DeliveryRoute]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.DeliveryTask]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.ScanSession]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.Invoice]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.Waybill]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.MarkingCodeOrder]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.MarkingCodeOrderBatch]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.UtilizationReport]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.AggregationReport]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.CustomsCodeOrder]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.Product]: { companyScope: CompanyScopeOptions.Auto },
-  [LifecycleTargetType.Vehicle]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.Lead]: { companyScope: CompanyScopeOptions.None },
+  [LifecycleTargetEntity.SalesOrder]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.DeliveryRoute]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.DeliveryTask]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.ScanSession]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.Invoice]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.Waybill]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.MarkingCodeOrder]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.MarkingCodeOrderBatch]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.UtilizationReport]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.AggregationReport]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.AggregatedCustomsCodeOrder]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.Product]: { companyScope: CompanyScopeOptions.Auto },
+  [LifecycleTargetEntity.Vehicle]: { companyScope: CompanyScopeOptions.Auto },
   /**
    * User и Company читаются только системной ролью (эндпоинты /users/:id и
    * /companies/:id — Global-scope), заголовок компании тут ни при чём —
    * тот же случай, что и Lead.
    */
-  [LifecycleTargetType.User]: { companyScope: CompanyScopeOptions.None },
-  [LifecycleTargetType.Company]: { companyScope: CompanyScopeOptions.None },
-  [LifecycleTargetType.CompanyXTraceIntegration]: {
+  [LifecycleTargetEntity.User]: { companyScope: CompanyScopeOptions.None },
+  [LifecycleTargetEntity.Company]: { companyScope: CompanyScopeOptions.None },
+  [LifecycleTargetEntity.CompanyXTraceIntegration]: {
     companyScope: CompanyScopeOptions.Auto,
   },
-  [LifecycleTargetType.CompanyFakturaUzIntegration]: {
+  [LifecycleTargetEntity.CompanyFakturaUzIntegration]: {
     companyScope: CompanyScopeOptions.Auto,
   },
 };
 
 export const getLifecycleTargetConfig = (
-  target: LifecycleTargetType
+  target: LifecycleTargetEntity
 ): LifecycleTargetConfig => lifecycleTargets[target];

@@ -5,7 +5,11 @@ import { statusColors } from "shared/ui/statuses";
 import type { TFunction } from "i18next";
 import UserPreviewCard from "entities/users/ui/userPreviewCard";
 import type { UserPreview } from "entities/users/types";
-import { UserSystemAccessState, type SystemRole } from "entities/systemEmployees/types";
+import {
+  UserSystemAccessStates,
+  type SystemRole,
+  type UserSystemAccessState,
+} from "entities/systemEmployees/types";
 
 export const SystemEmployeesTableColumns = (
   t: TFunction,
@@ -68,8 +72,8 @@ export const SystemEmployeesTableColumns = (
     width: 72,
     render: (_, record) => {
       const isTerminalState =
-        record.state === UserSystemAccessState.Declined ||
-        record.state === UserSystemAccessState.Disabled;
+        record.state === UserSystemAccessStates.Declined ||
+        record.state === UserSystemAccessStates.Disabled;
       const hasOnlyAssignableRoles = record.roles.every((role) =>
         assignableRoleAliases.has(role)
       );

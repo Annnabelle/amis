@@ -1,6 +1,8 @@
 import type { ErrorDto } from "shared/types/dtos";
-import type { AccountActionResponseDto, ChangePasswordDto, ChangePasswordResponseDto, CreateUserDto, LoginDto, LoginResponseDto, RegisterUserDto, UpdateUserDto, UserResponseDto, UserPreviewDto } from "entities/users/dtos/login";
-import type { AddUserForm, ChangePassword, ChangePasswordResponse, LoginForm, LoginResponse, RegisterForm, UserPreview, UserResponse } from "entities/users/types";
+import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { ChangePasswordDto, CreateUserDto, LoginDto, RegisterUserDto, UpdateUserDto } from '@edem2000/amis.contracts/api/users/requests';
+import type { ChangePasswordResponseDto, LoginResponseDto, UserPreviewDto } from '@edem2000/amis.contracts/api/users/responses';
+import type { AddUserForm, ChangePassword, ChangePasswordResult, LoginForm, LoginResult, RegisterForm, UserPreview, User } from "entities/users/types";
 
 // PhoneInput emits digits without the leading "+"; the API expects E.164 (+998…)
 const toE164Phone = (phone: string): string => {
@@ -23,7 +25,7 @@ export function mapChangePwdFormToChangePwdDto(form: ChangePassword): ChangePass
   };
 }
 
-export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
+export const mapUsersDtoToEntity = (dto: UserResponseDto): User => ({
   id: dto.id,
   firstName: dto.firstName,
   lastName: dto.lastName,
@@ -38,12 +40,11 @@ export const mapUsersDtoToEntity = (dto: UserResponseDto): UserResponse => ({
 
 export const mapUserPreviewDtoToEntity = (dto: UserPreviewDto): UserPreview => ({
   id: dto.id,
-  firstName: dto.name?.first ?? dto.firstName ?? "",
-  lastName: dto.name?.last ?? dto.lastName ?? "",
+  firstName: dto.firstName,
+  lastName: dto.lastName,
   status: dto.status,
   email: dto.email,
   phone: dto.phone,
-  pinfl: dto.pinfl,
 });
 
 // admin-created user (POST /users) — no password
@@ -65,7 +66,7 @@ export const mapRegisterFormToDto = (form: RegisterForm): RegisterUserDto => ({
   password: form.password,
 });
 
-export const mapUpdateUserFormToDto = (form: Partial<UserResponse>): UpdateUserDto => {
+export const mapUpdateUserFormToDto = (form: Partial<User>): UpdateUserDto => {
   return {
     firstName: form.firstName,
     lastName: form.lastName,
@@ -77,16 +78,10 @@ export const mapUpdateUserFormToDto = (form: Partial<UserResponse>): UpdateUserD
 };
 
 
-function isSuccessChangePasswordResponseDto(
-  dto: ChangePasswordResponseDto
-): dto is Exclude<ChangePasswordResponseDto, ErrorDto> {
-  return "success" in dto && dto.success === true && "tokens" in dto;
-}
-
 export const mapChangePwdDtoToEntity = (
   dto: ChangePasswordResponseDto
-): ChangePasswordResponse => {
-  if (isSuccessChangePasswordResponseDto(dto)) {
+): ChangePasswordResult => {
+  if (dto.success) {
     return {
       success: dto.success,
       user: mapUsersDtoToEntity(dto.user),
@@ -101,16 +96,10 @@ export const mapChangePwdDtoToEntity = (
 };
 
 
-
-function isSuccessLoginResponseDto(dto: LoginResponseDto
-): dto is Exclude<LoginResponseDto, ErrorDto> {
-  return "user" in dto;
-}
-
 export function mapLoginResponseDtoToLoginResponse(
   dto: LoginResponseDto
-): LoginResponse {
-  if (isSuccessLoginResponseDto(dto) && dto.success) {
+): LoginResult {
+  if (dto.success && dto.success) {
     return {
       success: true,
       user: mapUsersDtoToEntity(dto.user),
@@ -125,22 +114,7 @@ export function mapLoginResponseDtoToLoginResponse(
   };
 }
 
-export function mapUpdateUserDtoToEntity(dto: UserResponseDto): UserResponse {
+export function mapUpdateUserDtoToEntity(dto: UserResponseDto): User {
   return mapUsersDtoToEntity(dto);
 }
-
-export function isAccountActionSuccess(
-  dto: AccountActionResponseDto
-): dto is Exclude<AccountActionResponseDto, ErrorDto> {
-  return "success" in dto && dto.success === true && "user" in dto;
-}
-
-
-
-
-
-
-
-
-
 

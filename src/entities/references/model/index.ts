@@ -1,7 +1,8 @@
+import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
-import type { GetDistrictsResponseDto, GetReferenceByTypeDto, GetRegionsResponseDto } from "entities/references/dtos";
+import type { GetDistrictReferencesResponseDto, GetReferenceByTypeResponseDto, GetRegionReferencesResponseDto } from '@edem2000/amis.contracts/api/reference-book/responses';
 import type { Reference, ReferenceBookType } from "entities/references/types";
 import { mapAddressReferenceDtoToReference, mapReferenceDtoToReference } from "entities/references/mappers";
 
@@ -30,16 +31,26 @@ export const fetchReferencesByType = createAsyncThunk<
     "references/fetchByType",
     async (type, { rejectWithValue }) => {
       try {
-        const { data } = await axiosInstance.get<GetReferenceByTypeDto>(
+        const { data } = await axiosInstance.get<GetReferenceByTypeResponseDto>(
             `${BASE_URL}/references/${type}`
         );
+
+        if (!data.success) {
+          return rejectWithValue(
+            getBackendErrorMessage(data, "Не удалось загрузить справочник")
+          );
+        }
 
         return {
           type,
           data: data.references.map(mapReferenceDtoToReference),
         };
-      } catch (err: any) {
-        return rejectWithValue(err.message ?? "Ошибка загрузки справочников");
+      } catch (error: unknown) {
+        const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+        return rejectWithValue(
+          getBackendErrorMessage(responseData ?? error, "Не удалось загрузить справочник")
+        );
       }
     }
 );
@@ -52,13 +63,23 @@ export const fetchRegions = createAsyncThunk<
     "references/fetchRegions",
     async (_, { rejectWithValue }) => {
       try {
-        const { data } = await axiosInstance.get<GetRegionsResponseDto>(
+        const { data } = await axiosInstance.get<GetRegionReferencesResponseDto>(
             `${BASE_URL}/references/regions`
         );
 
+        if (!data.success) {
+          return rejectWithValue(
+            getBackendErrorMessage(data, "Не удалось загрузить регионы")
+          );
+        }
+
         return data.regions.map(mapAddressReferenceDtoToReference);
-      } catch (err: any) {
-        return rejectWithValue(err.message ?? "Ошибка загрузки регионов");
+      } catch (error: unknown) {
+        const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+        return rejectWithValue(
+          getBackendErrorMessage(responseData ?? error, "Не удалось загрузить регионы")
+        );
       }
     }
 );
@@ -71,17 +92,27 @@ export const fetchDistrictsByRegion = createAsyncThunk<
     "references/fetchDistrictsByRegion",
     async (regionId, { rejectWithValue }) => {
       try {
-        const { data } = await axiosInstance.get<GetDistrictsResponseDto>(
+        const { data } = await axiosInstance.get<GetDistrictReferencesResponseDto>(
             `${BASE_URL}/references/districts`,
             { params: { regionId } }
         );
+
+        if (!data.success) {
+          return rejectWithValue(
+            getBackendErrorMessage(data, "Не удалось загрузить районы")
+          );
+        }
 
         return {
           regionId,
           data: data.districts.map(mapAddressReferenceDtoToReference),
         };
-      } catch (err: any) {
-        return rejectWithValue(err.message ?? "Ошибка загрузки районов");
+      } catch (error: unknown) {
+        const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+        return rejectWithValue(
+          getBackendErrorMessage(responseData ?? error, "Не удалось загрузить районы")
+        );
       }
     }
 );
