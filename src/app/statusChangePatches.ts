@@ -3,10 +3,10 @@ import type { UnknownAction } from "@reduxjs/toolkit";
 import type { RootState } from "app/store";
 import { aggregationSlice } from "entities/aggregation/model";
 import { customsCodesSlice } from "entities/customsCodes/model";
-import { StatusChangeEntity } from "entities/lifecycle/lib/statusChangeEntities";
+import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { markingCodesSlice } from "entities/markingCodes/model";
 import type { AggregatedCustomsCodeOrderStatus } from "entities/customsCodes/types";
-import type { OrderStatus } from "entities/markingCodes/dtos";
+import type { OrderStatus } from '@edem2000/amis.contracts';
 import type { AggregationReportStatus, BatchStatus } from "shared/types/dtos";
 import type { StatusChangeNotification } from "shared/lib/statusChanges";
 
@@ -23,7 +23,7 @@ type StatusPatch = (
 ) => UnknownAction | null;
 
 const patches: Record<string, StatusPatch> = {
-  [StatusChangeEntity.MarkingCodeOrderBatch]: (state, { target, status }) =>
+  [LifecycleTargetEntity.MarkingCodeOrderBatch]: (state, { target, status }) =>
     state.markingCodes.data.some((row) => row.batchId === target.id)
       ? markingCodesSlice.actions.batchStatusChanged({
           batchId: target.id,
@@ -31,7 +31,7 @@ const patches: Record<string, StatusPatch> = {
         })
       : null,
 
-  [StatusChangeEntity.MarkingCodeOrder]: (state, { target, status }) =>
+  [LifecycleTargetEntity.MarkingCodeOrder]: (state, { target, status }) =>
     state.markingCodes.data.some((row) => row.orderId === target.id)
       ? markingCodesSlice.actions.orderStatusChanged({
           orderId: target.id,
@@ -39,7 +39,7 @@ const patches: Record<string, StatusPatch> = {
         })
       : null,
 
-  [StatusChangeEntity.AggregationReport]: (state, { target, status }) =>
+  [LifecycleTargetEntity.AggregationReport]: (state, { target, status }) =>
     state.aggregations.aggregations.some((report) => report.id === target.id) ||
     state.aggregations.oneAggregation?.id === target.id
       ? aggregationSlice.actions.reportStatusChanged({
@@ -48,7 +48,7 @@ const patches: Record<string, StatusPatch> = {
         })
       : null,
 
-  [StatusChangeEntity.AggregatedCustomsCodeOrder]: (
+  [LifecycleTargetEntity.AggregatedCustomsCodeOrder]: (
     state,
     { target, status },
   ) =>

@@ -5,19 +5,9 @@ import {
 } from "@reduxjs/toolkit";
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL } from "shared/lib/consts";
-import type {
-  ApiErrorResponse,
-  CreateCustomsCodePayload,
-  CreateCustomsCodeResponseDto,
-  GetCustomsCodeResponseDto,
-  GetCustomsCodesParams,
-  GetCustomsCodesResponseDto,
-  InitiateDissolutionAggregatedCustomsCodeOrderResponseDto,
-  SignDissolutionAggregatedCustomsCodeOrderPayload,
-  SignDissolutionAggregatedCustomsCodeOrderResponseDto,
-  SignRegistrationAggregatedCustomsCodeOrderPayload,
-  SignRegistrationAggregatedCustomsCodeOrderResponseDto,
-} from "entities/customsCodes/dtos";
+import type { ErrorDto } from "shared/types/dtos";
+import type { CreateAggregatedCustomsCodeOrderDto, GetAggregatedCustomsCodesDto, SignAggregatedCustomsCodeOrderDto } from '@edem2000/amis.contracts/api/aggregated-customs-code/requests';
+import type { CreateAggregatedCustomsCodeResponseDto, GetAggregatedCustomsCodeOrdersResponseDto, GetAggregatedCustomsCodeOrderResponseDto, InitiateAggregatedCustomsCodeOrderDissolutionResponseDto, SignDissolvementAggregatedCustomsCodeOrderResponseDto, SignRegistrationAggregatedCustomsCodeOrderResponseDto } from '@edem2000/amis.contracts/api/aggregated-customs-code/responses';
 import { mapCustomsCodeOrderDtoToEntity } from "entities/customsCodes/mappers";
 import type {
   AggregatedCustomsCodeOrderStatus,
@@ -28,7 +18,7 @@ type CustomsCodesState = {
   data: CustomsCodeOrder[];
   selected: CustomsCodeOrder | null;
   selectedLoading: boolean;
-  selectedError: ApiErrorResponse | null;
+  selectedError: ErrorDto | null;
   total: number;
   page: number;
   limit: number;
@@ -36,7 +26,7 @@ type CustomsCodesState = {
   creating: boolean;
   dissolving: boolean;
   signing: boolean;
-  error: ApiErrorResponse | null;
+  error: ErrorDto | null;
 };
 
 const initialState: CustomsCodesState = {
@@ -54,7 +44,7 @@ const initialState: CustomsCodesState = {
   error: null,
 };
 
-const fallbackError = (status = -500): ApiErrorResponse => ({
+const fallbackError = (status = -500): ErrorDto => ({
   success: false,
   errorCode: status,
   errorMessage: {
@@ -64,9 +54,9 @@ const fallbackError = (status = -500): ApiErrorResponse => ({
   },
 });
 
-const getErrorPayload = (err: unknown): ApiErrorResponse => {
+const getErrorPayload = (err: unknown): ErrorDto => {
   const response = err as {
-    response?: { status?: number; data?: ApiErrorResponse };
+    response?: { status?: number; data?: ErrorDto };
   };
 
   if (response.response?.data?.errorMessage) {
@@ -78,11 +68,11 @@ const getErrorPayload = (err: unknown): ApiErrorResponse => {
 
 export const fetchCustomsCodes = createAsyncThunk<
   { data: CustomsCodeOrder[]; total: number; page: number; limit: number },
-  GetCustomsCodesParams,
-  { rejectValue: ApiErrorResponse }
+  GetAggregatedCustomsCodesDto,
+  { rejectValue: ErrorDto }
 >("customsCodes/fetchCustomsCodes", async (params, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get<GetCustomsCodesResponseDto>(
+    const response = await axiosInstance.get<GetAggregatedCustomsCodeOrdersResponseDto>(
       `${BASE_URL}/customs-code-orders`,
       { params },
     );
@@ -105,10 +95,10 @@ export const fetchCustomsCodes = createAsyncThunk<
 export const fetchCustomsCodeById = createAsyncThunk<
   CustomsCodeOrder,
   string,
-  { rejectValue: ApiErrorResponse }
+  { rejectValue: ErrorDto }
 >("customsCodes/fetchCustomsCodeById", async (id, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get<GetCustomsCodeResponseDto>(
+    const response = await axiosInstance.get<GetAggregatedCustomsCodeOrderResponseDto>(
       `${BASE_URL}/customs-code-orders/${id}`,
     );
 
@@ -124,11 +114,11 @@ export const fetchCustomsCodeById = createAsyncThunk<
 
 export const createCustomsCode = createAsyncThunk<
   CustomsCodeOrder,
-  CreateCustomsCodePayload,
-  { rejectValue: ApiErrorResponse }
+  CreateAggregatedCustomsCodeOrderDto,
+  { rejectValue: ErrorDto }
 >("customsCodes/createCustomsCode", async (payload, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post<CreateCustomsCodeResponseDto>(
+    const response = await axiosInstance.post<CreateAggregatedCustomsCodeResponseDto>(
       `${BASE_URL}/customs-code-orders`,
       payload,
     );
@@ -147,8 +137,8 @@ export const createCustomsCode = createAsyncThunk<
 
 export const signRegistrationAggregatedCustomsCodeOrder = createAsyncThunk<
   CustomsCodeOrder,
-  SignRegistrationAggregatedCustomsCodeOrderPayload,
-  { rejectValue: ApiErrorResponse }
+  SignAggregatedCustomsCodeOrderDto,
+  { rejectValue: ErrorDto }
 >(
   "customsCodes/signRegistrationAggregatedCustomsCodeOrder",
   async (payload, { rejectWithValue }) => {
@@ -175,13 +165,13 @@ export const signRegistrationAggregatedCustomsCodeOrder = createAsyncThunk<
 export const initiateDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
   CustomsCodeOrder,
   string,
-  { rejectValue: ApiErrorResponse }
+  { rejectValue: ErrorDto }
 >(
   "customsCodes/initiateDissolutionAggregatedCustomsCodeOrder",
   async (id, { rejectWithValue }) => {
     try {
       const response =
-        await axiosInstance.post<InitiateDissolutionAggregatedCustomsCodeOrderResponseDto>(
+        await axiosInstance.post<InitiateAggregatedCustomsCodeOrderDissolutionResponseDto>(
           `${BASE_URL}/customs-code-orders/${id}/dissolve`,
         );
 
@@ -200,14 +190,14 @@ export const initiateDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
 
 export const signDissolutionAggregatedCustomsCodeOrder = createAsyncThunk<
   CustomsCodeOrder,
-  SignDissolutionAggregatedCustomsCodeOrderPayload,
-  { rejectValue: ApiErrorResponse }
+  SignAggregatedCustomsCodeOrderDto,
+  { rejectValue: ErrorDto }
 >(
   "customsCodes/signDissolutionAggregatedCustomsCodeOrder",
   async (payload, { rejectWithValue }) => {
     try {
       const response =
-        await axiosInstance.post<SignDissolutionAggregatedCustomsCodeOrderResponseDto>(
+        await axiosInstance.post<SignDissolvementAggregatedCustomsCodeOrderResponseDto>(
           `${BASE_URL}/customs-code-orders/dissolution/sign`,
           payload,
         );

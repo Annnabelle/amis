@@ -1,4 +1,4 @@
-﻿export const resources = {
+export const resources = {
     en:{
         translation:{
             statusChange: {
@@ -49,7 +49,6 @@
                 loading: "Loading",
                 loaded: "Loaded",
                 handover_in_progress: "Handover in progress",
-                delivering: "Delivering",
                 in_transit: "In transit",
                 partially_delivered: "Partially delivered",
                 delivered: "Delivered",
@@ -58,6 +57,7 @@
                 returned: "Returned",
                 cancelled: "Cancelled",
                 closed: "Closed",
+                invoiced: "Invoiced",
                 failed: "Failed"
             },
             export: {
@@ -125,7 +125,17 @@
                     orderCodesUtilized: "Code applied",
                     orderReportCreated: "Report created",
                     orderClosed: "Order closed",
-                    orderRejected: "Order rejected"
+                    orderRejected: "Order rejected",
+                    systemEmployeeCreate: "System employee created",
+                    systemEmployeeUpdate: "System employee updated",
+                    systemEmployeeDelete: "System employee deleted",
+                    companyMembershipCreate: "Company membership created",
+                    companyMembershipUpdate: "Company membership updated",
+                    companyMembershipDelete: "Company membership deleted",
+                    emailVerified: "Email verified",
+                    passwordReset: "Password reset",
+                    passwordSet: "Password set",
+                    userCreatedByAdmin: "User created by administrator"
                 }
             },
             categories: {
@@ -247,6 +257,7 @@
                         codes_aggregated: "Codes aggregated",
                         rejected: "Rejected",
                         closed: "Closed",
+                        error: "Error",
                     },
                     external: {
                         CREATED: "Created",
@@ -315,7 +326,7 @@
                         ERROR: "Rejected",
                     },
                 },
-                customsCodeOrder: {
+                aggregatedCustomsCodeOrder: {
                     internal: {
                         new: "New",
                         generated: "Generated",
@@ -1028,7 +1039,6 @@
                     customerTin: "Customer TIN",
                     status: "Status",
                     plannedQuantity: "Planned qty",
-                    loadedQuantity: "Loaded qty",
                     deliveredQuantity: "Delivered qty",
                     amount: "Amount",
                     invoice: "Invoice",
@@ -1345,9 +1355,6 @@
                     salesOrderId: "Sales order",
                     deliveryRouteId: "Delivery route",
                     deliveryTaskId: "Delivery task",
-                    filename: "Filename",
-                    programVersion: "Program version",
-                    formatVersion: "Format version",
                     externalId: "External ID",
                     sentAt: "Sent at",
                     registeredAt: "Registered at",
@@ -2095,9 +2102,13 @@
                         applied: "Applied",
                         introduced: "In circulation",
                         withdrawn: "Withdrawn from circulation",
-                        writtenOff: "Written off",
-                        uploaded: "Uploaded",
                         aggregated: "Agregated",
+                        reserved_for_aggregation: "Reserved for aggregation",
+                        written_off: "Written off",
+                        reserved_for_delivery: "Reserved for delivery",
+                        loaded: "Loaded",
+                        in_transit: "In transit",
+                        delivered: "Delivered",
                     },
                 },
                 batches: {
@@ -2438,7 +2449,6 @@
                 loading: "Загрузка",
                 loaded: "Загружено",
                 handover_in_progress: "Выдача начата",
-                delivering: "Доставка",
                 in_transit: "В пути",
                 partially_delivered: "Частично доставлено",
                 delivered: "Доставлено",
@@ -2447,6 +2457,7 @@
                 returned: "Возвращено",
                 cancelled: "Отменено",
                 closed: "Закрыто",
+                invoiced: "Выставлен инвойс",
                 failed: "Ошибка"
             },
             export: {
@@ -2514,7 +2525,17 @@
                     orderCodesUtilized: "Код нанесён",
                     orderReportCreated: "Отчет создан",
                     orderClosed: "Заказ закрыт",
-                    orderRejected: "Заказ отклонен"
+                    orderRejected: "Заказ отклонен",
+                    systemEmployeeCreate: "Сотрудник системы создан",
+                    systemEmployeeUpdate: "Сотрудник системы обновлён",
+                    systemEmployeeDelete: "Сотрудник системы удалён",
+                    companyMembershipCreate: "Участник компании добавлен",
+                    companyMembershipUpdate: "Участник компании обновлён",
+                    companyMembershipDelete: "Участник компании удалён",
+                    emailVerified: "Email подтверждён",
+                    passwordReset: "Пароль сброшен",
+                    passwordSet: "Пароль установлен",
+                    userCreatedByAdmin: "Пользователь создан администратором"
                 }
             },
             categories: {
@@ -2636,6 +2657,7 @@
                         codes_aggregated: "Коды агрегированы",
                         rejected: "Отклонён",
                         closed: "Закрыт",
+                        error: "Ошибка",
                     },
                     external: {
                         CREATED: "Создан",
@@ -2704,7 +2726,7 @@
                         ERROR: "Отклонён",
                     },
                 },
-                customsCodeOrder: {
+                aggregatedCustomsCodeOrder: {
                     internal: {
                         new: "Новый",
                         generated: "Сгенерирован",
@@ -3417,7 +3439,6 @@
                     customerTin: "ИНН клиента",
                     status: "Статус",
                     plannedQuantity: "План",
-                    loadedQuantity: "Погружено",
                     deliveredQuantity: "Доставлено",
                     amount: "Сумма",
                     invoice: "Инвойс",
@@ -3734,9 +3755,6 @@
                     salesOrderId: "Заказ",
                     deliveryRouteId: "Рейс",
                     deliveryTaskId: "Задача доставки",
-                    filename: "Имя файла",
-                    programVersion: "Версия программы",
-                    formatVersion: "Версия формата",
                     externalId: "Внешний ID",
                     sentAt: "Отправлена",
                     registeredAt: "Зарегистрирована",
@@ -4485,9 +4503,13 @@
                         applied: "Нанесен",
                         introduced: " В обороте",
                         withdrawn: "Выведен из оборота",
-                        writtenOff: "Списан",
-                        uploaded: "Загружен",
                         aggregated: "Агрегирован",
+                        reserved_for_aggregation: "Зарезервирован под агрегацию",
+                        written_off: "Списан",
+                        reserved_for_delivery: "Зарезервирован под доставку",
+                        loaded: "Загружен",
+                        in_transit: "В пути",
+                        delivered: "Доставлен",
                     },
                 },
                 batches: {
@@ -4818,7 +4840,6 @@
                 loading: "Yuklash",
                 loaded: "Yuklangan",
                 handover_in_progress: "Topshirish boshlandi",
-                delivering: "Yetkazilmoqda",
                 in_transit: "Yo'lda",
                 partially_delivered: "Qisman yetkazilgan",
                 delivered: "Yetkazilgan",
@@ -4827,6 +4848,7 @@
                 returned: "Qaytarilgan",
                 cancelled: "Bekor qilindi",
                 closed: "Yopilgan",
+                invoiced: "Hisob-faktura berilgan",
                 failed: "Xato"
             },
             export: {
@@ -4894,7 +4916,17 @@
                     orderCodesUtilized: "Kod qo‘llandi",
                     orderReportCreated: "Hisobot yaratildi",
                     orderClosed: "Buyurtma yopildi",
-                    orderRejected: "Buyurtma rad etildi"
+                    orderRejected: "Buyurtma rad etildi",
+                    systemEmployeeCreate: "Tizim xodimi yaratildi",
+                    systemEmployeeUpdate: "Tizim xodimi yangilandi",
+                    systemEmployeeDelete: "Tizim xodimi o‘chirildi",
+                    companyMembershipCreate: "Kompaniya a'zosi qo‘shildi",
+                    companyMembershipUpdate: "Kompaniya a'zosi yangilandi",
+                    companyMembershipDelete: "Kompaniya a'zosi o‘chirildi",
+                    emailVerified: "Email tasdiqlandi",
+                    passwordReset: "Parol tiklandi",
+                    passwordSet: "Parol o‘rnatildi",
+                    userCreatedByAdmin: "Foydalanuvchi administrator tomonidan yaratildi"
                 }
             },
             categories: {
@@ -5017,6 +5049,7 @@
                         codes_aggregated: "Kodlar agregatsiya qilindi",
                         rejected: "Rad etilgan",
                         closed: "Yopilgan",
+                        error: "Xatolik",
                     },
                     external: {
                         CREATED: "Yaratilgan",
@@ -5085,7 +5118,7 @@
                         ERROR: "Rad etilgan",
                     },
                 },
-                customsCodeOrder: {
+                aggregatedCustomsCodeOrder: {
                     internal: {
                         new: "Yangi",
                         generated: "Generatsiya qilingan",
@@ -5769,7 +5802,6 @@
                     customerTin: "Mijoz STIR",
                     status: "Holat",
                     plannedQuantity: "Reja",
-                    loadedQuantity: "Yuklangan",
                     deliveredQuantity: "Yetkazilgan",
                     amount: "Summa",
                     invoice: "Hisob-faktura",
@@ -6086,9 +6118,6 @@
                     salesOrderId: "Buyurtma",
                     deliveryRouteId: "Reys",
                     deliveryTaskId: "Yetkazish vazifasi",
-                    filename: "Fayl nomi",
-                    programVersion: "Dastur versiyasi",
-                    formatVersion: "Format versiyasi",
                     externalId: "Tashqi ID",
                     sentAt: "Yuborilgan",
                     registeredAt: "Ro'yxatdan o'tgan",
@@ -6835,9 +6864,13 @@
                       applied: "Belgilangan",
                       introduced: "Muomalada",
                       withdrawn: "Muomaladan chiqarilgan",
-                      writtenOff: "Hisobdan chiqarilgan",
-                      uploaded: "Yuklangan",
                       aggregated: "Agregatsiyalangan",
+                      reserved_for_aggregation: "Agregatsiya uchun zahiralangan",
+                      written_off: "Hisobdan chiqarilgan",
+                      reserved_for_delivery: "Yetkazib berish uchun zahiralangan",
+                      loaded: "Yuklangan",
+                      in_transit: "Yo‘lda",
+                      delivered: "Yetkazib berilgan",
                   }
                 },
                 batches: {

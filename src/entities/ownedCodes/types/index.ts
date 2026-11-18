@@ -2,33 +2,23 @@
  * Коды, которыми владеет компания. Это реестр кодов, а не записи учёта: у кода,
  * пришедшего от контрагента, записи учёта может не быть вовсе.
  */
-export const PackageType = {
-  Unit: "unit",
-  Group: "group",
-  BoxLv1: "box_lv_1",
-  BoxLv2: "box_lv_2",
-} as const;
+import {
+  MarkingCodeExternalStatus,
+  PackageType,
+} from '@edem2000/amis.contracts'
 
-export type PackageType = (typeof PackageType)[keyof typeof PackageType];
+export {
+  MarkingCodeExternalStatus,
+  PackageType,
+}
 
-/** Статус кода у вендора: владение — это его мнение, не наше. */
-export const CodeExternalStatus = {
-  Received: "RECEIVED",
-  Applied: "APPLIED",
-  Introduced: "INTRODUCED",
-  Withdrawn: "WITHDRAWN",
-  WrittenOff: "WRITTEN_OFF",
-} as const;
-
-export type CodeExternalStatus =
-  (typeof CodeExternalStatus)[keyof typeof CodeExternalStatus];
 
 export type OwnedCode = {
   code: string;
   gtin: string;
   packageType: PackageType;
   parentCode?: string;
-  status?: CodeExternalStatus;
+  status?: MarkingCodeExternalStatus;
   ownerTin?: string;
   /**
    * Момент заявки на перечень, а не разбора результата: владение верно на этот

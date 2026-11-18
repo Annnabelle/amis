@@ -1,4 +1,4 @@
-import type {AvailablePackageType, HexString, MeasurementDto, MultiLanguage, WeightDto} from "shared/types/dtos";
+import type {PackageType, HexString, MultiLanguage} from "shared/types/dtos";
 
 export type ProductClassification = {
     icps: string;
@@ -7,31 +7,26 @@ export type ProductClassification = {
     resolvedAt: Date;
 };
 
-export type ProductResponse = {
+export type Product = {
     id: string;
     name: string;
     shortName: string;
     description?: string | null;
 
-    gtin: {
-        unit: string,
-        group?: string,
-        box_lv_1?: string,
-        box_lv_2?: string,
-    };
+    gtin: Gtin;
     classification: ProductClassification | null;
-    brand: string;
-    productGroup: string;
-    packageTypes: AvailablePackageType[];
+    brand?: string | null;
+    productGroup?: string;
+    packageTypes: PackageType[];
 
     aggregationQuantity: number;
     expiration?: number | null;
     manufacturerCountry: string
 
-    measurement: { unit: string; amount: number };
-    weight: { net: number; gross: number };
+    measurement?: Measurement;
+    weight?: Weight;
 
-    price: number;
+    price?: number;
     companyId: string;
 };
 
@@ -76,10 +71,10 @@ export type CreateProduct = {
 }
 
 export type ProductState = {
-    product: ProductResponse | null;
-    productById: ProductResponse | null;
-    updateProduct: ProductResponse | null;
-    products: ProductResponse[];
+    product: Product | null;
+    productById: Product | null;
+    updateProduct: Product | null;
+    products: Product[];
     isLoading: boolean;
     error: string | null;
     status: string | null;
@@ -98,8 +93,8 @@ export type UpdateProduct = {
     aggregationQuantity?: number;
     manufacturerCountry?: string;
     expiration?: number;
-    measurement?: MeasurementDto;
-    weight?: WeightDto;
+    measurement?: Partial<Measurement>;
+    weight?: Partial<Weight>;
     price?: number;
     companyId?: HexString;
 }

@@ -1,4 +1,5 @@
-import type { VehicleOwnerDto, VehicleOwnershipType, VehicleStatus, VehicleType } from "entities/vehicles/dtos";
+import type { VehicleOwnerDto } from '@edem2000/amis.contracts/api/vehicle/requests';
+import type { VehicleOwnershipType, VehicleStatus, VehicleType } from '@edem2000/amis.contracts';
 
 export type VehicleIdentification = {
   vin?: string;

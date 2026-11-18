@@ -1,36 +1,10 @@
+/**
+ * Куда вести по сущности из уведомления и под каким ключом её статусы лежат
+ * в каталоге. Ключи — машинные имена сущностей бэкенда.
+ */
+import { LifecycleTargetEntity } from "./targets";
 import { StatusEntity } from "shared/config/statusCatalog";
 
-/**
- * Что мы знаем о сущности, пришедшей в уведомлении: куда вести и под каким
- * ключом её статусы лежат в каталоге подписей и цветов.
- *
- * Ключи — машинные имена сущностей бэкенда (`EntityType`): сравнение идёт с тем,
- * что прислал сервер. С `LifecycleTargetType` они местами расходятся — у нас
- * `customsCodeOrder`, у бэкенда `aggregatedCustomsCodeOrder`.
- */
-export const StatusChangeEntity = {
-  Lead: "lead",
-  MarkingCodeOrder: "markingCodeOrder",
-  MarkingCodeOrderBatch: "markingCodeOrderBatch",
-  Waybill: "waybill",
-  Invoice: "invoice",
-  UtilizationReport: "utilizationReport",
-  AggregationReport: "aggregationReport",
-  AggregatedCustomsCodeOrder: "aggregatedCustomsCodeOrder",
-  DeliveryRoute: "deliveryRoute",
-  DeliveryTask: "deliveryTask",
-  SalesOrder: "salesOrder",
-  ScanSession: "scanSession",
-  Vehicle: "vehicle",
-  Product: "product",
-  User: "user",
-  Company: "company",
-  CompanyXTraceIntegration: "companyXTraceIntegration",
-  CompanyFakturaUzIntegration: "companyFakturaUzIntegration",
-} as const;
-
-export type StatusChangeEntity =
-  (typeof StatusChangeEntity)[keyof typeof StatusChangeEntity];
 
 type RouteParams = {
   id: string;
@@ -53,7 +27,7 @@ const inCompany =
     companyId ? path(companyId, id) : null;
 
 const routes: Record<string, EntityRoutes> = {
-  [StatusChangeEntity.MarkingCodeOrder]: {
+  [LifecycleTargetEntity.MarkingCodeOrder]: {
     statusEntity: StatusEntity.MarkingCodeOrder,
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/orders/${id}`,
@@ -63,77 +37,77 @@ const routes: Record<string, EntityRoutes> = {
    * У партии своя страница есть, но её адрес требует ещё и id заказа
    * (`/orderId/:orderId/batchId/:batchId`), а в уведомлении его нет.
    */
-  [StatusChangeEntity.MarkingCodeOrderBatch]: {
+  [LifecycleTargetEntity.MarkingCodeOrderBatch]: {
     statusEntity: StatusEntity.MarkingCodeOrderBatch,
     card: null,
   },
-  [StatusChangeEntity.AggregationReport]: {
+  [LifecycleTargetEntity.AggregationReport]: {
     statusEntity: StatusEntity.AggregationReport,
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/aggregations/${id}`,
     ),
   },
   // Отдельной страницы у отчёта о нанесении нет: он живёт в карточке партии.
-  [StatusChangeEntity.UtilizationReport]: {
+  [LifecycleTargetEntity.UtilizationReport]: {
     statusEntity: StatusEntity.UtilizationReport,
     card: null,
   },
-  [StatusChangeEntity.AggregatedCustomsCodeOrder]: {
-    statusEntity: StatusEntity.CustomsCodeOrder,
+  [LifecycleTargetEntity.AggregatedCustomsCodeOrder]: {
+    statusEntity: StatusEntity.AggregatedCustomsCodeOrder,
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/customs-codes/${id}`,
     ),
   },
-  [StatusChangeEntity.Waybill]: {
+  [LifecycleTargetEntity.Waybill]: {
     statusEntity: StatusEntity.Waybill,
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/waybills/${id}`,
     ),
   },
-  [StatusChangeEntity.Invoice]: {
+  [LifecycleTargetEntity.Invoice]: {
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/invoices/${id}`,
     ),
   },
-  [StatusChangeEntity.DeliveryRoute]: {
+  [LifecycleTargetEntity.DeliveryRoute]: {
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/delivery-routes/${id}`,
     ),
   },
-  [StatusChangeEntity.DeliveryTask]: {
+  [LifecycleTargetEntity.DeliveryTask]: {
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/delivery-tasks/${id}`,
     ),
   },
-  [StatusChangeEntity.SalesOrder]: {
+  [LifecycleTargetEntity.SalesOrder]: {
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/sales-orders/${id}`,
     ),
   },
-  [StatusChangeEntity.Vehicle]: {
+  [LifecycleTargetEntity.Vehicle]: {
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/vehicles/${id}`,
     ),
   },
-  [StatusChangeEntity.Product]: {
+  [LifecycleTargetEntity.Product]: {
     card: inCompany(
       (companyId, id) => `/organization/${companyId}/products/${id}`,
     ),
   },
-  [StatusChangeEntity.Lead]: {
+  [LifecycleTargetEntity.Lead]: {
     statusEntity: StatusEntity.Lead,
     card: ({ id }) => `/leads/${id}`,
   },
-  [StatusChangeEntity.User]: {
+  [LifecycleTargetEntity.User]: {
     card: ({ id }) => `/users/${id}`,
   },
-  [StatusChangeEntity.Company]: {
+  [LifecycleTargetEntity.Company]: {
     card: ({ id }) => `/organization/${id}`,
   },
-  [StatusChangeEntity.CompanyXTraceIntegration]: {
+  [LifecycleTargetEntity.CompanyXTraceIntegration]: {
     card: inCompany((companyId) => `/organization/${companyId}/integrations`),
   },
-  [StatusChangeEntity.CompanyFakturaUzIntegration]: {
+  [LifecycleTargetEntity.CompanyFakturaUzIntegration]: {
     card: inCompany((companyId) => `/organization/${companyId}/integrations`),
   },
 };

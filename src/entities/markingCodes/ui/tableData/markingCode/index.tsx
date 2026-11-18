@@ -4,7 +4,7 @@ import type { BatchTableDataType } from '../markingCodes/types';
 import {statusColors} from "shared/ui/statuses.tsx";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined) : TableProps<BatchTableDataType>["columns"] => [
@@ -72,7 +72,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
                    textOverflow: "ellipsis",
                  }}
             >
-              {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, StatusScope.Internal, status)}
+              {getStatusLabel(t, StatusEntity.MarkingCodeOrderBatch, LifecycleScope.Internal, status)}
             </Tag>
         ) : null
     )

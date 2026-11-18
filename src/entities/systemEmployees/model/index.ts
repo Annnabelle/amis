@@ -1,18 +1,7 @@
+import type { BaseResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {
-  CreateSystemEmployeeDto,
-  DeleteSystemEmployeeResponseDto,
-  GetSystemEmployeesQueryDto,
-  SystemEmployeeAccessResponseDto,
-  SystemEmployeeSingleResponseDto,
-  SystemEmployeesResponseDto,
-  UpdateSystemEmployeeDto,
-} from "entities/systemEmployees/dtos";
-import {
-  isSystemEmployeeAccessResponseSuccess,
-  isSystemEmployeeSingleResponseSuccess,
-  isSystemEmployeesResponseSuccess,
-} from "entities/systemEmployees/dtos";
+import type { CreateSystemEmployeeDto, GetSystemEmployeesDto, UpdateSystemEmployeeDto } from '@edem2000/amis.contracts/api/employees/requests';
+import type { CreateSystemEmployeeAccessResponseDto, GetSystemEmployeeResponseDto, SystemEmployeesResponseDto, UpdateSystemEmployeeAccessResponseDto } from '@edem2000/amis.contracts/api/employees/responses';
 import {
   mapSystemEmployeeAccessDtoToEntity,
   mapSystemEmployeeDtoToEntity,
@@ -44,10 +33,10 @@ export const getSystemEmployees = createAsyncThunk<
   try {
     const response = await axiosInstance.get<SystemEmployeesResponseDto>(
       "/system/employees",
-      { params: params as GetSystemEmployeesQueryDto }
+      { params: params as GetSystemEmployeesDto }
     );
 
-    if (isSystemEmployeesResponseSuccess(response.data)) {
+    if (response.data.success) {
       return {
         data: response.data.data.map(mapSystemEmployeeDtoToEntity),
         total: response.data.total,
@@ -73,11 +62,11 @@ export const getSystemEmployeeById = createAsyncThunk<
   { rejectValue: string }
 >("systemEmployees/getById", async ({ id }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get<SystemEmployeeSingleResponseDto>(
+    const response = await axiosInstance.get<GetSystemEmployeeResponseDto>(
       `/system/employees/${id}`
     );
 
-    if (isSystemEmployeeSingleResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapSystemEmployeeDtoToEntity(response.data.data);
     }
 
@@ -98,12 +87,12 @@ export const createSystemEmployeeInvitation = createAsyncThunk<
   { rejectValue: string }
 >("systemEmployees/createInvitation", async (payload, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post<SystemEmployeeAccessResponseDto>(
+    const response = await axiosInstance.post<CreateSystemEmployeeAccessResponseDto>(
       "/system/employees",
       payload
     );
 
-    if (isSystemEmployeeAccessResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapSystemEmployeeAccessDtoToEntity(response.data.data);
     }
 
@@ -124,12 +113,12 @@ export const updateSystemEmployeeRoles = createAsyncThunk<
   { rejectValue: string }
 >("systemEmployees/updateRoles", async ({ id, data }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.patch<SystemEmployeeAccessResponseDto>(
+    const response = await axiosInstance.patch<UpdateSystemEmployeeAccessResponseDto>(
       `/system/employees/${id}`,
       data
     );
 
-    if (isSystemEmployeeAccessResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapSystemEmployeeAccessDtoToEntity(response.data.data);
     }
 
@@ -150,7 +139,7 @@ export const deleteSystemEmployee = createAsyncThunk<
   { rejectValue: string }
 >("systemEmployees/delete", async ({ id }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.delete<DeleteSystemEmployeeResponseDto>(
+    const response = await axiosInstance.delete<BaseResponseDto>(
       `/system/employees/${id}`
     );
 

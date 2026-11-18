@@ -1,25 +1,17 @@
-import type { AvailablePackageType } from "shared/types/dtos";
+import {
+  ScanSessionStatus,
+  ScanSessionType,
+} from '@edem2000/amis.contracts'
 
-export const ScanSessionStatus = {
-  Active: "active",
-  Completed: "completed",
-  Cancelled: "cancelled",
-  Failed: "failed",
-} as const;
+export {
+  ScanSessionStatus,
+  ScanSessionType,
+}
 
-export type ScanSessionStatus =
-  (typeof ScanSessionStatus)[keyof typeof ScanSessionStatus];
+import type { PackageType } from "shared/types/dtos";
 
-export const ScanSessionType = {
-  Loading: "loading",
-  Delivery: "delivery",
-  Return: "return",
-} as const;
 
-export type ScanSessionType =
-  (typeof ScanSessionType)[keyof typeof ScanSessionType];
-
-export type ScanSessionResponse = {
+export type ScanSession = {
   id: string;
   companyId: string;
   status: ScanSessionStatus;
@@ -52,12 +44,12 @@ export type ScanAttempt = {
   reason?: string;
   productId?: string;
   gtin?: string;
-  packageType?: AvailablePackageType;
+  packageType?: PackageType;
   ts: string;
 };
 
 export type ScanSessionsState = {
-  currentSession: ScanSessionResponse | null;
+  currentSession: ScanSession | null;
   recentScans: ScanAttempt[];
   isCreating: boolean;
   isScanning: boolean;

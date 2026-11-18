@@ -8,7 +8,7 @@ export type CreateAggregationReport = {
     childBatchId?: string;
 }
 
-export type AggregationReportResponse = {
+export type AggregationReport = {
     id: string;
     utilisationReportId: string | undefined;
     product: {
@@ -36,7 +36,8 @@ export type AggregationReportResponse = {
     externalStatus: AggregationReportExternalStatus | undefined;
     status: AggregationReportStatus;
     submittedAt: Date;
-    units: {
+    // Заполняется отдельным запросом /reports/aggregation/:id/units.
+    units?: {
         id: string;
         aggregationItemsCount: number;
         aggregationUnitCapacity: number;

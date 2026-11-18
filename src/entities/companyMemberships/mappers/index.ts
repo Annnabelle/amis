@@ -1,11 +1,8 @@
-import type {
-  CompanyMembershipDto,
-  CompanyMembershipWithUserDto,
-} from "entities/companyMemberships/dtos";
+import type { CompanyMembershipResponseDto, CompanyMembershipWithUserResponseDto } from '@edem2000/amis.contracts/api/company-memberships/responses';
 import type { CompanyMembership } from "entities/companyMemberships/types";
 
 export const mapCompanyMembershipDtoToEntity = (
-  dto: CompanyMembershipDto | CompanyMembershipWithUserDto
+  dto: CompanyMembershipResponseDto | CompanyMembershipWithUserResponseDto
 ): CompanyMembership => ({
   id: dto.id,
   userId: dto.userId,

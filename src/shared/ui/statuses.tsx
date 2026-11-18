@@ -28,14 +28,23 @@ const tagColorByVariant: Record<StatusBadgeVariant, string> = {
  * а не цветами, чтобы шкала оставалась одна.
  */
 const legacyStatusVariants: Record<string, StatusBadgeVariant> = {
-  // Коды маркировки
+  // Коды маркировки — внутренний контур
+  received: "info",
+  applied: "success",
+  reserved_for_aggregation: "warning",
+  aggregated: "success",
+  introduced: "warning",
+  withdrawn: "info",
+  written_off: "success",
+  reserved_for_delivery: "warning",
+  // loaded / in_transit / delivered уже есть в fallbackStatusVariants
+
+  // Коды маркировки — внешний контур вендора
   RECEIVED: "info",
   APPLIED: "success",
   INTRODUCED: "warning",
   WITHDRAWN: "info",
   WRITTEN_OFF: "success",
-  UPLOADED: "info",
-  AGGREGATED: "success",
 
   // Внешние статусы отчётов и заказов в системе маркировки
   CREATED: "info",

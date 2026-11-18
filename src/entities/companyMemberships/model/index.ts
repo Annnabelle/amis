@@ -1,16 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {
-  CompanyMembershipResponseDto,
-  CompanyMembershipsResponseDto,
-  CreateCompanyMembershipDto,
-  GetCompanyMembershipsQueryDto,
-  SearchCompanyMembershipsQueryDto,
-  UpdateCompanyMembershipDto,
-} from "entities/companyMemberships/dtos";
-import {
-  isCompanyMembershipResponseSuccess,
-  isCompanyMembershipsResponseSuccess,
-} from "entities/companyMemberships/dtos";
+import type { CreateCompanyMembershipDto, GetCompanyMembershipsDto, SearchCompanyMembershipsDto, UpdateCompanyMembershipDto } from '@edem2000/amis.contracts/api/company-memberships/requests';
+import type { CompanyMembershipsResponseDto, CreateCompanyMembershipResponseDto, DeleteCompanyMembershipResponseDto, GetCompanyMembershipResponseDto, UpdateCompanyMembershipResponseDto } from '@edem2000/amis.contracts/api/company-memberships/responses';
 import { mapCompanyMembershipDtoToEntity } from "entities/companyMemberships/mappers";
 import type {
   CompanyMembership,
@@ -51,12 +41,12 @@ export const getCompanyMemberships = createAsyncThunk<
     const response = await axiosInstance.get<CompanyMembershipsResponseDto>(
       "/company-memberships",
       {
-        params: params as GetCompanyMembershipsQueryDto,
+        params: params as GetCompanyMembershipsDto,
         headers: { "x-company-id": companyId },
       }
     );
 
-    if (isCompanyMembershipsResponseSuccess(response.data)) {
+    if (response.data.success) {
       return {
         data: response.data.data.map(mapCompanyMembershipDtoToEntity),
         total: response.data.total,
@@ -93,12 +83,12 @@ export const getCompanyMembershipById = createAsyncThunk<
   { rejectValue: string }
 >("companyMemberships/getById", async ({ companyId, id }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get<CompanyMembershipResponseDto>(
+    const response = await axiosInstance.get<GetCompanyMembershipResponseDto>(
       `/company-memberships/${id}`,
       { headers: { "x-company-id": companyId } }
     );
 
-    if (isCompanyMembershipResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapCompanyMembershipDtoToEntity(response.data.data);
     }
 
@@ -122,12 +112,12 @@ export const searchCompanyMemberships = createAsyncThunk<
     const response = await axiosInstance.get<CompanyMembershipsResponseDto>(
       "/company-memberships/search",
       {
-        params: { query, page, limit, state, role } satisfies SearchCompanyMembershipsQueryDto,
+        params: { query, page, limit, state, role } satisfies SearchCompanyMembershipsDto,
         headers: { "x-company-id": companyId },
       }
     );
 
-    if (isCompanyMembershipsResponseSuccess(response.data)) {
+    if (response.data.success) {
       return {
         data: response.data.data.map(mapCompanyMembershipDtoToEntity),
         total: response.data.total,
@@ -148,13 +138,13 @@ export const createCompanyMembershipInvitation = createAsyncThunk<
   { rejectValue: string }
 >("companyMemberships/createInvitation", async ({ companyId, data }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post<CompanyMembershipResponseDto>(
+    const response = await axiosInstance.post<CreateCompanyMembershipResponseDto>(
       "/company-memberships",
       data,
       { headers: { "x-company-id": companyId } }
     );
 
-    if (isCompanyMembershipResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapCompanyMembershipDtoToEntity(response.data.data);
     }
 
@@ -175,13 +165,13 @@ export const updateCompanyMembershipRoles = createAsyncThunk<
   { rejectValue: string }
 >("companyMemberships/updateRoles", async ({ companyId, id, data }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.patch<CompanyMembershipResponseDto>(
+    const response = await axiosInstance.patch<UpdateCompanyMembershipResponseDto>(
       `/company-memberships/${id}`,
       data,
       { headers: { "x-company-id": companyId } }
     );
 
-    if (isCompanyMembershipResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapCompanyMembershipDtoToEntity(response.data.data);
     }
 
@@ -202,12 +192,12 @@ export const deleteCompanyMembership = createAsyncThunk<
   { rejectValue: string }
 >("companyMemberships/delete", async ({ companyId, id }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.delete<CompanyMembershipResponseDto>(
+    const response = await axiosInstance.delete<DeleteCompanyMembershipResponseDto>(
       `/company-memberships/${id}`,
       { headers: { "x-company-id": companyId } }
     );
 
-    if (isCompanyMembershipResponseSuccess(response.data)) {
+    if (response.data.success) {
       return mapCompanyMembershipDtoToEntity(response.data.data);
     }
 

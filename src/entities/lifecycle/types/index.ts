@@ -1,68 +1,35 @@
+import {
+  LifecycleActorType,
+  LifecycleErrorClass,
+  LifecycleEventKind,
+  LifecycleOrigin,
+  LifecycleScope,
+  VendorCode,
+} from '@edem2000/amis.contracts'
+
+export {
+  LifecycleActorType,
+  LifecycleErrorClass,
+  LifecycleEventKind,
+  LifecycleOrigin,
+  LifecycleScope,
+  VendorCode,
+}
+
 import type { MultiLanguage } from "shared/types/dtos";
 
-export const LifecycleEventKind = {
-  Status: "status",
-  Error: "error",
-} as const;
 
 export const LifecycleEventKinds = Object.values(LifecycleEventKind);
 
-export type LifecycleEventKind =
-  (typeof LifecycleEventKind)[keyof typeof LifecycleEventKind];
-
-export const LifecycleScope = {
-  Internal: "internal",
-  External: "external",
-} as const;
 
 export const LifecycleScopes = Object.values(LifecycleScope);
 
-export type LifecycleScope =
-  (typeof LifecycleScope)[keyof typeof LifecycleScope];
 
-export const LifecycleVendor = {
-  XTrace: "x_trace",
-  FakturaUz: "faktura_uz",
-  Tasnif: "tasnif",
-} as const;
+export const LifecycleVendors = Object.values(VendorCode);
 
-export const LifecycleVendors = Object.values(LifecycleVendor);
-
-export type LifecycleVendor =
-  (typeof LifecycleVendor)[keyof typeof LifecycleVendor];
-
-export const LifecycleActorType = {
-  User: "user",
-  System: "system",
-  Vendor: "vendor",
-} as const;
-
-export type LifecycleActorType =
-  (typeof LifecycleActorType)[keyof typeof LifecycleActorType];
-
-export const LifecycleErrorClass = {
-  Transient: "transient",
-  Permanent: "permanent",
-  Conflict: "conflict",
-  Unknown: "unknown",
-} as const;
 
 export const LifecycleErrorClasses = Object.values(LifecycleErrorClass);
 
-export type LifecycleErrorClass =
-  (typeof LifecycleErrorClass)[keyof typeof LifecycleErrorClass];
-
-export const LifecycleOrigin = {
-  Ui: "ui",
-  Api: "api",
-  Scheduler: "scheduler",
-  Webhook: "webhook",
-  Import: "import",
-  Migration: "migration",
-} as const;
-
-export type LifecycleOrigin =
-  (typeof LifecycleOrigin)[keyof typeof LifecycleOrigin];
 
 /** Ключ сводной вкладки, которую бэкенд присылает первой. */
 export const LIFECYCLE_ALL_TAB_KEY = "all";
@@ -70,7 +37,7 @@ export const LIFECYCLE_ALL_TAB_KEY = "all";
 export type LifecycleActor = {
   type: LifecycleActorType;
   userId?: string;
-  vendor?: LifecycleVendor;
+  vendor?: VendorCode;
 };
 
 export type LifecycleStatusChange = {
@@ -96,7 +63,7 @@ export type LifecycleEvent = {
   kind: LifecycleEventKind;
   occurredAt: string;
   scope: LifecycleScope;
-  vendor?: LifecycleVendor;
+  vendor?: VendorCode;
   actor: LifecycleActor;
   status?: LifecycleStatusChange;
   error?: LifecycleError;
@@ -108,7 +75,7 @@ export type LifecycleEvent = {
 export type LifecycleTab = {
   key: string;
   scope?: LifecycleScope;
-  vendor?: LifecycleVendor;
+  vendor?: VendorCode;
   count: number;
 };
 
@@ -129,7 +96,7 @@ export type LifecycleSummary = {
 /** Фильтры ленты — то, что отличает одну вкладку от другой. */
 export type LifecycleFeedFilters = {
   scope?: LifecycleScope;
-  vendor?: LifecycleVendor;
+  vendor?: VendorCode;
   kind?: LifecycleEventKind;
 };
 

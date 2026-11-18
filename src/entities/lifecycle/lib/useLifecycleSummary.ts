@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { getLifecycleSummary } from "entities/lifecycle/model";
-import { getLifecycleTargetConfig, type LifecycleTargetType } from "./targets";
+import { getLifecycleTargetConfig, type LifecycleTargetEntity } from "./targets";
 import { useCanReadLifecycle } from "./useCanReadLifecycle";
 
 /**
@@ -11,7 +11,7 @@ import { useCanReadLifecycle } from "./useCanReadLifecycle";
  */
 export const useLifecycleSummary = (
   targetId: string | undefined,
-  target: LifecycleTargetType
+  target: LifecycleTargetEntity
 ) => {
   const dispatch = useAppDispatch();
   const canRead = useCanReadLifecycle(target);

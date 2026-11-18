@@ -1,23 +1,19 @@
+import {
+  SystemRoles,
+  UserSystemAccessStates,
+} from '@edem2000/amis.contracts';
+import type {
+  SystemRole,
+  UserSystemAccessState,
+} from '@edem2000/amis.contracts';
+
+export { SystemRoles, UserSystemAccessStates };
+export type {
+  SystemRole,
+  UserSystemAccessState,
+};
+
 import type { UserStatus } from "shared/types/dtos";
-
-export const UserSystemAccessState = {
-  Active: "active",
-  Invited: "invited",
-  Declined: "declined",
-  Disabled: "disabled",
-} as const;
-
-export type UserSystemAccessState =
-  (typeof UserSystemAccessState)[keyof typeof UserSystemAccessState];
-
-export const SystemRole = {
-  Owner: "system_owner",
-  Admin: "system_admin",
-  Support: "system_support",
-  Auditor: "system_auditor",
-} as const;
-
-export type SystemRole = (typeof SystemRole)[keyof typeof SystemRole];
 
 export type SystemEmployeeUser = {
   id: string;

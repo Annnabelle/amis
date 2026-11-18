@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { getVehicleById } from "entities/vehicles/model";
-import { LifecycleTargetType } from "entities/lifecycle/lib";
+import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import CustomButton from "shared/ui/button";
 import {
@@ -32,7 +32,7 @@ const VehicleDetails = () => {
   const loading = useAppSelector((state) => state.vehicles.loadingById);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.Vehicle,
+    target: LifecycleTargetEntity.Vehicle,
   });
 
   useEffect(() => {

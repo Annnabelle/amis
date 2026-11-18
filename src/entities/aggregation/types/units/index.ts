@@ -1,5 +1,5 @@
 
-export type AggregationUnitCodeResponse = {
+export type AggregationUnitCode = {
     unitId: string;
     unitNumber: number;
     unitSerialNumber: string;

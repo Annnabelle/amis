@@ -7,9 +7,9 @@ import type {
   ContactsDto,
   MultiLanguage
 } from "shared/types/dtos";
-import type { Employee } from "entities/organization/dtos";
+import type { Employee } from '@edem2000/amis.contracts';
 
-export type CompanyResponse = {
+export type Company = {
   id: string;
   tin: string;
   displayName: string;
@@ -71,11 +71,11 @@ export class UpdateCompany {
 }
 
 export type OrganizationState = {
-  organization: CompanyResponse | null,
-  organizationById: CompanyResponse | null,
-  updateOrganization: CompanyResponse | null,
-  organizations: CompanyResponse[],
-  searchedOrganizations: CompanyResponse[],
+  organization: Company | null,
+  organizationById: Company | null,
+  updateOrganization: Company | null,
+  organizations: Company[],
+  searchedOrganizations: Company[],
   total: number,
   page: number,
   limit: number,

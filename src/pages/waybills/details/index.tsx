@@ -8,15 +8,12 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "app/store";
 import { getWaybillById } from "entities/waybills/model";
 import { getWaybillStatusKey } from "entities/waybills/lib/status";
-import type {
-  WaybillContractedPartySnapshotResponseDto,
-  WaybillVehicleSnapshotResponseDto,
-} from "entities/waybills/dtos";
+import type { WaybillContractedPartySnapshotResponseDto, WaybillVehicleSnapshotResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import { getSalesOrderById } from "entities/salesOrders/model";
 import { getDeliveryRouteById } from "entities/deliveryRoutes/model";
 import { getDeliveryTaskById } from "entities/deliveryTasks/model";
 import { useCan } from "entities/access/lib";
-import { LifecycleTargetType } from "entities/lifecycle/lib";
+import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import axiosInstance from "shared/lib/axiosInstance";
@@ -36,7 +33,7 @@ import {
   RouteMetaChip,
 } from "shared/ui/details";
 import "./styles.sass";
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const formatDate = (value?: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-");
@@ -60,7 +57,7 @@ const WaybillsDetails = () => {
   const canReadDeliveryTask = useCan(endpointAccessMap.deliveryTasksRead);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.Waybill,
+    target: LifecycleTargetEntity.Waybill,
   });
   const [waybillFileLoading, setWaybillFileLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<WaybillDetailsSection>("overview");
@@ -176,7 +173,7 @@ const WaybillsDetails = () => {
   const waybillStatusKey = getWaybillStatusKey(waybill.status);
   const externalStatus = waybill.external?.status;
   const externalStatusLabel = externalStatus
-    ? getStatusLabel(t, StatusEntity.Waybill, StatusScope.External, externalStatus)
+    ? getStatusLabel(t, StatusEntity.Waybill, LifecycleScope.External, externalStatus)
     : "-";
 
   const metaItems = [
@@ -256,9 +253,6 @@ const WaybillsDetails = () => {
       : undefined;
 
   const fileMetaItems = [
-    { label: t("waybills.fields.filename"), value: waybill.external?.document?.fileName || "-" },
-    { label: t("waybills.fields.programVersion"), value: waybill.external?.document?.programVersion || "-" },
-    { label: t("waybills.fields.formatVersion"), value: waybill.external?.document?.formatVersion || "-" },
     { label: t("waybills.fields.externalId"), value: waybill.external?.id || "-" },
     { label: t("waybills.fields.sentAt"), value: formatDateTime(waybill.external?.sentAt) },
     { label: t("waybills.fields.registeredAt"), value: formatDateTime(waybill.external?.registeredAt) },
@@ -321,7 +315,7 @@ const WaybillsDetails = () => {
                   <div className="invoice-status-pair-item">
                     <span className="invoice-status-pair-label">{t("waybills.fields.internalStatus")}</span>
                     <Tag color={statusColors[waybillStatusKey] ?? "blue"} style={{ margin: 0 }}>
-                      {getStatusLabel(t, StatusEntity.Waybill, StatusScope.Internal, waybillStatusKey, waybill.status)}
+                      {getStatusLabel(t, StatusEntity.Waybill, LifecycleScope.Internal, waybillStatusKey, waybill.status)}
                     </Tag>
                   </div>
                   <div className="invoice-status-pair-item">
@@ -477,7 +471,7 @@ const WaybillsDetails = () => {
                           <div>
                             <span className="label">{t("waybills.fields.cargoGroup")} {groupIndex + 1}</span>
                             <h3>
-                              {group.loadingPoint.regionName} - {group.unloadingPoint.regionName}
+                              {group.loadingPoint.region.name} - {group.unloadingPoint.region.name}
                             </h3>
                           </div>
                           <div className="waybill-cargo-sum">
@@ -488,13 +482,13 @@ const WaybillsDetails = () => {
                         <div className="waybill-location-pair">
                           <div>
                             <span className="label">{t("waybills.fields.loadingPoint")}</span>
-                            <strong>{group.loadingPoint.regionName}, {group.loadingPoint.districtName}</strong>
+                            <strong>{group.loadingPoint.region.name}, {group.loadingPoint.district.name}</strong>
                             <p title={group.loadingPoint.address}>{group.loadingPoint.address}</p>
                             {group.loadingTrustee ? <small>{group.loadingTrustee.fullName}</small> : null}
                           </div>
                           <div>
                             <span className="label">{t("waybills.fields.unloadingPoint")}</span>
-                            <strong>{group.unloadingPoint.regionName}, {group.unloadingPoint.districtName}</strong>
+                            <strong>{group.unloadingPoint.region.name}, {group.unloadingPoint.district.name}</strong>
                             <p title={group.unloadingPoint.address}>{group.unloadingPoint.address}</p>
                             {group.unloadingTrustee ? <small>{group.unloadingTrustee.fullName}</small> : null}
                           </div>

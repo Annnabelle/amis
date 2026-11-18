@@ -13,7 +13,7 @@ import { getSalesOrderById } from 'entities/salesOrders/model';
 import { fetchDistrictsByRegion, fetchRegions } from 'entities/references/model';
 import type { Reference } from 'entities/references/types';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
-import type { SalesOrderAddressResponse } from 'entities/salesOrders/types';
+import type { SalesOrderAddress } from 'entities/salesOrders/types';
 import { isLanguage } from 'shared/types/dtos';
 import {
   DetailCard,
@@ -23,7 +23,7 @@ import {
   DetailStatsGrid,
   RouteMetaChip,
 } from 'shared/ui/details';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import './styles.sass';
@@ -44,7 +44,7 @@ const SalesOrdersDetails = () => {
     : '/organization';
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.SalesOrder,
+    target: LifecycleTargetEntity.SalesOrder,
   });
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const SalesOrdersDetails = () => {
     value !== undefined ? `${formatOptionalNumber(value)} ${t('waybills.fields.sum')}` : empty;
   const formatDistance = (value?: number) =>
     value !== undefined ? `${formatOptionalNumber(value)} ${t('waybills.units.km', { defaultValue: 'км' })}` : empty;
-  const formatLocation = (addressDetails: SalesOrderAddressResponse) =>
+  const formatLocation = (addressDetails: SalesOrderAddress) =>
     addressDetails.location
       ? `${addressDetails.location.latitude}, ${addressDetails.location.longitude}`
       : empty;

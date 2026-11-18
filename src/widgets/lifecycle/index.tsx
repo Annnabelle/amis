@@ -7,7 +7,7 @@ import {
   getLifecycleTargetConfig,
   hasMoreLifecycleEvents,
   useLifecycleSummary,
-  type LifecycleTargetType,
+  type LifecycleTargetEntity,
 } from "entities/lifecycle/lib";
 import {
   getLifecycleEvents,
@@ -27,7 +27,7 @@ import "entities/lifecycle/ui/styles.sass";
 
 type LifecyclePanelProps = {
   targetId?: string;
-  target: LifecycleTargetType;
+  target: LifecycleTargetEntity;
   className?: string;
 };
 

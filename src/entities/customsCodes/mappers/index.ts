@@ -1,8 +1,4 @@
-import type {
-  CustomsCodeExternalDocumentDto,
-  CustomsCodeExternalDto,
-  CustomsCodeOrderDto,
-} from 'entities/customsCodes/dtos';
+import type { AggregatedCustomsCodeExternalResponseDto, AggregatedCustomsCodeOrderResponseDto, DocumentInfoResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import type {
   CustomsCodeExternal,
   CustomsCodeExternalDocument,
@@ -10,19 +6,19 @@ import type {
 } from 'entities/customsCodes/types';
 
 const mapExternalDocumentDtoToEntity = (
-  dto: CustomsCodeExternalDocumentDto
+  dto: DocumentInfoResponseDto
 ): CustomsCodeExternalDocument => ({
-  documentId: dto.documentId,
-  documentBase64: dto.documentBase64,
+  documentId: dto.documentId ?? null,
+  documentBase64: dto.documentBase64 ?? null,
 });
 
-const mapExternalDtoToEntity = (dto: CustomsCodeExternalDto): CustomsCodeExternal => ({
-  registration: mapExternalDocumentDtoToEntity(dto.registration),
-  dissolution: mapExternalDocumentDtoToEntity(dto.dissolution),
+const mapExternalDtoToEntity = (dto: AggregatedCustomsCodeExternalResponseDto): CustomsCodeExternal => ({
+  registration: mapExternalDocumentDtoToEntity(dto.registration ?? {}),
+  dissolution: mapExternalDocumentDtoToEntity(dto.dissolution ?? {}),
 });
 
 export const mapCustomsCodeOrderDtoToEntity = (
-  dto: CustomsCodeOrderDto
+  dto: AggregatedCustomsCodeOrderResponseDto
 ): CustomsCodeOrder => ({
   id: dto.id,
   accOrderNumber: dto.accOrderNumber,
@@ -31,8 +27,8 @@ export const mapCustomsCodeOrderDtoToEntity = (
   orderId: dto.orderId,
   batchId: dto.batchId,
   quantity: dto.quantity,
-  customsCode: dto.customsCode,
-  measurement: dto.measurement,
+  customsCode: dto.customsCode ?? null,
+  measurement: dto.measurement ?? null,
   status: dto.status,
   external: mapExternalDtoToEntity(dto.external),
 });

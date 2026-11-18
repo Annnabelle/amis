@@ -2,12 +2,12 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import type {
-  CompleteDeliveryTaskDto,
   GetDeliveryTaskResponseDto,
-  GetDeliveryTasksDto,
   GetDeliveryTasksResponseDto,
-} from "entities/deliveryTasks/dtos";
-import type { DeliveryTaskResponse, DeliveryTasksState } from "entities/deliveryTasks/types";
+} from '@edem2000/amis.contracts/api/delivery-tasks/responses';
+import type { CompleteDeliveryTaskHandoverDto } from '@edem2000/amis.contracts/api/delivery-tasks/requests';
+import type { GetDeliveryTasksParams } from "entities/deliveryTasks/dtos";
+import type { DeliveryTask, DeliveryTasksState } from "entities/deliveryTasks/types";
 import { mapDeliveryTaskDtoToEntity, mapDeliveryTasksDtoToEntities } from "entities/deliveryTasks/mappers";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 import type { ErrorDto } from "shared/types/dtos";
@@ -20,15 +20,9 @@ const initialState: DeliveryTasksState = {
   error: null,
 };
 
-function isDeliveryTasksListSuccess(
-  res: GetDeliveryTasksResponseDto
-): res is { success: boolean; data: any[] } {
-  return "success" in res && res.success === true && "data" in res;
-}
-
 const mapSingleTaskResponse = (
   data: GetDeliveryTaskResponseDto
-): { success: boolean; deliveryTask?: DeliveryTaskResponse; error?: ErrorDto } => {
+): { success: boolean; deliveryTask?: DeliveryTask; error?: ErrorDto } => {
   if ("errorCode" in data) {
     return { success: false, error: data };
   }
@@ -56,13 +50,13 @@ const mapSingleTaskResponse = (
 
 export const getDeliveryTasks = createAsyncThunk(
   "deliveryTasks/getDeliveryTasks",
-  async ({ routeId }: GetDeliveryTasksDto, { rejectWithValue }) => {
+  async ({ routeId }: GetDeliveryTasksParams, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get<GetDeliveryTasksResponseDto>(
         `${BASE_URL}/delivery-routes/${routeId}/tasks`
       );
 
-      if (isDeliveryTasksListSuccess(response.data)) {
+      if (response.data.success) {
         return mapDeliveryTasksDtoToEntities(response.data.data);
       }
 
@@ -104,7 +98,7 @@ export const getDeliveryTaskById = createAsyncThunk(
 );
 
 export const startDeliveryTaskDelivery = createAsyncThunk<
-  DeliveryTaskResponse,
+  DeliveryTask,
   string,
   { rejectValue: ErrorDto }
 >("deliveryTasks/startDeliveryTaskDelivery", async (id, { rejectWithValue }) => {
@@ -135,8 +129,8 @@ export const startDeliveryTaskDelivery = createAsyncThunk<
 });
 
 export const completeDeliveryTaskDelivery = createAsyncThunk<
-  DeliveryTaskResponse,
-  { id: string; payload?: CompleteDeliveryTaskDto },
+  DeliveryTask,
+  { id: string; payload?: CompleteDeliveryTaskHandoverDto },
   { rejectValue: ErrorDto }
 >("deliveryTasks/completeDeliveryTaskDelivery", async ({ id, payload }, { rejectWithValue }) => {
   try {
@@ -182,7 +176,7 @@ export const deliveryTasksSlice = createSlice({
       })
       .addCase(
         getDeliveryTasks.fulfilled,
-        (state, action: PayloadAction<DeliveryTaskResponse[]>) => {
+        (state, action: PayloadAction<DeliveryTask[]>) => {
           state.isLoading = false;
           state.tasks = action.payload;
         }
@@ -196,7 +190,7 @@ export const deliveryTasksSlice = createSlice({
         state.loadingById = true;
         state.error = null;
       })
-      .addCase(getDeliveryTaskById.fulfilled, (state, action: PayloadAction<DeliveryTaskResponse>) => {
+      .addCase(getDeliveryTaskById.fulfilled, (state, action: PayloadAction<DeliveryTask>) => {
         state.loadingById = false;
         state.taskById = action.payload;
       })
@@ -208,7 +202,7 @@ export const deliveryTasksSlice = createSlice({
         state.loadingById = true;
         state.error = null;
       })
-      .addCase(startDeliveryTaskDelivery.fulfilled, (state, action: PayloadAction<DeliveryTaskResponse>) => {
+      .addCase(startDeliveryTaskDelivery.fulfilled, (state, action: PayloadAction<DeliveryTask>) => {
         state.loadingById = false;
         state.taskById = action.payload;
         state.tasks = state.tasks.map((task) => (task.id === action.payload.id ? action.payload : task));
@@ -223,7 +217,7 @@ export const deliveryTasksSlice = createSlice({
       })
       .addCase(
         completeDeliveryTaskDelivery.fulfilled,
-        (state, action: PayloadAction<DeliveryTaskResponse>) => {
+        (state, action: PayloadAction<DeliveryTask>) => {
           state.loadingById = false;
           state.taskById = action.payload;
           state.tasks = state.tasks.map((task) => (task.id === action.payload.id ? action.payload : task));

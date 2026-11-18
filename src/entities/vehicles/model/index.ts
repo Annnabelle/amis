@@ -1,16 +1,9 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {
-  CreateVehicleDto,
-  DeleteVehicleResponseDto,
-  GetVehiclesDto,
-  UpdateVehicleDto,
-  VehicleResponseEnvelopeDto,
-  VehicleResponseDto,
-  VehiclesResponseDto,
-  VerifyVehicleOwnershipDto,
-  VerifyVehicleOwnershipResponseDto,
-} from "entities/vehicles/dtos";
-import { VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE } from "entities/vehicles/dtos";
+import type { VehicleResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { GetVehiclesDto, UpdateVehicleDto, VerifyVehicleOwnershipDto } from '@edem2000/amis.contracts/api/vehicle/requests';
+import type { DeleteVehicleResponseDto, GetVehicleResponseDto, GetVehiclesResponseDto, VerifyVehicleOwnershipResponseDto } from '@edem2000/amis.contracts/api/vehicle/responses';
+import type { CreateVehicleRequestDto } from 'entities/vehicles/dtos';
+import { VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE } from 'entities/vehicles/lib/errorCodes';
 import {
   mapVehicleDtoToEntity,
   mapVehicleOwnershipDtoToEntity,
@@ -34,42 +27,21 @@ const initialState: VehiclesState = {
   error: null,
 };
 
-const isErrorDto = (data: unknown): data is { errorMessage: unknown } =>
-  typeof data === "object" && data !== null && "errorMessage" in data;
-
 const getVehiclesData = (
-  response: VehiclesResponseDto
+  response: GetVehiclesResponseDto
 ): { data: VehicleResponseDto[]; total: number; page: number; limit: number } | null => {
-  if (isErrorDto(response)) return null;
+  if (!response.success) return null;
 
-  if ("data" in response && Array.isArray(response.data)) {
-    return {
-      data: response.data,
-      total: "total" in response ? response.total : response.data.length,
-      page: "page" in response ? response.page : 1,
-      limit: "limit" in response ? response.limit : response.data.length,
-    };
-  }
-
-  if ("vehicles" in response && Array.isArray(response.vehicles)) {
-    return {
-      data: response.vehicles,
-      total: response.vehicles.length,
-      page: 1,
-      limit: response.vehicles.length,
-    };
-  }
-
-  return null;
+  return {
+    data: response.data,
+    total: response.total,
+    page: response.page,
+    limit: response.limit,
+  };
 };
 
-const getVehicleData = (response: VehicleResponseEnvelopeDto): VehicleResponseDto | null => {
-  if (isErrorDto(response)) return null;
-  if ("data" in response) return response.data;
-  if ("vehicle" in response) return response.vehicle;
-  if ("transport" in response) return response.transport;
-  return null;
-};
+const getVehicleData = (response: GetVehicleResponseDto): VehicleResponseDto | null =>
+  response.success ? response.transport : null;
 
 export const getVehicles = createAsyncThunk<
   { data: Vehicle[]; total: number; page: number; limit: number },
@@ -77,7 +49,7 @@ export const getVehicles = createAsyncThunk<
   { rejectValue: string }
 >("vehicles/getAll", async (params, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get<VehiclesResponseDto>("/vehicles", {
+    const response = await axiosInstance.get<GetVehiclesResponseDto>("/vehicles", {
       params,
     });
     const payload = getVehiclesData(response.data);
@@ -104,7 +76,7 @@ export const searchVehicles = createAsyncThunk<
   { rejectValue: string }
 >("vehicles/search", async (params, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get<VehiclesResponseDto>("/vehicles/search", {
+    const response = await axiosInstance.get<GetVehiclesResponseDto>("/vehicles/search", {
       params,
     });
     const payload = getVehiclesData(response.data);
@@ -129,7 +101,7 @@ export const getVehicleById = createAsyncThunk<Vehicle, string, { rejectValue: s
   "vehicles/getById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<VehicleResponseEnvelopeDto>(`/vehicles/${id}`);
+      const response = await axiosInstance.get<GetVehicleResponseDto>(`/vehicles/${id}`);
       const vehicle = getVehicleData(response.data);
 
       if (vehicle) {
@@ -186,11 +158,11 @@ export const verifyVehicleOwnership = createAsyncThunk<
   }
 });
 
-export const createVehicle = createAsyncThunk<Vehicle, CreateVehicleDto, { rejectValue: string }>(
+export const createVehicle = createAsyncThunk<Vehicle, CreateVehicleRequestDto, { rejectValue: string }>(
   "vehicles/create",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<VehicleResponseEnvelopeDto>("/vehicles", payload);
+      const response = await axiosInstance.post<GetVehicleResponseDto>("/vehicles", payload);
       const vehicle = getVehicleData(response.data);
 
       if (vehicle) {
@@ -211,7 +183,7 @@ export const updateVehicle = createAsyncThunk<
   { rejectValue: string }
 >("vehicles/update", async ({ id, data }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.patch<VehicleResponseEnvelopeDto>(`/vehicles/${id}`, data);
+    const response = await axiosInstance.patch<GetVehicleResponseDto>(`/vehicles/${id}`, data);
     const vehicle = getVehicleData(response.data);
 
     if (vehicle) {

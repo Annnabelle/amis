@@ -1,12 +1,9 @@
+import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {
-  GetWaybillDto,
-  GetWaybillResponseDto,
-  GetWaybillsDto,
-  GetWaybillsResponseDto,
-} from "entities/waybills/dtos";
+import type { GetWaybillDto, GetWaybillsDto } from '@edem2000/amis.contracts/api/waybills/requests';
+import type { GetWaybillResponseDto, GetWaybillsResponseDto } from '@edem2000/amis.contracts/api/waybills/responses';
 import { mapWaybillDtoToEntity } from "entities/waybills/mappers";
-import type { WaybillResponse, WaybillsState } from "entities/waybills/types";
+import type { Waybill, WaybillsState } from "entities/waybills/types";
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL } from "shared/lib/consts";
 
@@ -24,24 +21,6 @@ const initialState: WaybillsState = {
 const getErrorMessage = (err: unknown) =>
   err instanceof Error ? err.message : "Server error";
 
-function isWaybillsListSuccess(
-  res: GetWaybillsResponseDto
-): res is { data: WaybillResponse[]; total: number; page: number; limit: number } {
-  return "data" in res && Array.isArray(res.data);
-}
-
-function isWaybillEnvelopeSuccess(
-  res: GetWaybillResponseDto
-): res is { success: boolean; waybill: WaybillResponse } {
-  return typeof res === "object" && res !== null && "waybill" in res;
-}
-
-function isWaybillDirectSuccess(
-  res: GetWaybillResponseDto
-): res is WaybillResponse {
-  return typeof res === "object" && res !== null && "id" in res && "waybillNumber" in res;
-}
-
 export const getWaybills = createAsyncThunk(
   "waybills/getWaybills",
   async (params: GetWaybillsDto, { rejectWithValue }) => {
@@ -51,7 +30,7 @@ export const getWaybills = createAsyncThunk(
         { params }
       );
 
-      if (isWaybillsListSuccess(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapWaybillDtoToEntity),
           total: response.data.total,
@@ -60,7 +39,7 @@ export const getWaybills = createAsyncThunk(
         };
       }
 
-      return rejectWithValue("Error loading waybills");
+      return rejectWithValue(getBackendErrorMessage(response.data, "Не удалось загрузить ТТН"));
     } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err));
     }
@@ -75,15 +54,11 @@ export const getWaybillById = createAsyncThunk(
         `${BASE_URL}/waybills/${id}`
       );
 
-      if (isWaybillEnvelopeSuccess(response.data)) {
+      if (response.data.success) {
         return mapWaybillDtoToEntity(response.data.waybill);
       }
 
-      if (isWaybillDirectSuccess(response.data)) {
-        return mapWaybillDtoToEntity(response.data);
-      }
-
-      return rejectWithValue("Error loading waybill");
+      return rejectWithValue(getBackendErrorMessage(response.data, "Не удалось загрузить ТТН"));
     } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err));
     }
@@ -105,7 +80,7 @@ export const waybillsSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: WaybillResponse[];
+            data: Waybill[];
             total: number;
             page: number;
             limit: number;
@@ -127,7 +102,7 @@ export const waybillsSlice = createSlice({
         state.loadingById = true;
         state.error = null;
       })
-      .addCase(getWaybillById.fulfilled, (state, action: PayloadAction<WaybillResponse>) => {
+      .addCase(getWaybillById.fulfilled, (state, action: PayloadAction<Waybill>) => {
         state.loadingById = false;
         state.waybillById = action.payload;
       })

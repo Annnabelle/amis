@@ -1,4 +1,4 @@
-import type { AddressReferenceDto, ReferenceDto } from "entities/references/dtos";
+import type { DistrictReferenceDto, ReferenceDto, RegionReferenceDto } from '@edem2000/amis.contracts/api/reference-book/responses';
 import type { Reference } from "entities/references/types";
 
 export const mapReferenceDtoToReference = (
@@ -9,14 +9,11 @@ export const mapReferenceDtoToReference = (
 });
 
 export const mapAddressReferenceDtoToReference = (
-  dto: AddressReferenceDto
+  dto: RegionReferenceDto | DistrictReferenceDto
 ): Reference => ({
   id: dto.id,
   alias: dto.alias,
   title: dto.title,
 });
-
-
-
 
 

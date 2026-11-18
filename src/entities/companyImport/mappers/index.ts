@@ -1,7 +1,4 @@
-import type {
-  CompanyImportResponseDto,
-  CompanyImportStageResponseDto,
-} from "entities/companyImport/dtos";
+import type { CompanyImportResponseDto, CompanyImportStageResponseDto } from '@edem2000/amis.contracts/api/company-import/responses';
 import type {
   CompanyImport,
   CompanyImportStageState,

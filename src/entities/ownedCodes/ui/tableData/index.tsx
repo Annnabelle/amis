@@ -2,7 +2,7 @@ import type { TFunction } from "i18next";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import StatusBadge from "shared/ui/statusBadge";
 import type { StatusBadgeVariant } from "shared/ui/statusBadge";
-import type { CodeExternalStatus } from "entities/ownedCodes/types";
+import type { MarkingCodeExternalStatus } from "entities/ownedCodes/types";
 import type { OwnedCodesTableDataType } from "./types";
 
 /** Шкала та же, что у статусов остальных сущностей: см. statusCatalog. */
@@ -42,7 +42,7 @@ export const OwnedCodesTableColumns = (
     title: t("ownedCodes.tableTitles.status"),
     dataIndex: "status",
     key: "status",
-    render: (status: CodeExternalStatus | undefined) =>
+    render: (status: MarkingCodeExternalStatus | undefined) =>
       status ? (
         <StatusBadge variant={statusVariants[status] ?? "default"}>
           {t(`ownedCodes.statuses.${status}`)}

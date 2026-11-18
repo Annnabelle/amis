@@ -1,5 +1,5 @@
-import type { InvoiceStatus } from "entities/invoices/dtos";
-import type { AvailablePackageType, MarkingCodeStatus } from "shared/types/dtos";
+import type { InvoiceStatus } from '@edem2000/amis.contracts';
+import type { PackageType, MarkingCodeStatus } from "shared/types/dtos";
 
 export type InvoiceParticipant = {
   tin?: string;
@@ -7,7 +7,7 @@ export type InvoiceParticipant = {
   address?: string;
 };
 
-export type InvoiceResponse = {
+export type Invoice = {
   id: string;
   invoiceNumber: string;
   deliveryRouteId: string;
@@ -44,7 +44,7 @@ export type InvoiceResponse = {
   createdAt: Date;
 };
 
-export type InvoiceItemResponse = {
+export type InvoiceItem = {
   id: string;
   invoiceId: string;
   productId: string;
@@ -63,15 +63,15 @@ export type InvoiceItemResponse = {
   reliefId?: string;
 };
 
-export type InvoiceMarkingCodeResponse = {
+export type InvoiceMarkingCode = {
   id: string;
   code: string;
   status: MarkingCodeStatus;
-  packageType: AvailablePackageType | string;
+  packageType: PackageType | string;
 };
 
 export type InvoiceMarkingCodesState = {
-  data: InvoiceMarkingCodeResponse[];
+  data: InvoiceMarkingCode[];
   total: number;
   page: number;
   limit: number;
@@ -80,9 +80,9 @@ export type InvoiceMarkingCodesState = {
 };
 
 export type InvoicesState = {
-  invoices: InvoiceResponse[];
-  invoiceById: InvoiceResponse | null;
-  items: InvoiceItemResponse[];
+  invoices: Invoice[];
+  invoiceById: Invoice | null;
+  items: InvoiceItem[];
   codesByProductId: Record<string, InvoiceMarkingCodesState>;
   itemsTotal: number;
   itemsPage: number;

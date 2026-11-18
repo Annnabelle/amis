@@ -1,14 +1,11 @@
 import type { Dayjs } from "dayjs";
-import type {
-  CreateSalesOrderDto,
-  CreateSalesOrderResponseDto,
-  SalesOrderAddressResponseDto,
-  SalesOrderResponseDto,
-} from "entities/salesOrders/dtos";
+import type { SalesOrderAddressResponseDto, SalesOrderResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { CreateSalesOrderDto } from '@edem2000/amis.contracts/api/sales-orders/requests';
+import type { CreateSalesOrderResponseDto } from '@edem2000/amis.contracts/api/sales-orders/responses';
 import type { ErrorDto } from "shared/types/dtos";
-import type { SalesOrderResponse } from "entities/salesOrders/types";
+import type { SalesOrder } from "entities/salesOrders/types";
 import type { SalesOrderPaymentMethod, SalesOrderPriority } from "shared/types/dtos";
-import type { SalesOrderDeliveryType } from "entities/waybills/dtos";
+import type { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -34,7 +31,7 @@ const optionalNumber = (value: unknown): number | undefined => {
 
 const mapAddressResponseDtoToEntity = (
   addressDetails: SalesOrderAddressResponseDto
-): SalesOrderResponse["customer"]["addressDetails"] => ({
+): SalesOrder["customer"]["addressDetails"] => ({
   regionId: addressDetails.regionId,
   districtId: addressDetails.districtId,
   address: addressDetails.address,
@@ -48,7 +45,7 @@ const mapAddressResponseDtoToEntity = (
 
 export const mapSalesOrderDtoToEntity = (
   dto: SalesOrderResponseDto
-): SalesOrderResponse => ({
+): SalesOrder => ({
   id: dto.id,
   companyId: dto.companyId,
   salesOrderNumber: dto.salesOrderNumber,
@@ -62,7 +59,7 @@ export const mapSalesOrderDtoToEntity = (
     companyId: dto.customer.companyId,
     tin: dto.customer.tin,
     name: dto.customer.name,
-    address: dto.customer.address,
+    address: dto.customer.addressDetails.address,
     addressDetails: mapAddressResponseDtoToEntity(dto.customer.addressDetails),
   },
   contract: dto.contract
@@ -120,7 +117,7 @@ export const mapSalesOrderDtoToEntity = (
 
 export const mapCreateSalesOrderResponseDtoToEntity = (
   dto: CreateSalesOrderResponseDto
-): { success: boolean; salesOrder?: SalesOrderResponse; error?: ErrorDto } => {
+): { success: boolean; salesOrder?: SalesOrder; error?: ErrorDto } => {
   if ("errorCode" in dto) {
     return { success: false, error: dto };
   }

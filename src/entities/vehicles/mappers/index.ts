@@ -1,4 +1,5 @@
-import type { VehicleOwnershipDto, VehicleResponseDto } from "entities/vehicles/dtos";
+import type { VehicleResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { VehicleOwnershipResponseDto } from '@edem2000/amis.contracts/api/vehicle/responses';
 import type { Vehicle, VehicleOwnership } from "entities/vehicles/types";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
@@ -25,7 +26,7 @@ export const mapVehicleDtoToEntity = (dto: VehicleResponseDto): Vehicle => ({
 });
 
 export const mapVehicleOwnershipDtoToEntity = (
-  dto: VehicleOwnershipDto
+  dto: VehicleOwnershipResponseDto
 ): VehicleOwnership => ({
   regNumber: dto.regNumber,
   model: dto.model,

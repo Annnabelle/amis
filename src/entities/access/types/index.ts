@@ -1,5 +1,25 @@
+import type {
+  RoleReference,
+} from '@edem2000/amis.contracts';
+
+export type {
+  RoleReference,
+};
+
+import {
+  AccessModules,
+  RoleScope,
+} from '@edem2000/amis.contracts'
+
+import type { AccessModule } from '@edem2000/amis.contracts'
+export type { AccessModule }
+
+export {
+  AccessModules,
+  RoleScope,
+}
+
 import type { Permission } from "shared/config/permissions";
-import type { MultiLanguage } from "shared/types/dtos";
 import type {
   SystemRole,
   UserSystemAccessState,
@@ -12,29 +32,6 @@ import type {
 export { Permissions } from "shared/config/permissions";
 export type { Permission } from "shared/config/permissions";
 
-export const AccessModules = {
-  Companies: "companies",
-  Users: "users",
-  Employees: "system-employees",
-  Leads: "leads",
-  CompanyMemberships: "company-memberships",
-  Products: "products",
-  Orders: "orders",
-  Codes: "codes",
-  SalesOrders: "sales-orders",
-  DeliveryRoutes: "delivery-routes",
-  Vehicles: "vehicles",
-  DeliveryTasks: "delivery-tasks",
-  ScanSessions: "scan-sessions",
-  Invoices: "invoices",
-  Waybills: "waybills",
-  Integrations: "integrations",
-  Reports: "reports",
-  Audit: "audit",
-} as const;
-
-export type AccessModule =
-  (typeof AccessModules)[keyof typeof AccessModules];
 
 export type AccessScope = {
   roles: string[];
@@ -80,29 +77,16 @@ export type CompanyMembershipInvitation = {
   updatedAt?: string;
 };
 
-export const RoleReferenceScope = {
-  System: "system",
-  Company: "company",
-} as const;
-
-export type RoleReferenceScope =
-  (typeof RoleReferenceScope)[keyof typeof RoleReferenceScope];
 
 export type RoleReferenceCacheKey = string;
 
 export const getRoleReferenceCacheKey = (
-  scope: RoleReferenceScope,
+  scope: RoleScope,
   companyId?: string
 ): RoleReferenceCacheKey =>
-  scope === RoleReferenceScope.Company && companyId
+  scope === RoleScope.Company && companyId
     ? `${scope}:${companyId}`
     : scope;
-
-export type RoleReference<TAlias extends string = string> = {
-  alias: TAlias;
-  name: MultiLanguage;
-  description: MultiLanguage;
-};
 
 export type AccessState = {
   data: UserAccess | null;

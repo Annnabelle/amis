@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   getLifecycleErrorVariant,
   resolveMultiLanguage,
-  type LifecycleTargetType,
+  type LifecycleTargetEntity,
 } from "entities/lifecycle/lib";
 import {
   LifecycleActorType,
@@ -14,7 +14,7 @@ import {
   type LifecycleEvent,
 } from "entities/lifecycle/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
-import { isStatusEntity, type StatusScope } from "shared/config/statusCatalog";
+import { isStatusEntity } from "shared/config/statusCatalog";
 import StatusBadge from "shared/ui/statusBadge";
 import EntityStatusBadge from "shared/ui/statusBadge/entityStatus";
 import "../styles.sass";
@@ -22,7 +22,7 @@ import "../styles.sass";
 type LifecycleEventItemProps = {
   event: LifecycleEvent;
   /** Нужен, чтобы взять подпись и цвет статуса из каталога сущности. */
-  target: LifecycleTargetType;
+  target: LifecycleTargetEntity;
   isLast?: boolean;
 };
 
@@ -42,7 +42,7 @@ const LifecycleEventItem = ({
    * запасным вариантом — для кодов, которых в каталоге ещё нет.
    */
   const statusEntity = isStatusEntity(target) ? target : undefined;
-  const eventScope = event.scope as StatusScope;
+  const eventScope = event.scope;
   const fromFallback = resolveMultiLanguage(event.status?.fromLabel, language);
   const toFallback = resolveMultiLanguage(event.status?.toLabel, language);
   const errorMessage = resolveMultiLanguage(event.error?.message, language);

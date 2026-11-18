@@ -2,15 +2,9 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { BASE_URL } from "shared/lib/consts";
 import axiosInstance from "shared/lib/axiosInstance";
 import type { ErrorDto } from "shared/types/dtos";
-import type {
-  CreateSalesOrderDto,
-  CreateSalesOrderResponseDto,
-  GetSalesOrderDto,
-  GetSalesOrderResponseDto,
-  GetSalesOrdersDto,
-  GetSalesOrdersResponseDto,
-} from "entities/salesOrders/dtos";
-import type { SalesOrderResponse, SalesOrdersState } from "entities/salesOrders/types";
+import type { CreateSalesOrderDto, GetSalesOrderDto, GetSalesOrdersDto } from '@edem2000/amis.contracts/api/sales-orders/requests';
+import type { CreateSalesOrderResponseDto, GetSalesOrderResponseDto, GetSalesOrdersResponseDto } from '@edem2000/amis.contracts/api/sales-orders/responses';
+import type { SalesOrder, SalesOrdersState } from "entities/salesOrders/types";
 import { mapCreateSalesOrderResponseDtoToEntity, mapSalesOrderDtoToEntity } from "entities/salesOrders/mappers";
 import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage.ts";
 
@@ -25,12 +19,6 @@ const initialState: SalesOrdersState = {
   error: null,
 };
 
-function isSalesOrdersListSuccess(
-  res: GetSalesOrdersResponseDto
-): res is { success: boolean } & { data: any[]; total: number; page: number; limit: number } {
-  return "success" in res && res.success === true && "data" in res;
-}
-
 export const getSalesOrders = createAsyncThunk(
   "salesOrders/getSalesOrders",
   async (params: GetSalesOrdersDto, { rejectWithValue }) => {
@@ -40,7 +28,7 @@ export const getSalesOrders = createAsyncThunk(
         { params }
       );
 
-      if (isSalesOrdersListSuccess(response.data)) {
+      if (response.data.success) {
         return {
           data: response.data.data.map(mapSalesOrderDtoToEntity),
           total: response.data.total,
@@ -56,12 +44,6 @@ export const getSalesOrders = createAsyncThunk(
   }
 );
 
-function isSalesOrderSuccess(
-  res: GetSalesOrderResponseDto
-): res is { success: boolean; salesOrder: any } {
-  return "success" in res && res.success === true && "salesOrder" in res;
-}
-
 export const getSalesOrderById = createAsyncThunk(
   "salesOrders/getSalesOrderById",
   async ({ id }: GetSalesOrderDto, { rejectWithValue }) => {
@@ -70,7 +52,7 @@ export const getSalesOrderById = createAsyncThunk(
         `${BASE_URL}/sales-orders/${id}`
       );
 
-      if (isSalesOrderSuccess(response.data)) {
+      if (response.data.success) {
         return mapSalesOrderDtoToEntity(response.data.salesOrder);
       }
 
@@ -82,7 +64,7 @@ export const getSalesOrderById = createAsyncThunk(
 );
 
 export const createSalesOrder = createAsyncThunk<
-  SalesOrderResponse,
+  SalesOrder,
   CreateSalesOrderDto,
   { rejectValue: ErrorDto }
 >("salesOrders/createSalesOrder", async (payload, { rejectWithValue }) => {
@@ -142,7 +124,7 @@ export const salesOrdersSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            data: SalesOrderResponse[];
+            data: SalesOrder[];
             total: number;
             page: number;
             limit: number;
@@ -165,7 +147,7 @@ export const salesOrdersSlice = createSlice({
       })
       .addCase(
         getSalesOrderById.fulfilled,
-        (state, action: PayloadAction<SalesOrderResponse>) => {
+        (state, action: PayloadAction<SalesOrder>) => {
           state.isLoading = false;
           state.orderById = action.payload;
         }
@@ -180,7 +162,7 @@ export const salesOrdersSlice = createSlice({
       })
       .addCase(
         createSalesOrder.fulfilled,
-        (state, action: PayloadAction<SalesOrderResponse>) => {
+        (state, action: PayloadAction<SalesOrder>) => {
           state.isLoading = false;
           state.createdOrder = action.payload;
         }

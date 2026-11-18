@@ -1,7 +1,5 @@
-import type {
-  GetLifecycleSummaryResponseDto,
-  LifecycleEventResponseDto,
-} from "entities/lifecycle/dtos";
+import type { LifecycleEventResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { GetLifecycleSummaryResponseDto } from '@edem2000/amis.contracts/api/lifecycle/responses';
 import type {
   LifecycleEvent,
   LifecycleSummary,

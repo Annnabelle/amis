@@ -1,31 +1,36 @@
+import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "shared/lib/axiosInstance.ts";
 import type {
-    CompanyXTraceIntegrationResponse,
-    CompanyFakturaUzIntegrationResponse,
+    CompanyXTraceIntegration,
+    CompanyFakturaUzIntegration,
     CreateCompanyFakturaUzIntegration,
     CreateCompanyXTraceIntegration,
     UpdateCompanyXTraceIntegration,
     ValidateCompanyXTraceIntegrationToken,
-    ValidateCompanyXTraceIntegrationTokenResponse,
+    XTraceIntegrationTokenValidation,
     ValidateCompanyXTraceToken,
-    ValidateCompanyXTraceTokenResponse,
+    XTraceTokenValidation,
 } from "entities/xTrace/types";
 import type {
-    CompanyXTraceIntegrationResponseDto,
-    CompanyFakturaUzIntegrationResponseDto,
+    CreateCompanyFakturaUzIntegrationResponseDto,
+    CreateCompanyXTraceIntegrationResponseDto,
     GetCompanyFakturaUzIntegrationResponseDto,
     GetCompanyXTraceIntegrationResponseDto,
-    ValidateCompanyXTraceIntegrationTokenResponseDto,
-    ValidateCompanyXTraceTokenResponseDto,
-} from "entities/xTrace/dtos";
-import { mapValidateCompanyXTraceTokenResponse } from "entities/xTrace/mappers";
+    UpdateCompanyXTraceIntegrationResponseDto,
+} from '@edem2000/amis.contracts/api/common/responses';
+import type { ValidateCompanyXTraceTokenResponseDto } from '@edem2000/amis.contracts/api/companies/responses';
+import {
+    mapCompanyFakturaUzIntegrationDtoToEntity,
+    mapCompanyXTraceIntegrationDtoToEntity,
+    mapValidateCompanyXTraceTokenResponse,
+} from "entities/xTrace/mappers";
 
 interface XTraceState {
-    data: ValidateCompanyXTraceTokenResponse | null;
-    integrationValidation: ValidateCompanyXTraceIntegrationTokenResponse | null;
-    integration: CompanyXTraceIntegrationResponse | null;
-    fakturaUzIntegration: CompanyFakturaUzIntegrationResponse | null;
+    data: XTraceTokenValidation | null;
+    integrationValidation: XTraceIntegrationTokenValidation | null;
+    integration: CompanyXTraceIntegration | null;
+    fakturaUzIntegration: CompanyFakturaUzIntegration | null;
     integrationsLoading: boolean;
     loading: boolean;
     integrationValidationLoading: boolean;
@@ -47,15 +52,10 @@ const initialState: XTraceState = {
     error: null,
 };
 
-const isErrorDto = (value: unknown): value is { success: boolean; errorMessage: unknown; errorCode: number } =>
-    value !== null &&
-    typeof value === "object" &&
-    "errorCode" in value &&
-    "errorMessage" in value;
-
 export const getCompanyXTraceIntegration = createAsyncThunk<
-    CompanyXTraceIntegrationResponse | null,
-    { companyId: string }
+    CompanyXTraceIntegration,
+    { companyId: string },
+    { rejectValue: string }
 >(
     "xTraceSlice/getXTraceIntegration",
     async ({ companyId }, { rejectWithValue }) => {
@@ -65,20 +65,27 @@ export const getCompanyXTraceIntegration = createAsyncThunk<
                 { headers: { "x-company-id": String(companyId) } }
             );
 
-            if (isErrorDto(res.data)) {
-                return rejectWithValue(res.data);
+            if (!res.data.success) {
+                return rejectWithValue(
+                    getBackendErrorMessage(res.data, "Не удалось загрузить интеграцию X-Trace")
+                );
             }
 
-            return res.data as CompanyXTraceIntegrationResponse;
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            return mapCompanyXTraceIntegrationDtoToEntity(res.data.integration);
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось загрузить интеграцию X-Trace")
+            );
         }
     }
 );
 
 export const getCompanyFakturaUzIntegration = createAsyncThunk<
-    CompanyFakturaUzIntegrationResponse | null,
-    { companyId: string }
+    CompanyFakturaUzIntegration,
+    { companyId: string },
+    { rejectValue: string }
 >(
     "xTraceSlice/getFakturaUzIntegration",
     async ({ companyId }, { rejectWithValue }) => {
@@ -88,39 +95,57 @@ export const getCompanyFakturaUzIntegration = createAsyncThunk<
                 { headers: { "x-company-id": String(companyId) } }
             );
 
-            if (isErrorDto(res.data)) {
-                return rejectWithValue(res.data);
+            if (!res.data.success) {
+                return rejectWithValue(
+                    getBackendErrorMessage(res.data, "Не удалось загрузить интеграцию Faktura.uz")
+                );
             }
 
-            return res.data as CompanyFakturaUzIntegrationResponse;
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            return mapCompanyFakturaUzIntegrationDtoToEntity(res.data.integration);
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось загрузить интеграцию Faktura.uz")
+            );
         }
     }
 );
 
-export const validateCompanyXTraceToken = createAsyncThunk(
+export const validateCompanyXTraceToken = createAsyncThunk<
+    XTraceTokenValidation,
+    ValidateCompanyXTraceToken,
+    { rejectValue: string }
+>(
     "xTraceSlice/validateXTrace",
-    async (
-        params: ValidateCompanyXTraceToken,
-        { rejectWithValue }
-    ) => {
+    async (params, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.get<ValidateCompanyXTraceTokenResponseDto>(
                 `/companies/x-trace/validate`,
                 { params }
             );
 
-            return mapValidateCompanyXTraceTokenResponse(res.data);
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            if (res.data.success) {
+                return mapValidateCompanyXTraceTokenResponse(res.data.data);
+            }
+
+            return rejectWithValue(
+                getBackendErrorMessage(res.data, "Не удалось проверить токен X-Trace")
+            );
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось проверить токен X-Trace")
+            );
         }
     }
 );
 
 export const validateCompanyXTraceIntegrationToken = createAsyncThunk<
-    ValidateCompanyXTraceIntegrationTokenResponse,
-    ValidateCompanyXTraceIntegrationToken
+    XTraceIntegrationTokenValidation,
+    ValidateCompanyXTraceIntegrationToken,
+    { rejectValue: string }
 >(
     "xTraceSlice/validateIntegrationToken",
     async (
@@ -128,7 +153,7 @@ export const validateCompanyXTraceIntegrationToken = createAsyncThunk<
         { rejectWithValue }
     ) => {
         try {
-            const res = await axiosInstance.get<ValidateCompanyXTraceIntegrationTokenResponseDto>(
+            const res = await axiosInstance.get<ValidateCompanyXTraceTokenResponseDto>(
                 `/integrations/x-trace/validate`,
                 {
                     params: { token: params.token },
@@ -136,24 +161,32 @@ export const validateCompanyXTraceIntegrationToken = createAsyncThunk<
                 }
             );
 
-            return res.data as ValidateCompanyXTraceIntegrationTokenResponse;
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            if (res.data.success) {
+                return mapValidateCompanyXTraceTokenResponse(res.data.data);
+            }
+
+            return rejectWithValue(
+                getBackendErrorMessage(res.data, "Не удалось проверить токен интеграции X-Trace")
+            );
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось проверить токен интеграции X-Trace")
+            );
         }
     }
 );
 
 export const createCompanyXTraceIntegration = createAsyncThunk<
-    CompanyXTraceIntegrationResponse,
-    CreateCompanyXTraceIntegration
+    CompanyXTraceIntegration,
+    CreateCompanyXTraceIntegration,
+    { rejectValue: string }
 >(
     "xTraceSlice/createIntegration",
-    async (
-        params: CreateCompanyXTraceIntegration,
-        { rejectWithValue }
-    ) => {
+    async (params, { rejectWithValue }) => {
         try {
-            const res = await axiosInstance.post<CompanyXTraceIntegrationResponseDto>(
+            const res = await axiosInstance.post<CreateCompanyXTraceIntegrationResponseDto>(
                 `/integrations/x-trace`,
                 {
                     token: params.token,
@@ -162,24 +195,32 @@ export const createCompanyXTraceIntegration = createAsyncThunk<
                 { headers: { "x-company-id": String(params.companyId) } }
             );
 
-            return res.data as CompanyXTraceIntegrationResponse;
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            if (!res.data.success) {
+                return rejectWithValue(
+                    getBackendErrorMessage(res.data, "Не удалось загрузить интеграцию X-Trace")
+                );
+            }
+
+            return mapCompanyXTraceIntegrationDtoToEntity(res.data.integration);
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось подключить интеграцию X-Trace")
+            );
         }
     }
 );
 
 export const updateCompanyXTraceIntegration = createAsyncThunk<
-    CompanyXTraceIntegrationResponse,
-    UpdateCompanyXTraceIntegration
+    CompanyXTraceIntegration,
+    UpdateCompanyXTraceIntegration,
+    { rejectValue: string }
 >(
     "xTraceSlice/updateIntegration",
-    async (
-        params: UpdateCompanyXTraceIntegration,
-        { rejectWithValue }
-    ) => {
+    async (params, { rejectWithValue }) => {
         try {
-            const res = await axiosInstance.patch<CompanyXTraceIntegrationResponseDto>(
+            const res = await axiosInstance.patch<UpdateCompanyXTraceIntegrationResponseDto>(
                 `/integrations/x-trace`,
                 {
                     token: params.token,
@@ -188,24 +229,32 @@ export const updateCompanyXTraceIntegration = createAsyncThunk<
                 { headers: { "x-company-id": String(params.companyId) } }
             );
 
-            return res.data as CompanyXTraceIntegrationResponse;
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            if (!res.data.success) {
+                return rejectWithValue(
+                    getBackendErrorMessage(res.data, "Не удалось загрузить интеграцию X-Trace")
+                );
+            }
+
+            return mapCompanyXTraceIntegrationDtoToEntity(res.data.integration);
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось обновить интеграцию X-Trace")
+            );
         }
     }
 );
 
 export const createCompanyFakturaUzIntegration = createAsyncThunk<
-    CompanyFakturaUzIntegrationResponse,
-    CreateCompanyFakturaUzIntegration
+    CompanyFakturaUzIntegration,
+    CreateCompanyFakturaUzIntegration,
+    { rejectValue: string }
 >(
     "xTraceSlice/createFakturaUzIntegration",
-    async (
-        params: CreateCompanyFakturaUzIntegration,
-        { rejectWithValue }
-    ) => {
+    async (params, { rejectWithValue }) => {
         try {
-            const res = await axiosInstance.post<CompanyFakturaUzIntegrationResponseDto>(
+            const res = await axiosInstance.post<CreateCompanyFakturaUzIntegrationResponseDto>(
                 `/integrations/faktura-uz`,
                 {
                     username: params.username,
@@ -216,9 +265,19 @@ export const createCompanyFakturaUzIntegration = createAsyncThunk<
                 { headers: { "x-company-id": String(params.companyId) } }
             );
 
-            return res.data as CompanyFakturaUzIntegrationResponse;
-        } catch (err: any) {
-            return rejectWithValue(err.response?.data ?? err.message);
+            if (!res.data.success) {
+                return rejectWithValue(
+                    getBackendErrorMessage(res.data, "Не удалось загрузить интеграцию Faktura.uz")
+                );
+            }
+
+            return mapCompanyFakturaUzIntegrationDtoToEntity(res.data.integration);
+        } catch (error: unknown) {
+            const responseData = (error as { response?: { data?: unknown } }).response?.data;
+
+            return rejectWithValue(
+                getBackendErrorMessage(responseData ?? error, "Не удалось подключить интеграцию Faktura.uz")
+            );
         }
     }
 );
@@ -248,14 +307,14 @@ export const xTraceSlice = createSlice({
             })
             .addCase(
                 validateCompanyXTraceToken.fulfilled,
-                (state, action: PayloadAction<ValidateCompanyXTraceTokenResponse>) => {
+                (state, action: PayloadAction<XTraceTokenValidation>) => {
                     state.loading = false;
                     state.data = action.payload;
                 }
             )
             .addCase(validateCompanyXTraceToken.rejected, (state, action) => {
                 state.loading = false;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             })
             .addCase(getCompanyXTraceIntegration.pending, (state) => {
                 state.integrationsLoading = true;
@@ -268,7 +327,7 @@ export const xTraceSlice = createSlice({
             .addCase(getCompanyXTraceIntegration.rejected, (state, action) => {
                 state.integrationsLoading = false;
                 state.integration = null;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             })
             .addCase(getCompanyFakturaUzIntegration.pending, (state) => {
                 state.integrationsLoading = true;
@@ -281,7 +340,7 @@ export const xTraceSlice = createSlice({
             .addCase(getCompanyFakturaUzIntegration.rejected, (state, action) => {
                 state.integrationsLoading = false;
                 state.fakturaUzIntegration = null;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             })
             .addCase(validateCompanyXTraceIntegrationToken.pending, (state) => {
                 state.integrationValidationLoading = true;
@@ -290,14 +349,14 @@ export const xTraceSlice = createSlice({
             })
             .addCase(
                 validateCompanyXTraceIntegrationToken.fulfilled,
-                (state, action: PayloadAction<ValidateCompanyXTraceIntegrationTokenResponse>) => {
+                (state, action: PayloadAction<XTraceIntegrationTokenValidation>) => {
                     state.integrationValidationLoading = false;
                     state.integrationValidation = action.payload;
                 }
             )
             .addCase(validateCompanyXTraceIntegrationToken.rejected, (state, action) => {
                 state.integrationValidationLoading = false;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             })
             .addCase(createCompanyXTraceIntegration.pending, (state) => {
                 state.integrationCreateLoading = true;
@@ -305,14 +364,14 @@ export const xTraceSlice = createSlice({
             })
             .addCase(
                 createCompanyXTraceIntegration.fulfilled,
-                (state, action: PayloadAction<CompanyXTraceIntegrationResponse>) => {
+                (state, action: PayloadAction<CompanyXTraceIntegration>) => {
                     state.integrationCreateLoading = false;
                     state.integration = action.payload;
                 }
             )
             .addCase(createCompanyXTraceIntegration.rejected, (state, action) => {
                 state.integrationCreateLoading = false;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             })
             .addCase(updateCompanyXTraceIntegration.pending, (state) => {
                 state.integrationCreateLoading = true;
@@ -320,14 +379,14 @@ export const xTraceSlice = createSlice({
             })
             .addCase(
                 updateCompanyXTraceIntegration.fulfilled,
-                (state, action: PayloadAction<CompanyXTraceIntegrationResponse>) => {
+                (state, action: PayloadAction<CompanyXTraceIntegration>) => {
                     state.integrationCreateLoading = false;
                     state.integration = action.payload;
                 }
             )
             .addCase(updateCompanyXTraceIntegration.rejected, (state, action) => {
                 state.integrationCreateLoading = false;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             })
             .addCase(createCompanyFakturaUzIntegration.pending, (state) => {
                 state.fakturaUzCreateLoading = true;
@@ -335,14 +394,14 @@ export const xTraceSlice = createSlice({
             })
             .addCase(
                 createCompanyFakturaUzIntegration.fulfilled,
-                (state, action: PayloadAction<CompanyFakturaUzIntegrationResponse>) => {
+                (state, action: PayloadAction<CompanyFakturaUzIntegration>) => {
                     state.fakturaUzCreateLoading = false;
                     state.fakturaUzIntegration = action.payload;
                 }
             )
             .addCase(createCompanyFakturaUzIntegration.rejected, (state, action) => {
                 state.fakturaUzCreateLoading = false;
-                state.error = (action.payload as string) || "Unknown error";
+                state.error = action.payload ?? "Unknown error";
             });
     },
 });

@@ -1,6 +1,6 @@
-import type { WaybillResponseDto } from "entities/waybills/dtos";
-import type { WaybillResponse } from "entities/waybills/types";
+import type { WaybillResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { Waybill } from "entities/waybills/types";
 
 export const mapWaybillDtoToEntity = (
   dto: WaybillResponseDto
-): WaybillResponse => dto;
+): Waybill => dto;

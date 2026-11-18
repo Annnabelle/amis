@@ -52,7 +52,7 @@ import {
 import {
   AccessModules,
   getRoleReferenceCacheKey,
-  RoleReferenceScope,
+  RoleScope,
   type AccessModule,
 } from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
@@ -136,16 +136,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   ) ?? [];
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
   const systemRoleReferences = useAppSelector(
-    (state) => state.access.roleReferences[RoleReferenceScope.System] ?? []
+    (state) => state.access.roleReferences[RoleScope.System] ?? []
   );
   const roleReferences = useAppSelector((state) => state.access.roleReferences);
   const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
   const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
   const areSystemRoleReferencesLoaded = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoaded[RoleReferenceScope.System])
+    Boolean(state.access.roleReferencesLoaded[RoleScope.System])
   );
   const areSystemRoleReferencesLoading = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoading[RoleReferenceScope.System])
+    Boolean(state.access.roleReferencesLoading[RoleScope.System])
   );
   const systemRoleLabels = useMemo(
     () =>
@@ -160,7 +160,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       pendingCompanyInvitations.reduce<Record<string, Record<string, string>>>(
         (acc, invitation) => {
           const key = getRoleReferenceCacheKey(
-            RoleReferenceScope.Company,
+            RoleScope.Company,
             invitation.company.id
           );
           acc[invitation.company.id] = (roleReferences[key] ?? []).reduce<
@@ -241,7 +241,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       return;
     }
 
-    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+    void dispatch(fetchRoleReferences({ scope: RoleScope.System }));
   }, [
     areSystemRoleReferencesLoaded,
     areSystemRoleReferencesLoading,
@@ -252,7 +252,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   useEffect(() => {
     pendingCompanyInvitations.forEach((invitation) => {
       const key = getRoleReferenceCacheKey(
-        RoleReferenceScope.Company,
+        RoleScope.Company,
         invitation.company.id
       );
 
@@ -261,7 +261,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       }
 
       void dispatch(fetchRoleReferences({
-        scope: RoleReferenceScope.Company,
+        scope: RoleScope.Company,
         companyId: invitation.company.id,
       }));
     });
@@ -454,7 +454,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
-  if (systemModules.includes(AccessModules.Employees)) {
+  if (systemModules.includes(AccessModules.SystemEmployees)) {
     systemMenuItems.push({
       key: '/system-employees',
       icon: <TeamOutlined />,
@@ -518,7 +518,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           onClick: () => navigate('/users'),
         }]
       : []),
-    ...(systemModules.includes(AccessModules.Employees)
+    ...(systemModules.includes(AccessModules.SystemEmployees)
       ? [{
           key: '/system-employees',
           label: t('navigation.systemEmployees'),

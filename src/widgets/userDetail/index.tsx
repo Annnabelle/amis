@@ -7,7 +7,7 @@ import { fetchCurrentUser, getUserById } from 'entities/users/model';
 import { fetchRoleReferences } from 'entities/access/model';
 import {
   getRoleReferenceCacheKey,
-  RoleReferenceScope,
+  RoleScope,
   type RoleReference,
 } from 'entities/access/types';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -30,19 +30,13 @@ import {
   RouteMetaChip,
 } from 'shared/ui/details';
 import type { SystemEmployee, SystemRole } from 'entities/systemEmployees/types';
-import {
-  isGetUserSystemAccessResponseSuccess,
-  type GetUserSystemAccessResponseDto,
-} from 'entities/systemEmployees/dtos';
+import type { GetUserSystemAccessResponseDto } from '@edem2000/amis.contracts/api/users/responses';
 import { mapSystemEmployeeDtoToEntity } from 'entities/systemEmployees/mappers';
 import type { CompanyMembership, CompanyRole } from 'entities/companyMemberships/types';
-import {
-  isUserCompanyMembershipsResponseSuccess,
-  type UserCompanyMembershipsResponseDto,
-} from 'entities/companyMemberships/dtos';
+import type { UserCompanyMembershipsResponseDto } from '@edem2000/amis.contracts/api/company-memberships/responses';
 import { mapCompanyMembershipDtoToEntity } from 'entities/companyMemberships/mappers';
 import { isLanguage, type Language } from 'shared/types/dtos';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 
@@ -144,11 +138,11 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
           systemAccessRequest,
         ]);
 
-        const memberships = isUserCompanyMembershipsResponseSuccess(membershipsResponse.data)
+        const memberships = membershipsResponse.data.success
           ? membershipsResponse.data.data.map(mapCompanyMembershipDtoToEntity)
           : [];
         const access =
-          isGetUserSystemAccessResponseSuccess(systemAccessResponse.data) && systemAccessResponse.data.data
+          systemAccessResponse.data.success && systemAccessResponse.data.data
             ? mapSystemEmployeeDtoToEntity(systemAccessResponse.data.data)
             : null;
 
@@ -178,25 +172,25 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
     const companyIds = new Set(companyMemberships.map((membership) => membership.companyId));
 
     companyIds.forEach((companyId) => {
-      const key = getRoleReferenceCacheKey(RoleReferenceScope.Company, companyId);
+      const key = getRoleReferenceCacheKey(RoleScope.Company, companyId);
       if (roleReferencesLoaded[key] || roleReferencesLoading[key]) return;
 
-      void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.Company, companyId }));
+      void dispatch(fetchRoleReferences({ scope: RoleScope.Company, companyId }));
     });
   }, [companyMemberships, dispatch, roleReferencesLoaded, roleReferencesLoading]);
 
   useEffect(() => {
     if (!systemAccess) return;
 
-    const key = getRoleReferenceCacheKey(RoleReferenceScope.System);
+    const key = getRoleReferenceCacheKey(RoleScope.System);
     if (roleReferencesLoaded[key] || roleReferencesLoading[key]) return;
 
-    void dispatch(fetchRoleReferences({ scope: RoleReferenceScope.System }));
+    void dispatch(fetchRoleReferences({ scope: RoleScope.System }));
   }, [dispatch, roleReferencesLoaded, roleReferencesLoading, systemAccess]);
 
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: viewedUser?.id,
-    target: LifecycleTargetType.User,
+    target: LifecycleTargetEntity.User,
   });
 
   if (isUserLoading && !isViewedUserLoaded) {
@@ -238,7 +232,7 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
   const companyById = new Map(organizations.map((company) => [company.id, company]));
   // fallback company names when the viewer can't list companies (e.g. own /profile)
   const companyNameById = new Map((accessCompanies ?? []).map((company) => [company.companyId, company.name]));
-  const systemRoleReferenceKey = getRoleReferenceCacheKey(RoleReferenceScope.System);
+  const systemRoleReferenceKey = getRoleReferenceCacheKey(RoleScope.System);
   const systemRoleReferences = (roleReferences[systemRoleReferenceKey] ?? []) as RoleReference<SystemRole>[];
   const systemRoleLabels = new Map(
     systemRoleReferences.map((role) => [
@@ -402,7 +396,7 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
                         const companyName =
                           company?.displayName ?? companyNameById.get(membership.companyId) ?? membership.companyId;
                         const referenceKey = getRoleReferenceCacheKey(
-                          RoleReferenceScope.Company,
+                          RoleScope.Company,
                           membership.companyId
                         );
                         const companyRoleReferences = (roleReferences[referenceKey] ?? []) as RoleReference<CompanyRole>[];

@@ -1,3 +1,4 @@
+import { resolveMultiLanguage } from 'shared/lib/multiLanguage';
 import React, { useEffect, useState, useMemo, type JSX } from "react";
 import {
   List,
@@ -481,7 +482,7 @@ const AuditLogsPage: React.FC = () => {
                                     <div className="log-list-heading-container">  
                                       {item.message && (
                                         <span className="log-list-heading-container-subtitle">
-                                          {item?.message}
+                                          {resolveMultiLanguage(item.message, i18n.language)}
                                         </span>
                                       )}
                                     </div>

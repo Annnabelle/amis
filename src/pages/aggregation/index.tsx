@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from "shared/ui/table";
-import {type ApiErrorResponse, createAggregationReport, fetchAggregations} from "entities/aggregation/model";
+import {type ErrorDto, createAggregationReport, fetchAggregations} from "entities/aggregation/model";
 import {AggregationColumns} from "entities/aggregation/ui/tableData/aggregation";
 import type {AggregationDataType} from "entities/aggregation/ui/tableData/aggregation/types.ts";
 import CustomButton from "shared/ui/button";
@@ -16,7 +16,7 @@ import type {CreateAggregationReport} from "entities/aggregation/types";
 import {fetchMarkingCodes} from "entities/markingCodes/model";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import { AvailablePackageType, type AggregationReportStatus } from "shared/types/dtos";
+import { PackageType, type AggregationReportStatus } from "shared/types/dtos";
 import { searchProducts} from "entities/products/model";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {useSubmitGuard} from "shared/lib/useSubmitGuard";
@@ -25,16 +25,16 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
-import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const packageTypeOrder: Record<string, number> = {
-    [AvailablePackageType.BoxLv2]: 0,
-    [AvailablePackageType.BoxLv1]: 1,
-    [AvailablePackageType.Group]: 2,
-    [AvailablePackageType.Unit]: 3,
+    [PackageType.BoxLv2]: 0,
+    [PackageType.BoxLv1]: 1,
+    [PackageType.Group]: 2,
+    [PackageType.Unit]: 3,
 };
 
 const getPackageTypeOrder = (packageType?: string) =>
@@ -82,8 +82,8 @@ const Aggregations = () => {
                 page: dataPage || 1,
                 limit: dataLimit || 10,
                 status: filters.status,
-                dateFrom: filters.dateFrom,
-                dateTo: filters.dateTo,
+                dateFrom: filters.dateFrom?.toISOString(),
+                dateTo: filters.dateTo?.toISOString(),
                 productId: selectedProductId,
             })
         );
@@ -101,12 +101,12 @@ const Aggregations = () => {
     }, [refreshAggregations]);
 
     useStatusChangeListRefresh(
-        StatusChangeEntity.AggregationReport,
+        LifecycleTargetEntity.AggregationReport,
         refreshAggregations
     );
 
     const recentStatusChanges = useRecentStatusChanges(
-        StatusChangeEntity.AggregationReport
+        LifecycleTargetEntity.AggregationReport
     );
 
     useEffect(() => {
@@ -224,7 +224,7 @@ const Aggregations = () => {
             await dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
         } catch (err) {
             toast.error(
-                getBackendErrorMessage(err as ApiErrorResponse, t("aggregations.messages.createError"))
+                getBackendErrorMessage(err as ErrorDto, t("aggregations.messages.createError"))
             );
         }
     };
@@ -290,12 +290,12 @@ const Aggregations = () => {
                                             }
                                             allowClear
                                             options={[
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'new'), value: 'new' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'requested'), value: 'requested' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'vendor_pending'), value: 'vendor_pending' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'partially_processed'), value: 'partially_processed' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'success'), value: 'success' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, StatusScope.Internal, 'error'), value: 'error' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'new'), value: 'new' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'requested'), value: 'requested' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'vendor_pending'), value: 'vendor_pending' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'partially_processed'), value: 'partially_processed' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'success'), value: 'success' },
+                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'error'), value: 'error' },
                                             ]}
                                             onChange={(value) =>
                                                 setFilters(prev => ({
@@ -380,8 +380,8 @@ const Aggregations = () => {
                                             page,
                                             limit: pageSize || dataLimit || 10,
                                             status: filters.status,
-                                            dateFrom: filters.dateFrom,
-                                            dateTo: filters.dateTo,
+                                            dateFrom: filters.dateFrom?.toISOString(),
+                                            dateTo: filters.dateTo?.toISOString(),
                                             productId: selectedProductId,
                                         })
                                     );

@@ -20,7 +20,7 @@ import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState 
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { LifecycleTargetType, useLifecycleSummary } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity, useLifecycleSummary } from 'entities/lifecycle/lib';
 import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
 import CompanyImportPanel from 'widgets/companyImport';
 import CompanyImportStartButton from 'widgets/companyImport/startButton';
@@ -80,9 +80,9 @@ const CompanyIntegrations = () => {
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const { canRead: canReadXTraceLifecycle, summary: xTraceLifecycleSummary } =
-    useLifecycleSummary(orgId, LifecycleTargetType.CompanyXTraceIntegration);
+    useLifecycleSummary(orgId, LifecycleTargetEntity.CompanyXTraceIntegration);
   const { canRead: canReadFakturaUzLifecycle, summary: fakturaUzLifecycleSummary } =
-    useLifecycleSummary(orgId, LifecycleTargetType.CompanyFakturaUzIntegration);
+    useLifecycleSummary(orgId, LifecycleTargetEntity.CompanyFakturaUzIntegration);
   const [xTraceForm] = Form.useForm();
   const [fakturaUzForm] = Form.useForm();
   const [isXTraceModalOpen, setIsXTraceModalOpen] = useState(false);
@@ -137,13 +137,7 @@ const CompanyIntegrations = () => {
     return map;
   }, [currentLanguage, productGroupReferences]);
 
-  const xTraceValidationData =
-    xTraceValidation &&
-    'success' in xTraceValidation &&
-    xTraceValidation.success === true &&
-    'data' in xTraceValidation
-      ? xTraceValidation.data
-      : null;
+  const xTraceValidationData = xTraceValidation;
 
   useEffect(() => {
     if (!orgId) return;
@@ -369,7 +363,7 @@ const CompanyIntegrations = () => {
     </div>
   );
 
-  const lifecyclePanelBox = (target: LifecycleTargetType) => (
+  const lifecyclePanelBox = (target: LifecycleTargetEntity) => (
     <div className="box">
       <div className="box-container">
         <div className="box-container-items">
@@ -468,7 +462,7 @@ const CompanyIntegrations = () => {
                       {xTraceLifecycleSummary?.activeError && <span className="entity-tabs-dot" />}
                     </>
                   ),
-                  children: lifecyclePanelBox(LifecycleTargetType.CompanyXTraceIntegration),
+                  children: lifecyclePanelBox(LifecycleTargetEntity.CompanyXTraceIntegration),
                 },
               ]
             : []),
@@ -482,7 +476,7 @@ const CompanyIntegrations = () => {
                       {fakturaUzLifecycleSummary?.activeError && <span className="entity-tabs-dot" />}
                     </>
                   ),
-                  children: lifecyclePanelBox(LifecycleTargetType.CompanyFakturaUzIntegration),
+                  children: lifecyclePanelBox(LifecycleTargetEntity.CompanyFakturaUzIntegration),
                 },
               ]
             : []),

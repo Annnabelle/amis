@@ -9,7 +9,7 @@ import { useCan } from "entities/access/lib";
 import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
 import { getLeadById, updateLeadStatus } from "entities/leads/model";
 import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
-import { LifecycleTargetType } from "entities/lifecycle/lib";
+import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
@@ -20,7 +20,7 @@ import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import { statusColors } from "shared/ui/statuses";
 import "../styles.sass";
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 type StatusForm = {
@@ -57,7 +57,7 @@ const LeadDetails = () => {
   const isLoading = useAppSelector((state) => state.leads.isLoading);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
-    target: LifecycleTargetType.Lead,
+    target: LifecycleTargetEntity.Lead,
   });
   const [form] = Form.useForm<StatusForm>();
   const [pendingStatus, setPendingStatus] = useState<LeadStatusType | null>(null);
@@ -170,7 +170,7 @@ const LeadDetails = () => {
                     color={statusColors[lead.status] ?? "default"}
                     style={{ margin: 0 }}
                   >
-                    {getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, lead.status)}
+                    {getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, lead.status)}
                   </Tag>
                 </div>
               </div>
@@ -203,7 +203,7 @@ const LeadDetails = () => {
                     color={statusColors[lead.status] ?? "default"}
                     style={{ margin: 0 }}
                   >
-                    {getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, lead.status)}
+                    {getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, lead.status)}
                   </Tag>
                 </div>
                 {statusItems.map((item) => (
@@ -281,7 +281,7 @@ const LeadDetails = () => {
           <div className="leads-status-modal">
             <div className="leads-status-modal-summary">
               <span>{lead.name}</span>
-              <strong>{getStatusLabel(t, StatusEntity.Lead, StatusScope.Internal, pendingStatus)}</strong>
+              <strong>{getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, pendingStatus)}</strong>
             </div>
             <Form form={form} layout="vertical">
               <Form.Item name="comment" label={t("leads.fields.comment")}>

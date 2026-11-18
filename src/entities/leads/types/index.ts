@@ -1,23 +1,15 @@
-export const LeadStatus = {
-  New: "new",
-  InProgress: "in_progress",
-  Completed: "completed",
-  Rejected: "rejected",
-} as const;
+import {
+  LeadSortField,
+  LeadStatus,
+  LeadStatuses,
+} from '@edem2000/amis.contracts'
 
-export const LeadStatuses = Object.values(LeadStatus);
+export {
+  LeadSortField,
+  LeadStatus,
+  LeadStatuses,
+}
 
-export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus];
-
-export const LeadSortField = {
-  Id: "_id",
-  CreatedAt: "createdAt",
-  UpdatedAt: "updatedAt",
-  StatusChangedAt: "statusChangedAt",
-} as const;
-
-export type LeadSortField =
-  (typeof LeadSortField)[keyof typeof LeadSortField];
 
 export type Lead = {
   id: string;

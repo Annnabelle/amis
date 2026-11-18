@@ -1,21 +1,22 @@
-import type { MultiLanguage } from "shared/types/dtos";
-
 /**
  * Импорт компании из ASL Belgisi: конвейер этапов, который идёт в фоне.
  * Формы повторяют domain/company-import бэкенда — расхождение здесь означает
  * расхождение с ответом сервера.
  */
-export const CompanyImportStage = {
-  Products: "products",
-  Orders: "orders",
-  OrderBatches: "order-batches",
-  BatchCodes: "batch-codes",
-  OwnedCodes: "owned-codes",
-  Documents: "documents",
-} as const;
+import {
+  CompanyImportStage,
+  CompanyImportStageStatus,
+  CompanyImportStatus,
+} from '@edem2000/amis.contracts'
 
-export type CompanyImportStage =
-  (typeof CompanyImportStage)[keyof typeof CompanyImportStage];
+export {
+  CompanyImportStage,
+  CompanyImportStageStatus,
+  CompanyImportStatus,
+}
+
+import type { MultiLanguage } from "shared/types/dtos";
+
 
 /** Порядок конвейера: в нём этапы и показываем. */
 export const companyImportStageOrder: readonly CompanyImportStage[] = [
@@ -38,26 +39,6 @@ export const selectableCompanyImportStages: readonly CompanyImportStage[] = [
   CompanyImportStage.Documents,
 ];
 
-export const CompanyImportStatus = {
-  Pending: "pending",
-  Running: "running",
-  Completed: "completed",
-  Failed: "failed",
-} as const;
-
-export type CompanyImportStatus =
-  (typeof CompanyImportStatus)[keyof typeof CompanyImportStatus];
-
-export const CompanyImportStageStatus = {
-  Pending: "pending",
-  Running: "running",
-  Completed: "completed",
-  Failed: "failed",
-  Skipped: "skipped",
-} as const;
-
-export type CompanyImportStageStatus =
-  (typeof CompanyImportStageStatus)[keyof typeof CompanyImportStageStatus];
 
 export type CompanyImportStageState = {
   stage: CompanyImportStage;

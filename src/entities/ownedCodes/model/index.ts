@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import {
-  isOwnedCodesResponseSuccess,
-  isOwnedCodesSummaryResponseSuccess,
-  type GetOwnedCodesDto,
-  type GetOwnedCodesResponseDto,
-  type GetOwnedCodesSummaryResponseDto,
-} from "entities/ownedCodes/dtos";
+import type { GetOwnedCodesParamDto } from '@edem2000/amis.contracts/api/codes/requests';
+import type { GetOwnedCodesResponseDto, GetOwnedCodesSummaryResponseDto } from '@edem2000/amis.contracts/api/codes/responses';
 import type {
   OwnedCode,
   OwnedCodesState,
@@ -37,7 +32,7 @@ type GetOwnedCodesResult = {
 
 export const getOwnedCodes = createAsyncThunk<
   GetOwnedCodesResult,
-  GetOwnedCodesDto,
+  GetOwnedCodesParamDto,
   { rejectValue: string }
 >("ownedCodes/get", async ({ page, limit, gtin }, { rejectWithValue }) => {
   try {
@@ -46,7 +41,7 @@ export const getOwnedCodes = createAsyncThunk<
       { params: { page, limit, gtin: gtin || undefined } }
     );
 
-    if (isOwnedCodesResponseSuccess(response.data)) {
+    if (response.data.success) {
       return {
         codes: response.data.data,
         total: response.data.total,
@@ -74,7 +69,7 @@ export const getOwnedCodesSummary = createAsyncThunk<
       `${BASE_URL}/codes/summary`
     );
 
-    if (isOwnedCodesSummaryResponseSuccess(response.data)) {
+    if (response.data.success) {
       const { products, unknownGtins, total, freshness } = response.data;
 
       return { products, unknownGtins, total, freshness };

@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import FormComponent from "shared/ui/formComponent";
 import CustomButton from "shared/ui/button";
 import { useAppDispatch, useAppSelector } from "app/store";
-import type { CreateOrderDto } from "entities/markingCodes/dtos";
+import type { CreateOrderDto } from '@edem2000/amis.contracts/api/orders/requests';
 import { createOrder } from "entities/markingCodes/model";
 import { searchProducts, getProductById } from "entities/products/model";
 import { useEffect, useState } from "react";
@@ -15,7 +15,7 @@ import { useParams } from "react-router-dom";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
-import { AvailablePackageType } from "shared/types/dtos";
+import { PackageType } from "shared/types/dtos";
 import "./styles.sass";
 
 type OrderFormItem = {
@@ -37,10 +37,10 @@ type Product = {
 };
 
 const packageTypeOrder: Record<string, number> = {
-  [AvailablePackageType.BoxLv2]: 0,
-  [AvailablePackageType.BoxLv1]: 1,
-  [AvailablePackageType.Group]: 2,
-  [AvailablePackageType.Unit]: 3,
+  [PackageType.BoxLv2]: 0,
+  [PackageType.BoxLv1]: 1,
+  [PackageType.Group]: 2,
+  [PackageType.Unit]: 3,
 };
 
 const getPackageTypeOrder = (packageType: string) =>
@@ -183,7 +183,6 @@ const OrderForm = ({ onCreated }: OrderFormProps) => {
     setIsSubmitting(true);
 
     const payload: CreateOrderDto = {
-      companyId: orgId!,
       products: values.items.map((item) => ({
         id: item.product!,
         quantity: item.quantity!,

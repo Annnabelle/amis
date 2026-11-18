@@ -14,7 +14,7 @@ import { FormActions, FormGrid, FormRow, SelectField, TextAreaField, TextField }
 import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from 'entities/products/model'
 import { ProductsTableColumns } from 'entities/products/ui/tableData/products'
 import type { ProductTableDataType } from 'entities/products/ui/tableData/products/types'
-import type { CreateProduct, ProductResponse } from 'entities/products/types'
+import type { CreateProduct, Product } from 'entities/products/types'
 import { useNavigate, useParams } from 'react-router-dom'
 import {fetchReferencesByType} from "entities/references/model";
 import type {LangKey} from "shared/lib/consts.ts";
@@ -97,10 +97,10 @@ const Products = () => {
             icps: productById.classification?.icps,
             productType: productById.productGroup,
             aggregationQuantity: productById.aggregationQuantity,
-            unit: productById.measurement.unit,
-            amount: productById.measurement.amount,
-            net: productById.weight.net,
-            gross: productById.weight.gross,
+            unit: productById.measurement?.unit,
+            amount: productById.measurement?.amount,
+            net: productById.weight?.net,
+            gross: productById.weight?.gross,
             price: productById.price,
             })
         }
@@ -123,7 +123,9 @@ const Products = () => {
             key: product.id,
             number: index + 1,
             name: product.name,
-            productGroup: productGroupTitleByAlias.get(product.productGroup) ?? product.productGroup,
+            productGroup: product.productGroup
+              ? productGroupTitleByAlias.get(product.productGroup) ?? product.productGroup
+              : "",
             gtin: product.gtin.unit,
             // status: product,
             action: 'Действие',
@@ -135,7 +137,7 @@ const Products = () => {
         editProduct: boolean;
         retrieveProduct: boolean;
         deleteProduct: boolean;
-        productData: ProductResponse | null; 
+        productData: Product | null; 
       }>({
         addProduct: false,
         editProduct: false,

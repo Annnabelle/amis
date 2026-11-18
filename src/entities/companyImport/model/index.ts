@@ -1,10 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "app/store";
-import {
-  isCompanyImportResponseSuccess,
-  readBackendErrorCode,
-  type CompanyImportResponseDto,
-} from "entities/companyImport/dtos";
+import type { CompanyImportResponseDto } from '@edem2000/amis.contracts/api/company-import/responses';
+import { readBackendErrorCode } from 'entities/companyImport/lib';
 import { mapCompanyImportDtoToEntity } from "entities/companyImport/mappers";
 import {
   COMPANY_IMPORT_POLL_INTERVAL_MS,
@@ -61,7 +58,7 @@ const fetchCurrent = async (): Promise<
     `${BASE_URL}/company-imports/current`
   );
 
-  if (isCompanyImportResponseSuccess(response.data)) {
+  if (response.data.success) {
     return response.data;
   }
 
@@ -119,7 +116,7 @@ export const startCompanyImport = createAsyncThunk<
         stages?.length ? { stages } : {}
       );
 
-      if (isCompanyImportResponseSuccess(response.data)) {
+      if (response.data.success) {
         return {
           companyId,
           companyImport: mapCompanyImportDtoToEntity(response.data),

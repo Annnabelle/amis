@@ -1,15 +1,11 @@
-import type {
-    CreateProductDto,
-    CreateProductResponseDto,
-    ProductPackageDto,
-    ProductResponseDto,
-    UpdateProductDto
-} from "entities/products/dtos";
-import type { CreateProduct, ProductPackage, ProductResponse, UpdateProduct } from "entities/products/types";
+import type { ProductResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { CreateProductResponseDto, ProductPackageResponseDto } from '@edem2000/amis.contracts/api/products/responses';
+import type { CreateProductRequestDto, UpdateProductRequestDto } from 'entities/products/dtos';
+import type { CreateProduct, ProductPackage, Product, UpdateProduct } from "entities/products/types";
 import type {ErrorDto} from "shared/types/dtos";
 
 
-export function mapCreateProductToCreateProductDto(form: CreateProduct ) : CreateProductDto {
+export function mapCreateProductToCreateProductDto(form: CreateProduct ) : CreateProductRequestDto {
     return {
         name: form.name,
         shortName: form.shortName,
@@ -38,7 +34,7 @@ export function mapCreateProductToCreateProductDto(form: CreateProduct ) : Creat
     }
 }
 
-export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse => ({
+export const mapProductDtoToEntity = (dto: ProductResponseDto): Product => ({
   id: dto.id,
   name: dto.name,
   shortName: dto.shortName,
@@ -58,7 +54,7 @@ export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse 
         }
       : null,
     brand: dto.brand,
-    productGroup: dto.productGroup ?? dto.productType ?? '',
+    productGroup: dto.productGroup,
     packageTypes: dto.packageTypes,
 
     aggregationQuantity: dto.aggregationQuantity,
@@ -77,7 +73,7 @@ export const mapProductDtoToEntity = (dto: ProductResponseDto): ProductResponse 
     companyId: dto.companyId,
 });
 
-export const mapProductPackageDtoToEntity = (dto: ProductPackageDto): ProductPackage => ({
+export const mapProductPackageDtoToEntity = (dto: ProductPackageResponseDto): ProductPackage => ({
   code: dto.code,
   icps: dto.icps,
   type: dto.type,
@@ -99,7 +95,7 @@ export function mapCreateProductResponseResponse(
     };
 }
 
-export const mapUpdateProductDtoToEntity = (dto: UpdateProductDto) : UpdateProduct => ({
+export const mapUpdateProductDtoToEntity = (dto: UpdateProductRequestDto) : UpdateProduct => ({
   name: dto.name ?? undefined,
   shortName: dto.shortName ?? undefined,
   description: dto.description ?? undefined,

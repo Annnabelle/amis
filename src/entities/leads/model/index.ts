@@ -1,10 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {
-  GetLeadResponseDto,
-  GetLeadsResponseDto,
-  UpdateLeadStatusDto,
-  UpdateLeadStatusResponseDto,
-} from "entities/leads/dtos";
+import type { UpdateLeadStatusDto } from '@edem2000/amis.contracts/api/leads/requests';
+import type { GetLeadResponseDto, GetLeadsResponseDto, UpdateLeadStatusResponseDto } from '@edem2000/amis.contracts/api/leads/responses';
 import { mapLeadDtoToEntity } from "entities/leads/mappers";
 import type { Lead, LeadListQuery, LeadsState } from "entities/leads/types";
 import { BASE_URL } from "shared/lib/consts";
@@ -20,15 +16,6 @@ const initialState: LeadsState = {
   error: null,
 };
 
-const isLeadListSuccess = (
-  response: GetLeadsResponseDto
-): response is Extract<GetLeadsResponseDto, { success: true }> =>
-  "success" in response && response.success === true && "data" in response;
-
-const isLeadSuccess = (
-  response: GetLeadResponseDto | UpdateLeadStatusResponseDto
-): response is Extract<GetLeadResponseDto | UpdateLeadStatusResponseDto, { success: true }> =>
-  "success" in response && response.success === true && "data" in response;
 
 export const getLeads = createAsyncThunk<
   { data: Lead[]; total: number; page: number; limit: number },
@@ -41,7 +28,7 @@ export const getLeads = createAsyncThunk<
       { params }
     );
 
-    if (isLeadListSuccess(response.data)) {
+    if (response.data.success) {
       return {
         data: response.data.data.map(mapLeadDtoToEntity),
         total: response.data.total,
@@ -66,7 +53,7 @@ export const getLeadById = createAsyncThunk<
       `${BASE_URL}/leads/${id}`
     );
 
-    if (isLeadSuccess(response.data)) {
+    if (response.data.success) {
       return mapLeadDtoToEntity(response.data.data);
     }
 
@@ -87,7 +74,7 @@ export const updateLeadStatus = createAsyncThunk<
       data
     );
 
-    if (isLeadSuccess(response.data)) {
+    if (response.data.success) {
       return mapLeadDtoToEntity(response.data.data);
     }
 

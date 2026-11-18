@@ -9,20 +9,19 @@ import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
 import { getMarkingCodeById } from 'entities/markingCodes/model'
 import CustomButton from 'shared/ui/button'
-import {OrderStatus} from "entities/markingCodes/dtos";
+import { OrderStatus } from '@edem2000/amis.contracts';
 import {toast} from "react-toastify";
 import {createUtilizationReport} from "entities/utilization/model";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
-import { StatusChangeEntity } from 'entities/lifecycle/lib/statusChangeEntities';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useStatusChangeRefresh } from 'shared/lib/statusChanges';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { StatusEntity, StatusScope } from "shared/config/statusCatalog";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
 const Batches = () => {
@@ -37,7 +36,7 @@ const Batches = () => {
     const markingCodeById = useAppSelector((state) => state.markingCodes.markingCodeById)
     const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
         targetId: orderId,
-        target: LifecycleTargetType.MarkingCodeOrder,
+        target: LifecycleTargetEntity.MarkingCodeOrder,
     });
     const [tablePage, setTablePage] = useState(1);
     const [tablePageSize, setTablePageSize] = useState(10);
@@ -55,7 +54,7 @@ const Batches = () => {
     }, [dispatch, orderId]);
 
     // Статус заказа меняет обработчик очереди: карточка перечитывает себя сама.
-    useStatusChangeRefresh(StatusChangeEntity.MarkingCodeOrder, orderId, refreshOrder);
+    useStatusChangeRefresh(LifecycleTargetEntity.MarkingCodeOrder, orderId, refreshOrder);
     // Переходы партий приходят отдельными событиями со своими id, поэтому
     // карточка слушает набор id своих партий.
     const batchIds = useMemo(
@@ -64,7 +63,7 @@ const Batches = () => {
     );
 
     useStatusChangeRefresh(
-        StatusChangeEntity.MarkingCodeOrderBatch,
+        LifecycleTargetEntity.MarkingCodeOrderBatch,
         batchIds,
         refreshOrder,
     );
@@ -137,7 +136,7 @@ const Batches = () => {
                 orderStatus: {
                     title: `${t('markingCodes.batches.orderStatus')}:`,
                     value: markingCodeById?.status
-                        ? getStatusLabel(t, StatusEntity.MarkingCodeOrder, StatusScope.Internal, markingCodeById.status)
+                        ? getStatusLabel(t, StatusEntity.MarkingCodeOrder, LifecycleScope.Internal, markingCodeById.status)
                         : ''
                 },
                 turonOrderID: {

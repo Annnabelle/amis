@@ -11,7 +11,7 @@ import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/order
 import MarkingCodeProductBatches from "./batches.tsx";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
-import { LifecycleTargetType } from 'entities/lifecycle/lib';
+import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 
@@ -29,7 +29,7 @@ const MarkingCodeProduct = () => {
     }>();
     const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
         targetId: batchId,
-        target: LifecycleTargetType.MarkingCodeOrderBatch,
+        target: LifecycleTargetEntity.MarkingCodeOrderBatch,
     });
 
     useEffect(() => {
@@ -44,7 +44,7 @@ const MarkingCodeProduct = () => {
     }, [batchId, dispatch, orderId]);
 
     const OrderProductData = useMemo(() => {
-        if (!orderProduct || !orderProduct.success || !('data' in orderProduct)) {
+        if (!orderProduct) {
             return [];
         }
 

@@ -6,7 +6,9 @@ import { useAppDispatch } from "app/store";
 import { useCan } from "entities/access/lib";
 import { getCompanyByTin, getOrganizationById } from "entities/organization/model";
 import { createVehicle, updateVehicle, verifyVehicleOwnership } from "entities/vehicles/model";
-import { VehicleOwnershipType, VehicleType, type CreateVehicleDto, type VehicleOwnerDto } from "entities/vehicles/dtos";
+import type { VehicleOwnerDto } from '@edem2000/amis.contracts/api/vehicle/requests';
+import type { CreateVehicleRequestDto } from 'entities/vehicles/dtos';
+import { VehicleOwnershipType, VehicleType } from '@edem2000/amis.contracts';
 import type { Vehicle } from "entities/vehicles/types";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import { useSubmitGuard } from "shared/lib";
@@ -101,7 +103,7 @@ const isValidRegistrationCertificateNumber = (value: string) =>
 const getVehiclePayload = (
   values: VehicleFormValues,
   owner: VehicleOwnerDto | null
-): Omit<CreateVehicleDto, "companyId"> => ({
+): Omit<CreateVehicleRequestDto, "companyId"> => ({
   type: values.type,
   displayName: values.name.trim(),
   plateNumber: values.plateNumber.trim(),
@@ -358,7 +360,7 @@ export const VehicleFormModal = ({
       if (!companyId) return;
 
       const result = await dispatch(
-        createVehicle({ companyId, ...getVehiclePayload(values, ownerData) } as CreateVehicleDto)
+        createVehicle({ companyId, ...getVehiclePayload(values, ownerData) } as CreateVehicleRequestDto)
       );
 
       if (createVehicle.fulfilled.match(result)) {
