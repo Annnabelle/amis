@@ -1,14 +1,12 @@
-import type { DeliveryTaskResponseDto } from "entities/deliveryTasks/dtos";
-import type { DeliveryTaskResponse } from "entities/deliveryTasks/types";
+import type { DeliveryTaskResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { DeliveryTask } from "entities/deliveryTasks/types";
 
-const toDate = (value: string | Date | undefined): Date | undefined => {
-  if (!value) return undefined;
-  return value instanceof Date ? value : new Date(value);
-};
+const toDate = (value: string | undefined): Date | undefined =>
+  value ? new Date(value) : undefined;
 
 export const mapDeliveryTaskDtoToEntity = (
   dto: DeliveryTaskResponseDto
-): DeliveryTaskResponse => ({
+): DeliveryTask => ({
   id: dto.id,
   companyId: dto.companyId,
   taskNumber: dto.taskNumber,
@@ -29,7 +27,6 @@ export const mapDeliveryTaskDtoToEntity = (
     },
     quantities: {
       planned: item.quantities.planned,
-      loaded: item.quantities.loaded,
       delivered: item.quantities.delivered,
     },
     commercial: item.commercial
@@ -41,13 +38,12 @@ export const mapDeliveryTaskDtoToEntity = (
   })),
   totals: {
     plannedQuantity: dto.totals.plannedQuantity,
-    loadedQuantity: dto.totals.loadedQuantity,
     deliveredQuantity: dto.totals.deliveredQuantity,
     amount: dto.totals.amount,
   },
   timestamps: {
-    loadingStartedAt: toDate(dto.timestamps.loadingStartedAt),
-    loadingCompletedAt: toDate(dto.timestamps.loadingCompletedAt),
+    handoverStartedAt: toDate(dto.timestamps.handoverStartedAt),
+    handoverCompletedAt: toDate(dto.timestamps.handoverCompletedAt),
     deliveryStartedAt: toDate(dto.timestamps.deliveryStartedAt),
     deliveryCompletedAt: toDate(dto.timestamps.deliveryCompletedAt),
   },
@@ -65,4 +61,4 @@ export const mapDeliveryTaskDtoToEntity = (
 
 export const mapDeliveryTasksDtoToEntities = (
   dtos: DeliveryTaskResponseDto[]
-): DeliveryTaskResponse[] => dtos.map(mapDeliveryTaskDtoToEntity);
+): DeliveryTask[] => dtos.map(mapDeliveryTaskDtoToEntity);

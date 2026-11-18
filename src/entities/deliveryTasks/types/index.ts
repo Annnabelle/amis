@@ -1,6 +1,6 @@
 import type { DeliveryTaskStatus } from "shared/types/dtos";
 
-export type DeliveryTaskResponse = {
+export type DeliveryTask = {
   id: string;
   companyId: string;
   taskNumber: string;
@@ -21,7 +21,6 @@ export type DeliveryTaskResponse = {
     };
     quantities: {
       planned: number;
-      loaded: number;
       delivered: number;
     };
     commercial?: {
@@ -31,13 +30,12 @@ export type DeliveryTaskResponse = {
   }[];
   totals: {
     plannedQuantity: number;
-    loadedQuantity: number;
     deliveredQuantity: number;
     amount?: number;
   };
   timestamps: {
-    loadingStartedAt?: Date;
-    loadingCompletedAt?: Date;
+    handoverStartedAt?: Date;
+    handoverCompletedAt?: Date;
     deliveryStartedAt?: Date;
     deliveryCompletedAt?: Date;
   };
@@ -52,8 +50,8 @@ export type DeliveryTaskResponse = {
 };
 
 export type DeliveryTasksState = {
-  tasks: DeliveryTaskResponse[];
-  taskById: DeliveryTaskResponse | null;
+  tasks: DeliveryTask[];
+  taskById: DeliveryTask | null;
   isLoading: boolean;
   loadingById: boolean;
   error: string | null;

@@ -1,48 +1,34 @@
-import type { ErrorDto, HexString, MultiLanguage } from "shared/types/dtos";
+import type {
+  CompanyFakturaUzIntegrationStatus,
+  CompanyXTraceIntegrationStatus,
+} from '@edem2000/amis.contracts';
+
+export type {
+  CompanyFakturaUzIntegrationStatus,
+  CompanyXTraceIntegrationStatus,
+};
+
+import type { HexString, MultiLanguage } from "shared/types/dtos";
 
 export type ValidateCompanyXTraceToken = {
     tin: string;
     token: string;
 };
 
-export type ValidateCompanyXTraceTokenResponse =
-    | {
-        success: false;
-        data: {
-            isTokenValid: false;
-        };
-    }
-    | {
-        success: true;
-        data: {
-            isTokenValid: true;
-            expireDate: string;
-            isTest: boolean;
-            name: MultiLanguage;
-            fullName: MultiLanguage;
-            productGroups: string[];
-        };
-    }
-    | ErrorDto;
+export type XTraceTokenValidation = {
+    expireDate: string;
+    isTest: boolean;
+    name: MultiLanguage;
+    fullName: MultiLanguage;
+    productGroups: string[];
+};
 
 export type ValidateCompanyXTraceIntegrationToken = {
     companyId: HexString;
     token: string;
 };
 
-export type ValidateCompanyXTraceIntegrationTokenResponse =
-    | {
-        success: true;
-        data: {
-            isTokenValid: true;
-            expireDate: string;
-            isTest: boolean;
-            name: MultiLanguage;
-            fullName: MultiLanguage;
-            productGroups: string[];
-        };
-    }
-    | ErrorDto;
+export type XTraceIntegrationTokenValidation = XTraceTokenValidation;
 
 export type CreateCompanyXTraceIntegration = {
     companyId: HexString;
@@ -52,9 +38,7 @@ export type CreateCompanyXTraceIntegration = {
 
 export type UpdateCompanyXTraceIntegration = CreateCompanyXTraceIntegration;
 
-export type CompanyXTraceIntegrationStatus = string;
-
-export type CompanyXTraceIntegrationResponse = {
+export type CompanyXTraceIntegration = {
     id: string;
     companyId: HexString;
     status: CompanyXTraceIntegrationStatus;
@@ -80,9 +64,7 @@ export type CreateCompanyFakturaUzIntegration = {
     clientSecret: string;
 };
 
-export type CompanyFakturaUzIntegrationStatus = string;
-
-export type CompanyFakturaUzIntegrationResponse = {
+export type CompanyFakturaUzIntegration = {
     id: string;
     companyId: HexString;
     status: CompanyFakturaUzIntegrationStatus;
