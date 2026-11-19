@@ -1,6 +1,7 @@
 export { default as axiosInstance } from "./axiosInstance";
 export { BASE_URL } from "./consts";
 export { getBackendErrorMessage } from "./getBackendErrorMessage";
+export { isFormValidationError } from "./formValidation";
 export { resolveMultiLanguage } from "./multiLanguage";
 export { getFileNameFromDisposition, useNavigationBack, FormatUzbekPhoneNumber } from "./utils";
 export { useIsMobile } from "./useIsMobile";

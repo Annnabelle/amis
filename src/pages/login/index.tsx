@@ -7,7 +7,7 @@ import { getApiErrorMessage } from 'shared/api';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { resolveFallbackPath } from 'app/routes/PermissionRoute';
+import { resolveFallbackPath } from 'app/routes/routeAccessPath';
 import lightMainBG from 'shared/assets/main-bg.png';
 import darkMainBG from 'shared/assets/bg-black.png';
 import FormComponent from 'shared/ui/formComponent';

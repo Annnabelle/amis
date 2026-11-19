@@ -1,4 +1,4 @@
-import { Form, Input, Tag} from "antd";
+import { Form, Input, Tag, type FormInstance } from "antd";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -8,10 +8,10 @@ import type { LanguageKey } from "shared/lib";
 import dayjs from "dayjs";
 
 interface XTraceFormSectionProps {
-    form: any;
+    form: FormInstance;
     setIsValidated: (val: boolean) => void;
     referencesProductGroups: Record<string, string>;
-    isFieldDisabled?: (name: any) => boolean;
+    isFieldDisabled?: (name: string | string[]) => boolean;
 }
 
 

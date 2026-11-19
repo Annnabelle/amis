@@ -42,7 +42,7 @@ export const getFileNameFromDisposition = (disposition?: string) => {
   if (!disposition) return null;
 
   // filename*=UTF-8''...
-  const utf8Match = disposition.match(/filename\*\=UTF-8''(.+)/i);
+  const utf8Match = disposition.match(/filename\*=UTF-8''(.+)/i);
   if (utf8Match && utf8Match[1]) {
     return decodeURIComponent(utf8Match[1]);
   }

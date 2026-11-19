@@ -36,7 +36,11 @@ import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
 import type { Company } from 'entities/organization/types';
 import type { Reference } from 'entities/references/types';
 import { getApiErrorMessage } from 'shared/api';
-import YandexAddressMap, { calculateYandexRouteDistanceKm, type YandexResolvedAddress } from './YandexAddressMap';
+import YandexAddressMap from './YandexAddressMap';
+import {
+  calculateYandexRouteDistanceKm,
+  type YandexResolvedAddress,
+} from './yandexMaps';
 
 const TIN_LENGTH = 9;
 

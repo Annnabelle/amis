@@ -51,9 +51,8 @@ export const mapUpdateCompanyResponseToUpdateEntity = (
   if (dto.director !== undefined)    result.director    = dto.director;
   if (dto.status !== undefined)      result.status      = dto.status;
 
-  // companyType — если оно есть в ответе
-  if ("companyType" in dto) {
-    result.companyType = (dto as any).companyType;
+  if (dto.companyType !== undefined) {
+    result.companyType = dto.companyType;
   }
 
   // productGroup — предполагаем, что берём первый элемент, если массив

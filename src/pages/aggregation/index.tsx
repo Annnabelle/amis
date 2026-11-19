@@ -14,7 +14,7 @@ import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
 import {DatePicker, Form, Select} from "antd";
 import ModalWindow from "shared/ui/modalWindow";
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import type {CreateAggregationReport} from "entities/aggregation/types";
 import {useGetMarkingCodeOrdersQuery} from "entities/markingCodes/api";
 import {toast} from "react-toastify";
@@ -41,6 +41,13 @@ const packageTypeOrder: Record<string, number> = {
 
 const getPackageTypeOrder = (packageType?: string) =>
     packageType ? packageTypeOrder[packageType.toLowerCase()] ?? Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+
+/** Значения формы создания агрегации: партии приходят строкой "orderId|batchId". */
+type AggregationFormValues = {
+    parent: string;
+    child: string;
+    documentDate: Dayjs;
+};
 
 const Aggregations = () => {
     const [aggregationForm] = Form.useForm();
@@ -201,7 +208,7 @@ const Aggregations = () => {
         return str.slice(0, num) + '...';
     }
 
-    const handleCreateAggregation = async (values: any) => {
+    const handleCreateAggregation = async (values: AggregationFormValues) => {
         const [parentOrderId, parentBatchId] = values.parent.split('|');
         const [childOrderId, childBatchId] = values.child.split('|');
 

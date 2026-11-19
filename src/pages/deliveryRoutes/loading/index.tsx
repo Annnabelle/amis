@@ -25,7 +25,7 @@ import {
   useScanSessionCodeMutation,
 } from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
+import { getApiErrorMessage } from 'shared/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
@@ -236,7 +236,7 @@ const DeliveryRoutesLoading = () => {
       setScannerMode('loading');
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(error, t('deliveryRoutes.messages.error.createScanSession'))
+        getApiErrorMessage(error, t('deliveryRoutes.messages.error.createScanSession'))
       );
     }
   };
@@ -263,9 +263,9 @@ const DeliveryRoutesLoading = () => {
         );
 
         return { status: 'accepted' as const };
-      } catch (error: any) {
-        const reason = getBackendErrorMessage(
-          error?.error ?? error,
+      } catch (error: unknown) {
+        const reason = getApiErrorMessage(
+          error,
           t('deliveryRoutes.messages.error.cancelScan', {
             defaultValue: 'Не удалось удалить скан',
           })
@@ -308,8 +308,8 @@ const DeliveryRoutesLoading = () => {
       );
 
       return { status: 'accepted' as const };
-    } catch (error: any) {
-      const reason = getBackendErrorMessage(error?.error ?? error, t('deliveryRoutes.messages.error.scanCode'));
+    } catch (error: unknown) {
+      const reason = getApiErrorMessage(error, t('deliveryRoutes.messages.error.scanCode'));
 
       pushSingleScanToast(
         'error',
@@ -340,7 +340,7 @@ const DeliveryRoutesLoading = () => {
       navigate(`${backPath}/${routeId}`);
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
+        getApiErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
       );
     }
   };
@@ -382,9 +382,9 @@ const DeliveryRoutesLoading = () => {
           code: formatCodeForToast(code),
         })
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        getBackendErrorMessage(error?.error ?? error, t('deliveryRoutes.messages.error.cancelScan', {
+        getApiErrorMessage(error, t('deliveryRoutes.messages.error.cancelScan', {
           defaultValue: 'Не удалось удалить скан',
         }))
       );
