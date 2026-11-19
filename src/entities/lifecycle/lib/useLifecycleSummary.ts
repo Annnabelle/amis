@@ -4,9 +4,9 @@ import { getLifecycleTargetConfig, type LifecycleTargetEntity } from "./targets"
 import { useCanReadLifecycle } from "./useCanReadLifecycle";
 
 /**
- * Сводка запрашивается один раз на открытие карточки: её используют и шапка
- * (баннер активной ошибки), и вкладка с лентой — RTK Query сводит их к одной
- * подписке.
+ * Сводку используют и шапка (баннер активной ошибки), и вкладка с лентой.
+ * RTK Query сводит их к одной записи кеша: одновременные вызовы склеиваются в
+ * один запрос, а вкладка, открытая позже, перечитывает сводку заново.
  */
 export const useLifecycleSummary = (
   targetId: string | undefined,

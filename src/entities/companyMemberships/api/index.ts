@@ -61,6 +61,8 @@ export const companyMembershipsApi = baseApi.injectEndpoints({
           headers: { "x-company-id": companyId },
         }),
       transformResponse: toPaginated(mapCompanyMembershipDtoToEntity),
+      /** Поиск показывает те же записи, что список: мутация устаревает и его. */
+      providesTags: listTag,
     }),
 
     getCompanyMembershipById: build.query<
