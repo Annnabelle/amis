@@ -27,6 +27,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
+      - name: Lint
+        run: npm run lint
+
       - name: Build
         run: npm run build
 
