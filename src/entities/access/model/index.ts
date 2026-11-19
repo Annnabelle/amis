@@ -53,8 +53,16 @@ export const accessSlice = createSlice({
         state.error = null;
       })
       .addMatcher(getCurrentUserAccess.matchRejected, (state, action) => {
-        state.data = null;
         state.loading = false;
+
+        /**
+         * Отменённый запрос — не отказ в правах: так RTK Query отвечает на
+         * дубль подписки и на сброс кеша при смене компании. Стереть права
+         * здесь значило бы выкинуть пользователя на вход.
+         */
+        if (action.meta.condition || action.meta.aborted) return;
+
+        state.data = null;
         state.error = getApiErrorMessage(
           action.payload,
           "Не удалось загрузить права доступа пользователя"
