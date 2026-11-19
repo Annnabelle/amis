@@ -1,58 +1,72 @@
-import { configureStore } from "@reduxjs/toolkit";
+import {
+    combineReducers,
+    configureStore,
+    createListenerMiddleware,
+    isAnyOf,
+    type TypedStartListening,
+} from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
-import { usersSlice } from "entities/users/model";
+import { logout, usersSlice } from "entities/users/model";
 import { scanSessionsSlice } from "entities/scanSessions/model";
-import { accessSlice } from "entities/access/model";
+import { accessSlice, clearAccess, setCurrentCompanyId } from "entities/access/model";
 import {loaderSlice} from "./loader";
 import { baseApi } from "shared/api";
 import { setRuntimeCompanyId } from "shared/lib/companyContext";
 
-export const store = configureStore({
-    reducer: {
-        users: usersSlice.reducer,
-        scanSessions: scanSessionsSlice.reducer,
-        access: accessSlice.reducer,
-        loader: loaderSlice.reducer,
-        [baseApi.reducerPath]: baseApi.reducer,
+const rootReducer = combineReducers({
+    users: usersSlice.reducer,
+    scanSessions: scanSessionsSlice.reducer,
+    access: accessSlice.reducer,
+    loader: loaderSlice.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
+export type AppDispatch = typeof store.dispatch;
+
+/**
+ * Кеш RTK Query не знает ни про компанию, ни про пользователя: ключ записи —
+ * только аргументы запроса. Поэтому при смене организации и при выходе он
+ * сбрасывается целиком, иначе на экране окажутся чужие данные.
+ *
+ * Слушаем сами экшены, а не состояние в store.subscribe: RTK батчит
+ * уведомления подписчиков для экшенов RTK Query, и сравнение состояний
+ * зависело бы от тайминга.
+ */
+const companyContextListener = createListenerMiddleware();
+
+const startAppListening =
+    companyContextListener.startListening as TypedStartListening<RootState, AppDispatch>;
+
+startAppListening({
+    matcher: isAnyOf(setCurrentCompanyId, clearAccess, logout),
+    effect: (action, listenerApi) => {
+        const previousCompanyId = listenerApi.getOriginalState().access.currentCompanyId;
+        const currentCompanyId = listenerApi.getState().access.currentCompanyId;
+        const hasCompanyChanged = currentCompanyId !== previousCompanyId;
+
+        if (hasCompanyChanged) {
+            setRuntimeCompanyId(currentCompanyId);
+        }
+
+        /** Маршрут присылает ту же компанию на каждый переход — это не смена. */
+        if (hasCompanyChanged || logout.match(action)) {
+            listenerApi.dispatch(baseApi.util.resetApiState());
+        }
     },
+});
+
+export const store = configureStore({
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
         serializableCheck: false,
-        }).concat(baseApi.middleware),
+        })
+        .prepend(companyContextListener.middleware)
+        .concat(baseApi.middleware),
     });
 
-let previousCompanyId = store.getState().access.currentCompanyId;
-let wasAuthenticated = store.getState().users.isAuthenticated;
-setRuntimeCompanyId(previousCompanyId);
-
-store.subscribe(() => {
-    const { access, users } = store.getState();
-
-    if (access.currentCompanyId !== previousCompanyId) {
-        previousCompanyId = access.currentCompanyId;
-        setRuntimeCompanyId(access.currentCompanyId);
-        // Ключи кеша RTK Query не содержат компанию, поэтому при переключении
-        // организации кеш сбрасывается целиком — иначе покажем чужие данные.
-        store.dispatch(baseApi.util.resetApiState());
-    }
-
-    if (wasAuthenticated && !users.isAuthenticated) {
-        wasAuthenticated = false;
-        // Выход из сессии: данные прошлого пользователя в кеше не оставляем.
-        store.dispatch(baseApi.util.resetApiState());
-
-        return;
-    }
-
-    wasAuthenticated = users.isAuthenticated;
-});
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+setRuntimeCompanyId(store.getState().access.currentCompanyId);
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-
-
-
