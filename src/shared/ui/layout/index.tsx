@@ -125,12 +125,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     () => access?.companies ?? [],
     [access?.companies]
   );
-  const pendingSystemInvitations = access?.invitations.systemAccess.filter(
-    (invitation) => invitation.state === 'invited'
-  ) ?? [];
-  const pendingCompanyInvitations = access?.invitations.companyMemberships.filter(
-    (invitation) => invitation.state === 'invited'
-  ) ?? [];
+  const pendingSystemInvitations = useMemo(
+    () =>
+      access?.invitations.systemAccess.filter(
+        (invitation) => invitation.state === 'invited'
+      ) ?? [],
+    [access?.invitations.systemAccess]
+  );
+  const pendingCompanyInvitations = useMemo(
+    () =>
+      access?.invitations.companyMemberships.filter(
+        (invitation) => invitation.state === 'invited'
+      ) ?? [],
+    [access?.invitations.companyMemberships]
+  );
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
   const { data: systemRoleReferences = [] } = useGetRoleReferencesQuery(
     { scope: RoleScope.System },
@@ -278,7 +286,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     group: CompanyMenuGroup;
   };
 
-  const getCompanyModuleItems = (
+  const getCompanyModuleItems = useCallback((
     companyId: string,
     modules: AccessModule[]
   ): CompanyModuleMenuItem[] => {
@@ -409,12 +417,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         })
       );
     });
-  };
+  }, [access, t]);
 
-  const systemMenuItems: MenuProps['items'] = [];
+  const systemMenuItems = useMemo<MenuProps['items']>(() => {
+    const items: MenuProps['items'] = [];
 
   if (systemModules.includes(AccessModules.Users)) {
-    systemMenuItems.push({
+    items.push({
       key: '/users',
       icon: <UserOutlined />,
       label: (
@@ -426,7 +435,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   if (systemModules.includes(AccessModules.SystemEmployees)) {
-    systemMenuItems.push({
+    items.push({
       key: '/system-employees',
       icon: <TeamOutlined />,
       label: (
@@ -438,7 +447,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   if (systemModules.includes(AccessModules.Companies)) {
-    systemMenuItems.push({
+    items.push({
       key: '/organization',
       icon: <ApartmentOutlined />,
       label: (
@@ -450,7 +459,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   if (systemModules.includes(AccessModules.Leads)) {
-    systemMenuItems.push({
+    items.push({
       key: '/leads',
       icon: <ContactsOutlined />,
       label: (
@@ -462,7 +471,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   if (systemModules.includes(AccessModules.Audit)) {
-    systemMenuItems.push({
+    items.push({
       key: '/audit-logs',
       icon: <FileTextOutlined />,
       label: (
@@ -473,8 +482,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }
 
+    return items;
+  }, [systemModules, t]);
+
   const hasSidebarNavigation =
-    systemMenuItems.length > 0 ||
+    (systemMenuItems?.length ?? 0) > 0 ||
     selectableCompanies.length > 0 ||
     pendingSystemInvitations.length > 0 ||
     pendingCompanyInvitations.length > 0;
@@ -529,9 +541,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       : []),
   ], [location.pathname, navigate, systemModules, t]);
 
-  const selectedCompanyModuleItems = selectedCompany
-    ? getCompanyModuleItems(selectedCompany.companyId, selectedCompany.modules)
-    : [];
+  const selectedCompanyModuleItems = useMemo(
+    () =>
+      selectedCompany
+        ? getCompanyModuleItems(selectedCompany.companyId, selectedCompany.modules)
+        : [],
+    [getCompanyModuleItems, selectedCompany]
+  );
 
   const companyMenuGroupLabels: Record<CompanyMenuGroup, string> = {
     marking: t('navigation.groups.marking'),
@@ -586,7 +602,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     }
 
     const topLevel = `/${location.pathname.split('/')[1]}`;
-    return systemMenuItems.some((item) => item?.key === topLevel)
+    return (systemMenuItems ?? []).some((item) => item?.key === topLevel)
       ? [topLevel]
       : [];
   }, [location.pathname, selectedCompanyModuleItems, systemMenuItems]);

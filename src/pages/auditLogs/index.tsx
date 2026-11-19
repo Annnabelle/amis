@@ -30,6 +30,7 @@ import { getTargetLink } from "./targetMapper";
 import { FaArrowRightLong } from "react-icons/fa6";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
+import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
 import {
@@ -38,6 +39,9 @@ import {
 } from "shared/config/endpointAccessMap";
 
 const { Panel } = Collapse;
+
+/** Цель события аудита: набор полей зависит от сущности, перебираем по ключам. */
+type AuditTarget = Record<string, unknown>;
 
 const getTargetAccess = (
   targetEntity: string
@@ -76,10 +80,10 @@ const AuditLogsPage: React.FC = () => {
 
  const logs = useMemo(() => {
   if (!data) return [];
-  return data.map((log: any) => {
-    const actor = log.actor || {};
-    const target = log.target ;
-    const messageObj = log.message || {};
+  return data.map((log) => {
+    const actor: Partial<UserResponseDto> = log.actor ?? {};
+    /** Цель события — записи разных сущностей, поля перебираются по ключам. */
+    const target = (log.target ?? null) as AuditTarget | null;
 
 
     return {
@@ -103,12 +107,12 @@ const AuditLogsPage: React.FC = () => {
       location: log.ip || "—",
       date: dayjs(log.occurredAt).format('DD.MM.YYYY'),
       time: dayjs(log.occurredAt).format('HH:mm:ss'),
-      message: messageObj[i18n.language] || messageObj["en"] || "",
+      message: log.message ?? null,
       targetEntity: log.targetEntity || "",
       target,
     };
   });
-}, [data, i18n.language]);
+}, [data]);
 
   const categoryPalette: Record<string, { bg: string; color: string; border: string }> = {
     all: { bg: "var(--status-success-bg)", color: "var(--status-success-color)", border: "var(--status-success-border)" },
@@ -181,16 +185,19 @@ const AuditLogsPage: React.FC = () => {
     "weight.gross": { label: t('products.addProductForm.label.gross'), icon: <TagOutlined /> },
   };
 
-  const formatValueByKey = (key: string, value: any): string => {
+  const formatValueByKey = (key: string, value: unknown): string => {
     if (key === "phone" || key === "contacts.phone") return FormatUzbekPhoneNumber(String(value));
     return Array.isArray(value) ? value.map(String).join(", ") : String(value);
   };
 
-  const renderTargetFields = (target: Record<string, any>, targetEntity?: string) => {
+  const renderTargetFields = (target: AuditTarget, targetEntity?: string) => {
     // Спец-обработка заказов (orderNumber + batches)
     if (targetEntity === "markingCodeOrder") {
-      const orgId = target.companyId || target.orgId; // если есть
-      const orderId = target.id;
+      const orgId = String(target.companyId ?? target.orgId ?? '');
+      const orderId = String(target.id ?? '');
+      const batches = Array.isArray(target.batches)
+        ? (target.batches as { id?: string }[])
+        : [];
 
       const orderNumberItem = target.orderNumber ? (
           <div className="content-items" key="orderNumber">
@@ -202,18 +209,18 @@ const AuditLogsPage: React.FC = () => {
               <h5 className="description">
                 <PermissionLink
                     endpoint={endpointAccessMap.ordersRead}
-                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${target.batches?.[0]?.id || ""}`}
+                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${batches[0]?.id ?? ""}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
-                  {target.orderNumber}
+                  {String(target.orderNumber)}
                 </PermissionLink>
               </h5>
             </div>
           </div>
       ) : null;
 
-      const batchesItems = target.batches?.map((batch: any, index: number) => (
+      const batchesItems = batches.map((batch, index) => (
           <div className="content-items" key={`batch-${index}`}>
             <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <TagOutlined style={{ color: "var(--text-muted)" }} />
@@ -223,7 +230,7 @@ const AuditLogsPage: React.FC = () => {
               <h5 className="description">
                 <PermissionLink
                     endpoint={endpointAccessMap.ordersRead}
-                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id}`}
+                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id ?? ""}`}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
@@ -243,11 +250,14 @@ const AuditLogsPage: React.FC = () => {
     }
 
     // 🔹 Существующий flatten + map для всех остальных targetEntity
-    const flatten = (obj: any, prefix = ""): [string, any][] => {
+    const flatten = (
+      obj: AuditTarget,
+      prefix = ""
+    ): [string, unknown][] => {
       return Object.entries(obj).flatMap(([key, value]) => {
         const fullKey = prefix ? `${prefix}.${key}` : key;
         if (value && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date)) {
-          return flatten(value, fullKey);
+          return flatten(value as AuditTarget, fullKey);
         }
         return [[fullKey, value]];
       });
@@ -267,14 +277,14 @@ const AuditLogsPage: React.FC = () => {
 
     if (targetEntity === "user" && target.firstName && target.lastName) {
       target = {
-        fullName: `${target.firstName} ${target.lastName}`,
+        fullName: `${String(target.firstName)} ${String(target.lastName)}`,
         ...target,
       };
     }
 
     const excludedFields = excludedFieldsByEntity[targetEntity || ""] || [];
     const linkField = linkFieldByEntity[targetEntity || ""];
-    const entityId = target.id;
+    const entityId = target.id ? String(target.id) : undefined;
 
     return flatten(target)
         .filter(([key, value]) => {
@@ -302,7 +312,7 @@ const AuditLogsPage: React.FC = () => {
                 break;
               case "product":
                 path = target.companyId
-                  ? `/organization/${target.companyId}/products/${target.id}`
+                  ? `/organization/${String(target.companyId)}/products/${entityId}`
                   : "/organization";
                 break;
             }

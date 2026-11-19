@@ -24,8 +24,7 @@ import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants
 import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
-import { FormatUzbekPhoneNumber, useIsMobile } from 'shared/lib';
+import { FormatUzbekPhoneNumber, isFormValidationError, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import {
@@ -211,7 +210,7 @@ const Organizations = () => {
             const company = await findCompanyByTin(normalizedTin).unwrap();
             if (requestId !== companyLookupRequestRef.current) return;
             setSearchedCompanyByTin(company);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (requestId === companyLookupRequestRef.current) {
                 toast.error(
                     getApiErrorMessage(error, t("common.dataNotFound"))
@@ -251,7 +250,7 @@ const Organizations = () => {
             setActivatedCompany(company);
             setCreateCompanyStep("xTrace");
             xTraceForm.setFieldsValue({ tin: company.tin });
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error(
                 getApiErrorMessage(error, t("organizations.messages.error.activateCompany"))
             );
@@ -286,7 +285,7 @@ const Organizations = () => {
                 if (requestId !== xTraceValidationRequestRef.current) return;
 
                 setXTraceValidation(validation);
-            } catch (error: any) {
+            } catch (error: unknown) {
                 if (requestId === xTraceValidationRequestRef.current) {
                     toast.error(getApiErrorMessage(error, t("organizations.addUserForm.validation.xTrace.invalidToken")));
                 }
@@ -319,8 +318,8 @@ const Organizations = () => {
 
             toast.success(t("organizations.messages.success.createXTraceIntegration"));
             setCreateCompanyStep("fakturaUz");
-        } catch (error: any) {
-            if (error?.errorFields) return;
+        } catch (error: unknown) {
+            if (isFormValidationError(error)) return;
             toast.error(getApiErrorMessage(error, t("organizations.messages.error.createXTraceIntegration")));
         }
     };
@@ -345,9 +344,9 @@ const Organizations = () => {
             }).unwrap();
 
             toast.success(t("organizations.messages.success.createFakturaUzIntegration"));
-        } catch (error: any) {
-            if (error?.errorFields) return;
-            toast.error(getBackendErrorMessage(error, t("organizations.messages.error.createFakturaUzIntegration")));
+        } catch (error: unknown) {
+            if (isFormValidationError(error)) return;
+            toast.error(getApiErrorMessage(error, t("organizations.messages.error.createFakturaUzIntegration")));
         }
     };
 

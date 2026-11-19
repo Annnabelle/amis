@@ -19,5 +19,10 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Забытая зависимость хука — это не стиль, а расчёт по устаревшим данным:
+      // мемо считает для прошлой компании, эффект не перезапускается.
+      'react-hooks/exhaustive-deps': 'error',
+    },
   },
 ])

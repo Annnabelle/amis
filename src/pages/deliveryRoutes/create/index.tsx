@@ -10,7 +10,6 @@ import { toast } from 'react-toastify';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateDeliveryRouteMutation } from 'entities/deliveryRoutes/api';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
 import { getApiErrorMessage } from 'shared/api';
 import { useSubmitGuard } from 'shared/lib';
 import { useGetSalesOrdersQuery } from 'entities/salesOrders/api';
@@ -42,6 +41,12 @@ const getPriorityColor = (priority?: string) => {
     default:
       return 'default';
   }
+};
+
+/** Вариант в подсказке экипажа: кроме подписи нужен id сотрудника. */
+type CrewMemberOption = {
+  value: string;
+  userId: string;
 };
 
 const DeliveryRoutesCreate = () => {
@@ -179,9 +184,9 @@ const DeliveryRoutesCreate = () => {
       toast.success(t('deliveryRoutes.messages.success.create'));
       form.resetFields();
       navigate(listPath);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        getBackendErrorMessage(error, t('deliveryRoutes.messages.error.create'))
+        getApiErrorMessage(error, t('deliveryRoutes.messages.error.create'))
       );
     }
   };
@@ -231,7 +236,7 @@ const DeliveryRoutesCreate = () => {
         };
       })
       .filter((row) => row.remaining > 0);
-  }, [orders, t]);
+  }, [companyId, orders, t]);
 
   useEffect(() => {
     const availableIds = new Set(availableOrders.map((row) => row.key));
@@ -437,7 +442,7 @@ const DeliveryRoutesCreate = () => {
         ),
       },
     ],
-    [t]
+    [orgId, t]
   );
 
   return (
@@ -583,7 +588,7 @@ const DeliveryRoutesCreate = () => {
               )}
               <div className="form-inputs form-inputs-organization">
                 <Form.Item className="input" name={["crew", "driverName"]} label={t('deliveryRoutes.fields.driver')}>
-                  <AutoComplete
+                  <AutoComplete<string, CrewMemberOption>
                     className="input"
                     size="large"
                     placeholder={t('deliveryRoutes.placeholders.driver')}
@@ -601,7 +606,7 @@ const DeliveryRoutesCreate = () => {
                         crew: {
                           ...currentCrew,
                           driverName: value,
-                          driverId: (option as any)?.userId as string | undefined,
+                          driverId: option.userId,
                         },
                       });
                       setTimeout(() => {
@@ -640,7 +645,7 @@ const DeliveryRoutesCreate = () => {
                 </Form.Item>
 
                 <Form.Item className="input" name={["crew", "agentName"]} label={t('deliveryRoutes.fields.agent')}>
-                  <AutoComplete
+                  <AutoComplete<string, CrewMemberOption>
                     className="input"
                     size="large"
                     placeholder={t('deliveryRoutes.placeholders.agent')}
@@ -658,7 +663,7 @@ const DeliveryRoutesCreate = () => {
                         crew: {
                           ...currentCrew,
                           agentName: value,
-                          agentId: (option as any)?.userId as string | undefined,
+                          agentId: option.userId,
                         },
                       });
                       setTimeout(() => {

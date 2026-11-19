@@ -25,7 +25,6 @@ import {
   useScanSessionCodeMutation,
 } from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { getApiErrorMessage } from 'shared/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -226,7 +225,7 @@ const DeliveryTasksScan = () => {
       setScannerMode('delivery');
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(
+        getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.createScanSession', {
             defaultValue: 'Не удалось начать сессию сканирования',
@@ -256,7 +255,7 @@ const DeliveryTasksScan = () => {
       await completeScanSession(scanSession.id).unwrap();
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(
+        getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.completeScanSession', {
             defaultValue: 'Не удалось завершить сессию сканирования',
@@ -297,9 +296,9 @@ const DeliveryTasksScan = () => {
         );
 
         return { status: 'accepted' as const };
-      } catch (error: any) {
-        const reason = getBackendErrorMessage(
-          error?.error ?? error,
+      } catch (error: unknown) {
+        const reason = getApiErrorMessage(
+          error,
           t('deliveryTasks.messages.error.cancelScan', {
             defaultValue: 'Не удалось удалить скан',
           })
@@ -346,9 +345,9 @@ const DeliveryTasksScan = () => {
       );
 
       return { status: 'accepted' as const };
-    } catch (error: any) {
-      const reason = getBackendErrorMessage(
-        error?.error ?? error,
+    } catch (error: unknown) {
+      const reason = getApiErrorMessage(
+        error,
         t('deliveryTasks.messages.error.scanCode', {
           defaultValue: 'Ошибка сканирования',
         })
@@ -387,7 +386,7 @@ const DeliveryTasksScan = () => {
       navigate(routePath);
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(
+        getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.completeDelivery', {
             defaultValue: 'Не удалось завершить выдачу',
@@ -437,10 +436,10 @@ const DeliveryTasksScan = () => {
           code: formatCodeForToast(code),
         })
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        getBackendErrorMessage(
-          error?.error ?? error,
+        getApiErrorMessage(
+          error,
           t('deliveryTasks.messages.error.cancelScan', {
             defaultValue: 'Не удалось удалить скан',
           })

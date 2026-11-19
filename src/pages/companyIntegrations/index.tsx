@@ -25,7 +25,7 @@ import { LifecycleTargetEntity, useLifecycleSummary } from 'entities/lifecycle/l
 import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
 import CompanyImportPanel from 'widgets/companyImport';
 import CompanyImportStartButton from 'widgets/companyImport/startButton';
-import { useIsMobile, useNavigationBack } from 'shared/lib';
+import { isFormValidationError, useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import FormComponent from 'shared/ui/formComponent';
@@ -209,7 +209,7 @@ const CompanyIntegrations = () => {
         if (requestId !== validationRequestRef.current) return;
 
         setXTraceValidation(validation);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (requestId === validationRequestRef.current) {
           toast.error(getApiErrorMessage(error, t('organizations.addUserForm.validation.xTrace.invalidToken')));
         }
@@ -235,8 +235,8 @@ const CompanyIntegrations = () => {
 
       toast.success(t('organizations.messages.success.createXTraceIntegration'));
       closeXTraceModal();
-    } catch (error: any) {
-      if (error?.errorFields) return;
+    } catch (error: unknown) {
+      if (isFormValidationError(error)) return;
       toast.error(getApiErrorMessage(error, t('organizations.messages.error.createXTraceIntegration')));
     }
   };
@@ -256,8 +256,8 @@ const CompanyIntegrations = () => {
 
       toast.success(t('organizations.messages.success.createFakturaUzIntegration'));
       setIsFakturaUzModalOpen(false);
-    } catch (error: any) {
-      if (error?.errorFields) return;
+    } catch (error: unknown) {
+      if (isFormValidationError(error)) return;
       toast.error(getApiErrorMessage(error, t('organizations.messages.error.createFakturaUzIntegration')));
     }
   };

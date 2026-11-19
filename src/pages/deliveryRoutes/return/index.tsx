@@ -23,7 +23,7 @@ import {
   useScanSessionCodeMutation,
 } from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
+import { getApiErrorMessage } from 'shared/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
@@ -236,7 +236,7 @@ const DeliveryRoutesReturn = () => {
       setScannerOpen(true);
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(
+        getApiErrorMessage(
           error,
           t('deliveryRoutes.messages.error.createScanSession', {
             defaultValue: 'Не удалось начать сессию сканирования',
@@ -262,7 +262,7 @@ const DeliveryRoutesReturn = () => {
       await completeScanSession(scanSession.id).unwrap();
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(
+        getApiErrorMessage(
           error,
           t('deliveryRoutes.messages.error.completeScanSession', {
             defaultValue: 'Не удалось завершить сессию сканирования',
@@ -300,9 +300,9 @@ const DeliveryRoutesReturn = () => {
       );
 
       return { status: 'accepted' as const };
-    } catch (error: any) {
-      const reason = getBackendErrorMessage(
-        error?.error ?? error,
+    } catch (error: unknown) {
+      const reason = getApiErrorMessage(
+        error,
         t('deliveryRoutes.messages.error.scanCode')
       );
 
@@ -334,7 +334,7 @@ const DeliveryRoutesReturn = () => {
       navigate(`${backPath}/${routeId}`);
     } catch (error) {
       toast.error(
-        getBackendErrorMessage(
+        getApiErrorMessage(
           error,
           t('deliveryRoutes.messages.error.completeReturn', {
             defaultValue: 'Не удалось завершить возврат',

@@ -6,12 +6,13 @@ import {useAppDispatch} from "app/store";
 import {logout} from "entities/users/model";
 import "./styles.sass";
 
+/** Сколько живёт сессия без повторного входа, в секундах. */
+const SESSION_DURATION = 60 * 60;
+
 const Session = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  const SESSION_DURATION = 60 * 60;
 
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     const sessionEnd = localStorage.getItem("sessionEnd");
@@ -26,7 +27,7 @@ const Session = () => {
     let endTimestamp: number;
 
     if (sessionEndStr) {
-      endTimestamp = parseInt(sessionEndStr);
+      endTimestamp = parseInt(sessionEndStr, 10);
     } else {
       endTimestamp = Date.now() + SESSION_DURATION * 1000;
       localStorage.setItem("sessionEnd", String(endTimestamp));

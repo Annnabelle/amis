@@ -1,25 +1,29 @@
-// src/shared/lib/targetMapper.ts
 export type TargetEntity = "user" | "company" | "product" | "auth";
 
+/** Цель события аудита: набор полей зависит от сущности. */
+type AuditTarget = Record<string, unknown>;
+
+const text = (value: unknown): string => (value == null ? "" : String(value));
+
 interface TargetRule {
-  getName: (target: any) => string | null;
-  getPath: (target: any) => string;
+  getName: (target: AuditTarget) => string | null;
+  getPath: (target: AuditTarget) => string;
 }
 
 const targetRules: Record<TargetEntity, TargetRule> = {
   user: {
-    getName: (t) => (t.firstName ? `${t.firstName} ${t.lastName || ""}` : null),
-    getPath: (t) => `/users/${t.id}`,
+    getName: (t) => (t.firstName ? `${text(t.firstName)} ${text(t.lastName)}`.trim() : null),
+    getPath: (t) => `/users/${text(t.id)}`,
   },
   company: {
-    getName: (t) => t.displayName || null,
-    getPath: (t) => `/organization/${t.id}`,
+    getName: (t) => text(t.displayName) || null,
+    getPath: (t) => `/organization/${text(t.id)}`,
   },
   product: {
-    getName: (t) => t.name || null,
+    getName: (t) => text(t.name) || null,
     getPath: (t) =>
       t.companyId
-        ? `/organization/${t.companyId}/products/${t.id}`
+        ? `/organization/${text(t.companyId)}/products/${text(t.id)}`
         : "/organization",
   },
   auth: {
@@ -30,7 +34,7 @@ const targetRules: Record<TargetEntity, TargetRule> = {
 
 export const getTargetLink = (
   targetEntity: string,
-  target: any
+  target: AuditTarget | null
 ): { name: string; path: string } | null => {
   if (!target || !(targetEntity in targetRules)) return null;
 
