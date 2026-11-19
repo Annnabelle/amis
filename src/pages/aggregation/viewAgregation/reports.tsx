@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import BatchItem from "../../markingCodeProduct/batchItem.tsx";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useAppSelector } from "app/store";
+import { useGetAggregationReportByIdQuery } from "entities/aggregation/api";
 import "../../markingCodeProduct/styles.sass"
 import { Tag } from "antd";
 import { statusColors } from "shared/ui/statuses.tsx";
@@ -18,14 +18,15 @@ const getStatusColor = (status?: string | null) => {
 };
 
 const AgregationReport: React.FC = () => {
-    const { orgId } = useParams<{
+    const { orgId, id } = useParams<{
         orgId: string;
         id: string;
     }>();
     const { t } = useTranslation();
 
-    const reportData = useAppSelector(
-        (state) => state.aggregations.oneAggregation
+    const { data: reportData } = useGetAggregationReportByIdQuery(
+        { id: id ?? '' },
+        { skip: !id }
     );
 
     return (

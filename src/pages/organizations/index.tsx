@@ -1,12 +1,17 @@
 import {Form, Input, Spin, Steps, Tag} from 'antd'
 import { IoSearch } from 'react-icons/io5'
-import { useAppDispatch, useAppSelector } from 'app/store'
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
-import { createOrganization, deleteOrganization, getAllOrganizations, getCompanyByTin, getOrganizationById, searchOrganizations } from 'entities/organization/model'
+import {
+    useCreateCompanyMutation,
+    useDeleteCompanyMutation,
+    useGetCompaniesQuery,
+    useLazyGetCompanyByTinQuery,
+    useSearchCompaniesQuery,
+} from 'entities/organization/api'
 import { OrganizationsTableColumns } from 'entities/organization/ui/tableData/organizations'
 import type { OrganizationTableDataType } from 'entities/organization/ui/tableData/organizations/types'
 import type {Company} from 'entities/organization/types'
@@ -17,19 +22,20 @@ import FormComponent from 'shared/ui/formComponent'
 import StatusBadge from 'shared/ui/statusBadge'
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants'
 import { useNavigate } from 'react-router-dom'
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { FormatUzbekPhoneNumber, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import {
-    clearXTraceIntegrationValidation,
-    createCompanyFakturaUzIntegration,
-    createCompanyXTraceIntegration,
-    validateCompanyXTraceIntegrationToken
-} from 'entities/xTrace/model';
-import { fetchReferencesByType } from 'entities/references/model';
+    useCreateCompanyFakturaUzIntegrationMutation,
+    useCreateCompanyXTraceIntegrationMutation,
+    useLazyValidateCompanyXTraceIntegrationTokenQuery,
+} from 'entities/xTrace/api';
+import type { XTraceIntegrationTokenValidation } from 'entities/xTrace/types';
+import { useGetReferencesByTypeQuery } from 'entities/references/api';
+import { getApiErrorMessage } from 'shared/api';
 import dayjs from 'dayjs';
 import './styles.sass';
 
@@ -44,17 +50,12 @@ const createCompanyStepIndex: Record<CreateCompanyStep, number> = {
 const Organizations = () => {
     const navigate = useNavigate()
     const { t, i18n } = useTranslation();
-    const dispatch = useAppDispatch()
     const canReadCompany = useCan(endpointAccessMap.companiesRead);
     const canListCompanies = useCan(endpointAccessMap.companiesList);
     const canCreateCompany = useCan(endpointAccessMap.companiesCreate);
     const canDeleteCompany = useCan(endpointAccessMap.companiesDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
-    const organizations = useAppSelector((state) => state.organizations.organizations)
-    const searchedOrganizations = useAppSelector((state) => state.organizations.searchedOrganizations)
-    const dataLimit = useAppSelector((state) => state.organizations.limit)
-    const dataPage = useAppSelector((state) => state.organizations.page)
-    const dataTotal = useAppSelector((state) => state.organizations.total)
+
     const [form] = Form.useForm();
     const [xTraceForm] = Form.useForm();
     const [fakturaUzForm] = Form.useForm();
@@ -66,29 +67,52 @@ const Organizations = () => {
     const companyLookupRequestRef = useRef(0);
     const xTraceValidationRequestRef = useRef(0);
     const xTraceValidationTimeoutRef = useRef<number | null>(null);
-    const xTraceValidation = useAppSelector((state) => state.xTrace.integrationValidation);
-    const xTraceValidationLoading = useAppSelector((state) => state.xTrace.integrationValidationLoading);
-    const xTraceCreateLoading = useAppSelector((state) => state.xTrace.integrationCreateLoading);
-    const fakturaUzCreateLoading = useAppSelector((state) => state.xTrace.fakturaUzCreateLoading);
-    const fakturaUzIntegration = useAppSelector((state) => state.xTrace.fakturaUzIntegration);
-    const productGroupReferences = useAppSelector((state) => state.references.references.productGroup) ?? [];
+    /** Проверка токена — состояние формы активации, а не серверные данные. */
+    const [xTraceValidation, setXTraceValidation] =
+        useState<XTraceIntegrationTokenValidation | null>(null);
+    const [validateXTraceToken, { isFetching: xTraceValidationLoading }] =
+        useLazyValidateCompanyXTraceIntegrationTokenQuery();
+    const [createXTraceIntegration, { isLoading: xTraceCreateLoading }] =
+        useCreateCompanyXTraceIntegrationMutation();
+    const [
+        createFakturaUzIntegration,
+        { isLoading: fakturaUzCreateLoading, data: fakturaUzIntegration },
+    ] = useCreateCompanyFakturaUzIntegrationMutation();
+    const { data: productGroupReferences = [] } =
+        useGetReferencesByTypeQuery("productGroup");
     const isMobile = useIsMobile();
     const [searchQuery, setSearchQuery] = useState('');
-    const currentLanguage = i18n.language.split('-')[0] as "ru" | "en" | "uz";
-
-    useEffect(() => {
-        if (isMobile && !canListCompanies) return;
-
-        dispatch(getAllOrganizations({
-            page: 1,
-            limit: 10,
+    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+    const isSearching = searchQuery.trim().length > 0;
+    const { data: companiesPage } = useGetCompaniesQuery(
+        { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
+        { skip: isSearching || (isMobile && !canListCompanies) }
+    );
+    const { data: searchedCompaniesPage } = useSearchCompaniesQuery(
+        {
+            query: searchQuery,
+            page: pagination.page,
+            limit: pagination.limit,
             sortOrder: 'asc',
-        })) 
-    }, [canListCompanies, dispatch, isMobile])
-
-    useEffect(() => {
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
+        },
+        { skip: !isSearching }
+    );
+    const [findCompanyByTin] = useLazyGetCompanyByTinQuery();
+    const [createCompany] = useCreateCompanyMutation();
+    const [deleteCompany] = useDeleteCompanyMutation();
+    const shownCompaniesPage = isSearching ? searchedCompaniesPage : companiesPage;
+    const organizations = useMemo(
+        () => companiesPage?.items ?? [],
+        [companiesPage]
+    );
+    const searchedOrganizations = useMemo(
+        () => searchedCompaniesPage?.items ?? [],
+        [searchedCompaniesPage]
+    );
+    const dataPage = pagination.page;
+    const dataLimit = pagination.limit;
+    const dataTotal = shownCompaniesPage?.total ?? 0;
+    const currentLanguage = i18n.language.split('-')[0] as "ru" | "en" | "uz";
 
     const tableOrganizations = useMemo(() => {
         return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
@@ -158,12 +182,6 @@ const Organizations = () => {
         companyData: null, 
       });
 
-    useEffect(() => {
-        if (modalState.addCompany) {
-            dispatch(fetchReferencesByType("productGroup"));
-        }
-    }, [dispatch, modalState.addCompany]);
-
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({ ...prev, [modalName]: value }));
 
@@ -174,7 +192,7 @@ const Organizations = () => {
             setSearchedCompanyByTin(null);
             setActivatedCompany(null);
             setCreateCompanyStep("company");
-            dispatch(clearXTraceIntegrationValidation());
+            setXTraceValidation(null);
             if (xTraceValidationTimeoutRef.current) {
                 window.clearTimeout(xTraceValidationTimeoutRef.current);
                 xTraceValidationTimeoutRef.current = null;
@@ -190,13 +208,13 @@ const Organizations = () => {
 
         try {
             setIsSearchingCompanyByTin(true);
-            const company = await dispatch(getCompanyByTin(normalizedTin)).unwrap();
+            const company = await findCompanyByTin(normalizedTin).unwrap();
             if (requestId !== companyLookupRequestRef.current) return;
             setSearchedCompanyByTin(company);
         } catch (error: any) {
             if (requestId === companyLookupRequestRef.current) {
                 toast.error(
-                    getBackendErrorMessage(error, t("common.dataNotFound"))
+                    getApiErrorMessage(error, t("common.dataNotFound"))
                 );
             }
         } finally {
@@ -226,15 +244,16 @@ const Organizations = () => {
 
         try {
             setIsActivatingCompany(true);
-            const company = await dispatch(createOrganization({ companyId: searchedCompanyByTin.id })).unwrap();
+            const company = await createCompany({
+                companyId: searchedCompanyByTin.id,
+            }).unwrap();
             toast.success(t("organizations.messages.success.activateCompany"));
             setActivatedCompany(company);
             setCreateCompanyStep("xTrace");
             xTraceForm.setFieldsValue({ tin: company.tin });
-            await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
         } catch (error: any) {
             toast.error(
-                getBackendErrorMessage(error, t("organizations.messages.error.activateCompany"))
+                getApiErrorMessage(error, t("organizations.messages.error.activateCompany"))
             );
         } finally {
             setIsActivatingCompany(false);
@@ -247,7 +266,7 @@ const Organizations = () => {
     const handleXTraceTokenChange = (event: ChangeEvent<HTMLInputElement>) => {
         const token = event.target.value.trim();
         const requestId = ++xTraceValidationRequestRef.current;
-        dispatch(clearXTraceIntegrationValidation());
+        setXTraceValidation(null);
 
         if (xTraceValidationTimeoutRef.current) {
             window.clearTimeout(xTraceValidationTimeoutRef.current);
@@ -259,27 +278,24 @@ const Organizations = () => {
 
         xTraceValidationTimeoutRef.current = window.setTimeout(async () => {
             try {
-                await dispatch(
-                    validateCompanyXTraceIntegrationToken({
-                        companyId: activatedCompany.id,
-                        token,
-                    })
-                ).unwrap();
+                const validation = await validateXTraceToken({
+                    companyId: activatedCompany.id,
+                    token,
+                }).unwrap();
 
-                if (requestId !== xTraceValidationRequestRef.current) {
-                    dispatch(clearXTraceIntegrationValidation());
-                }
+                if (requestId !== xTraceValidationRequestRef.current) return;
+
+                setXTraceValidation(validation);
             } catch (error: any) {
                 if (requestId === xTraceValidationRequestRef.current) {
-                    toast.error(getBackendErrorMessage(error, t("organizations.addUserForm.validation.xTrace.invalidToken")));
+                    toast.error(getApiErrorMessage(error, t("organizations.addUserForm.validation.xTrace.invalidToken")));
                 }
             }
         }, 450);
     };
 
-    const finishCreateCompanyFlow = async () => {
+    const finishCreateCompanyFlow = () => {
         handleModal("addCompany", false);
-        await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
     };
 
     const handleCreateXTraceIntegration = async () => {
@@ -295,19 +311,17 @@ const Organizations = () => {
                 return;
             }
 
-            await dispatch(
-                createCompanyXTraceIntegration({
-                    companyId: activatedCompany.id,
-                    token,
-                    businessPlaceId,
-                })
-            ).unwrap();
+            await createXTraceIntegration({
+                companyId: activatedCompany.id,
+                token,
+                businessPlaceId,
+            }).unwrap();
 
             toast.success(t("organizations.messages.success.createXTraceIntegration"));
             setCreateCompanyStep("fakturaUz");
         } catch (error: any) {
             if (error?.errorFields) return;
-            toast.error(getBackendErrorMessage(error, t("organizations.messages.error.createXTraceIntegration")));
+            toast.error(getApiErrorMessage(error, t("organizations.messages.error.createXTraceIntegration")));
         }
     };
 
@@ -322,15 +336,13 @@ const Organizations = () => {
                 "clientSecret",
             ]);
 
-            await dispatch(
-                createCompanyFakturaUzIntegration({
-                    companyId: activatedCompany.id,
-                    username: String(values.username ?? "").trim(),
-                    password: String(values.password ?? ""),
-                    clientId: String(values.clientId ?? "").trim(),
-                    clientSecret: String(values.clientSecret ?? "").trim(),
-                })
-            ).unwrap();
+            await createFakturaUzIntegration({
+                companyId: activatedCompany.id,
+                username: String(values.username ?? "").trim(),
+                password: String(values.password ?? ""),
+                clientId: String(values.clientId ?? "").trim(),
+                clientSecret: String(values.clientSecret ?? "").trim(),
+            }).unwrap();
 
             toast.success(t("organizations.messages.success.createFakturaUzIntegration"));
         } catch (error: any) {
@@ -338,7 +350,6 @@ const Organizations = () => {
             toast.error(getBackendErrorMessage(error, t("organizations.messages.error.createFakturaUzIntegration")));
         }
     };
-    const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
 
     const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
         if (type === "Company" && action === "retrieve") {
@@ -349,16 +360,9 @@ const Organizations = () => {
         }
     };
 
-    useEffect(() => {
-        if (selectedOrganizationId){
-            dispatch(getOrganizationById({id: selectedOrganizationId}))
-        }
-    }, [dispatch, selectedOrganizationId])
-
     const handleDeleteOrganization = (record: OrganizationTableDataType) => {
         const organization = tableOrganizations.find((o) => o.id === record.key) ?? null;
             if (organization) {
-                setSelectedOrganizationId(organization.id);
                 setModalState((prev) => ({
                 ...prev,
                 deleteCompany: true,
@@ -371,31 +375,20 @@ const Organizations = () => {
         if (!modalState.companyData) return;
 
         try {
-            const resultAction = await dispatch(
-                deleteOrganization({ id: modalState.companyData.id })
-            );
-
-            if (deleteOrganization.fulfilled.match(resultAction)) {
-                toast.success(t('organizations.messages.success.deleteUser'));
-                handleModal("deleteCompany", false);
-
-                await dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: "asc" }));
-            } else {
-                toast.error(t('organizations.messages.error.deleteUser'));
-            }
+            // Список перезапросится сам: мутация инвалидирует тег компании.
+            await deleteCompany({ id: modalState.companyData.id }).unwrap();
+            toast.success(t('organizations.messages.success.deleteUser'));
+            handleModal("deleteCompany", false);
         } catch (err) {
-            toast.error((err as string) || t('organizations.messages.error.deleteUser'));
+            toast.error(
+                getApiErrorMessage(err, t('organizations.messages.error.deleteUser'))
+            );
         }
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setSearchQuery(value);
-        if (value.trim().length > 0) {
-            dispatch(searchOrganizations({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
-        } else {
-            dispatch(getAllOrganizations({ page: 1, limit: 10, sortOrder: 'asc' }));
-        }
+        setSearchQuery(e.target.value);
+        setPagination((prev) => ({ ...prev, page: 1 }));
     };
 
     return (
@@ -447,18 +440,11 @@ const Organizations = () => {
                                 showSizeChanger: { showSearch: false },
                                 pageSizeOptions: ['10', '20', '30', '40', '50'],
                                 locale: { items_per_page: '' },
-                                onChange: (newPage, newLimit) => {
-                                    if (searchQuery.trim().length > 0) {
-                                        dispatch(searchOrganizations({
-                                            query: searchQuery,
-                                            page: newPage,
-                                            limit: newLimit || dataLimit || 10,
-                                            sortOrder: "asc"
-                                        }));
-                                        return;
-                                    }
-                                    dispatch(getAllOrganizations({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
-                                },
+                                onChange: (newPage, newLimit) =>
+                                    setPagination((prev) => ({
+                                        page: newPage,
+                                        limit: newLimit || prev.limit,
+                                    })),
                             }}
                         />
                     </div>

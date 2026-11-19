@@ -1,5 +1,6 @@
 import type { VehicleOwnerDto } from '@edem2000/amis.contracts/api/vehicle/requests';
 import type { VehicleOwnershipType, VehicleStatus, VehicleType } from '@edem2000/amis.contracts';
+import type { Paginated } from 'shared/api';
 
 export type VehicleIdentification = {
   vin?: string;
@@ -43,20 +44,4 @@ export type Vehicle = {
   updatedAt?: Date;
 };
 
-export type VehicleListQuery = {
-  page?: number;
-  limit?: number;
-  sortOrder?: "asc" | "desc";
-  query?: string;
-};
-
-export type VehiclesState = {
-  vehicles: Vehicle[];
-  vehicleById: Vehicle | null;
-  total: number;
-  page: number;
-  limit: number;
-  isLoading: boolean;
-  loadingById: boolean;
-  error: string | null;
-};
+export type VehicleList = Paginated<Vehicle>;

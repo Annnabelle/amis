@@ -141,14 +141,4 @@ export type CreateDeliveryRoutePayload = {
   salesOrderIds?: HexString[];
 };
 
-export type DeliveryRoutesState = {
-  routes: DeliveryRoute[];
-  routeById: DeliveryRoute | null;
-  total: number;
-  page: number;
-  limit: number;
-  createdRoute: DeliveryRoute | null;
-  isLoading: boolean;
-  loadingById: boolean;
-  error: string | null;
-};
+

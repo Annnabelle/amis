@@ -1,10 +1,8 @@
 import { Spin } from "antd";
 import dayjs from "dayjs";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "app/store";
-import { getVehicleById } from "entities/vehicles/model";
+import { useGetVehicleByIdQuery } from "entities/vehicles/api";
 import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import CustomButton from "shared/ui/button";
@@ -26,20 +24,14 @@ const formatValue = (value: string | number | undefined | null) =>
 const VehicleDetails = () => {
   const { orgId, id } = useParams<{ orgId: string; id: string }>();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigateBack = useNavigationBack();
-  const vehicle = useAppSelector((state) => state.vehicles.vehicleById);
-  const loading = useAppSelector((state) => state.vehicles.loadingById);
+  const { data: vehicle, isLoading: loading } = useGetVehicleByIdQuery(id ?? "", {
+    skip: !id,
+  });
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.Vehicle,
   });
-
-  useEffect(() => {
-    if (id) {
-      dispatch(getVehicleById(id));
-    }
-  }, [dispatch, id]);
 
   if (loading || !vehicle || vehicle.id !== id) {
     return (

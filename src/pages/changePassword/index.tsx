@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppSelector } from 'app/store'
-import { changeOwnPassword, fetchCurrentUser } from 'entities/users/model'
+import { useAppSelector } from 'app/store'
+import {
+  useChangeOwnPasswordMutation,
+  useGetCurrentUserQuery,
+} from 'entities/users/api'
+import { getApiErrorMessage } from 'shared/api'
 import type { ChangePassword } from 'entities/users/types'
 import { Form, Input } from 'antd'
 import MainLayout from 'shared/ui/layout'
@@ -14,20 +18,17 @@ import { toast } from 'react-toastify'
 
 const ChangePasswordPage = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.users.currentUser);
+  const [changeOwnPassword] = useChangeOwnPasswordMutation();
+
+  /** Профиль нужен для подписи формы; если он уже в сессии — запрос не идёт. */
+  useGetCurrentUserQuery(undefined, { skip: Boolean(currentUser) });
 
   const [form] = Form.useForm();
   const [modalOpen, setModalOpen] = useState(false);
   const [formValues, setFormValues] = useState<ChangePassword | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!currentUser) {
-      dispatch(fetchCurrentUser());
-    }
-  }, [currentUser, dispatch]);
 
   const onFinish = (values: ChangePassword) => {
     setFormValues(values);
@@ -38,7 +39,7 @@ const ChangePasswordPage = () => {
     if (!formValues || isSubmitting) return;
 
     setIsSubmitting(true);
-    dispatch(changeOwnPassword(formValues))
+    changeOwnPassword(formValues)
       .unwrap()
       .then(() => {
         toast.success(t('changePwd.changePasswordForm.message.success'));
@@ -48,11 +49,9 @@ const ChangePasswordPage = () => {
         navigate('/profile');
       })
       .catch((error: unknown) => {
-        const message =
-          typeof error === 'string' && error.trim()
-            ? error
-            : t('changePwd.changePasswordForm.message.error');
-        toast.error(message);
+        toast.error(
+          getApiErrorMessage(error, t('changePwd.changePasswordForm.message.error'))
+        );
       })
       .finally(() => setIsSubmitting(false));
   };

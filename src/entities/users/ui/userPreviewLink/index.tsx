@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { getUserPreview } from 'entities/users/model';
+import { useGetUserPreviewQuery } from 'entities/users/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
@@ -10,20 +8,12 @@ interface UserPreviewLinkProps {
 }
 
 const UserPreviewLink = ({ userId }: UserPreviewLinkProps) => {
-  const dispatch = useAppDispatch();
-  const preview = useAppSelector((state) => state.users.userPreviewById[userId]);
   const canReadUser = useCan(endpointAccessMap.usersRead);
   const canPreviewUser = useCan(endpointAccessMap.usersPreview);
-
-  useEffect(() => {
-    if (!userId || !canPreviewUser) {
-      return;
-    }
-
-    if (!preview) {
-      void dispatch(getUserPreview({ id: userId }));
-    }
-  }, [canPreviewUser, dispatch, preview, userId]);
+  const { data: preview } = useGetUserPreviewQuery(
+    { id: userId },
+    { skip: !userId || !canPreviewUser }
+  );
 
   const label = preview ? `${preview.firstName} ${preview.lastName}` : userId;
 

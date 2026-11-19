@@ -1,12 +1,12 @@
 import { Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
-import { getLeads, updateLeadStatus } from "entities/leads/model";
+import { getApiErrorMessage } from "shared/api";
+import { useGetLeadsQuery, useUpdateLeadStatusMutation } from "entities/leads/api";
 import { LeadStatuses, type LeadListQuery, type LeadStatus } from "entities/leads/types";
 import { LeadsTableColumns } from "entities/leads/ui/tableData/leads";
 import type { LeadTableDataType } from "entities/leads/ui/tableData/leads/types";
@@ -33,15 +33,9 @@ type PendingStatusChange = {
 
 const Leads = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const canRead = useCan(endpointAccessMap.leadsRead);
   const canUpdateStatus = useCan(endpointAccessMap.leadsUpdateStatus);
-  const leads = useAppSelector((state) => state.leads.leads);
-  const dataPage = useAppSelector((state) => state.leads.page);
-  const dataLimit = useAppSelector((state) => state.leads.limit);
-  const dataTotal = useAppSelector((state) => state.leads.total);
-  const isLoading = useAppSelector((state) => state.leads.isLoading);
   const [statusForm] = Form.useForm<StatusModalForm>();
   const [pendingStatusChange, setPendingStatusChange] =
     useState<PendingStatusChange | null>(null);
@@ -52,10 +46,12 @@ const Leads = () => {
     sortOrder: "desc",
     sortBy: "createdAt",
   });
-
-  useEffect(() => {
-    dispatch(getLeads(query));
-  }, [dispatch, query]);
+  const { data: leadsPage, isFetching: isLoading } = useGetLeadsQuery(query);
+  const [updateLeadStatus] = useUpdateLeadStatusMutation();
+  const leads = useMemo(() => leadsPage?.items ?? [], [leadsPage]);
+  const dataPage = query.page;
+  const dataLimit = query.limit;
+  const dataTotal = leadsPage?.total ?? 0;
 
   const tableData = useMemo<LeadTableDataType[]>(
     () =>
@@ -89,24 +85,23 @@ const Leads = () => {
     const values = await statusForm.validateFields();
 
     setIsStatusSaving(true);
-    const result = await dispatch(
-      updateLeadStatus({
+
+    try {
+      await updateLeadStatus({
         id: pendingStatusChange.lead.key,
         data: {
           status: pendingStatusChange.status,
           comment: values.comment?.trim() || undefined,
         },
-      })
-    );
-    setIsStatusSaving(false);
+      }).unwrap();
 
-    if (updateLeadStatus.fulfilled.match(result)) {
       toast.success(t("leads.messages.statusUpdated"));
       closeStatusModal();
-      return;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
+    } finally {
+      setIsStatusSaving(false);
     }
-
-    toast.error(result.payload ?? t("leads.messages.statusUpdateError"));
   };
 
   const statusOptions = useMemo(

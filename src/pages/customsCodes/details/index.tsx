@@ -1,13 +1,11 @@
 import { Alert, Spin } from 'antd';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { fetchCustomsCodeById } from 'entities/customsCodes/model';
+import { useGetCustomsCodeOrderByIdQuery } from 'entities/customsCodes/api';
+import { getApiErrorMessage } from 'shared/api';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { StatusEntity } from 'shared/config/statusCatalog';
 import CustomButton from 'shared/ui/button';
 import EntityStatusBadge from 'shared/ui/statusBadge/entityStatus';
@@ -25,28 +23,27 @@ const CustomsCodeDetails = () => {
   const navigate = useNavigate();
   const { orgId, id } = useParams<{ orgId: string; id: string }>();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const order = useAppSelector((state) => state.customsCodes.selected);
-  const isLoading = useAppSelector((state) => state.customsCodes.selectedLoading);
-  const loadError = useAppSelector((state) => state.customsCodes.selectedError);
+  const {
+    data: order,
+    isLoading,
+    error: loadRequestError,
+  } = useGetCustomsCodeOrderByIdQuery(id ?? '', { skip: !id });
+  const loadError = loadRequestError
+    ? getApiErrorMessage(loadRequestError, t('customsCodes.messages.loadError'))
+    : null;
   const listPath = orgId ? `/organization/${orgId}/customs-codes` : '/organization';
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.AggregatedCustomsCodeOrder,
   });
 
-  useEffect(() => {
-    if (!id) return;
-    dispatch(fetchCustomsCodeById(id));
-  }, [dispatch, id]);
-
-  if (loadError && (!order || order.id !== id)) {
+  if (loadError && !order) {
     return (
       <MainLayout>
         <Alert
           type="error"
           showIcon
-          message={getBackendErrorMessage(loadError, t('customsCodes.details.loadError'))}
+          message={loadError}
           action={
             <CustomButton variant="outline" onClick={() => navigate(listPath)}>
               {t('common.backToList')}
@@ -57,7 +54,7 @@ const CustomsCodeDetails = () => {
     );
   }
 
-  if (isLoading || !order || order.id !== id) {
+  if (isLoading || !order) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-96">

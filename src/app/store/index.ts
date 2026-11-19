@@ -1,78 +1,50 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 import { usersSlice } from "entities/users/model";
-import { organizationsSlice } from "entities/organization/model";
-import { productsSlice } from "entities/products/model";
-import {auditLogsSlice} from "entities/auditLog/model"
-import { markingCodesSlice } from "entities/markingCodes/model";
-import { referencesSlice } from "entities/references/model";
-import {utilizationSlice} from "entities/utilization/model";
-import {aggregationSlice} from "entities/aggregation/model";
-import {xTraceSlice} from "entities/xTrace/model";
-import {exportSlice} from "entities/export/model";
-import { salesOrdersSlice } from "entities/salesOrders/model";
-import { deliveryRoutesSlice } from "entities/deliveryRoutes/model";
-import { deliveryTasksSlice } from "entities/deliveryTasks/model";
-import { invoicesSlice } from "entities/invoices/model";
-import { waybillsSlice } from "entities/waybills/model";
 import { scanSessionsSlice } from "entities/scanSessions/model";
 import { accessSlice } from "entities/access/model";
-import { systemEmployeesSlice } from "entities/systemEmployees/model";
-import { companyMembershipsSlice } from "entities/companyMemberships/model";
-import { customsCodesSlice } from "entities/customsCodes/model";
-import { leadsSlice } from "entities/leads/model";
-import { lifecycleSlice } from "entities/lifecycle/model";
-import { companyImportSlice } from "entities/companyImport/model";
-import { ownedCodesSlice } from "entities/ownedCodes/model";
-import { vehiclesSlice } from "entities/vehicles/model";
 import {loaderSlice} from "./loader";
+import { baseApi } from "shared/api";
 import { setRuntimeCompanyId } from "shared/lib/companyContext";
 
 export const store = configureStore({
     reducer: {
         users: usersSlice.reducer,
-        organizations: organizationsSlice.reducer,
-        products: productsSlice.reducer,
-        auditLogs: auditLogsSlice.reducer,
-        markingCodes: markingCodesSlice.reducer,
-        references: referencesSlice.reducer,
-        utilization: utilizationSlice.reducer,
-        aggregations: aggregationSlice.reducer,
-        xTrace: xTraceSlice.reducer,
-        export: exportSlice.reducer,
-        salesOrders: salesOrdersSlice.reducer,
-        deliveryRoutes: deliveryRoutesSlice.reducer,
-        deliveryTasks: deliveryTasksSlice.reducer,
-        invoices: invoicesSlice.reducer,
-        waybills: waybillsSlice.reducer,
         scanSessions: scanSessionsSlice.reducer,
         access: accessSlice.reducer,
-        systemEmployees: systemEmployeesSlice.reducer,
-        companyMemberships: companyMembershipsSlice.reducer,
-        customsCodes: customsCodesSlice.reducer,
-        leads: leadsSlice.reducer,
-        lifecycle: lifecycleSlice.reducer,
-        companyImport: companyImportSlice.reducer,
-        ownedCodes: ownedCodesSlice.reducer,
-        vehicles: vehiclesSlice.reducer,
-        loader: loaderSlice.reducer
+        loader: loaderSlice.reducer,
+        [baseApi.reducerPath]: baseApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
         serializableCheck: false,
-        }),
+        }).concat(baseApi.middleware),
     });
 
 let previousCompanyId = store.getState().access.currentCompanyId;
+let wasAuthenticated = store.getState().users.isAuthenticated;
 setRuntimeCompanyId(previousCompanyId);
 
 store.subscribe(() => {
-    const currentCompanyId = store.getState().access.currentCompanyId;
+    const { access, users } = store.getState();
 
-    if (currentCompanyId !== previousCompanyId) {
-        previousCompanyId = currentCompanyId;
-        setRuntimeCompanyId(currentCompanyId);
+    if (access.currentCompanyId !== previousCompanyId) {
+        previousCompanyId = access.currentCompanyId;
+        setRuntimeCompanyId(access.currentCompanyId);
+        // Ключи кеша RTK Query не содержат компанию, поэтому при переключении
+        // организации кеш сбрасывается целиком — иначе покажем чужие данные.
+        store.dispatch(baseApi.util.resetApiState());
     }
+
+    if (wasAuthenticated && !users.isAuthenticated) {
+        wasAuthenticated = false;
+        // Выход из сессии: данные прошлого пользователя в кеше не оставляем.
+        store.dispatch(baseApi.util.resetApiState());
+
+        return;
+    }
+
+    wasAuthenticated = users.isAuthenticated;
 });
 
 export type RootState = ReturnType<typeof store.getState>;

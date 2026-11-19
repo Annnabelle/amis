@@ -3,6 +3,7 @@ import {
   LeadStatus,
   LeadStatuses,
 } from '@edem2000/amis.contracts'
+import type { Paginated } from 'shared/api'
 
 export {
   LeadSortField,
@@ -34,12 +35,4 @@ export type LeadListQuery = {
   status?: LeadStatus;
 };
 
-export type LeadsState = {
-  leads: Lead[];
-  leadById: Lead | null;
-  total: number;
-  page: number;
-  limit: number;
-  isLoading: boolean;
-  error: string | null;
-};
+export type LeadList = Paginated<Lead>;

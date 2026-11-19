@@ -1,13 +1,13 @@
 import { Empty, Form, Input, Modal, Tag } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
+import { getApiErrorMessage } from "shared/api";
 import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
-import { getLeadById, updateLeadStatus } from "entities/leads/model";
+import { useGetLeadByIdQuery, useUpdateLeadStatusMutation } from "entities/leads/api";
 import { LeadStatus, type LeadStatus as LeadStatusType } from "entities/leads/types";
 import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
@@ -51,10 +51,12 @@ const LeadDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const canUpdateStatus = useCan(endpointAccessMap.leadsUpdateStatus);
-  const lead = useAppSelector((state) => state.leads.leadById);
-  const isLoading = useAppSelector((state) => state.leads.isLoading);
+  const { data: lead, isLoading } = useGetLeadByIdQuery(
+    { id: id ?? "" },
+    { skip: !id }
+  );
+  const [updateLeadStatus] = useUpdateLeadStatusMutation();
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.Lead,
@@ -62,12 +64,6 @@ const LeadDetails = () => {
   const [form] = Form.useForm<StatusForm>();
   const [pendingStatus, setPendingStatus] = useState<LeadStatusType | null>(null);
   const [isStatusSaving, setIsStatusSaving] = useState(false);
-
-  useEffect(() => {
-    if (id) {
-      dispatch(getLeadById({ id }));
-    }
-  }, [dispatch, id]);
 
   const openStatusModal = (status: LeadStatusType) => {
     if (!lead || status === lead.status) {
@@ -89,27 +85,26 @@ const LeadDetails = () => {
     const values = await form.validateFields();
 
     setIsStatusSaving(true);
-    const result = await dispatch(
-      updateLeadStatus({
+
+    try {
+      await updateLeadStatus({
         id,
         data: {
           status: pendingStatus,
           comment: values.comment?.trim() || undefined,
         },
-      })
-    );
-    setIsStatusSaving(false);
+      }).unwrap();
 
-    if (updateLeadStatus.fulfilled.match(result)) {
       toast.success(t("leads.messages.statusUpdated"));
       closeStatusModal();
-      return;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
+    } finally {
+      setIsStatusSaving(false);
     }
-
-    toast.error(result.payload ?? t("leads.messages.statusUpdateError"));
   };
 
-  if (isLoading && lead?.id !== id) {
+  if (isLoading) {
     return null;
   }
 

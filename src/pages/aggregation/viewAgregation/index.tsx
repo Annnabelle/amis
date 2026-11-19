@@ -1,7 +1,9 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
 import {useParams} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "app/store";
-import {fetchAggregationUnits, fetchOneAggregationReport} from "entities/aggregation/model";
+import {
+    useGetAggregationReportByIdQuery,
+    useGetAggregationReportUnitsQuery,
+} from "entities/aggregation/api";
 import MainLayout from "shared/ui/layout";
 import CustomButton from "shared/ui/button";
 import Heading from "shared/ui/mainHeading";
@@ -12,7 +14,7 @@ import ComponentTable from "shared/ui/table";
 import {UnitsColumns} from "entities/aggregation/ui/tableData/agregationReport";
 import type { UnitCodeType} from "entities/aggregation/ui/tableData/agregationReport/types.ts";
 import type {ExportAggregationReportParams} from "entities/export/types";
-import {downloadReport} from "entities/export/model";
+import {downloadAggregationReport} from "entities/export/lib/downloadAggregationReport";
 import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import {toast} from "react-toastify";
@@ -47,48 +49,25 @@ const AggregationReportPage: React.FC = () => {
     }>();
     const { t } = useTranslation();
     const navigateBack = useNavigationBack();
-    const aggregation = useAppSelector(
-        (state) => state.aggregations.oneAggregation
+    const { data: aggregation } = useGetAggregationReportByIdQuery(
+        { id: id ?? '' },
+        { skip: !id }
     );
-
-    const exportError = useAppSelector(state => state.export.error);
-    const dispatch = useAppDispatch();
     const canExportAggregation = useCan(endpointAccessMap.aggregationReportsExport);
     const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
         targetId: id,
         target: LifecycleTargetEntity.AggregationReport,
     });
 
-    const units = useAppSelector((state) => state.aggregations.units)
-    const unitsData = id ? (units[id]?.data ?? []) : [];
-    const unitsTotal = id ? (units[id]?.total ?? 0) : 0;
     const [exportLoading, setExportLoading] = useState<ExportLoadingState>(null);
     const [groupsLimit, setGroupsLimit] = useState<1 | 2 | 3 | 4>(1);
     const [page, setPage] = useState(1);
-
-    useEffect(() => {
-        if (!exportError) return;
-
-        toast.error(
-            getBackendErrorMessage(exportError, t('common.error'))
-        );
-    }, [exportError, t]);
-
-    useEffect(() => {
-        if (id) dispatch(fetchOneAggregationReport({ id }));
-    }, [id, dispatch]);
-
-    useEffect(() => {
-        if (!id) return;
-
-        dispatch(
-            fetchAggregationUnits({
-                aggregationId: id,
-                limit: groupsLimit,
-                page,
-            })
-        );
-    }, [id, dispatch, page, groupsLimit]);
+    const { data: unitsPage } = useGetAggregationReportUnitsQuery(
+        { aggregationId: id ?? '', limit: groupsLimit, page },
+        { skip: !id }
+    );
+    const unitsData = useMemo(() => unitsPage?.items ?? [], [unitsPage]);
+    const unitsTotal = unitsPage?.total ?? 0;
 
     const codeGroups = useMemo<CodeGroup[]>(() => {
         if (!id || unitsData.length === 0) return [];
@@ -142,13 +121,9 @@ const AggregationReportPage: React.FC = () => {
         setExportLoading({ type, format });
 
         try {
-            await dispatch(
-                downloadReport({
-                    aggregationId: id,
-                    params,
-                })
-            ).unwrap();
-
+            await downloadAggregationReport(id, params);
+        } catch (error) {
+            toast.error(getBackendErrorMessage(error, t('common.error')));
         } finally {
             setExportLoading(null);
         }

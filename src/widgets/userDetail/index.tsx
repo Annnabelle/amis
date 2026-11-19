@@ -3,23 +3,29 @@ import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchCurrentUser, getUserById } from 'entities/users/model';
-import { fetchRoleReferences } from 'entities/access/model';
 import {
-  getRoleReferenceCacheKey,
+  useGetCurrentUserQuery,
+  useGetUserByIdQuery,
+  useGetUserCompanyMembershipsQuery,
+  useGetUserSystemAccessQuery,
+} from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
+import {
+  useGetRoleReferencesQuery,
+  useLazyGetRoleReferencesQuery,
+} from 'entities/access/api';
+import {
   RoleScope,
   type RoleReference,
 } from 'entities/access/types';
-import { useAppDispatch, useAppSelector } from 'app/store';
+import { useAppSelector } from 'app/store';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { FormatUzbekPhoneNumber, useNavigationBack } from 'shared/lib';
-import { getAllOrganizations } from 'entities/organization/model';
+import { useGetCompaniesQuery } from 'entities/organization/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import axiosInstance from 'shared/lib/axiosInstance';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import StatusBadge from 'shared/ui/statusBadge';
 import type { StatusBadgeVariant } from 'shared/ui/statusBadge';
 import {
@@ -29,12 +35,8 @@ import {
   DetailItems,
   RouteMetaChip,
 } from 'shared/ui/details';
-import type { SystemEmployee, SystemRole } from 'entities/systemEmployees/types';
-import type { GetUserSystemAccessResponseDto } from '@edem2000/amis.contracts/api/users/responses';
-import { mapSystemEmployeeDtoToEntity } from 'entities/systemEmployees/mappers';
-import type { CompanyMembership, CompanyRole } from 'entities/companyMemberships/types';
-import type { UserCompanyMembershipsResponseDto } from '@edem2000/amis.contracts/api/company-memberships/responses';
-import { mapCompanyMembershipDtoToEntity } from 'entities/companyMemberships/mappers';
+import type { SystemRole } from 'entities/systemEmployees/types';
+import type { CompanyRole } from 'entities/companyMemberships/types';
 import { isLanguage, type Language } from 'shared/types/dtos';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
@@ -57,26 +59,66 @@ const getLocalizedText = (
 
 const UserDetail = ({ self = false, userId }: UserDetailProps) => {
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const navigateBack = useNavigationBack();
 
   const reduxCurrentUser = useAppSelector((state) => state.users.currentUser);
-  const userById = useAppSelector((state) => state.users.userById);
-  const isUserLoading = useAppSelector((state) => state.users.isLoading);
-  const organizations = useAppSelector((state) => state.organizations.organizations);
+  const { isFetching: isCurrentUserLoading } = useGetCurrentUserQuery(undefined, {
+    skip: !self,
+  });
+  const { data: userById, isFetching: isUserByIdLoading } = useGetUserByIdQuery(
+    { id: userId ?? '' },
+    { skip: self || !userId }
+  );
+  const isUserLoading = self ? isCurrentUserLoading : isUserByIdLoading;
   const accessCompanies = useAppSelector((state) => state.access.data?.companies);
-  const roleReferences = useAppSelector((state) => state.access.roleReferences);
-  const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
-  const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
+  const [loadCompanyRoleReferences] = useLazyGetRoleReferencesQuery();
+  /**
+   * Роли читаются на каждую компанию пользователя своим запросом, а хук в
+   * цикле звать нельзя, поэтому ответы складываются здесь по компании.
+   */
+  const [companyRoleReferencesById, setCompanyRoleReferencesById] = useState<
+    Record<string, RoleReference[]>
+  >({});
   const canUpdateUser = useCan(endpointAccessMap.usersUpdate);
   const canListCompanies = useCan(endpointAccessMap.companiesList);
   const canReadCompany = useCan(endpointAccessMap.companiesRead);
   const canReadUser = useCan(endpointAccessMap.usersRead);
-  const [systemAccess, setSystemAccess] = useState<SystemEmployee | null>(null);
-  const [companyMemberships, setCompanyMemberships] = useState<CompanyMembership[]>([]);
-  const [accessLoading, setAccessLoading] = useState(false);
-  const [accessError, setAccessError] = useState<string | null>(null);
+  const { data: companiesPage } = useGetCompaniesQuery(
+    { page: 1, limit: 1000, sortOrder: 'asc' },
+    { skip: !canListCompanies }
+  );
+  const organizations = useMemo(
+    () => companiesPage?.items ?? [],
+    [companiesPage]
+  );
+
+  const accessTarget = { self, id: userId };
+  const canLoadAccess = self || canReadUser;
+  const {
+    data: companyMemberships = [],
+    isFetching: areMembershipsLoading,
+    error: membershipsError,
+  } = useGetUserCompanyMembershipsQuery(accessTarget, {
+    skip: !canLoadAccess || (!self && !userId),
+  });
+  const {
+    data: systemAccess = null,
+    isFetching: isSystemAccessLoading,
+    error: systemAccessError,
+  } = useGetUserSystemAccessQuery(accessTarget, {
+    skip: !canLoadAccess || (!self && !userId),
+  });
+  const accessLoading = areMembershipsLoading || isSystemAccessLoading;
+  const accessRequestError = membershipsError ?? systemAccessError;
+  const accessError = accessRequestError
+    ? getApiErrorMessage(accessRequestError, t('users.messages.error.loadAccess'))
+    : null;
+  const { data: systemRoles } = useGetRoleReferencesQuery(
+    { scope: RoleScope.System },
+    { skip: !systemAccess }
+  );
+
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
 
   const viewedUser = self
@@ -84,20 +126,6 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
     : userById?.id === userId
       ? userById
       : null;
-
-  useEffect(() => {
-    if (self) {
-      dispatch(fetchCurrentUser());
-    } else if (userId) {
-      dispatch(getUserById({ id: userId }));
-    }
-  }, [dispatch, self, userId]);
-
-  useEffect(() => {
-    if (canListCompanies) {
-      dispatch(getAllOrganizations({ page: 1, limit: 1000, sortOrder: 'asc' }));
-    }
-  }, [canListCompanies, dispatch]);
 
   const isViewedUserLoaded = Boolean(viewedUser);
   const userOrganizations = useMemo(
@@ -109,84 +137,28 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
   );
 
   useEffect(() => {
-    let isMounted = true;
-
-    if (!viewedUser || (!self && !canReadUser)) {
-      setSystemAccess(null);
-      setCompanyMemberships([]);
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    const targetId = viewedUser.id;
-
-    const loadAccess = async () => {
-      setAccessLoading(true);
-      setAccessError(null);
-
-      try {
-        const membershipsRequest = self
-          ? axiosInstance.get<UserCompanyMembershipsResponseDto>('/users/me/company-memberships')
-          : axiosInstance.get<UserCompanyMembershipsResponseDto>(`/users/${targetId}/company-memberships`);
-        const systemAccessRequest = self
-          ? axiosInstance.get<GetUserSystemAccessResponseDto>('/users/me/system-access')
-          : axiosInstance.get<GetUserSystemAccessResponseDto>(`/users/${targetId}/system-access`);
-
-        const [membershipsResponse, systemAccessResponse] = await Promise.all([
-          membershipsRequest,
-          systemAccessRequest,
-        ]);
-
-        const memberships = membershipsResponse.data.success
-          ? membershipsResponse.data.data.map(mapCompanyMembershipDtoToEntity)
-          : [];
-        const access =
-          systemAccessResponse.data.success && systemAccessResponse.data.data
-            ? mapSystemEmployeeDtoToEntity(systemAccessResponse.data.data)
-            : null;
-
-        if (isMounted) {
-          setCompanyMemberships(memberships);
-          setSystemAccess(access);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setAccessError(getBackendErrorMessage(error, t('users.messages.error.loadAccess')));
-        }
-      } finally {
-        if (isMounted) {
-          setAccessLoading(false);
-        }
-      }
-    };
-
-    void loadAccess();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [self, canReadUser, viewedUser, t]);
-
-  useEffect(() => {
-    const companyIds = new Set(companyMemberships.map((membership) => membership.companyId));
+    const companyIds = new Set(
+      companyMemberships.map((membership) => membership.companyId)
+    );
 
     companyIds.forEach((companyId) => {
-      const key = getRoleReferenceCacheKey(RoleScope.Company, companyId);
-      if (roleReferencesLoaded[key] || roleReferencesLoading[key]) return;
+      if (companyRoleReferencesById[companyId]) return;
 
-      void dispatch(fetchRoleReferences({ scope: RoleScope.Company, companyId }));
+      // true — отдать значение из кеша, если роли этой компании уже брали.
+      void loadCompanyRoleReferences(
+        { scope: RoleScope.Company, companyId },
+        true
+      )
+        .unwrap()
+        .then((roles) => {
+          setCompanyRoleReferencesById((prev) => ({
+            ...prev,
+            [companyId]: roles,
+          }));
+        })
+        .catch(() => undefined);
     });
-  }, [companyMemberships, dispatch, roleReferencesLoaded, roleReferencesLoading]);
-
-  useEffect(() => {
-    if (!systemAccess) return;
-
-    const key = getRoleReferenceCacheKey(RoleScope.System);
-    if (roleReferencesLoaded[key] || roleReferencesLoading[key]) return;
-
-    void dispatch(fetchRoleReferences({ scope: RoleScope.System }));
-  }, [dispatch, roleReferencesLoaded, roleReferencesLoading, systemAccess]);
+  }, [companyMemberships, companyRoleReferencesById, loadCompanyRoleReferences]);
 
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: viewedUser?.id,
@@ -232,8 +204,7 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
   const companyById = new Map(organizations.map((company) => [company.id, company]));
   // fallback company names when the viewer can't list companies (e.g. own /profile)
   const companyNameById = new Map((accessCompanies ?? []).map((company) => [company.companyId, company.name]));
-  const systemRoleReferenceKey = getRoleReferenceCacheKey(RoleScope.System);
-  const systemRoleReferences = (roleReferences[systemRoleReferenceKey] ?? []) as RoleReference<SystemRole>[];
+  const systemRoleReferences = (systemRoles ?? []) as RoleReference<SystemRole>[];
   const systemRoleLabels = new Map(
     systemRoleReferences.map((role) => [
       role.alias,
@@ -395,11 +366,9 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
                         const company = companyById.get(membership.companyId);
                         const companyName =
                           company?.displayName ?? companyNameById.get(membership.companyId) ?? membership.companyId;
-                        const referenceKey = getRoleReferenceCacheKey(
-                          RoleScope.Company,
+                        const companyRoleReferences = (companyRoleReferencesById[
                           membership.companyId
-                        );
-                        const companyRoleReferences = (roleReferences[referenceKey] ?? []) as RoleReference<CompanyRole>[];
+                        ] ?? []) as RoleReference<CompanyRole>[];
                         const roleLabels = new Map(
                           companyRoleReferences.map((role) => [
                             role.alias,

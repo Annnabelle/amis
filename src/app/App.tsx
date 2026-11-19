@@ -7,12 +7,16 @@ import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
-import { fetchCurrentUser, logout, updateUserPreferences } from 'entities/users/model';
+import { logout } from 'entities/users/model';
+import {
+  useGetCurrentUserQuery,
+  useUpdateUserPreferencesMutation,
+} from 'entities/users/api';
+import { useGetCurrentUserAccessQuery } from 'entities/access/api';
 import { AppTheme, isLanguage } from 'shared/types/dtos';
 import { persistLanguage } from 'shared/lib/languagePreference';
 import {
   clearAccess,
-  fetchCurrentUserAccess,
   setCurrentCompanyId,
 } from 'entities/access/model';
 import { AUTH_SESSION_EXPIRED_EVENT, isStoredSessionExpired } from 'shared/lib/authSession';
@@ -114,15 +118,17 @@ const AccessBootstrap = () => {
   const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
   const accessToken = useAppSelector((state) => state.users.accessToken);
 
+  /** Профиль и права нужны сразу после входа: их читают шапка и роутер. */
+  const isSignedIn = isAuthenticated && Boolean(accessToken);
+
+  useGetCurrentUserQuery(undefined, { skip: !isSignedIn });
+  useGetCurrentUserAccessQuery(undefined, { skip: !isSignedIn });
+
   useEffect(() => {
-    if (isAuthenticated && accessToken) {
-      void dispatch(fetchCurrentUserAccess());
-      void dispatch(fetchCurrentUser());
-      return;
-    }
+    if (isSignedIn) return;
 
     dispatch(clearAccess());
-  }, [accessToken, dispatch, isAuthenticated]);
+  }, [dispatch, isSignedIn]);
 
   return null;
 };
@@ -145,10 +151,11 @@ const CompanyRouteSync = () => {
 };
 
 function App() {
-  const dispatch = useAppDispatch();
   const { darkAlgorithm, defaultAlgorithm } = theme;
   const loading = useAppSelector((state) => state.loader.loading);
   const currentUser = useAppSelector((state) => state.users.currentUser);
+  const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
+  const [updateUserPreferences] = useUpdateUserPreferencesMutation();
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
   const [systemPrefersDark, setSystemPrefersDark] = useState(prefersDarkScheme);
   const [antdThemeTokens, setAntdThemeTokens] = useState(getAntdThemeTokens);
@@ -210,10 +217,13 @@ function App() {
       toggleTheme: () => {
         const nextTheme = isDarkTheme ? AppTheme.Light : AppTheme.Dark;
         setThemeMode(nextTheme);
-        void dispatch(updateUserPreferences({ theme: nextTheme }));
+        // На экране входа настройки сохранять некому: запрос уйдёт только в сессии.
+        if (isAuthenticated) {
+          void updateUserPreferences({ theme: nextTheme });
+        }
       },
     }),
-    [dispatch, isDarkTheme, themeMode]
+    [isAuthenticated, isDarkTheme, themeMode, updateUserPreferences]
   );
 
   return (

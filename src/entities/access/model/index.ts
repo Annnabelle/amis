@@ -1,243 +1,19 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { RespondCompanyMembershipInvitationDto } from '@edem2000/amis.contracts/api/company-memberships/requests';
-import type { RespondCompanyMembershipInvitationResponseDto } from '@edem2000/amis.contracts/api/company-memberships/responses';
-import type { GetRoleReferencesResponseDto } from '@edem2000/amis.contracts/api/reference-book/responses';
-import type { RespondSystemAccessInvitationDto } from '@edem2000/amis.contracts/api/users/requests';
-import type { GetMeAccessResponseDto, RespondSystemAccessInvitationResponseDto } from '@edem2000/amis.contracts/api/users/responses';
-import { mapCurrentUserAccessDtoToEntity } from "entities/access/mappers";
-import {
-  getRoleReferenceCacheKey,
-  type AccessState,
-  type RoleReference,
-  type RoleReferenceCacheKey,
-  type RoleScope,
-  type UserAccess,
-} from "entities/access/types";
-import axiosInstance from "shared/lib/axiosInstance";
-import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { accessApi } from "entities/access/api";
+import type { AccessState, UserAccess } from "entities/access/types";
+import { getApiErrorMessage } from "shared/api";
 
+/**
+ * Права текущего пользователя и выбранная компания. Права читаются
+ * синхронно — из useCan, роутера и интерцептора запросов, — поэтому лежат в
+ * сторе, а не только в кеше RTK Query. Запрос живёт в entities/access/api.
+ */
 const initialState: AccessState = {
   data: null,
   currentCompanyId: null,
-  roleReferences: {},
-  roleReferencesLoading: {},
-  roleReferencesLoaded: {},
-  roleReferencesError: {},
-  assignableRoles: {},
-  assignableRolesLoading: {},
-  assignableRolesLoaded: {},
-  assignableRolesError: {},
   loading: false,
   error: null,
 };
-
-export const fetchCurrentUserAccess = createAsyncThunk<
-  UserAccess,
-  void,
-  { rejectValue: string }
->(
-  "access/fetchCurrentUserAccess",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get<GetMeAccessResponseDto>(
-        "/users/me/access"
-      );
-
-      if (response.data.success) {
-        return mapCurrentUserAccessDtoToEntity(response.data);
-      }
-
-      return rejectWithValue(
-        getBackendErrorMessage(
-          response.data,
-          "Не удалось загрузить права доступа пользователя"
-        )
-      );
-    } catch (error: unknown) {
-      const responseData = (
-        error as { response?: { data?: unknown } }
-      ).response?.data;
-
-      return rejectWithValue(
-        getBackendErrorMessage(
-          responseData ?? error,
-          "Не удалось загрузить права доступа пользователя"
-        )
-      );
-    }
-  }
-);
-
-export const fetchAssignableRoles = createAsyncThunk<
-  { key: RoleReferenceCacheKey; roles: RoleReference[] },
-  { scope: RoleScope; companyId?: string },
-  { rejectValue: string }
->(
-  "access/fetchAssignableRoles",
-  async ({ scope, companyId }, { rejectWithValue }) => {
-    const key = getRoleReferenceCacheKey(scope, companyId);
-    try {
-      const response = await axiosInstance.get<GetRoleReferencesResponseDto>(
-        `/references/roles/${scope}/assignable`,
-        companyId ? { headers: { "x-company-id": companyId } } : undefined
-      );
-
-      if (response.data.success) {
-        return { key, roles: response.data.roles };
-      }
-
-      return rejectWithValue(
-        getBackendErrorMessage(response.data, "Не удалось загрузить справочник ролей")
-      );
-    } catch (error: unknown) {
-      const responseData = (
-        error as { response?: { data?: unknown } }
-      ).response?.data;
-
-      return rejectWithValue(
-        getBackendErrorMessage(responseData ?? error, "Не удалось загрузить справочник ролей")
-      );
-    }
-  }
-);
-
-export const fetchRoleReferences = createAsyncThunk<
-  { key: RoleReferenceCacheKey; roles: RoleReference[] },
-  { scope: RoleScope; companyId?: string },
-  { rejectValue: string }
->(
-  "access/fetchRoleReferences",
-  async ({ scope, companyId }, { rejectWithValue }) => {
-    const key = getRoleReferenceCacheKey(scope, companyId);
-    try {
-      const response = await axiosInstance.get<GetRoleReferencesResponseDto>(
-        `/references/roles/${scope}`,
-        companyId ? { headers: { "x-company-id": companyId } } : undefined
-      );
-
-      if (response.data.success) {
-        return { key, roles: response.data.roles };
-      }
-
-      return rejectWithValue(
-        getBackendErrorMessage(response.data, "Не удалось загрузить справочник ролей")
-      );
-    } catch (error: unknown) {
-      const responseData = (
-        error as { response?: { data?: unknown } }
-      ).response?.data;
-
-      return rejectWithValue(
-        getBackendErrorMessage(responseData ?? error, "Не удалось загрузить справочник ролей")
-      );
-    }
-  }
-);
-
-export const acceptSystemAccessInvitation = createAsyncThunk<
-  void,
-  { id: string },
-  { rejectValue: string }
->(
-  "access/acceptSystemAccessInvitation",
-  async ({ id }, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.patch<
-        RespondSystemAccessInvitationResponseDto
-      >(
-        `/users/me/system-access/invitations/${id}`,
-        { decision: "accept" } satisfies RespondSystemAccessInvitationDto
-      );
-
-      if (response.data.success) {
-        await dispatch(fetchCurrentUserAccess());
-        return;
-      }
-
-      return rejectWithValue(
-        getBackendErrorMessage(response.data, "Не удалось принять приглашение")
-      );
-    } catch (error: unknown) {
-      const responseData = (
-        error as { response?: { data?: unknown } }
-      ).response?.data;
-
-      return rejectWithValue(
-        getBackendErrorMessage(responseData ?? error, "Не удалось принять приглашение")
-      );
-    }
-  }
-);
-
-export const declineSystemAccessInvitation = createAsyncThunk<
-  void,
-  { id: string },
-  { rejectValue: string }
->(
-  "access/declineSystemAccessInvitation",
-  async ({ id }, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.patch<
-        RespondSystemAccessInvitationResponseDto
-      >(
-        `/users/me/system-access/invitations/${id}`,
-        { decision: "decline" } satisfies RespondSystemAccessInvitationDto
-      );
-
-      if (response.data.success) {
-        await dispatch(fetchCurrentUserAccess());
-        return;
-      }
-
-      return rejectWithValue(
-        getBackendErrorMessage(response.data, "Не удалось отклонить приглашение")
-      );
-    } catch (error: unknown) {
-      const responseData = (
-        error as { response?: { data?: unknown } }
-      ).response?.data;
-
-      return rejectWithValue(
-        getBackendErrorMessage(responseData ?? error, "Не удалось отклонить приглашение")
-      );
-    }
-  }
-);
-
-export const respondCompanyMembershipInvitation = createAsyncThunk<
-  void,
-  { id: string; decision: RespondCompanyMembershipInvitationDto["decision"] },
-  { rejectValue: string }
->(
-  "access/respondCompanyMembershipInvitation",
-  async ({ id, decision }, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.patch<
-        RespondCompanyMembershipInvitationResponseDto
-      >(
-        `/users/me/company-membership/invitations/${id}`,
-        { decision } satisfies RespondCompanyMembershipInvitationDto
-      );
-
-      if (response.data.success) {
-        await dispatch(fetchCurrentUserAccess());
-        return;
-      }
-
-      return rejectWithValue(
-        getBackendErrorMessage(response.data, "Не удалось обработать приглашение")
-      );
-    } catch (error: unknown) {
-      const responseData = (
-        error as { response?: { data?: unknown } }
-      ).response?.data;
-
-      return rejectWithValue(
-        getBackendErrorMessage(responseData ?? error, "Не удалось обработать приглашение")
-      );
-    }
-  }
-);
 
 export const accessSlice = createSlice({
   name: "access",
@@ -259,82 +35,30 @@ export const accessSlice = createSlice({
     clearAccess(state) {
       state.data = null;
       state.currentCompanyId = null;
-      state.roleReferences = {};
-      state.roleReferencesLoading = {};
-      state.roleReferencesLoaded = {};
-      state.roleReferencesError = {};
-      state.assignableRoles = {};
-      state.assignableRolesLoading = {};
-      state.assignableRolesLoaded = {};
-      state.assignableRolesError = {};
       state.loading = false;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
+    const { getCurrentUserAccess } = accessApi.endpoints;
+
     builder
-      .addCase(fetchCurrentUserAccess.pending, (state) => {
+      .addMatcher(getCurrentUserAccess.matchPending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchCurrentUserAccess.fulfilled, (state, action) => {
+      .addMatcher(getCurrentUserAccess.matchFulfilled, (state, action) => {
         state.data = action.payload;
         state.loading = false;
         state.error = null;
       })
-      .addCase(fetchCurrentUserAccess.rejected, (state, action) => {
+      .addMatcher(getCurrentUserAccess.matchRejected, (state, action) => {
         state.data = null;
         state.loading = false;
-        state.error =
-          action.payload ?? "Не удалось загрузить права доступа пользователя";
-      })
-      .addCase(fetchRoleReferences.pending, (state, action) => {
-        const key = getRoleReferenceCacheKey(
-          action.meta.arg.scope,
-          action.meta.arg.companyId
+        state.error = getApiErrorMessage(
+          action.payload,
+          "Не удалось загрузить права доступа пользователя"
         );
-        state.roleReferencesLoading[key] = true;
-        state.roleReferencesError[key] = null;
-      })
-      .addCase(fetchRoleReferences.fulfilled, (state, action) => {
-        state.roleReferences[action.payload.key] = action.payload.roles;
-        state.roleReferencesLoading[action.payload.key] = false;
-        state.roleReferencesLoaded[action.payload.key] = true;
-        state.roleReferencesError[action.payload.key] = null;
-      })
-      .addCase(fetchRoleReferences.rejected, (state, action) => {
-        const key = getRoleReferenceCacheKey(
-          action.meta.arg.scope,
-          action.meta.arg.companyId
-        );
-        state.roleReferencesLoading[key] = false;
-        state.roleReferencesLoaded[key] = true;
-        state.roleReferencesError[key] =
-          action.payload ?? "Не удалось загрузить справочник ролей";
-      })
-      .addCase(fetchAssignableRoles.pending, (state, action) => {
-        const key = getRoleReferenceCacheKey(
-          action.meta.arg.scope,
-          action.meta.arg.companyId
-        );
-        state.assignableRolesLoading[key] = true;
-        state.assignableRolesError[key] = null;
-      })
-      .addCase(fetchAssignableRoles.fulfilled, (state, action) => {
-        state.assignableRoles[action.payload.key] = action.payload.roles;
-        state.assignableRolesLoading[action.payload.key] = false;
-        state.assignableRolesLoaded[action.payload.key] = true;
-        state.assignableRolesError[action.payload.key] = null;
-      })
-      .addCase(fetchAssignableRoles.rejected, (state, action) => {
-        const key = getRoleReferenceCacheKey(
-          action.meta.arg.scope,
-          action.meta.arg.companyId
-        );
-        state.assignableRolesLoading[key] = false;
-        state.assignableRolesLoaded[key] = true;
-        state.assignableRolesError[key] =
-          action.payload ?? "Не удалось загрузить справочник ролей";
       });
   },
 });

@@ -4,18 +4,22 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "app/store";
+import { useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
 import { useSubmitGuard } from "shared/lib";
-import { fetchAssignableRoles, fetchRoleReferences } from "entities/access/model";
-import { RoleScope, type RoleReference } from "entities/access/types";
 import {
-  createSystemEmployeeInvitation,
-  deleteSystemEmployee,
-  getSystemEmployeeById,
-  getSystemEmployees,
-  updateSystemEmployeeRoles,
-} from "entities/systemEmployees/model";
+  useGetAssignableRolesQuery,
+  useGetRoleReferencesQuery,
+} from "entities/access/api";
+import { RoleScope, type RoleReference } from "entities/access/types";
+import { getApiErrorMessage } from "shared/api";
+import {
+  useCreateSystemEmployeeInvitationMutation,
+  useDeleteSystemEmployeeMutation,
+  useGetSystemEmployeeByIdQuery,
+  useGetSystemEmployeesQuery,
+  useUpdateSystemEmployeeRolesMutation,
+} from "entities/systemEmployees/api";
 import {
   UserSystemAccessStates,
   type SystemRole,
@@ -26,7 +30,7 @@ import {
   SystemEmployeesTableColumns,
 } from "entities/systemEmployees/ui/tableData/systemEmployees";
 import type { SystemEmployeeTableDataType } from "entities/systemEmployees/ui/tableData/systemEmployees/types";
-import { searchUsers } from "entities/users/model";
+import { useSearchUsersQuery } from "entities/users/api";
 import type { User } from "entities/users/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
@@ -89,37 +93,29 @@ const renderRoleOption = (option: { data: RoleOption }) => (
 
 const SystemEmployees = () => {
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
   const canRead = useCan(endpointAccessMap.systemEmployeesRead);
   const canCreate = useCan(endpointAccessMap.systemEmployeesCreate);
   const canUpdate = useCan(endpointAccessMap.systemEmployeesUpdate);
   const canDelete = useCan(endpointAccessMap.systemEmployeesDelete);
-  const employees = useAppSelector((state) => state.systemEmployees.employees);
-  const employeeById = useAppSelector((state) => state.systemEmployees.employeeById);
-  const dataPage = useAppSelector((state) => state.systemEmployees.page);
-  const dataLimit = useAppSelector((state) => state.systemEmployees.limit);
-  const dataTotal = useAppSelector((state) => state.systemEmployees.total);
-  const isLoading = useAppSelector((state) => state.systemEmployees.isLoading);
+
   const currentUser = useAppSelector((state) => state.users.currentUser);
-  const searchedUsers = useAppSelector((state) => state.users.searchedUsers);
-  const assignableSystemRoles = useAppSelector(
-    (state) => (state.access.assignableRoles[RoleScope.System] ?? []) as RoleReference<SystemRole>[]
+  const [userQuery, setUserQuery] = useState("");
+  const { data: searchedUsersPage } = useSearchUsersQuery(
+    { query: userQuery, page: 1, limit: 10, sortOrder: "asc" },
+    { skip: !userQuery }
   );
-  const systemRoleReferences = useAppSelector(
-    (state) => (state.access.roleReferences[RoleScope.System] ?? []) as RoleReference<SystemRole>[]
+  const searchedUsers = useMemo(
+    () => searchedUsersPage?.items ?? [],
+    [searchedUsersPage]
   );
-  const areRolesLoading = useAppSelector((state) =>
-    Boolean(state.access.assignableRolesLoading[RoleScope.System])
-  );
-  const areRolesLoaded = useAppSelector((state) =>
-    Boolean(state.access.assignableRolesLoaded[RoleScope.System])
-  );
-  const areRoleReferencesLoading = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoading[RoleScope.System])
-  );
-  const areRoleReferencesLoaded = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoaded[RoleScope.System])
-  );
+  const { data: assignableRoles = [], isFetching: areRolesLoading } =
+    useGetAssignableRolesQuery({ scope: RoleScope.System });
+  const {
+    data: roleReferences = [],
+    isFetching: areRoleReferencesLoading,
+  } = useGetRoleReferencesQuery({ scope: RoleScope.System });
+  const assignableSystemRoles = assignableRoles as RoleReference<SystemRole>[];
+  const systemRoleReferences = roleReferences as RoleReference<SystemRole>[];
   const [inviteForm] = Form.useForm<InviteForm>();
   const [rolesForm] = Form.useForm<RolesForm>();
   const [query, setQuery] = useState<SystemEmployeeListQuery>({
@@ -127,6 +123,16 @@ const SystemEmployees = () => {
     limit: 10,
     sortOrder: "asc",
   });
+  const { data: employeesPage, isFetching: isLoading } =
+    useGetSystemEmployeesQuery(query);
+  const [createSystemEmployeeInvitation] =
+    useCreateSystemEmployeeInvitationMutation();
+  const [updateSystemEmployeeRoles] = useUpdateSystemEmployeeRolesMutation();
+  const [deleteSystemEmployee] = useDeleteSystemEmployeeMutation();
+  const employees = useMemo(() => employeesPage?.items ?? [], [employeesPage]);
+  const dataPage = query.page;
+  const dataLimit = query.limit;
+  const dataTotal = employeesPage?.total ?? 0;
   const [selectedEmployee, setSelectedEmployee] = useState<SystemEmployee | null>(null);
   const [modalState, setModalState] = useState({
     invite: false,
@@ -183,26 +189,6 @@ const SystemEmployees = () => {
   );
 
   useEffect(() => {
-    dispatch(getSystemEmployees(query));
-  }, [dispatch, query]);
-
-  useEffect(() => {
-    if (areRolesLoaded || areRolesLoading) {
-      return;
-    }
-
-    void dispatch(fetchAssignableRoles({ scope: RoleScope.System }));
-  }, [areRolesLoaded, areRolesLoading, dispatch]);
-
-  useEffect(() => {
-    if (areRoleReferencesLoaded || areRoleReferencesLoading) {
-      return;
-    }
-
-    void dispatch(fetchRoleReferences({ scope: RoleScope.System }));
-  }, [areRoleReferencesLoaded, areRoleReferencesLoading, dispatch]);
-
-  useEffect(() => {
     if (modalState.edit && selectedEmployee) {
       rolesForm.setFieldsValue({ roles: selectedEmployee.roles });
     }
@@ -240,10 +226,6 @@ const SystemEmployees = () => {
     setModalState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const refreshList = () => {
-    dispatch(getSystemEmployees(query));
-  };
-
   const handleTableAction = async (
     action: "read" | "edit" | "delete",
     record: SystemEmployeeTableDataType
@@ -261,9 +243,6 @@ const SystemEmployees = () => {
 
     if (action === "read") {
       openModal("details", true);
-      if (record.key) {
-        await dispatch(getSystemEmployeeById({ id: record.key }));
-      }
       return;
     }
 
@@ -276,22 +255,20 @@ const SystemEmployees = () => {
   };
 
   const handleInvite = async (values: InviteForm) => {
-    const result = await dispatch(
-      createSystemEmployeeInvitation({
+    try {
+      await createSystemEmployeeInvitation({
         userId: values.userId,
         roles: values.roles,
-      })
-    );
+      }).unwrap();
 
-    if (createSystemEmployeeInvitation.fulfilled.match(result)) {
       toast.success(t("systemEmployees.messages.success.invite"));
       inviteForm.resetFields();
       openModal("invite", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, t("systemEmployees.messages.error.invite"))
+      );
     }
-
-    toast.error(result.payload ?? t("systemEmployees.messages.error.invite"));
   };
 
   const { isSubmitting: isInviting, onSubmit: submitInvite } = useSubmitGuard(handleInvite);
@@ -299,38 +276,39 @@ const SystemEmployees = () => {
   const handleUpdateRoles = async (values: RolesForm) => {
     if (!selectedEmployee) return;
 
-    const result = await dispatch(
-      updateSystemEmployeeRoles({
+    try {
+      await updateSystemEmployeeRoles({
         id: selectedEmployee.id,
         data: { roles: values.roles },
-      })
-    );
+      }).unwrap();
 
-    if (updateSystemEmployeeRoles.fulfilled.match(result)) {
       toast.success(t("systemEmployees.messages.success.update"));
       openModal("edit", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, t("systemEmployees.messages.error.update"))
+      );
     }
-
-    toast.error(result.payload ?? t("systemEmployees.messages.error.update"));
   };
 
   const handleDelete = async () => {
     if (!selectedEmployee) return;
 
-    const result = await dispatch(deleteSystemEmployee({ id: selectedEmployee.id }));
-
-    if (deleteSystemEmployee.fulfilled.match(result)) {
+    try {
+      await deleteSystemEmployee({ id: selectedEmployee.id }).unwrap();
       toast.success(t("systemEmployees.messages.success.revoke"));
       openModal("delete", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, t("systemEmployees.messages.error.revoke"))
+      );
     }
-
-    toast.error(result.payload ?? t("systemEmployees.messages.error.revoke"));
   };
 
+  const { data: employeeById } = useGetSystemEmployeeByIdQuery(
+    { id: selectedEmployee?.id ?? "" },
+    { skip: !modalState.details || !selectedEmployee?.id }
+  );
   const visibleDetails = employeeById ?? selectedEmployee;
   const filterStyle = {
     "--system-employees-filter-width": roleFilterWidth,
@@ -429,7 +407,7 @@ const SystemEmployees = () => {
               placeholder={t("systemEmployees.placeholders.searchUsers")}
               onSearch={(value) => {
                 if (value.trim().length > 0) {
-                  dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: "asc" }));
+                  setUserQuery(value);
                 }
               }}
             />

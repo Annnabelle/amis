@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Empty, Spin } from 'antd';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -8,9 +8,11 @@ import { getSalesOrderStatusBadgeVariant } from 'shared/ui/statusBadge/variants'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { getSalesOrderById } from 'entities/salesOrders/model';
-import { fetchDistrictsByRegion, fetchRegions } from 'entities/references/model';
+import { useGetSalesOrderByIdQuery } from 'entities/salesOrders/api';
+import {
+  useGetDistrictsByRegionQuery,
+  useGetRegionsQuery,
+} from 'entities/references/api';
 import type { Reference } from 'entities/references/types';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import type { SalesOrderAddress } from 'entities/salesOrders/types';
@@ -32,12 +34,13 @@ const SalesOrdersDetails = () => {
   const navigate = useNavigate();
   const { orgId, id } = useParams<{ orgId: string; id: string }>();
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
-  const order = useAppSelector((state) => state.salesOrders.orderById);
-  const isLoading = useAppSelector((state) => state.salesOrders.isLoading);
-  const { references, districtsByRegionId } = useAppSelector((state) => state.references);
+  const { data: order, isLoading } = useGetSalesOrderByIdQuery(
+    { id: id ?? '' },
+    { skip: !id }
+  );
+
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
-  const regions = references.regions ?? [];
+  const { data: regions = [] } = useGetRegionsQuery();
   const empty = '-';
   const listPath = orgId
     ? `/organization/${orgId}/sales-orders`
@@ -47,25 +50,25 @@ const SalesOrdersDetails = () => {
     target: LifecycleTargetEntity.SalesOrder,
   });
 
-  useEffect(() => {
-    if (!id) return;
-    dispatch(getSalesOrderById({ id }));
-  }, [dispatch, id]);
-
-  useEffect(() => {
-    dispatch(fetchRegions());
-  }, [dispatch]);
-
   const senderRegionId = order?.sender?.addressDetails.regionId;
   const customerRegionId = order?.customer.addressDetails.regionId;
 
-  useEffect(() => {
-    [senderRegionId, customerRegionId].forEach((regionId) => {
-      if (regionId && !districtsByRegionId[regionId]) {
-        dispatch(fetchDistrictsByRegion(regionId));
-      }
-    });
-  }, [senderRegionId, customerRegionId, districtsByRegionId, dispatch]);
+  const { data: senderDistricts } = useGetDistrictsByRegionQuery(
+    senderRegionId ?? '',
+    { skip: !senderRegionId }
+  );
+  const { data: customerDistricts } = useGetDistrictsByRegionQuery(
+    customerRegionId ?? '',
+    { skip: !customerRegionId }
+  );
+  const districtsByRegionId = useMemo(() => {
+    const byRegion: Record<string, Reference[]> = {};
+
+    if (senderRegionId && senderDistricts) byRegion[senderRegionId] = senderDistricts;
+    if (customerRegionId && customerDistricts) byRegion[customerRegionId] = customerDistricts;
+
+    return byRegion;
+  }, [customerDistricts, customerRegionId, senderDistricts, senderRegionId]);
 
   const items = useMemo(() => order?.items ?? [], [order]);
 
@@ -99,7 +102,7 @@ const SalesOrdersDetails = () => {
     return district ? getReferenceLabel(district) : districtId;
   };
 
-  if (isLoading || !order || order.id !== id) {
+  if (isLoading || !order) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-96">

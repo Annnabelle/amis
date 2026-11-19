@@ -1,12 +1,17 @@
 import { Form, Input } from 'antd'
 import { UsersTableColumns } from 'entities/users/ui/tableData/users'
 import { IoSearch } from 'react-icons/io5'
-import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSubmitGuard } from 'shared/lib'
-import { createUser, deleteUser, getAllUsers, getUserById, searchUsers } from 'entities/users/model'
+import {
+    useCreateUserMutation,
+    useDeleteUserMutation,
+    useGetUsersQuery,
+    useSearchUsersQuery,
+} from 'entities/users/api'
+import { getApiErrorMessage } from 'shared/api'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
 import type { AddUserForm, User } from 'entities/users/types'
 import MainLayout from 'shared/ui/layout'
@@ -17,7 +22,6 @@ import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import PhoneInput from 'shared/ui/phoneInput'
-import { getAllOrganizations } from 'entities/organization/model'
 import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
@@ -26,26 +30,36 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const Users = () => {
     const { t } = useTranslation();
-    const dispatch = useAppDispatch()
     const canReadUser = useCan(endpointAccessMap.usersRead);
     const canUpdateUser = useCan(endpointAccessMap.usersUpdate);
     const canDeleteUser = useCan(endpointAccessMap.usersDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
     const navigate = useNavigate();
-    const users = useAppSelector((state) => state.users.users)
-    const dataLimit = useAppSelector((state) => state.users.limit)
-    const dataPage = useAppSelector((state) => state.users.page)
-    const dataTotal = useAppSelector((state) => state.users.total)
+    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+    const [searchQuery, setSearchQuery] = useState('');
+    const isSearching = searchQuery.trim().length > 0;
+    const { data: usersPage } = useGetUsersQuery(
+        { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
+        { skip: isSearching }
+    );
+    const { data: searchedUsersPage } = useSearchUsersQuery(
+        {
+            query: searchQuery,
+            page: pagination.page,
+            limit: pagination.limit,
+            sortOrder: 'asc',
+        },
+        { skip: !isSearching }
+    );
+    const [createUser] = useCreateUserMutation();
+    const [deleteUser] = useDeleteUserMutation();
+    const shownUsersPage = isSearching ? searchedUsersPage : usersPage;
+    const users = useMemo(() => shownUsersPage?.items ?? [], [shownUsersPage]);
+    const dataPage = pagination.page;
+    const dataLimit = pagination.limit;
+    const dataTotal = shownUsersPage?.total ?? 0;
 
     const [addUserForm] = Form.useForm()
-
-    useEffect(() => {
-        dispatch(getAllUsers({
-            page: dataPage || 1,
-            limit: dataLimit || 10,
-            sortOrder: 'asc',
-        }));
-    }, [dispatch, dataPage, dataLimit]);
 
     const UsersData = useMemo(() => {
         return users.map((user, index) => ({
@@ -80,22 +94,13 @@ const Users = () => {
 
     const handleCreateUser = async (values: AddUserForm) => {
         try {
-            const resultAction = await dispatch(createUser(values));
-
-            if (createUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.activationEmailSent'));
-                handleModal('addUser', false);
-                addUserForm.resetFields();
-                await dispatch(getAllUsers({
-                    page: dataPage || 1,
-                    limit: dataLimit || 10,
-                    sortOrder: 'asc',
-                }));
-            } else {
-                toast.error((resultAction.payload as string) || t('users.messages.error.createUser'));
-            }
+            // Список перезапросится сам: мутация инвалидирует тег пользователя.
+            await createUser(values).unwrap();
+            toast.success(t('users.messages.success.activationEmailSent'));
+            handleModal('addUser', false);
+            addUserForm.resetFields();
         } catch (err) {
-            toast.error((err as string) || t('users.messages.error.createUser'));
+            toast.error(getApiErrorMessage(err, t('users.messages.error.createUser')));
         }
     };
 
@@ -117,11 +122,6 @@ const Users = () => {
                 userData: user,
             }));
 
-            if (record.key) {
-                dispatch(getUserById({ id: record.key }));
-
-                dispatch(getAllOrganizations({ page: 1, limit: 1000, sortOrder: "asc" }));
-            }
             if (action === "retrieve") {
                 navigate(`/users/${record.key}`);
             }
@@ -133,12 +133,6 @@ const Users = () => {
             }
         }
     };
-
-    useEffect(() => {
-        if (modalState.editUser || modalState.retrieveUser) {
-            dispatch(getAllOrganizations({ page: 1, limit: 1000, sortOrder: "asc" }));
-        }
-    }, [modalState.editUser, modalState.retrieveUser, dispatch]);
 
     const handleDeleteUser = (record: UserTableDataType) => {
         const user = users.find((u) => u.id === record.key) ?? null;
@@ -156,20 +150,11 @@ const Users = () => {
         if (!modalState.userData) return;
 
         try {
-            const resultAction = await dispatch(
-            deleteUser({ id: modalState.userData.id })
-            );
-
-            if (deleteUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.deleteUser'));
-                handleModal("deleteUser", false);
-
-                await dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: "asc" }));
-            } else {
-                toast.error((resultAction.payload as string) || t('users.messages.error.deleteUser'));
-            }
+            await deleteUser({ id: modalState.userData.id }).unwrap();
+            toast.success(t('users.messages.success.deleteUser'));
+            handleModal("deleteUser", false);
         } catch (err) {
-            toast.error((err as string) || t('users.messages.error.deleteUser'));
+            toast.error(getApiErrorMessage(err, t('users.messages.error.deleteUser')));
         }
     };
 
@@ -179,12 +164,8 @@ const Users = () => {
     // ]
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.trim().length > 0) {
-            dispatch(searchUsers({ query: value, page: 1, limit: 10, sortOrder: 'asc' }));
-        } else {
-            dispatch(getAllUsers({ page: 1, limit: 10, sortOrder: 'asc' }));
-        }
+        setSearchQuery(e.target.value);
+        setPagination((prev) => ({ ...prev, page: 1 }));
     };
 
 
@@ -238,7 +219,10 @@ const Users = () => {
                             pageSizeOptions: ['10', '20', '30', '40', '50'],
                             locale: { items_per_page: '' },
                             onChange: (newPage, newLimit) => {
-                            dispatch(getAllUsers({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
+                            setPagination((prev) => ({
+                                page: newPage,
+                                limit: newLimit || prev.limit,
+                            }));
                             },
                         }}
                     />

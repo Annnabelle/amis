@@ -106,22 +106,3 @@ export type LifecycleFeedQuery = LifecycleFeedFilters & {
   limit: number;
   asOf?: string;
 };
-
-export type LifecycleState = {
-  targetId: string | null;
-  summary: LifecycleSummary | null;
-  summaryLoading: boolean;
-  summaryError: string | null;
-  /** Подпись фильтров текущей ленты: смена подписи сбрасывает накопленные события. */
-  feedKey: string | null;
-  events: LifecycleEvent[];
-  page: number;
-  limit: number;
-  total: number;
-  /** Снимок времени для стабильной пагинации, см. asOf в контракте. */
-  asOf: string | null;
-  eventsLoading: boolean;
-  eventsError: string | null;
-  /** Последний отправленный запрос ленты: ответы прошлых вкладок отбрасываем. */
-  eventsRequestId: string | null;
-};

@@ -91,14 +91,6 @@ export const getRoleReferenceCacheKey = (
 export type AccessState = {
   data: UserAccess | null;
   currentCompanyId: string | null;
-  roleReferences: Partial<Record<RoleReferenceCacheKey, RoleReference[]>>;
-  roleReferencesLoading: Partial<Record<RoleReferenceCacheKey, boolean>>;
-  roleReferencesLoaded: Partial<Record<RoleReferenceCacheKey, boolean>>;
-  roleReferencesError: Partial<Record<RoleReferenceCacheKey, string | null>>;
-  assignableRoles: Partial<Record<RoleReferenceCacheKey, RoleReference[]>>;
-  assignableRolesLoading: Partial<Record<RoleReferenceCacheKey, boolean>>;
-  assignableRolesLoaded: Partial<Record<RoleReferenceCacheKey, boolean>>;
-  assignableRolesError: Partial<Record<RoleReferenceCacheKey, string | null>>;
   loading: boolean;
   error: string | null;
 };

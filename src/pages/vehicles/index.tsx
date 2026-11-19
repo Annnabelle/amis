@@ -1,15 +1,18 @@
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
-import { deleteVehicle, getVehicles } from "entities/vehicles/model";
+import {
+  useDeleteVehicleMutation,
+  useGetVehiclesQuery,
+} from "entities/vehicles/api";
 import type { Vehicle } from "entities/vehicles/types";
 import { VehiclesTableColumns } from "entities/vehicles/ui/tableData/vehicles";
 import type { VehiclesTableDataType } from "entities/vehicles/ui/tableData/vehicles/types";
 import { VehicleFormModal } from "entities/vehicles/ui/vehicleFormModal";
+import { getApiErrorMessage } from "shared/api";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
 import MainLayout from "shared/ui/layout";
@@ -20,13 +23,15 @@ import ComponentTable from "shared/ui/table";
 const Vehicles = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const vehicles = useAppSelector((state) => state.vehicles.vehicles);
-  const dataTotal = useAppSelector((state) => state.vehicles.total);
-  const dataPage = useAppSelector((state) => state.vehicles.page);
-  const dataLimit = useAppSelector((state) => state.vehicles.limit);
-  const isLoading = useAppSelector((state) => state.vehicles.isLoading);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const { data, isFetching } = useGetVehiclesQuery(
+    { page: pagination.page, limit: pagination.limit, sortOrder: "asc" },
+    { skip: !orgId }
+  );
+  const [deleteVehicle] = useDeleteVehicleMutation();
+  const vehicles = useMemo(() => data?.items ?? [], [data]);
+  const dataTotal = data?.total ?? 0;
   const canRead = useCan(endpointAccessMap.vehiclesRead);
   const canCreate = useCan(endpointAccessMap.vehiclesCreate);
   const canUpdate = useCan(endpointAccessMap.vehiclesUpdate);
@@ -37,11 +42,6 @@ const Vehicles = () => {
     edit: false,
     delete: false,
   });
-
-  useEffect(() => {
-    if (!orgId) return;
-    dispatch(getVehicles({ page: 1, limit: 10, sortOrder: "asc" }));
-  }, [dispatch, orgId]);
 
   const tableData = useMemo<VehiclesTableDataType[]>(
     () =>
@@ -57,10 +57,6 @@ const Vehicles = () => {
 
   const openModal = (name: keyof typeof modalState, value: boolean) => {
     setModalState((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const refreshList = (page = dataPage, limit = dataLimit) => {
-    dispatch(getVehicles({ page, limit, sortOrder: "asc" }));
   };
 
   const handleTableAction = async (
@@ -85,16 +81,15 @@ const Vehicles = () => {
 
   const handleDelete = async () => {
     if (!selectedVehicle) return;
-    const result = await dispatch(deleteVehicle(selectedVehicle.id));
 
-    if (deleteVehicle.fulfilled.match(result)) {
+    try {
+      // Список перезапросится сам: мутация инвалидирует тег Vehicle.
+      await deleteVehicle(selectedVehicle.id).unwrap();
       toast.success(t("vehicles.messages.success.delete"));
       openModal("delete", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, t("vehicles.messages.error.delete")));
     }
-
-    toast.error(result.payload ?? t("vehicles.messages.error.delete"));
   };
 
   return (
@@ -111,18 +106,18 @@ const Vehicles = () => {
         <div className="box-container">
           <div className="box-container-items">
             <ComponentTable<VehiclesTableDataType>
-              loading={isLoading}
+              loading={isFetching}
               columns={VehiclesTableColumns(t, handleTableAction, { canUpdate, canDelete })}
               data={tableData}
               onRowClick={canRead ? (record) => handleTableAction("details", record) : undefined}
               pagination={{
-                current: dataPage,
-                pageSize: dataLimit,
+                current: pagination.page,
+                pageSize: pagination.limit,
                 total: dataTotal,
                 showSizeChanger: { showSearch: false },
                 pageSizeOptions: ["10", "20", "30", "40", "50"],
                 locale: { items_per_page: "" },
-                onChange: (page, limit) => refreshList(page, limit),
+                onChange: (page, limit) => setPagination({ page, limit }),
               }}
             />
           </div>
@@ -134,7 +129,7 @@ const Vehicles = () => {
         open={modalState.create}
         onClose={() => openModal("create", false)}
         companyId={orgId}
-        onSaved={() => refreshList(1, dataLimit)}
+        onSaved={() => setPagination((prev) => ({ ...prev, page: 1 }))}
       />
 
       <VehicleFormModal
@@ -143,7 +138,6 @@ const Vehicles = () => {
         onClose={() => openModal("edit", false)}
         companyId={orgId}
         vehicle={selectedVehicle}
-        onSaved={() => refreshList()}
       />
 
       <ModalWindow

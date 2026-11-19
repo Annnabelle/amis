@@ -1,5 +1,5 @@
 import { resolveMultiLanguage } from 'shared/lib/multiLanguage';
-import React, { useEffect, useState, useMemo, type JSX } from "react";
+import React, { useState, useMemo, type JSX } from "react";
 import {
   List,
   Space,
@@ -23,8 +23,7 @@ import {
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "app/store";
-import { fetchAuditLogs } from "entities/auditLog/model";
+import { useGetAuditLogsQuery } from "entities/auditLog/api";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
@@ -60,25 +59,20 @@ const getTargetAccess = (
 
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
-  const { data, loading } = useAppSelector(
-    (state) => state.auditLogs
-  );
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  const dataLimit = useAppSelector((state) => state.auditLogs.limit)
-  const dataPage = useAppSelector((state) => state.auditLogs.page)
-  const dataTotal = useAppSelector((state) => state.auditLogs.total)
-
-  useEffect(() => {
-    dispatch(
-      fetchAuditLogs({
-        page: dataPage || 1,
-        limit: dataLimit || 10,
-        sortOrder: "desc",
-        // type: "userRegistration",
-      })
-    );
-  }, [dispatch, dataPage, dataLimit]);
+  const [listQuery, setListQuery] = useState<{
+    page: number;
+    limit: number;
+    category?: AuditCategory;
+  }>({ page: 1, limit: 10 });
+  const { data: auditLogs, isFetching: loading } = useGetAuditLogsQuery({
+    ...listQuery,
+    sortOrder: "desc",
+  });
+  const data = auditLogs?.items;
+  const dataPage = listQuery.page;
+  const dataLimit = listQuery.limit;
+  const dataTotal = auditLogs?.total ?? 0;
 
  const logs = useMemo(() => {
   if (!data) return [];
@@ -86,6 +80,7 @@ const AuditLogsPage: React.FC = () => {
     const actor = log.actor || {};
     const target = log.target ;
     const messageObj = log.message || {};
+
 
     return {
       id: log.id,
@@ -342,17 +337,13 @@ const AuditLogsPage: React.FC = () => {
   };
 
   const handleFilterChange = (filter: string) => {
-  setActiveFilter(filter);
-
-  dispatch(
-    fetchAuditLogs({
+    setActiveFilter(filter);
+    setListQuery((prev) => ({
       page: 1,
-      limit: dataLimit || 10,
-      sortOrder: "desc",
-      ...(filter !== "all" ? { category: filter as AuditCategory } : {}),
-    })
-  );
-};
+      limit: prev.limit,
+      category: filter === "all" ? undefined : (filter as AuditCategory),
+    }));
+  };
 
 
 
@@ -594,13 +585,11 @@ const AuditLogsPage: React.FC = () => {
                   pageSizeOptions={['10', '20', '30', '40', '50']}
                   locale={{ items_per_page: '' }}
                   onChange={(p, pageSize) =>
-                    dispatch(
-                      fetchAuditLogs({
-                        page: p,
-                        limit: pageSize || dataLimit || 10,
-                        sortOrder: "desc",
-                      })
-                    )
+                    setListQuery((prev) => ({
+                      ...prev,
+                      page: p,
+                      limit: pageSize || prev.limit,
+                    }))
                   }
                 />
               </div>

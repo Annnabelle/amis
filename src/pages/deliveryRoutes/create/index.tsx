@@ -6,17 +6,19 @@ import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createDeliveryRoute } from 'entities/deliveryRoutes/model';
+import { useCreateDeliveryRouteMutation } from 'entities/deliveryRoutes/api';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
+import { getApiErrorMessage } from 'shared/api';
 import { useSubmitGuard } from 'shared/lib';
-import { getSalesOrders } from 'entities/salesOrders/model';
-import { searchCompanyMemberships } from 'entities/companyMemberships/model';
+import { useGetSalesOrdersQuery } from 'entities/salesOrders/api';
+import { useSearchCompanyMembershipsQuery } from 'entities/companyMemberships/api';
 import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';
-import { getVehicles } from 'entities/vehicles/model';
+import { useGetVehiclesQuery } from 'entities/vehicles/api';
+import { useGetCompaniesQuery } from 'entities/organization/api';
+import { useAppDispatch } from 'app/store';
 import { VehicleFormModal } from 'entities/vehicles/ui/vehicleFormModal';
 import type { Vehicle } from 'entities/vehicles/types';
 import dayjs from 'dayjs';
@@ -47,15 +49,22 @@ const DeliveryRoutesCreate = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const organizations = useAppSelector((state) => state.organizations.organizations);
-  const orders = useAppSelector((state) => state.salesOrders.orders);
-  const isOrdersLoading = useAppSelector((state) => state.salesOrders.isLoading);
-  const ordersError = useAppSelector((state) => state.salesOrders.error);
-  const searchedMemberships = useAppSelector((state) => state.companyMemberships.searchedMemberships);
-  const companyMembershipsError = useAppSelector((state) => state.companyMemberships.error);
-  const vehicles = useAppSelector((state) => state.vehicles.vehicles);
-  const isVehiclesLoading = useAppSelector((state) => state.vehicles.isLoading);
-  const vehiclesError = useAppSelector((state) => state.vehicles.error);
+  const { data: companiesPage } = useGetCompaniesQuery(
+    { page: 1, limit: 1000, sortOrder: 'asc' },
+    { skip: Boolean(orgId) }
+  );
+  const organizations = useMemo(
+    () => companiesPage?.items ?? [],
+    [companiesPage]
+  );
+
+
+  const [createDeliveryRoute] = useCreateDeliveryRouteMutation();
+  /** Поиск сотрудника идёт по введённой строке и роли поля, которое его просит. */
+  const [membershipSearch, setMembershipSearch] = useState<{
+    query: string;
+    role: CompanyRole;
+  } | null>(null);
   const [form] = Form.useForm<DeliveryRouteFormValues>();
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
@@ -65,6 +74,51 @@ const DeliveryRoutesCreate = () => {
   const isSelectingDriverRef = useRef(false);
   const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
+  const {
+    data: ordersPage,
+    isFetching: isOrdersLoading,
+    error: ordersRequestError,
+  } = useGetSalesOrdersQuery(
+    { page: 1, limit: 50, sortOrder: 'asc' },
+    { skip: !companyId }
+  );
+  const orders = useMemo(() => ordersPage?.items ?? [], [ordersPage]);
+  const ordersError = ordersRequestError
+    ? getApiErrorMessage(ordersRequestError, t('common.error'))
+    : null;
+  const {
+    data: vehiclesPage,
+    isFetching: isVehiclesLoading,
+    error: vehiclesRequestError,
+  } = useGetVehiclesQuery(
+    { page: 1, limit: 100, sortOrder: 'asc' },
+    { skip: !companyId }
+  );
+  const vehicles = useMemo(() => vehiclesPage?.items ?? [], [vehiclesPage]);
+  const {
+    data: searchedMembershipsPage,
+    error: companyMembershipsRequestError,
+  } = useSearchCompanyMembershipsQuery(
+    {
+      companyId: companyId ?? '',
+      query: membershipSearch?.query ?? '',
+      page: 1,
+      limit: 10,
+      state: CompanyMembershipState.Active,
+      role: membershipSearch?.role,
+    },
+    { skip: !companyId || !membershipSearch }
+  );
+  const searchedMemberships = useMemo(
+    () => searchedMembershipsPage?.items ?? [],
+    [searchedMembershipsPage]
+  );
+  const companyMembershipsError = companyMembershipsRequestError
+    ? getApiErrorMessage(companyMembershipsRequestError, t('users.messages.error.loadUsers'))
+    : null;
+  const vehiclesError = vehiclesRequestError
+    ? getApiErrorMessage(vehiclesRequestError, t('vehicles.messages.error.load'))
+    : null;
   const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
   const initialValues = useMemo(
     () => ({
@@ -84,14 +138,6 @@ const DeliveryRoutesCreate = () => {
   useEffect(() => {
     if (!companyId) return;
     setSelectedOrderIds([]);
-    dispatch(
-      getSalesOrders({
-        page: 1,
-        limit: 50,
-        sortOrder: 'asc',
-      })
-    );
-    dispatch(getVehicles({ page: 1, limit: 100, sortOrder: 'asc' }));
   }, [dispatch, companyId]);
 
   const toggleCardExpanded = (index: number) => {
@@ -129,7 +175,7 @@ const DeliveryRoutesCreate = () => {
         { ...values, salesOrderIds: selectedOrderIds },
         finalCompanyId
       );
-      await dispatch(createDeliveryRoute(payload)).unwrap();
+      await createDeliveryRoute(payload).unwrap();
       toast.success(t('deliveryRoutes.messages.success.create'));
       form.resetFields();
       navigate(listPath);
@@ -142,25 +188,10 @@ const DeliveryRoutesCreate = () => {
 
   const { isSubmitting, onSubmit } = useSubmitGuard(handleCreateDeliveryRoute);
 
-  const handleUserSearch = async (value: string, role: CompanyRole) => {
+  const handleUserSearch = (value: string, role: CompanyRole) => {
     if (!value.trim() || !companyId) return;
 
-    try {
-      await dispatch(
-        searchCompanyMemberships({
-          companyId,
-          query: value,
-          page: 1,
-          limit: 10,
-          state: CompanyMembershipState.Active,
-          role,
-        })
-      ).unwrap();
-    } catch (error: unknown) {
-      toast.error(
-        getBackendErrorMessage(error, t('users.messages.error.loadUsers'))
-      );
-    }
+    setMembershipSearch({ query: value, role });
   };
 
   type AvailableOrderRow = {
@@ -558,7 +589,7 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.driver')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => void handleUserSearch(value, CompanyRole.Driver)}
+                    onSearch={(value) => handleUserSearch(value, CompanyRole.Driver)}
                     options={searchedMemberships.map((membership) => ({
                       value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
                       userId: membership.userId,
@@ -615,7 +646,7 @@ const DeliveryRoutesCreate = () => {
                     placeholder={t('deliveryRoutes.placeholders.agent')}
                     filterOption={false}
                     allowClear
-                    onSearch={(value) => void handleUserSearch(value, CompanyRole.DeliveryAgent)}
+                    onSearch={(value) => handleUserSearch(value, CompanyRole.DeliveryAgent)}
                     options={searchedMemberships.map((membership) => ({
                       value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
                       userId: membership.userId,

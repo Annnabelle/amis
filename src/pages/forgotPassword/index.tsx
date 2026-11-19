@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { LuMailCheck } from 'react-icons/lu';
-import { useAppDispatch } from 'app/store';
-import { forgotPassword, type AccountActionError } from 'entities/users/model';
+import { useForgotPasswordMutation } from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
 import AuthShell from 'pages/auth/authShell';
 import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
@@ -16,7 +16,7 @@ type ForgotPasswordFormValues = {
 
 const ForgotPasswordPage = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const [forgotPassword] = useForgotPasswordMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -24,13 +24,13 @@ const ForgotPasswordPage = () => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    dispatch(forgotPassword({ email }))
+    forgotPassword({ email })
       .unwrap()
       .then(() => {
         setSubmittedEmail(email.trim());
       })
-      .catch((error: AccountActionError) => {
-        toast.error(error?.message || t('common.error'));
+      .catch((error: unknown) => {
+        toast.error(getApiErrorMessage(error, t('common.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

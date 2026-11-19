@@ -1,11 +1,13 @@
 import { Input } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoSearch } from "react-icons/io5";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "app/store";
-import { getOwnedCodes, getOwnedCodesSummary } from "entities/ownedCodes/model";
+import {
+  useGetOwnedCodesQuery,
+  useGetOwnedCodesSummaryQuery,
+} from "entities/ownedCodes/api";
 import {
   OwnedCodesSummaryColumns,
   type OwnedCodesSummaryRow,
@@ -38,30 +40,28 @@ const formatDate = (value?: string) =>
 const OwnedCodes = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const summary = useAppSelector((state) => state.ownedCodes.summary);
-  const summaryLoading = useAppSelector((state) => state.ownedCodes.summaryLoading);
-  const codes = useAppSelector((state) => state.ownedCodes.codes);
-  const total = useAppSelector((state) => state.ownedCodes.total);
-  const page = useAppSelector((state) => state.ownedCodes.page);
-  const limit = useAppSelector((state) => state.ownedCodes.limit);
-  const isLoading = useAppSelector((state) => state.ownedCodes.isLoading);
   const [gtin, setGtin] = useState("");
+  const [pagination, setPagination] = useState({ page: 1, limit: 20 });
 
   /** Вендор принимает только GTIN-14, поэтому недобранный фильтр не отправляем. */
   const appliedGtin = GTIN_14.test(gtin) ? gtin : undefined;
 
-  useEffect(() => {
-    if (!orgId) return;
+  const { data: summary, isFetching: summaryLoading } =
+    useGetOwnedCodesSummaryQuery(undefined, { skip: !orgId });
+  const { data: codesPage, isFetching: isLoading } = useGetOwnedCodesQuery(
+    { page: pagination.page, limit: pagination.limit, gtin: appliedGtin },
+    { skip: !orgId }
+  );
+  const codes = useMemo(() => codesPage?.items ?? [], [codesPage]);
+  const total = codesPage?.total ?? 0;
+  const page = pagination.page;
+  const limit = pagination.limit;
 
-    void dispatch(getOwnedCodesSummary());
-  }, [dispatch, orgId]);
-
-  useEffect(() => {
-    if (!orgId) return;
-
-    void dispatch(getOwnedCodes({ page: 1, limit, gtin: appliedGtin }));
-  }, [appliedGtin, dispatch, limit, orgId]);
+  /** Смена фильтра возвращает на первую страницу: иначе страница вне выборки. */
+  const handleGtinChange = (value: string) => {
+    setGtin(value);
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
 
   const summaryRows = useMemo<OwnedCodesSummaryRow[]>(
     () =>
@@ -148,7 +148,7 @@ const OwnedCodes = () => {
                   className="input"
                   value={gtin}
                   maxLength={14}
-                  onChange={(event) => setGtin(event.target.value.trim())}
+                  onChange={(event) => handleGtinChange(event.target.value.trim())}
                   placeholder={t("ownedCodes.filters.gtin")}
                   suffix={<IoSearch />}
                 />
@@ -168,9 +168,7 @@ const OwnedCodes = () => {
               pageSizeOptions: ["20", "50", "100"],
               locale: { items_per_page: "" },
               onChange: (nextPage, nextLimit) =>
-                dispatch(
-                  getOwnedCodes({ page: nextPage, limit: nextLimit, gtin: appliedGtin })
-                ),
+                setPagination({ page: nextPage, limit: nextLimit }),
             }}
           />
         </div>

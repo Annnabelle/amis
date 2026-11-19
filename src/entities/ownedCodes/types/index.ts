@@ -6,6 +6,7 @@ import {
   MarkingCodeExternalStatus,
   PackageType,
 } from '@edem2000/amis.contracts'
+import type { Paginated } from 'shared/api'
 
 export {
   MarkingCodeExternalStatus,
@@ -58,14 +59,4 @@ export type OwnedCodesSummary = {
   freshness: OwnedCodesFreshness | null;
 };
 
-export type OwnedCodesState = {
-  summary: OwnedCodesSummary | null;
-  summaryLoading: boolean;
-  codes: OwnedCode[];
-  total: number;
-  page: number;
-  limit: number;
-  gtin: string | null;
-  isLoading: boolean;
-  error: string | null;
-};
+export type OwnedCodeList = Paginated<OwnedCode>;

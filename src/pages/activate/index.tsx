@@ -3,8 +3,8 @@ import { Form, Input } from 'antd';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useAppDispatch } from 'app/store';
-import { setPassword, type AccountActionError } from 'entities/users/model';
+import { useSetPasswordMutation } from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
 import AuthShell from 'pages/auth/authShell';
 import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
@@ -16,7 +16,7 @@ type ActivateForm = {
 
 const ActivatePage = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const [setPassword] = useSetPasswordMutation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,11 +26,11 @@ const ActivatePage = () => {
     if (isSubmitting || !token) return;
 
     setIsSubmitting(true);
-    dispatch(setPassword({ token, password: values.password }))
+    setPassword({ token, password: values.password })
       .unwrap()
       .then(() => setDone(true))
-      .catch((error: AccountActionError) => {
-        toast.error(error?.message ?? t('auth.activate.error'));
+      .catch((error: unknown) => {
+        toast.error(getApiErrorMessage(error, t('auth.activate.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

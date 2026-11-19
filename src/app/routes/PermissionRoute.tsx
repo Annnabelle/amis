@@ -31,13 +31,6 @@ const canAccessRoute = ({
   );
 };
 
-const getCompanyIdFromPath = (pathname: string) => {
-  const segments = pathname.split('/').filter(Boolean);
-  return segments[0] === 'organization' && segments.length > 1
-    ? segments[1]
-    : null;
-};
-
 export const resolveFallbackPath = (
   access: UserAccess,
   options?: { mobile?: boolean }
@@ -92,6 +85,13 @@ export const resolveFallbackPath = (
   }
 
   return '/welcome';
+};
+
+const getCompanyIdFromPath = (pathname: string) => {
+  const segments = pathname.split('/').filter(Boolean);
+  return segments[0] === 'organization' && segments.length > 1
+    ? segments[1]
+    : null;
 };
 
 type PermissionRouteProps = {

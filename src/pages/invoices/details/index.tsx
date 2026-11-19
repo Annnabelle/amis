@@ -5,13 +5,16 @@ import { Empty, Pagination, Spin, Tag } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { getInvoiceById, getInvoiceCodes, getInvoiceItems } from 'entities/invoices/model';
+import {
+  useGetInvoiceByIdQuery,
+  useGetInvoiceItemsQuery,
+} from 'entities/invoices/api';
+import { InvoiceProductCodes } from 'entities/invoices/ui/productCodes';
 import { getInvoiceStatusKey } from 'entities/invoices/lib/status';
 import type { InvoiceItemsTableDataType } from 'entities/invoices/ui/tableData/invoiceItems/types';
-import { getSalesOrderById } from 'entities/salesOrders/model';
-import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
-import { getDeliveryTaskById } from 'entities/deliveryTasks/model';
+import { useGetSalesOrderByIdQuery } from 'entities/salesOrders/api';
+import { useGetDeliveryRouteByIdQuery } from 'entities/deliveryRoutes/api';
+import { useGetDeliveryTaskByIdQuery } from 'entities/deliveryTasks/api';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -56,7 +59,6 @@ const getExternalStatusLabel = (
 
 const InvoicesDetails = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const { t } = useTranslation();
   const canReadSalesOrder = useCan(endpointAccessMap.salesOrdersRead);
@@ -70,48 +72,44 @@ const InvoicesDetails = () => {
   const [expandedCodesProductIds, setExpandedCodesProductIds] = useState<Set<string>>(new Set());
   const [invoiceFileLoading, setInvoiceFileLoading] = useState(false);
 
-  const invoice = useAppSelector((state) => state.invoices.invoiceById);
-  const isLoading = useAppSelector((state) => state.invoices.loadingById);
-  const salesOrder = useAppSelector((state) => state.salesOrders.orderById);
-  const deliveryRoute = useAppSelector((state) => state.deliveryRoutes.routeById);
-  const deliveryTask = useAppSelector((state) => state.deliveryTasks.taskById);
-  const invoiceItems = useAppSelector((state) => state.invoices.items);
-  const invoiceItemsTotal = useAppSelector((state) => state.invoices.itemsTotal);
-  const invoiceItemsPage = useAppSelector((state) => state.invoices.itemsPage);
-  const invoiceItemsLimit = useAppSelector((state) => state.invoices.itemsLimit);
-  const invoiceItemsLoading = useAppSelector((state) => state.invoices.itemsLoading);
-  const invoiceCodesByProductId = useAppSelector((state) => state.invoices.codesByProductId);
+  const { data: invoice, isLoading } = useGetInvoiceByIdQuery(
+    { id: id ?? '' },
+    { skip: !id }
+  );
+  const invoiceSalesOrderId = invoice?.salesOrderId;
+  const invoiceDeliveryTaskId = invoice?.deliveryTaskId;
+  const invoiceDeliveryRouteId = invoice?.deliveryRouteId;
+  const { data: salesOrder } = useGetSalesOrderByIdQuery(
+    { id: invoiceSalesOrderId ?? '' },
+    { skip: !invoiceSalesOrderId || !canReadSalesOrder }
+  );
+  const { data: deliveryRoute } = useGetDeliveryRouteByIdQuery(
+    invoiceDeliveryRouteId ?? '',
+    { skip: !invoiceDeliveryRouteId || !canReadDeliveryRoute }
+  );
+  const { data: deliveryTask } = useGetDeliveryTaskByIdQuery(
+    invoiceDeliveryTaskId ?? '',
+    { skip: !invoiceDeliveryTaskId || !canReadDeliveryTask }
+  );
+  const [itemsPagination, setItemsPagination] = useState({ page: 1, limit: 10 });
+  const { data: invoiceItemsPageData, isFetching: invoiceItemsLoading } =
+    useGetInvoiceItemsQuery(
+      { id: id ?? '', page: itemsPagination.page, limit: itemsPagination.limit },
+      { skip: !id }
+    );
+  const invoiceItems = useMemo(
+    () => invoiceItemsPageData?.items ?? [],
+    [invoiceItemsPageData]
+  );
+  const invoiceItemsTotal = invoiceItemsPageData?.total ?? 0;
+  const invoiceItemsPage = itemsPagination.page;
+  const invoiceItemsLimit = itemsPagination.limit;
   const listPath = orgId ? `/organization/${orgId}/invoices` : '/organization';
 
   useEffect(() => {
-    if (!id) return;
     setExpandedCodesProductIds(new Set());
-    dispatch(getInvoiceById({ id }));
-    dispatch(getInvoiceItems({ id, page: 1, limit: 10 }));
-  }, [dispatch, id]);
+  }, [id]);
 
-  useEffect(() => {
-    if (!invoice || invoice.id !== id) return;
-
-    if (invoice.salesOrderId && canReadSalesOrder) {
-      dispatch(getSalesOrderById({ id: invoice.salesOrderId }));
-    }
-
-    if (invoice.deliveryRouteId && canReadDeliveryRoute) {
-      dispatch(getDeliveryRouteById(invoice.deliveryRouteId));
-    }
-
-    if (invoice.deliveryTaskId && canReadDeliveryTask) {
-      dispatch(getDeliveryTaskById(invoice.deliveryTaskId));
-    }
-  }, [
-    canReadDeliveryRoute,
-    canReadDeliveryTask,
-    canReadSalesOrder,
-    dispatch,
-    id,
-    invoice,
-  ]);
 
   const invoiceStatusKey = getInvoiceStatusKey(invoice?.status);
   const externalStatus = invoice?.external?.status;
@@ -139,29 +137,17 @@ const InvoicesDetails = () => {
   }, [invoiceItems, t]);
 
   const toggleCodesExpanded = (productId: string) => {
-    if (!id) return;
-
     setExpandedCodesProductIds((current) => {
       const next = new Set(current);
 
       if (next.has(productId)) {
         next.delete(productId);
-        return next;
-      }
-
-      next.add(productId);
-
-      if (!invoiceCodesByProductId[productId]) {
-        dispatch(getInvoiceCodes({ id, productId, page: 1, limit: 10 }));
+      } else {
+        next.add(productId);
       }
 
       return next;
     });
-  };
-
-  const handleCodesPageChange = (productId: string, page: number, limit: number) => {
-    if (!id) return;
-    dispatch(getInvoiceCodes({ id, productId, page, limit }));
   };
 
   const handleInvoiceFile = async (download: boolean) => {
@@ -209,11 +195,11 @@ const InvoicesDetails = () => {
     }
   };
 
-  if (isLoading && invoice?.id !== id) {
+  if (isLoading) {
     return null;
   }
 
-  if (!invoice || invoice.id !== id) {
+  if (!invoice) {
     return (
       <MainLayout>
         <Heading title={t('invoices.detailsTitle')} subtitle={t('common.details')}>
@@ -527,50 +513,11 @@ const InvoicesDetails = () => {
                             {expandedCodesProductIds.has(item.productId) ? <UpOutlined /> : <DownOutlined />}
                           </button>
 
-                          {expandedCodesProductIds.has(item.productId) && (
-                            <div className="invoice-item-codes-panel">
-                              <div className="invoice-item-codes-head">
-                                <span>{t('invoices.codes.title')}</span>
-                                <span className="invoice-item-codes-total">
-                                  {invoiceCodesByProductId[item.productId]?.total ?? 0}
-                                </span>
-                              </div>
-                              <Spin spinning={invoiceCodesByProductId[item.productId]?.loading ?? false}>
-                                {invoiceCodesByProductId[item.productId]?.error ? (
-                                  <Empty description={invoiceCodesByProductId[item.productId]?.error} />
-                                ) : invoiceCodesByProductId[item.productId]?.data.length ? (
-                                  <div className="invoice-item-codes-list">
-                                    {invoiceCodesByProductId[item.productId].data.map((code) => (
-                                      <div className="invoice-item-codes-row" key={code.id}>
-                                        <span className="invoice-item-code-value" title={code.code}>{code.code}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <Empty description={t('invoices.codes.empty')} />
-                                )}
-
-                                {(invoiceCodesByProductId[item.productId]?.total ?? 0) > 0 && (
-                                  <Pagination
-                                    className="invoice-item-codes-pagination"
-                                    size="small"
-                                    current={invoiceCodesByProductId[item.productId]?.page ?? 1}
-                                    pageSize={invoiceCodesByProductId[item.productId]?.limit ?? 10}
-                                    total={invoiceCodesByProductId[item.productId]?.total ?? 0}
-                                    showSizeChanger={{ showSearch: false }}
-                                    pageSizeOptions={['10', '20', '30', '40', '50']}
-                                    locale={{ items_per_page: '' }}
-                                    onChange={(newPage, newLimit) => {
-                                      handleCodesPageChange(
-                                        item.productId,
-                                        newPage,
-                                        newLimit || invoiceCodesByProductId[item.productId]?.limit || 10
-                                      );
-                                    }}
-                                  />
-                                )}
-                              </Spin>
-                            </div>
+                          {expandedCodesProductIds.has(item.productId) && id && (
+                            <InvoiceProductCodes
+                              invoiceId={id}
+                              productId={item.productId}
+                            />
                           )}
                         </div>
                       ))}
@@ -587,16 +534,12 @@ const InvoicesDetails = () => {
                     showSizeChanger={{ showSearch: false }}
                     pageSizeOptions={['10', '20', '30', '40', '50']}
                     locale={{ items_per_page: '' }}
-                    onChange={(newPage, newLimit) => {
-                      if (!id) return;
-                      dispatch(
-                        getInvoiceItems({
-                          id,
-                          page: newPage,
-                          limit: newLimit || invoiceItemsLimit || 10,
-                        })
-                      );
-                    }}
+                    onChange={(newPage, newLimit) =>
+                      setItemsPagination((prev) => ({
+                        page: newPage,
+                        limit: newLimit || prev.limit,
+                      }))
+                    }
                   />
                 </Spin>
               </DetailCard>

@@ -1,10 +1,13 @@
-import { useAppDispatch, useAppSelector } from 'app/store'
-import {useEffect, useMemo, useState} from 'react'
+import {useMemo, useState} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
-import {getBatch, getOrderProduct} from 'entities/markingCodes/model'
+import {
+    useGetOrderBatchQuery,
+    useGetOrderProductCodesQuery,
+} from 'entities/markingCodes/api'
+import { getApiErrorMessage } from 'shared/api'
 import ComponentTable from "shared/ui/table";
 import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orderProduct/types.ts";
 import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/orderProduct";
@@ -17,31 +20,31 @@ import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 
 const MarkingCodeProduct = () => {
     const { t } = useTranslation();
-    const dispatch = useAppDispatch()
-    const requestError = useAppSelector((state) => state.markingCodes.error)
-    const orderProduct = useAppSelector((state) => state.markingCodes.orderProductCodes)
-    const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const { orderId, batchId } = useParams<{
         orderId: string;
         batchId: string;
     }>();
+    const {
+        data: orderProduct,
+        error: orderProductError,
+    } = useGetOrderProductCodesQuery(
+        { orderId: orderId ?? '', batchId: batchId ?? '', page, limit },
+        { skip: !orderId || !batchId }
+    );
+    const { data: orderProductBatch, error: batchError } = useGetOrderBatchQuery(
+        { orderId: orderId ?? '', batchId: batchId ?? '' },
+        { skip: !orderId || !batchId }
+    );
+    const requestRejection = orderProductError ?? batchError;
+    const requestError = requestRejection
+        ? getApiErrorMessage(requestRejection, t('common.error'))
+        : null;
     const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
         targetId: batchId,
         target: LifecycleTargetEntity.MarkingCodeOrderBatch,
     });
-
-    useEffect(() => {
-        if (!orderId || !batchId) return;
-
-        dispatch(getOrderProduct({ orderId, batchId, page, limit }));
-    }, [dispatch, orderId, batchId, page, limit]);
-
-    useEffect(() => {
-        if (!orderId || !batchId) return;
-        dispatch(getBatch({orderId: orderId, batchId: batchId}))
-    }, [batchId, dispatch, orderId]);
 
     const OrderProductData = useMemo(() => {
         if (!orderProduct) {

@@ -1,14 +1,6 @@
 import type { WaybillResponseDto } from '@edem2000/amis.contracts/api/common/responses';
+import type { Paginated } from 'shared/api';
 
 export type Waybill = WaybillResponseDto;
 
-export type WaybillsState = {
-  waybills: Waybill[];
-  waybillById: Waybill | null;
-  total: number;
-  page: number;
-  limit: number;
-  isLoading: boolean;
-  loadingById: boolean;
-  error: string | null;
-};
+export type WaybillList = Paginated<Waybill>;

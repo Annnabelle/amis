@@ -11,16 +11,18 @@ import {
 import { Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from 'app/store';
 import {
-  closeDeliveryRoute,
-  getDeliveryRouteById,
-  startDeliveryRouteLoading,
-  startDeliveryRouteReturn,
-  startDeliveryRouteTransit,
-} from 'entities/deliveryRoutes/model';
+  useCloseDeliveryRouteMutation,
+  useGetDeliveryRouteByIdQuery,
+  useStartDeliveryRouteLoadingMutation,
+  useStartDeliveryRouteReturnMutation,
+  useStartDeliveryRouteTransitMutation,
+} from 'entities/deliveryRoutes/api';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
-import { getDeliveryTasks, startDeliveryTaskDelivery } from 'entities/deliveryTasks/model';
+import {
+  useGetDeliveryTasksQuery,
+  useStartDeliveryTaskHandoverMutation,
+} from 'entities/deliveryTasks/api';
 import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
 import { toast } from 'react-toastify';
@@ -42,26 +44,32 @@ import './styles.sass';
 
 const DeliveryRoutesDetails = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
   const [transitStarted, setTransitStarted] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
-  const route = useAppSelector((state) => state.deliveryRoutes.routeById);
-  const isLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
-  const tasks = useAppSelector((state) => state.deliveryTasks.tasks);
-  const tasksLoading = useAppSelector((state) => state.deliveryTasks.isLoading);
+  const { data: route, isLoading } = useGetDeliveryRouteByIdQuery(id ?? '', {
+    skip: !id,
+  });
+  const [startDeliveryRouteLoading] = useStartDeliveryRouteLoadingMutation();
+  const [startDeliveryRouteTransit] = useStartDeliveryRouteTransitMutation();
+  const [startDeliveryRouteReturn] = useStartDeliveryRouteReturnMutation();
+  const [closeDeliveryRoute] = useCloseDeliveryRouteMutation();
+  const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
+  const { data: tasks = [], isFetching: tasksLoading } = useGetDeliveryTasksQuery(
+    { routeId: id ?? '' },
+    { skip: !id || !canListTasks }
+  );
+  const [startDeliveryTaskHandover] = useStartDeliveryTaskHandoverMutation();
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
   const canStartLoading = useCan(endpointAccessMap.deliveryRoutesStartLoading);
   const canStartTransitPermission = useCan(endpointAccessMap.deliveryRoutesStartTransit);
   const canStartReturn = useCan(endpointAccessMap.deliveryRoutesStartReturn);
   const canCloseRoute = useCan(endpointAccessMap.deliveryRoutesClose);
   const canStartHandover = useCan(endpointAccessMap.deliveryTasksStartHandover);
-  const canListTasks = useCan(endpointAccessMap.deliveryRouteTasksList);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.DeliveryRoute,
@@ -100,36 +108,6 @@ const DeliveryRoutesDetails = () => {
   const closeRouteButtonLabel = t('deliveryRoutes.actions.close');
   const taskScanPath = (taskId: string) =>
     orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : '/organization';
-  useEffect(() => {
-    let isMounted = true;
-
-    if (!id) {
-      setIsBootstrapping(false);
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    setIsBootstrapping(true);
-
-    const requests: Promise<unknown>[] = [
-      dispatch(getDeliveryRouteById(id)).unwrap(),
-    ];
-
-    if (canListTasks) {
-      requests.push(dispatch(getDeliveryTasks({ routeId: id })).unwrap());
-    }
-
-    Promise.allSettled(requests).finally(() => {
-      if (isMounted) {
-        setIsBootstrapping(false);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [canListTasks, dispatch, id]);
 
   useEffect(() => {
     if (route?.status && route.status !== 'loaded') {
@@ -161,7 +139,7 @@ const DeliveryRoutesDetails = () => {
     if (!route?.id) return;
 
     try {
-      await dispatch(startDeliveryRouteLoading(route.id)).unwrap();
+      await startDeliveryRouteLoading(route.id).unwrap();
       navigate(`${backPath}/${route.id}/loading`);
     } catch (error) {
       toast.error(
@@ -180,8 +158,8 @@ const DeliveryRoutesDetails = () => {
 
     try {
       setTransitStarted(true);
-      await dispatch(startDeliveryRouteTransit(route.id)).unwrap();
-      await dispatch(getDeliveryRouteById(route.id));
+      // Карточка перезапросится сама: мутация инвалидирует тег рейса.
+      await startDeliveryRouteTransit(route.id).unwrap();
       toast.success(
         t('deliveryRoutes.messages.success.startTransit', {
           defaultValue: 'Машина отправлена',
@@ -205,7 +183,7 @@ const DeliveryRoutesDetails = () => {
 
     try {
       if (route.status === 'in_transit') {
-        await dispatch(startDeliveryRouteReturn(route.id)).unwrap();
+        await startDeliveryRouteReturn(route.id).unwrap();
       }
 
       navigate(`${backPath}/${route.id}/return`);
@@ -226,7 +204,7 @@ const DeliveryRoutesDetails = () => {
 
     try {
       setIsClosing(true);
-      await dispatch(closeDeliveryRoute(route.id)).unwrap();
+      await closeDeliveryRoute(route.id).unwrap();
       toast.success(t('deliveryRoutes.messages.success.close'));
     } catch (error) {
       toast.error(
@@ -242,10 +220,8 @@ const DeliveryRoutesDetails = () => {
 
   const handleStartDelivery = async (taskId: string) => {
     try {
-      await dispatch(startDeliveryTaskDelivery(taskId)).unwrap();
-      if (route?.id) {
-        await dispatch(getDeliveryTasks({ routeId: route.id }));
-      }
+      // Список задач рейса перезапросится сам: мутация инвалидирует тег.
+      await startDeliveryTaskHandover(taskId).unwrap();
       navigate(taskScanPath(taskId));
     } catch (error) {
       toast.error(
@@ -259,13 +235,11 @@ const DeliveryRoutesDetails = () => {
     }
   };
 
-  const isCurrentRouteLoaded = route?.id === id;
-
-  if (isBootstrapping || (isLoading && !isCurrentRouteLoaded)) {
+  if (isLoading) {
     return null;
   }
 
-  if (!isCurrentRouteLoaded || !route) {
+  if (!route) {
     return (
       <MainLayout>
         {isMobile && (

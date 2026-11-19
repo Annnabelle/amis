@@ -37,14 +37,6 @@ export const getLifecycleTabFilters = (
   return { scope: tab.scope, vendor: tab.vendor };
 };
 
-export const buildLifecycleFeedKey = (
-  targetId: string,
-  filters: LifecycleFeedFilters
-): string =>
-  [targetId, filters.scope ?? "", filters.vendor ?? "", filters.kind ?? ""].join(
-    "|"
-  );
-
 /**
  * Считаем страницами, а не элементами: data может быть короче limit,
  * потому что часть ошибок скрывается уже после подсчёта total.

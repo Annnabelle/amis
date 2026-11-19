@@ -1,9 +1,7 @@
 import type { UtilizationReport } from "entities/utilization/types";
 import type { UtilizationReportResponseDto } from '@edem2000/amis.contracts/api/common/responses';
-import type { CreateUtilizationReportResponseDto } from '@edem2000/amis.contracts/api/reports/responses';
-import type {ErrorDto} from "shared/types/dtos";
 
-// твой существующий маппер для одного отчёта
+// маппер одного отчёта; ветку ошибки разбирает axiosBaseQuery
 export function mapUtilizationDtoToEntity(dto: UtilizationReportResponseDto): UtilizationReport {
     return {
         id: dto.id as string,
@@ -28,23 +26,3 @@ export function mapUtilizationDtoToEntity(dto: UtilizationReportResponseDto): Ut
         orderedAt: dto.orderedAt,
     };
 }
-
-// маппер для всего ответа
-export function mapCreateUtilizationReportResponse(
-    dto: CreateUtilizationReportResponseDto
-): { success: boolean; reports?: UtilizationReport[]; error?: ErrorDto } {
-    // если dto содержит поле errorCode или errorMessage, считаем это ошибкой
-    if ('errorCode' in dto || 'errorMessage' in dto) {
-        return { success: false, error: dto as ErrorDto };
-    }
-
-    // иначе это успешный ответ с репортами
-    return {
-        success: dto.success,
-        reports: dto.reports.map(mapUtilizationDtoToEntity),
-    };
-}
-
-
-
-

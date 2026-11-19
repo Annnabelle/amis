@@ -2,14 +2,22 @@ import { Form, Input, InputNumber, Radio, Select, type RadioChangeEvent } from "
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch } from "app/store";
 import { useCan } from "entities/access/lib";
-import { getCompanyByTin, getOrganizationById } from "entities/organization/model";
-import { createVehicle, updateVehicle, verifyVehicleOwnership } from "entities/vehicles/model";
+import {
+  useGetCompanyByIdQuery,
+  useLazyGetCompanyByTinQuery,
+} from "entities/organization/api";
+import {
+  useCreateVehicleMutation,
+  useLazyVerifyVehicleOwnershipQuery,
+  useUpdateVehicleMutation,
+} from "entities/vehicles/api";
 import type { VehicleOwnerDto } from '@edem2000/amis.contracts/api/vehicle/requests';
 import type { CreateVehicleRequestDto } from 'entities/vehicles/dtos';
+import { VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE } from 'entities/vehicles/lib/errorCodes';
 import { VehicleOwnershipType, VehicleType } from '@edem2000/amis.contracts';
 import type { Vehicle } from "entities/vehicles/types";
+import { getApiErrorMessage, type ApiError } from "shared/api";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import { useSubmitGuard } from "shared/lib";
 import CustomButton from "shared/ui/button";
@@ -132,7 +140,7 @@ type VehicleFormModalProps = {
   companyId?: string;
   vehicle?: Vehicle | null;
   initialPlateNumber?: string;
-  onSaved: (vehicle: Vehicle) => void;
+  onSaved?: (vehicle: Vehicle) => void;
 };
 
 export const VehicleFormModal = ({
@@ -145,9 +153,17 @@ export const VehicleFormModal = ({
   onSaved,
 }: VehicleFormModalProps) => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm<VehicleFormValues>();
   const canVerifyOwnership = useCan(endpointAccessMap.vehiclesVerifyOwnership);
+  const [verifyVehicleOwnership] = useLazyVerifyVehicleOwnershipQuery();
+  const [findCompanyByTin] = useLazyGetCompanyByTinQuery();
+  /** ИНН компании нужен проверке владельца: без него реестр не спросить. */
+  const { data: company } = useGetCompanyByIdQuery(
+    { id: companyId ?? "" },
+    { skip: !open || !companyId || !canVerifyOwnership }
+  );
+  const [createVehicle] = useCreateVehicleMutation();
+  const [updateVehicle] = useUpdateVehicleMutation();
   const [companyTin, setCompanyTin] = useState<string | null>(null);
   const [ownershipStatus, setOwnershipStatus] = useState<OwnershipStatus>("idle");
   const ownershipRequestRef = useRef(0);
@@ -196,16 +212,8 @@ export const VehicleFormModal = ({
   }, [open, mode, vehicle]);
 
   useEffect(() => {
-    if (!open || !companyId || !canVerifyOwnership) {
-      setCompanyTin(null);
-      return;
-    }
-
-    dispatch(getOrganizationById({ id: companyId }))
-      .unwrap()
-      .then((company) => setCompanyTin(company.tin ?? null))
-      .catch(() => setCompanyTin(null));
-  }, [open, companyId, canVerifyOwnership, dispatch]);
+    setCompanyTin(company?.tin ?? null);
+  }, [company]);
 
   const resetOwnershipCheck = () => {
     ownershipRequestRef.current += 1;
@@ -230,28 +238,36 @@ export const VehicleFormModal = ({
     ownershipRequestRef.current = requestId;
     setOwnershipStatus("checking");
 
-    const result = await dispatch(
-      verifyVehicleOwnership({ tinOrPinfl: tinOrPinflValue, regNumber })
-    );
+    try {
+      const ownership = await verifyVehicleOwnership({
+        tinOrPinfl: tinOrPinflValue,
+        regNumber,
+      }).unwrap();
 
-    if (ownershipRequestRef.current !== requestId) return;
+      if (ownershipRequestRef.current !== requestId) return;
 
-    if (verifyVehicleOwnership.fulfilled.match(result)) {
-      if (result.payload.status === "found") {
-        form.setFieldValue("stateRegistrationModel", result.payload.ownership.model);
-        setOwnershipStatus("found");
-      } else {
-        form.setFieldValue("stateRegistrationModel", undefined);
+      form.setFieldValue("stateRegistrationModel", ownership.model);
+      setOwnershipStatus("found");
+    } catch (error) {
+      if (ownershipRequestRef.current !== requestId) return;
+
+      form.setFieldValue("stateRegistrationModel", undefined);
+
+      // Транспорта нет в государственном реестре — это ответ реестра, не сбой.
+      const apiError = error as ApiError;
+      const errorCode = (apiError.data as { errorCode?: number } | undefined)?.errorCode;
+
+      if (
+        apiError.status === 404 ||
+        errorCode === VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE
+      ) {
         setOwnershipStatus("not-registered");
-        toast.error(result.payload.message);
+        toast.error(getApiErrorMessage(error, t("vehicles.ownership.notRegistered")));
+        return;
       }
-      return;
-    }
 
-    form.setFieldValue("stateRegistrationModel", undefined);
-    setOwnershipStatus("error");
-    if (result.payload) {
-      toast.error(result.payload);
+      setOwnershipStatus("error");
+      toast.error(getApiErrorMessage(error, t("vehicles.messages.error.verifyOwnership")));
     }
   };
 
@@ -293,11 +309,11 @@ export const VehicleFormModal = ({
     form.setFieldValue("ownerName", undefined);
 
     try {
-      const company = await dispatch(getCompanyByTin(value)).unwrap();
+      const ownerCompany = await findCompanyByTin(value).unwrap();
 
       if (ownerLookupRequestRef.current !== requestId) return;
 
-      if (!company) {
+      if (!ownerCompany) {
         setOwnerData(null);
         setOwnerLookupStatus("not-found");
         toast.error(t("vehicles.ownerLookup.notFound"));
@@ -307,7 +323,7 @@ export const VehicleFormModal = ({
       const owner: VehicleOwnerDto = {
         tin: value.length === 9 ? value : undefined,
         pinfl: value.length === 14 ? value : undefined,
-        name: company.displayName || company.legalName || value,
+        name: ownerCompany.displayName || ownerCompany.legalName || value,
       };
 
       setOwnerData(owner);
@@ -359,35 +375,36 @@ export const VehicleFormModal = ({
     if (mode === "create") {
       if (!companyId) return;
 
-      const result = await dispatch(
-        createVehicle({ companyId, ...getVehiclePayload(values, ownerData) } as CreateVehicleRequestDto)
-      );
+      try {
+        const vehicle = await createVehicle({
+          companyId,
+          ...getVehiclePayload(values, ownerData),
+        } as CreateVehicleRequestDto).unwrap();
 
-      if (createVehicle.fulfilled.match(result)) {
         toast.success(t("vehicles.messages.success.create"));
-        onSaved(result.payload);
+        onSaved?.(vehicle);
         onClose();
-        return;
+      } catch (error) {
+        toast.error(getApiErrorMessage(error, t("vehicles.messages.error.create")));
       }
 
-      toast.error(result.payload ?? t("vehicles.messages.error.create"));
       return;
     }
 
     if (!vehicle) return;
 
-    const result = await dispatch(
-      updateVehicle({ id: vehicle.id, data: getVehiclePayload(values, ownerData) })
-    );
+    try {
+      const updated = await updateVehicle({
+        id: vehicle.id,
+        data: getVehiclePayload(values, ownerData),
+      }).unwrap();
 
-    if (updateVehicle.fulfilled.match(result)) {
       toast.success(t("vehicles.messages.success.update"));
-      onSaved(result.payload);
+      onSaved?.(updated);
       onClose();
-      return;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, t("vehicles.messages.error.update")));
     }
-
-    toast.error(result.payload ?? t("vehicles.messages.error.update"));
   };
 
   const { isSubmitting, onSubmit } = useSubmitGuard(handleSubmit);

@@ -1,12 +1,11 @@
 import { Empty } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { setCurrentCompanyId } from 'entities/access/model';
 import { AccessModules, type AccessModule } from 'entities/access/types';
-import { getOrganizationById } from 'entities/organization/model';
+import { useAppDispatch, useAppSelector } from 'app/store';
+import { useGetCompanyByIdQuery } from 'entities/organization/api';
 import type { Company } from 'entities/organization/types';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { FormatUzbekPhoneNumber, useIsMobile, useNavigationBack } from 'shared/lib';
@@ -47,19 +46,15 @@ const OrganizationsInner = () => {
   const dispatch = useAppDispatch();
   const navigateBack = useNavigationBack();
   const isMobile = useIsMobile();
-  const organizationById = useAppSelector((state) => state.organizations.organizationById);
+  const { data: organizationById, isLoading } = useGetCompanyByIdQuery(
+    { id: id ?? '' },
+    { skip: !id }
+  );
   const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? []);
-  const isLoading = useAppSelector((state) => state.organizations.isLoading);
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.Company,
   });
-
-  useEffect(() => {
-    if (id) {
-      dispatch(getOrganizationById({ id }));
-    }
-  }, [dispatch, id]);
 
   const getFirstCompanyModulePath = (
     companyId: string,

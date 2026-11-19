@@ -1,9 +1,12 @@
 import { Form, Input, Select, Spin } from 'antd'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { getUserById, updateUser } from 'entities/users/model'
-import { useAppDispatch, useAppSelector } from 'app/store'
+import {
+    useGetUserByIdQuery,
+    useUpdateUserMutation,
+} from 'entities/users/api'
+import { getApiErrorMessage } from 'shared/api'
 import { useNavigationBack } from 'shared/lib'
 import { toast } from 'react-toastify'
 import MainLayout from 'shared/ui/layout'
@@ -19,20 +22,15 @@ import './styles.sass'
 const UsersEdit = () => {
     const { id } = useParams();
     const { t } = useTranslation();
-    const dispatch = useAppDispatch();
     const canListCompanies = useCan(endpointAccessMap.companiesList);
-    const userById = useAppSelector((state) => state.users.userById);
+    const {
+        data: userById,
+        isLoading: isInitialLoading,
+        isFetching: isUserLoading,
+    } = useGetUserByIdQuery({ id: id ?? '' }, { skip: !id });
+    const [updateUser] = useUpdateUserMutation();
     const [form] = Form.useForm()
-    const isUserLoading = useAppSelector((state) => state.users.isLoading);
     const navigateBack = useNavigationBack();
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
-
-    useEffect(() => {
-        if (id) {
-            // dispatch(clearUserById());
-            dispatch(getUserById({ id })).finally(() => setIsInitialLoading(false));
-        }
-    }, [dispatch, id]);
 
     useEffect(() => {
         if (userById) {
@@ -53,19 +51,11 @@ const UsersEdit = () => {
             return;
         }
         try {
-            const resultAction = await dispatch(
-                updateUser({ id: id, data: values })
-            );
-
-            if (updateUser.fulfilled.match(resultAction)) {
-                toast.success(t('users.messages.success.updateUser'));
-
-                await dispatch(getUserById({ id: id }));
-            } else {
-                toast.error((resultAction.payload as string) || t('users.messages.error.updateUser'));
-            }
+            // Карточка перечитается сама: мутация инвалидирует тег пользователя.
+            await updateUser({ id, data: values }).unwrap();
+            toast.success(t('users.messages.success.updateUser'));
         } catch (err) {
-            toast.error((err as string) || t('users.messages.error.updateUser'));
+            toast.error(getApiErrorMessage(err, t('users.messages.error.updateUser')));
         }
     };
 

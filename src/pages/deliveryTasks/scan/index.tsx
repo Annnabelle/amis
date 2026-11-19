@@ -11,20 +11,22 @@ import CustomButton from 'shared/ui/button';
 import 'shared/ui/details/styles.sass';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import {
-  clearDeliveryTaskById,
-  completeDeliveryTaskDelivery,
-  getDeliveryTaskById,
-} from 'entities/deliveryTasks/model';
+  useCompleteDeliveryTaskHandoverMutation,
+  useGetDeliveryTaskByIdQuery,
+} from 'entities/deliveryTasks/api';
 import {
-  cancelScan,
-  completeScanSession,
-  createScanSession,
   replaceScanAttempts,
   resetScanSessionState,
-  scanSessionCode,
 } from 'entities/scanSessions/model';
+import {
+  useCancelScanMutation,
+  useCompleteScanSessionMutation,
+  useCreateScanSessionMutation,
+  useScanSessionCodeMutation,
+} from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
+import { getApiErrorMessage } from 'shared/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
@@ -42,9 +44,20 @@ const DeliveryTasksScan = () => {
   const { t } = useTranslation();
 
   const taskId = id ?? '';
-  const task = useAppSelector((state) => state.deliveryTasks.taskById);
-  const taskLoading = useAppSelector((state) => state.deliveryTasks.loadingById);
-  const taskError = useAppSelector((state) => state.deliveryTasks.error);
+  const {
+    data: task,
+    isFetching: taskLoading,
+    error: taskRequestError,
+    refetch: refetchTask,
+  } = useGetDeliveryTaskByIdQuery(taskId, { skip: !taskId });
+  const [completeDeliveryTaskHandover] = useCompleteDeliveryTaskHandoverMutation();
+  const [createScanSession] = useCreateScanSessionMutation();
+  const [completeScanSession] = useCompleteScanSessionMutation();
+  const [scanSessionCode] = useScanSessionCodeMutation();
+  const [cancelScan] = useCancelScanMutation();
+  const taskError = taskRequestError
+    ? getApiErrorMessage(taskRequestError, t('common.error'))
+    : null;
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -76,7 +89,6 @@ const DeliveryTasksScan = () => {
   useEffect(() => {
     if (!taskId) return;
 
-    dispatch(getDeliveryTaskById(taskId));
     dispatch(resetScanSessionState());
 
     try {
@@ -92,7 +104,6 @@ const DeliveryTasksScan = () => {
     }
 
     return () => {
-      dispatch(clearDeliveryTaskById());
       dispatch(resetScanSessionState());
     };
   }, [dispatch, taskId]);
@@ -109,12 +120,12 @@ const DeliveryTasksScan = () => {
         scanSession?.id &&
         scanSession.status === 'active'
       ) {
-        void dispatch(completeScanSession(scanSession.id));
+        void completeScanSession(scanSession.id);
       }
     };
   }, [
     canCompleteScanSession,
-    dispatch,
+    completeScanSession,
     scanSession?.id,
     scanSession?.status,
   ]);
@@ -195,7 +206,7 @@ const DeliveryTasksScan = () => {
 
   const refreshTask = async () => {
     if (!taskId) return;
-    await dispatch(getDeliveryTaskById(taskId));
+    await refetchTask();
   };
 
   const handleStartScanning = async () => {
@@ -207,13 +218,11 @@ const DeliveryTasksScan = () => {
     }
 
     try {
-      await dispatch(
-        createScanSession({
+      await createScanSession({
           type: ScanSessionType.Delivery,
           routeId: task.deliveryRouteId,
           taskId: task.id,
-        })
-      ).unwrap();
+        }).unwrap();
       setScannerMode('delivery');
     } catch (error) {
       toast.error(
@@ -244,7 +253,7 @@ const DeliveryTasksScan = () => {
 
     try {
       setIsClosingSession(true);
-      await dispatch(completeScanSession(scanSession.id)).unwrap();
+      await completeScanSession(scanSession.id).unwrap();
     } catch (error) {
       toast.error(
         getBackendErrorMessage(
@@ -272,13 +281,11 @@ const DeliveryTasksScan = () => {
 
     if (scannerMode === 'delete') {
       try {
-        await dispatch(
-          cancelScan({
+        await cancelScan({
             code,
             routeId: task.deliveryRouteId,
             taskId: task.id,
-          })
-        ).unwrap();
+          }).unwrap();
 
         await refreshTask();
         pushSingleScanToast(
@@ -324,12 +331,10 @@ const DeliveryTasksScan = () => {
     }
 
     try {
-      await dispatch(
-        scanSessionCode({
+      await scanSessionCode({
           sessionId: scanSession.id,
           code,
-        })
-      ).unwrap();
+        }).unwrap();
 
       await refreshTask();
       pushSingleScanToast(
@@ -370,15 +375,13 @@ const DeliveryTasksScan = () => {
 
     try {
       if (scanSession?.id && scanSession.status === 'active') {
-        await dispatch(completeScanSession(scanSession.id)).unwrap();
+        await completeScanSession(scanSession.id).unwrap();
       }
 
-      await dispatch(
-        completeDeliveryTaskDelivery({
-          id: task.id,
-          payload: comment?.trim() ? { comment: comment.trim() } : undefined,
-        })
-      ).unwrap();
+      await completeDeliveryTaskHandover({
+        id: task.id,
+        payload: comment?.trim() ? { comment: comment.trim() } : undefined,
+      }).unwrap();
 
       localStorage.removeItem(getScanCacheKey(task.id));
       navigate(routePath);
@@ -421,13 +424,11 @@ const DeliveryTasksScan = () => {
     if (!task?.id) return;
 
     try {
-      await dispatch(
-        cancelScan({
+      await cancelScan({
           code,
           routeId: task.deliveryRouteId,
           taskId: task.id,
-        })
-      ).unwrap();
+        }).unwrap();
 
       await refreshTask();
       toast.success(

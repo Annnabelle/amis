@@ -1,20 +1,18 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import axiosInstance from "shared/lib/axiosInstance";
-import { BASE_URL } from "shared/lib/consts";
-import { getBackendErrorMessage } from "shared/lib/getBackendErrorMessage";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { scanSessionsApi } from "entities/scanSessions/api";
+import type {
+  ScanAttempt,
+  ScanSessionType,
+  ScanSessionsState,
+} from "entities/scanSessions/types";
+import { getApiErrorMessage } from "shared/api";
 import type { PackageType } from "shared/types/dtos";
-import type { CancelScanDto, CreateScanSessionDto } from '@edem2000/amis.contracts/api/scan-sessions/requests';
-import type { CancelScanResponseDto, CompleteScanSessionResponseDto, CreateScanSessionResponseDto, ScanCodeResponseDto } from '@edem2000/amis.contracts/api/scan-sessions/responses';
-import { ScanSessionType, type ScanSession, type ScanSessionsState } from "entities/scanSessions/types";
-import {
-  mapCancelScanResponseDtoToEntity,
-  mapCompleteScanSessionResponseDtoToEntity,
-  mapCreateScanSessionResponseDtoToEntity,
-  mapScanCodeResponseDtoToEntity,
-} from "entities/scanSessions/mappers";
-import type { ScanAttempt } from "entities/scanSessions/types";
-import type { ErrorDto } from "shared/types/dtos";
 
+/**
+ * Сессия сканирования на экране: сам журнал сканов и счётчики — состояние
+ * приложения, а не серверный кеш, поэтому слайс остался. Запросы живут в
+ * entities/scanSessions/api, а слайс слушает их результаты.
+ */
 const initialState: ScanSessionsState = {
   currentSession: null,
   recentScans: [],
@@ -24,21 +22,8 @@ const initialState: ScanSessionsState = {
   error: null,
 };
 
-type ScanCodePayload = {
-  sessionId: string;
-  code: string;
-};
-
-type ScanCodeSuccessPayload = {
-  code: string;
-  productId: string;
-  gtin: string;
-  packageType: PackageType;
-};
-
-type CancelScanSuccessPayload = {
-  code: string;
-};
+/** Сколько последних сканов держим на экране. */
+const RECENT_SCANS_LIMIT = 20;
 
 const createScanAttempt = (payload: {
   code: string;
@@ -55,168 +40,6 @@ const createScanAttempt = (payload: {
   gtin: payload.gtin,
   packageType: payload.packageType,
   ts: new Date().toISOString(),
-});
-
-const extractErrorDto = (error: any): ErrorDto => {
-  if (error?.response?.data && "errorCode" in error.response.data) {
-    return error.response.data;
-  }
-
-  return {
-    success: false,
-    errorCode: 500,
-    errorMessage: {
-      ru: "Ошибка сети",
-      en: "Network error",
-      uz: "Tarmoq xatosi",
-    },
-  };
-};
-
-export const createScanSession = createAsyncThunk<
-  ScanSession,
-  CreateScanSessionDto,
-  { rejectValue: ErrorDto }
->("scanSessions/createScanSession", async (payload, { rejectWithValue }) => {
-  try {
-    const { data } = await axiosInstance.post<CreateScanSessionResponseDto>(
-      `${BASE_URL}/scan-sessions`,
-      payload
-    );
-
-    const mapped = mapCreateScanSessionResponseDtoToEntity(data);
-    if (mapped.success && mapped.scanSession) {
-      return mapped.scanSession;
-    }
-
-    return rejectWithValue(
-      mapped.error ?? {
-        success: false,
-        errorCode: 100,
-        errorMessage: {
-          ru: "Неизвестный формат ответа сервера",
-          en: "Unknown server response format",
-          uz: "Server javobining noma'lum formati",
-        },
-      }
-    );
-  } catch (error: any) {
-    return rejectWithValue(extractErrorDto(error));
-  }
-});
-
-export const completeScanSession = createAsyncThunk<
-  ScanSession,
-  string,
-  { rejectValue: ErrorDto }
->("scanSessions/completeScanSession", async (sessionId, { rejectWithValue }) => {
-  try {
-    const { data } = await axiosInstance.patch<CompleteScanSessionResponseDto>(
-      `${BASE_URL}/scan-sessions/${sessionId}/complete`
-    );
-
-    const mapped = mapCompleteScanSessionResponseDtoToEntity(data);
-    if (mapped.success && mapped.scanSession) {
-      return mapped.scanSession;
-    }
-
-    return rejectWithValue(
-      mapped.error ?? {
-        success: false,
-        errorCode: 100,
-        errorMessage: {
-          ru: "Неизвестный формат ответа сервера",
-          en: "Unknown server response format",
-          uz: "Server javobining noma'lum formati",
-        },
-      }
-    );
-  } catch (error: any) {
-    return rejectWithValue(extractErrorDto(error));
-  }
-});
-
-export const scanSessionCode = createAsyncThunk<
-  ScanCodeSuccessPayload,
-  ScanCodePayload,
-  { rejectValue: { code: string; error: ErrorDto } }
->("scanSessions/scanSessionCode", async ({ sessionId, code }, { rejectWithValue }) => {
-  try {
-    const { data } = await axiosInstance.post<ScanCodeResponseDto>(
-      `${BASE_URL}/scan-sessions/${sessionId}/scan`,
-      { code }
-    );
-
-    const mapped = mapScanCodeResponseDtoToEntity(data);
-    if (mapped.success && mapped.markingCode) {
-      return {
-        code,
-        productId: mapped.markingCode.productId,
-        gtin: mapped.markingCode.gtin,
-        packageType: mapped.markingCode.packageType,
-      };
-    }
-
-    return rejectWithValue({
-      code,
-      error:
-        mapped.error ?? {
-          success: false,
-          errorCode: 100,
-          errorMessage: {
-            ru: "Неизвестный формат ответа сервера",
-            en: "Unknown server response format",
-            uz: "Server javobining noma'lum formati",
-          },
-        },
-    });
-  } catch (error: any) {
-    return rejectWithValue({
-      code,
-      error: extractErrorDto(error),
-    });
-  }
-});
-
-export const cancelScan = createAsyncThunk<
-  CancelScanSuccessPayload,
-  CancelScanDto,
-  { rejectValue: { code: string; error: ErrorDto } }
->("scanSessions/cancelScan", async ({ code, routeId, taskId }, { rejectWithValue }) => {
-  try {
-    const { data } = await axiosInstance.post<CancelScanResponseDto>(
-      `${BASE_URL}/scan-sessions/cancel-scan`,
-      {
-        code,
-        routeId,
-        taskId,
-      }
-    );
-
-    const mapped = mapCancelScanResponseDtoToEntity(data);
-    if (mapped.success) {
-      return { code };
-    }
-
-    return rejectWithValue({
-      code,
-      error:
-        mapped.error ?? {
-          success: false,
-          errorCode: 100,
-          errorMessage: {
-            ru: "Неизвестный формат ответа сервера",
-            en: "Unknown server response format",
-            uz: "Server javobining noma'lum formati",
-          },
-        },
-    });
-  } catch (error: any) {
-    return rejectWithValue({
-      code,
-      error: extractErrorDto(error),
-    });
-  }
 });
 
 export const scanSessionsSlice = createSlice({
@@ -244,36 +67,45 @@ export const scanSessionsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    const { createScanSession, completeScanSession, scanSessionCode, cancelScan } =
+      scanSessionsApi.endpoints;
+
     builder
-      .addCase(createScanSession.pending, (state) => {
+      .addMatcher(createScanSession.matchPending, (state) => {
         state.isCreating = true;
         state.error = null;
       })
-      .addCase(createScanSession.fulfilled, (state, action) => {
+      .addMatcher(createScanSession.matchFulfilled, (state, action) => {
         state.isCreating = false;
         state.currentSession = action.payload;
       })
-      .addCase(createScanSession.rejected, (state, action) => {
+      .addMatcher(createScanSession.matchRejected, (state, action) => {
         state.isCreating = false;
-        state.error = getBackendErrorMessage(action.payload, "Не удалось создать сессию сканирования");
+        state.error = getApiErrorMessage(
+          action.payload,
+          "Не удалось создать сессию сканирования"
+        );
       })
-      .addCase(completeScanSession.pending, (state) => {
+      .addMatcher(completeScanSession.matchPending, (state) => {
         state.isCompleting = true;
         state.error = null;
       })
-      .addCase(completeScanSession.fulfilled, (state, action) => {
+      .addMatcher(completeScanSession.matchFulfilled, (state, action) => {
         state.isCompleting = false;
         state.currentSession = action.payload;
       })
-      .addCase(completeScanSession.rejected, (state, action) => {
+      .addMatcher(completeScanSession.matchRejected, (state, action) => {
         state.isCompleting = false;
-        state.error = getBackendErrorMessage(action.payload, "Не удалось завершить сессию сканирования");
+        state.error = getApiErrorMessage(
+          action.payload,
+          "Не удалось завершить сессию сканирования"
+        );
       })
-      .addCase(scanSessionCode.pending, (state) => {
+      .addMatcher(scanSessionCode.matchPending, (state) => {
         state.isScanning = true;
         state.error = null;
       })
-      .addCase(scanSessionCode.fulfilled, (state, action) => {
+      .addMatcher(scanSessionCode.matchFulfilled, (state, action) => {
         state.isScanning = false;
         state.recentScans = [
           createScanAttempt({
@@ -284,38 +116,41 @@ export const scanSessionsSlice = createSlice({
             packageType: action.payload.packageType,
           }),
           ...state.recentScans,
-        ].slice(0, 20);
+        ].slice(0, RECENT_SCANS_LIMIT);
 
         if (state.currentSession) {
           state.currentSession.counters.accepted += 1;
         }
       })
-      .addCase(scanSessionCode.rejected, (state, action) => {
-        const payload = action.payload as { code: string; error: ErrorDto } | undefined;
-        state.isScanning = false;
-        state.error = getBackendErrorMessage(payload?.error, "Error scanning code");
+      .addMatcher(scanSessionCode.matchRejected, (state, action) => {
+        const message = getApiErrorMessage(action.payload, "Error scanning code");
+        /** Код отклонённого скана известен из аргумента запроса. */
+        const code = action.meta.arg.originalArgs.code;
 
-        if (payload) {
-          state.recentScans = [
-            createScanAttempt({
-              code: payload.code,
-              status: "rejected",
-              reason: getBackendErrorMessage(payload.error, "Error scanning code"),
-            }),
-            ...state.recentScans,
-          ].slice(0, 20);
-        }
+        state.isScanning = false;
+        state.error = message;
+        state.recentScans = [
+          createScanAttempt({ code, status: "rejected", reason: message }),
+          ...state.recentScans,
+        ].slice(0, RECENT_SCANS_LIMIT);
 
         if (state.currentSession) {
           state.currentSession.counters.rejected += 1;
         }
       })
-      .addCase(cancelScan.fulfilled, (state, action) => {
-        state.recentScans = state.recentScans.filter((item) => item.code !== action.payload.code);
+      .addMatcher(cancelScan.matchFulfilled, (state, action) => {
+        state.recentScans = state.recentScans.filter(
+          (item) => item.code !== action.payload.code
+        );
       });
   },
 });
 
-export const { resetScanSessionState, clearScanAttempts, replaceScanAttempts, setScanSessionType } = scanSessionsSlice.actions;
+export const {
+  resetScanSessionState,
+  clearScanAttempts,
+  replaceScanAttempts,
+  setScanSessionType,
+} = scanSessionsSlice.actions;
 
 export default scanSessionsSlice.reducer;

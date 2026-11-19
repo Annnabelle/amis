@@ -1,12 +1,6 @@
 import type { MultiLanguage, Actor, AuditCategory, AuditType, HexString, TargetEntity, TargetResponseDto } from "shared/types/dtos";
 import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
-
-export type auditLogState = {
-    auditLog: null,
-    isLoading: false,
-    error: null,
-    status: null,
-};
+import type { Paginated } from 'shared/api';
 
 export type AuditLog = {
   id: string;
@@ -26,4 +20,4 @@ export type AuditLog = {
   target: TargetResponseDto | null,
 };
 
-
+export type AuditLogList = Paginated<AuditLog>;
