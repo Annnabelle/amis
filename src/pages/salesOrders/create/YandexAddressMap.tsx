@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Spin } from "antd";
 import {
   DEFAULT_CENTER,
@@ -33,6 +33,9 @@ const YandexAddressMap = ({
   const onAddressChangeRef = useRef(onAddressChange);
   const onAddressSelectRef = useRef(onAddressSelect);
   const onLocationChangeRef = useRef(onLocationChange);
+  const onForcedGeocodeCompleteRef = useRef(onForcedGeocodeComplete);
+  /** Точка на старте: карта создаётся один раз, дальше точкой правит setPoint. */
+  const initialLocationRef = useRef(location);
   const [isLoading, setIsLoading] = useState(true);
   const [isMapReady, setIsMapReady] = useState(false);
 
@@ -40,16 +43,25 @@ const YandexAddressMap = ({
     onAddressChangeRef.current = onAddressChange;
     onAddressSelectRef.current = onAddressSelect;
     onLocationChangeRef.current = onLocationChange;
-  }, [onAddressChange, onAddressSelect, onLocationChange]);
+    onForcedGeocodeCompleteRef.current = onForcedGeocodeComplete;
+  }, [
+    onAddressChange,
+    onAddressSelect,
+    onForcedGeocodeComplete,
+    onLocationChange,
+  ]);
 
-  const setPoint = (nextLocation: { latitude: number; longitude: number }, zoom?: number) => {
-    const coordinates = [nextLocation.latitude, nextLocation.longitude];
-    placemarkRef.current?.geometry.setCoordinates(coordinates);
-    mapRef.current?.setCenter(coordinates, zoom);
-    onLocationChangeRef.current(nextLocation);
-  };
+  const setPoint = useCallback(
+    (nextLocation: { latitude: number; longitude: number }, zoom?: number) => {
+      const coordinates = [nextLocation.latitude, nextLocation.longitude];
+      placemarkRef.current?.geometry.setCoordinates(coordinates);
+      mapRef.current?.setCenter(coordinates, zoom);
+      onLocationChangeRef.current(nextLocation);
+    },
+    []
+  );
 
-  const updateAddressByLocation = (nextLocation: { latitude: number; longitude: number }) => {
+  const updateAddressByLocation = useCallback((nextLocation: { latitude: number; longitude: number }) => {
     geocodeByLocation(nextLocation).then((nextAddress) => {
       if (!nextAddress) {
         console.warn("[SalesOrdersAddressMap] skip form update: reverse geocode returned no address");
@@ -64,23 +76,24 @@ const YandexAddressMap = ({
       console.info("[SalesOrdersAddressMap] pass address to reference resolver", nextAddress);
       onAddressSelectRef.current?.(nextAddress);
     });
-  };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
+    const initialLocation = initialLocationRef.current;
 
     loadYandexMaps()
       .then((ymaps) => {
         if (!isMounted || !containerRef.current) return;
 
         ymapsRef.current = ymaps;
-        const center = isValidLocation(location)
-          ? [location.latitude, location.longitude]
+        const center = isValidLocation(initialLocation)
+          ? [initialLocation.latitude, initialLocation.longitude]
           : DEFAULT_CENTER;
 
         const map = new ymaps.Map(containerRef.current, {
           center,
-          zoom: isValidLocation(location) ? SELECTED_POINT_ZOOM : DEFAULT_ZOOM,
+          zoom: isValidLocation(initialLocation) ? SELECTED_POINT_ZOOM : DEFAULT_ZOOM,
           controls: ["zoomControl", "geolocationControl"],
         });
         const placemark = new ymaps.Placemark(
@@ -135,14 +148,14 @@ const YandexAddressMap = ({
       placemarkRef.current = null;
       setIsMapReady(false);
     };
-  }, []);
+  }, [setPoint, updateAddressByLocation]);
 
   useEffect(() => {
     if (!isValidLocation(location) || !placemarkRef.current || !mapRef.current) return;
     const current = placemarkRef.current.geometry.getCoordinates();
     if (current[0] === location.latitude && current[1] === location.longitude) return;
     setPoint(location, SELECTED_POINT_ZOOM);
-  }, [location?.latitude, location?.longitude]);
+  }, [location, setPoint]);
 
   useEffect(() => {
     const searchAddress = forcedGeocodeAddress?.trim() || geocodeAddress?.trim() || address?.trim();
@@ -156,12 +169,19 @@ const YandexAddressMap = ({
     const timeoutId = window.setTimeout(() => {
       geocodeByAddress(searchAddress).then((nextLocation) => {
         if (nextLocation) setPoint(nextLocation, SELECTED_POINT_ZOOM);
-        if (isForcedGeocode) onForcedGeocodeComplete?.();
+        if (isForcedGeocode) onForcedGeocodeCompleteRef.current?.();
       });
     }, 700);
 
     return () => window.clearTimeout(timeoutId);
-  }, [address, geocodeAddress, geocodeRequestKey, isMapReady]);
+  }, [
+    address,
+    forcedGeocodeAddress,
+    geocodeAddress,
+    geocodeRequestKey,
+    isMapReady,
+    setPoint,
+  ]);
 
   return (
     <div style={{ position: "relative", width: "100%", minHeight: 300 }}>

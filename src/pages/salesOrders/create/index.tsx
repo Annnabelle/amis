@@ -28,7 +28,7 @@ import {
   useLazyGetDistrictsByRegionQuery,
 } from 'entities/references/api';
 import { useSubmitGuard } from 'shared/lib';
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { isLanguage, SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
@@ -222,7 +222,10 @@ const SalesOrdersCreate = () => {
 
   const normalizeTin = (value: string) => value.replace(/\D/g, '').slice(0, TIN_LENGTH);
 
-  const getReferenceValue = (reference: Reference) => reference.id ?? reference.alias;
+  const getReferenceValue = useCallback(
+    (reference: Reference) => reference.id ?? reference.alias,
+    []
+  );
 
   const getReferenceLabel = (reference: Reference) =>
     reference.title[currentLanguage] || reference.title.ru || reference.alias;
@@ -355,7 +358,7 @@ const SalesOrdersCreate = () => {
     customerDistricts
   );
 
-  const resolveReferenceValue = (items: Reference[], value?: string) => {
+  const resolveReferenceValue = useCallback((items: Reference[], value?: string) => {
     const normalized = value?.trim().toLowerCase();
     if (!normalized) return undefined;
 
@@ -372,9 +375,9 @@ const SalesOrdersCreate = () => {
     });
 
     return found ? getReferenceValue(found) : undefined;
-  };
+  }, [getReferenceValue]);
 
-  const getCompanyAddressDetails = async (company: Company) => {
+  const getCompanyAddressDetails = useCallback(async (company: Company) => {
     const address = company.address.address?.trim();
     const regionId = resolveReferenceValue(regions, company.address.region);
 
@@ -391,7 +394,7 @@ const SalesOrdersCreate = () => {
       regionId,
       districtId,
     };
-  };
+  }, [loadDistricts, regions, resolveReferenceValue]);
 
   const loadDistrictsForRegion = async (
     regionId: string,
@@ -574,7 +577,7 @@ const SalesOrdersCreate = () => {
         });
       })
       .catch(() => undefined);
-  }, [currentLanguage, form, regions.length, senderCompany]);
+  }, [currentLanguage, form, getCompanyAddressDetails, regions.length, senderCompany]);
 
   useEffect(() => {
     const senderLatitude = Number(senderLocation?.latitude);

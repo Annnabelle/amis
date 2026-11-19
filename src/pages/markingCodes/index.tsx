@@ -37,7 +37,7 @@ import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 
 const MarkingCodes = () => {
-    const { t, i18n  } = useTranslation();
+    const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const orgId = id
     const canCreateOrder = useCan(endpointAccessMap.ordersCreate);
@@ -57,10 +57,8 @@ const MarkingCodes = () => {
     );
     const [createCustomsCodeOrder] = useCreateCustomsCodeOrderMutation();
 
-    const {
-        data: packTypeReferences = [],
-        error: packTypeReferencesError,
-    } = useGetReferencesByTypeQuery("cisType");
+    const { error: packTypeReferencesError } =
+        useGetReferencesByTypeQuery("cisType");
     const referencesError = packTypeReferencesError
         ? getApiErrorMessage(packTypeReferencesError, t('common.error'))
         : null;
@@ -96,15 +94,6 @@ const MarkingCodes = () => {
     );
     const dataTotal = markingCodesPage?.total ?? 0;
 
-    const packageTypeMap = useMemo(() => {
-        const lang = i18n.language as keyof (typeof packTypeReferences)[number]["title"];
-
-        return packTypeReferences.reduce<Record<string, string>>((acc, ref) => {
-            acc[ref.alias] = ref.title[lang] ?? ref.title.en;
-            return acc;
-        }, {});
-    }, [packTypeReferences, i18n.language]);
-
      const MarkingCodesData = useMemo(() => {
         return markingCodes.map((markingCode, index) => ({
             key: index.toString() + 1,
@@ -129,7 +118,7 @@ const MarkingCodes = () => {
             status: markingCode.status ?? null,
             externalStatus: markingCode.externalStatus ?? null,
         }))
-    }, [markingCodes, packageTypeMap])
+    }, [markingCodes, t])
 
     const customsCodeBatchIds = useMemo(() => {
         const batchIds = new Set(customsCodes.map((item) => item.batchId));
@@ -175,7 +164,7 @@ const MarkingCodes = () => {
             value: key,   // это будет точно совпадать с тем, что ожидает бек
             label,       // перевод
         }));
-    }, [i18n.language, t]);
+    }, [t]);
 
     const handleProductSearch = (value: string) => {
         if (value.trim()) {

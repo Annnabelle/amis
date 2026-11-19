@@ -236,7 +236,7 @@ const DeliveryRoutesCreate = () => {
         };
       })
       .filter((row) => row.remaining > 0);
-  }, [orders, t]);
+  }, [companyId, orders, t]);
 
   useEffect(() => {
     const availableIds = new Set(availableOrders.map((row) => row.key));
@@ -442,7 +442,7 @@ const DeliveryRoutesCreate = () => {
         ),
       },
     ],
-    [t]
+    [orgId, t]
   );
 
   return (

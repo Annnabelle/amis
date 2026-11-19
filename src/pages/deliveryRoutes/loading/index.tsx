@@ -122,7 +122,7 @@ const DeliveryRoutesLoading = () => {
     ? `${t('deliveryRoutes.loadingPageTitle')} (${route.routeNumber})`
     : t('deliveryRoutes.loadingTitle');
 
-  const productRows = route?.products ?? [];
+  const productRows = useMemo(() => route?.products ?? [], [route]);
   const totals = route?.totals;
 
   const smallCounters = useMemo(
