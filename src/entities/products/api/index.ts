@@ -53,6 +53,8 @@ export const productsApi = baseApi.injectEndpoints({
           params: { query, page, limit, sortOrder, companyId },
         }),
       transformResponse: toPaginated(mapProductDtoToEntity),
+      /** Поиск показывает те же записи, что список: мутация устаревает и его. */
+      providesTags: listTag,
     }),
 
     getProductById: build.query<Product, GetProductDto>({

@@ -49,6 +49,8 @@ export const organizationsApi = baseApi.injectEndpoints({
           params: { query, page, limit, sortOrder },
         }),
       transformResponse: toPaginated(mapOrganizationDtoToEntity),
+      /** Поиск показывает те же записи, что список: мутация устаревает и его. */
+      providesTags: listTag,
     }),
 
     getCompanyById: build.query<Company, GetCompanyDto>({

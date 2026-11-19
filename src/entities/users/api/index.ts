@@ -78,9 +78,14 @@ export const usersApi = baseApi.injectEndpoints({
         mapLoginResponseDtoToSession(response),
       /** Токены в хранилище пишутся здесь, а не в редьюсере: редьюсер чистый. */
       onQueryStarted: async (_form, { queryFulfilled }) => {
-        const { data } = await queryFulfilled;
+        try {
+          const { data } = await queryFulfilled;
 
-        saveAuthSession(data);
+          saveAuthSession(data);
+        } catch {
+          // Отказ показывает вызывающий код; здесь глотаем, чтобы не оставить
+          // необработанное отклонение промиса.
+        }
       },
     }),
 
@@ -96,6 +101,8 @@ export const usersApi = baseApi.injectEndpoints({
           params: { query, page, limit, sortOrder },
         }),
       transformResponse: toPaginated(mapUsersDtoToEntity),
+      /** Поиск показывает те же записи, что список: мутация устаревает и его. */
+      providesTags: listTag,
     }),
 
     getUserById: build.query<User, GetUserDto>({
@@ -236,9 +243,13 @@ export const usersApi = baseApi.injectEndpoints({
       transformResponse: (response: SuccessOf<ChangePasswordResponseDto>) =>
         mapChangePwdDtoToSession(response),
       onQueryStarted: async (_form, { queryFulfilled }) => {
-        const { data } = await queryFulfilled;
+        try {
+          const { data } = await queryFulfilled;
 
-        saveAuthSession(data);
+          saveAuthSession(data);
+        } catch {
+          // см. login: отказ обрабатывает страница
+        }
       },
       invalidatesTags: currentUserTag,
     }),

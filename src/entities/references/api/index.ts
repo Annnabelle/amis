@@ -12,8 +12,9 @@ import { baseApi, request, type SuccessOf } from "shared/api";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 
 /**
- * Справочники меняются редко, поэтому записи живут в кеше дольше обычного:
- * страницы запрашивают их на каждом монтировании.
+ * Справочники меняются редко, поэтому записи живут в кеше дольше обычного.
+ * Открытие страницы всё равно их перечитывает (refetchOnMountOrArgChange),
+ * но список рисуется сразу прошлым ответом, а не пустым местом.
  */
 const REFERENCES_CACHE_SECONDS = 3600;
 
