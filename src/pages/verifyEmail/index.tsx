@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from 'app/store';
-import { verifyEmail, type AccountActionError } from 'entities/users/model';
+import { useVerifyEmailMutation } from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
 import AuthShell from 'pages/auth/authShell';
 import CustomButton from 'shared/ui/button';
 
@@ -10,7 +10,7 @@ type Status = 'loading' | 'success' | 'error' | 'missing-token';
 
 const VerifyEmailPage = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const [verifyEmail] = useVerifyEmailMutation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [status, setStatus] = useState<Status>(token ? 'loading' : 'missing-token');
@@ -21,14 +21,14 @@ const VerifyEmailPage = () => {
     if (!token || requestedRef.current) return;
     requestedRef.current = true;
 
-    dispatch(verifyEmail({ token }))
+    verifyEmail({ token })
       .unwrap()
       .then(() => setStatus('success'))
-      .catch((error: AccountActionError) => {
-        setErrorMessage(error?.message ?? t('auth.verifyEmail.error'));
+      .catch((error: unknown) => {
+        setErrorMessage(getApiErrorMessage(error, t('auth.verifyEmail.error')));
         setStatus('error');
       });
-  }, [dispatch, t, token]);
+  }, [t, token, verifyEmail]);
 
   if (status === 'loading') {
     return (

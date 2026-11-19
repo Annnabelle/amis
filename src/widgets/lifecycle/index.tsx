@@ -1,19 +1,17 @@
 import { Alert, Segmented, Skeleton, Tabs } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "app/store";
 import {
   getLifecycleTabFilters,
   getLifecycleTargetConfig,
-  hasMoreLifecycleEvents,
   useLifecycleSummary,
   type LifecycleTargetEntity,
 } from "entities/lifecycle/lib";
 import {
-  getLifecycleEvents,
   LIFECYCLE_DEFAULT_LIMIT,
-  resetLifecycle,
-} from "entities/lifecycle/model";
+  useGetLifecycleEventsInfiniteQuery,
+} from "entities/lifecycle/api";
+import { getApiErrorMessage } from "shared/api";
 import {
   LIFECYCLE_ALL_TAB_KEY,
   LifecycleEventKind,
@@ -52,20 +50,12 @@ const getTabLabel = (
 
 const LifecyclePanel = ({ targetId, target, className }: LifecyclePanelProps) => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const {
     canRead,
     summary,
     isLoading: isSummaryLoading,
     error: summaryError,
   } = useLifecycleSummary(targetId, target);
-  const events = useAppSelector((state) => state.lifecycle.events);
-  const page = useAppSelector((state) => state.lifecycle.page);
-  const limit = useAppSelector((state) => state.lifecycle.limit);
-  const total = useAppSelector((state) => state.lifecycle.total);
-  const isEventsLoading = useAppSelector((state) => state.lifecycle.eventsLoading);
-  const eventsError = useAppSelector((state) => state.lifecycle.eventsError);
-
   const [activeTabKey, setActiveTabKey] = useState(LIFECYCLE_ALL_TAB_KEY);
   const [kindFilter, setKindFilter] = useState<KindFilter>(KIND_FILTER_ALL);
 
@@ -89,40 +79,33 @@ const LifecyclePanel = ({ targetId, target, className }: LifecyclePanelProps) =>
     setActiveTabKey(LIFECYCLE_ALL_TAB_KEY);
   }, [activeTabKey, tabs]);
 
-  useEffect(() => {
-    if (!targetId || !canRead) return;
-
-    void dispatch(
-      getLifecycleEvents({
-        targetId,
-        scope: feedScope,
-        vendor: feedVendor,
-        kind: feedKind,
-        page: 1,
-        limit: LIFECYCLE_DEFAULT_LIMIT,
-        companyScope: getLifecycleTargetConfig(target).companyScope,
-      })
-    );
-  }, [canRead, dispatch, feedKind, feedScope, feedVendor, target, targetId]);
-
-  useEffect(() => () => {
-    dispatch(resetLifecycle());
-  }, [dispatch]);
+  const {
+    data: feed,
+    isFetching: isEventsLoading,
+    error: eventsRequestError,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetLifecycleEventsInfiniteQuery(
+    {
+      targetId: targetId ?? "",
+      scope: feedScope,
+      vendor: feedVendor,
+      kind: feedKind,
+      limit: LIFECYCLE_DEFAULT_LIMIT,
+      companyScope: getLifecycleTargetConfig(target).companyScope,
+    },
+    { skip: !targetId || !canRead }
+  );
+  const events = useMemo(
+    () => (feed?.pages ?? []).flatMap((feedPage) => feedPage.events),
+    [feed]
+  );
+  const eventsError = eventsRequestError
+    ? getApiErrorMessage(eventsRequestError, "lifecycle.errors.loadEvents")
+    : null;
 
   const handleLoadMore = () => {
-    if (!targetId) return;
-
-    void dispatch(
-      getLifecycleEvents({
-        targetId,
-        scope: feedScope,
-        vendor: feedVendor,
-        kind: feedKind,
-        page: page + 1,
-        limit,
-        companyScope: getLifecycleTargetConfig(target).companyScope,
-      })
-    );
+    void fetchNextPage();
   };
 
   if (!targetId || !canRead) return null;
@@ -135,7 +118,7 @@ const LifecyclePanel = ({ targetId, target, className }: LifecyclePanelProps) =>
     return <Alert type="error" showIcon message={t(summaryError)} />;
   }
 
-  const hasMore = hasMoreLifecycleEvents(page, limit, total);
+  const hasMore = Boolean(hasNextPage);
 
   return (
     <div className={["lifecycle-panel", className].filter(Boolean).join(" ")}>

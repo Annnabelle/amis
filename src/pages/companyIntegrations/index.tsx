@@ -1,22 +1,23 @@
 import { Empty, Form, Input, Spin, Tag } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from 'app/store';
+import { useAppSelector } from 'app/store';
 import { canAccess } from 'entities/access/lib';
 import { EndpointScopes } from 'shared/config/endpointAccessMap';
 import { Permissions, type Permission } from 'shared/config/permissions';
-import { getOrganizationById } from 'entities/organization/model';
+import { useGetCompanyByIdQuery } from 'entities/organization/api';
 import {
-  clearXTraceIntegrationValidation,
-  createCompanyFakturaUzIntegration,
-  createCompanyXTraceIntegration,
-  getCompanyFakturaUzIntegration,
-  getCompanyXTraceIntegration,
-  updateCompanyXTraceIntegration,
-  validateCompanyXTraceIntegrationToken,
-} from 'entities/xTrace/model';
-import { fetchReferencesByType } from 'entities/references/model';
+  useCreateCompanyFakturaUzIntegrationMutation,
+  useCreateCompanyXTraceIntegrationMutation,
+  useGetCompanyFakturaUzIntegrationQuery,
+  useGetCompanyXTraceIntegrationQuery,
+  useLazyValidateCompanyXTraceIntegrationTokenQuery,
+  useUpdateCompanyXTraceIntegrationMutation,
+} from 'entities/xTrace/api';
+import type { XTraceIntegrationTokenValidation } from 'entities/xTrace/types';
+import { getApiErrorMessage } from 'shared/api';
+import { useGetReferencesByTypeQuery } from 'entities/references/api';
 import dayjs from 'dayjs';
-import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -24,7 +25,7 @@ import { LifecycleTargetEntity, useLifecycleSummary } from 'entities/lifecycle/l
 import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
 import CompanyImportPanel from 'widgets/companyImport';
 import CompanyImportStartButton from 'widgets/companyImport/startButton';
-import { getBackendErrorMessage, useIsMobile, useNavigationBack } from 'shared/lib';
+import { useIsMobile, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import FormComponent from 'shared/ui/formComponent';
@@ -75,7 +76,6 @@ const renderDetailItems = (items: DetailItem[]) => (
 const CompanyIntegrations = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigateBack = useNavigationBack();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -91,16 +91,10 @@ const CompanyIntegrations = () => {
   const validationRequestRef = useRef(0);
 
   const access = useAppSelector((state) => state.access.data);
-  const organizationById = useAppSelector((state) => state.organizations.organizationById);
-  const organizationLoading = useAppSelector((state) => state.organizations.isLoading);
-  const xTraceIntegration = useAppSelector((state) => state.xTrace.integration);
-  const fakturaUzIntegration = useAppSelector((state) => state.xTrace.fakturaUzIntegration);
-  const integrationsLoading = useAppSelector((state) => state.xTrace.integrationsLoading);
-  const xTraceValidation = useAppSelector((state) => state.xTrace.integrationValidation);
-  const xTraceValidationLoading = useAppSelector((state) => state.xTrace.integrationValidationLoading);
-  const xTraceCreateLoading = useAppSelector((state) => state.xTrace.integrationCreateLoading);
-  const fakturaUzCreateLoading = useAppSelector((state) => state.xTrace.fakturaUzCreateLoading);
-  const productGroupReferences = useAppSelector((state) => state.references.references.productGroup) ?? [];
+  const { data: organizationById, isLoading: organizationLoading } =
+    useGetCompanyByIdQuery({ id: orgId ?? '' }, { skip: !orgId });
+  const { data: productGroupReferences = [] } =
+    useGetReferencesByTypeQuery('productGroup');
   const currentLanguage = i18n.language.split('-')[0] as 'ru' | 'en' | 'uz';
 
   const hasPermission = (permission: Permission) =>
@@ -117,6 +111,28 @@ const CompanyIntegrations = () => {
   const canUpdateXTrace = hasPermission(Permissions.CompanyXTraceIntegrationsUpdate);
   const canReadCompanyImport = hasPermission(Permissions.CompanyImportRead);
   const canReadFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsRead);
+  const { data: xTraceIntegration, isFetching: xTraceLoading } =
+    useGetCompanyXTraceIntegrationQuery(
+      { companyId: orgId ?? '' },
+      { skip: !orgId || !canReadXTrace }
+    );
+  const { data: fakturaUzIntegration, isFetching: fakturaUzLoading } =
+    useGetCompanyFakturaUzIntegrationQuery(
+      { companyId: orgId ?? '' },
+      { skip: !orgId || !canReadFakturaUz }
+    );
+  const integrationsLoading = xTraceLoading || fakturaUzLoading;
+  /** Проверка токена — состояние открытой формы, а не серверные данные. */
+  const [xTraceValidation, setXTraceValidation] =
+    useState<XTraceIntegrationTokenValidation | null>(null);
+  const [validateXTraceToken, { isFetching: xTraceValidationLoading }] =
+    useLazyValidateCompanyXTraceIntegrationTokenQuery();
+  const [createXTraceIntegration, { isLoading: xTraceCreateLoading }] =
+    useCreateCompanyXTraceIntegrationMutation();
+  const [updateXTraceIntegration] = useUpdateCompanyXTraceIntegrationMutation();
+  const [createFakturaUzIntegration, { isLoading: fakturaUzCreateLoading }] =
+    useCreateCompanyFakturaUzIntegrationMutation();
+
   const canCreateFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsCreate);
   const canUpdateFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsUpdate);
 
@@ -139,28 +155,6 @@ const CompanyIntegrations = () => {
 
   const xTraceValidationData = xTraceValidation;
 
-  useEffect(() => {
-    if (!orgId) return;
-
-    dispatch(getOrganizationById({ id: orgId }));
-  }, [dispatch, orgId]);
-
-  useEffect(() => {
-    if (!orgId) return;
-
-    if (canReadXTrace) {
-      dispatch(getCompanyXTraceIntegration({ companyId: orgId }));
-    }
-
-    if (canReadFakturaUz) {
-      dispatch(getCompanyFakturaUzIntegration({ companyId: orgId }));
-    }
-  }, [canReadFakturaUz, canReadXTrace, dispatch, orgId]);
-
-  useEffect(() => {
-    dispatch(fetchReferencesByType('productGroup'));
-  }, [dispatch]);
-
   const openLifecycleTab = (tabKey: string) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('tab', tabKey);
@@ -170,7 +164,7 @@ const CompanyIntegrations = () => {
   const closeXTraceModal = () => {
     setIsXTraceModalOpen(false);
     xTraceForm.resetFields();
-    dispatch(clearXTraceIntegrationValidation());
+    setXTraceValidation(null);
   };
 
   const openXTraceModal = () => {
@@ -179,7 +173,7 @@ const CompanyIntegrations = () => {
       token: xTraceIntegration?.tokenInfo.token ?? '',
       businessPlaceId: xTraceIntegration?.businessPlaceId,
     });
-    dispatch(clearXTraceIntegrationValidation());
+    setXTraceValidation(null);
     setIsXTraceModalOpen(true);
   };
 
@@ -201,20 +195,23 @@ const CompanyIntegrations = () => {
       window.clearTimeout(validationTimeoutRef.current);
     }
 
-    dispatch(clearXTraceIntegrationValidation());
+    setXTraceValidation(null);
 
     if (!orgId || !token || !canValidateXTrace) return;
 
     validationTimeoutRef.current = window.setTimeout(async () => {
       try {
-        await dispatch(validateCompanyXTraceIntegrationToken({ companyId: orgId, token })).unwrap();
+        const validation = await validateXTraceToken({
+          companyId: orgId,
+          token,
+        }).unwrap();
 
-        if (requestId !== validationRequestRef.current) {
-          dispatch(clearXTraceIntegrationValidation());
-        }
+        if (requestId !== validationRequestRef.current) return;
+
+        setXTraceValidation(validation);
       } catch (error: any) {
         if (requestId === validationRequestRef.current) {
-          toast.error(getBackendErrorMessage(error, t('organizations.addUserForm.validation.xTrace.invalidToken')));
+          toast.error(getApiErrorMessage(error, t('organizations.addUserForm.validation.xTrace.invalidToken')));
         }
       }
     }, 450);
@@ -226,26 +223,21 @@ const CompanyIntegrations = () => {
     try {
       const values = await xTraceForm.validateFields(['token', 'businessPlaceId']);
       const saveXTraceIntegration = xTraceIntegration
-        ? updateCompanyXTraceIntegration
-        : createCompanyXTraceIntegration;
+        ? updateXTraceIntegration
+        : createXTraceIntegration;
 
-      await dispatch(
-        saveXTraceIntegration({
-          companyId: orgId,
-          token: String(values.token ?? '').trim(),
-          businessPlaceId: Number(values.businessPlaceId),
-        })
-      ).unwrap();
+      // Карточка интеграции перечитается сама: мутация инвалидирует её тег.
+      await saveXTraceIntegration({
+        companyId: orgId,
+        token: String(values.token ?? '').trim(),
+        businessPlaceId: Number(values.businessPlaceId),
+      }).unwrap();
 
       toast.success(t('organizations.messages.success.createXTraceIntegration'));
       closeXTraceModal();
-
-      if (canReadXTrace) {
-        await dispatch(getCompanyXTraceIntegration({ companyId: orgId }));
-      }
     } catch (error: any) {
       if (error?.errorFields) return;
-      toast.error(getBackendErrorMessage(error, t('organizations.messages.error.createXTraceIntegration')));
+      toast.error(getApiErrorMessage(error, t('organizations.messages.error.createXTraceIntegration')));
     }
   };
 
@@ -254,25 +246,19 @@ const CompanyIntegrations = () => {
 
     try {
       const values = await fakturaUzForm.validateFields(['username', 'password', 'clientId', 'clientSecret']);
-      await dispatch(
-        createCompanyFakturaUzIntegration({
-          companyId: orgId,
-          username: String(values.username ?? '').trim(),
-          password: String(values.password ?? ''),
-          clientId: String(values.clientId ?? '').trim(),
-          clientSecret: String(values.clientSecret ?? '').trim(),
-        })
-      ).unwrap();
+      await createFakturaUzIntegration({
+        companyId: orgId,
+        username: String(values.username ?? '').trim(),
+        password: String(values.password ?? ''),
+        clientId: String(values.clientId ?? '').trim(),
+        clientSecret: String(values.clientSecret ?? '').trim(),
+      }).unwrap();
 
       toast.success(t('organizations.messages.success.createFakturaUzIntegration'));
       setIsFakturaUzModalOpen(false);
-
-      if (canReadFakturaUz) {
-        await dispatch(getCompanyFakturaUzIntegration({ companyId: orgId }));
-      }
     } catch (error: any) {
       if (error?.errorFields) return;
-      toast.error(getBackendErrorMessage(error, t('organizations.messages.error.createFakturaUzIntegration')));
+      toast.error(getApiErrorMessage(error, t('organizations.messages.error.createFakturaUzIntegration')));
     }
   };
 

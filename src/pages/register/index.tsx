@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { LuMailCheck } from 'react-icons/lu';
-import { useAppDispatch } from 'app/store';
-import { registerAccount, type AccountActionError } from 'entities/users/model';
+import { useRegisterAccountMutation } from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
 import type { RegisterForm } from 'entities/users/types';
 import AuthShell from 'pages/auth/authShell';
 import FormComponent from 'shared/ui/formComponent';
@@ -14,7 +14,7 @@ import PhoneInput from 'shared/ui/phoneInput';
 
 const RegisterPage = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const [registerAccount] = useRegisterAccountMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -22,13 +22,13 @@ const RegisterPage = () => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    dispatch(registerAccount(values))
+    registerAccount(values)
       .unwrap()
       .then((user) => {
         setSubmittedEmail(user.email);
       })
-      .catch((error: AccountActionError) => {
-        toast.error(error?.message || t('auth.register.messages.error'));
+      .catch((error: unknown) => {
+        toast.error(getApiErrorMessage(error, t('auth.register.messages.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

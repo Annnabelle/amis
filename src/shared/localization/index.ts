@@ -883,7 +883,9 @@ export const resources = {
                     error: {
                         create: "Could not create vehicle",
                         update: "Could not update vehicle",
-                        delete: "Could not delete vehicle"
+                        delete: "Could not delete vehicle",
+                        load: "Could not load vehicles",
+                        verifyOwnership: "Could not verify the vehicle owner"
                     }
                 }
             },
@@ -3283,7 +3285,9 @@ export const resources = {
                     error: {
                         create: "Не удалось создать транспорт",
                         update: "Не удалось обновить транспорт",
-                        delete: "Не удалось удалить транспорт"
+                        delete: "Не удалось удалить транспорт",
+                        load: "Не удалось загрузить транспорт",
+                        verifyOwnership: "Не удалось проверить владельца транспорта"
                     }
                 }
             },
@@ -5675,7 +5679,9 @@ export const resources = {
                     error: {
                         create: "Transportni yaratib bo'lmadi",
                         update: "Transportni yangilab bo'lmadi",
-                        delete: "Transportni o'chirib bo'lmadi"
+                        delete: "Transportni o'chirib bo'lmadi",
+                        load: "Transportni yuklab bo'lmadi",
+                        verifyOwnership: "Transport egasini tekshirib bo'lmadi"
                     }
                 }
             },

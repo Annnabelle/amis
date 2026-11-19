@@ -10,16 +10,18 @@ import CustomButton from 'shared/ui/button';
 import 'shared/ui/details/styles.sass';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import {
-  completeDeliveryRouteReturn,
-  getDeliveryRouteById,
-} from 'entities/deliveryRoutes/model';
+  useCompleteDeliveryRouteReturnMutation,
+  useGetDeliveryRouteByIdQuery,
+} from 'entities/deliveryRoutes/api';
 import {
-  completeScanSession,
-  createScanSession,
   replaceScanAttempts,
   resetScanSessionState,
-  scanSessionCode,
 } from 'entities/scanSessions/model';
+import {
+  useCompleteScanSessionMutation,
+  useCreateScanSessionMutation,
+  useScanSessionCodeMutation,
+} from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { useCan } from 'entities/access/lib';
@@ -39,8 +41,15 @@ const DeliveryRoutesReturn = () => {
   const routeId = id ?? '';
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
 
-  const route = useAppSelector((state) => state.deliveryRoutes.routeById);
-  const routeLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
+  const {
+    data: route,
+    isLoading: routeLoading,
+    refetch: refetchRoute,
+  } = useGetDeliveryRouteByIdQuery(routeId, { skip: !routeId });
+  const [completeDeliveryRouteReturn] = useCompleteDeliveryRouteReturnMutation();
+  const [createScanSession] = useCreateScanSessionMutation();
+  const [completeScanSession] = useCompleteScanSessionMutation();
+  const [scanSessionCode] = useScanSessionCodeMutation();
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -50,7 +59,6 @@ const DeliveryRoutesReturn = () => {
 
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isClosingSession, setIsClosingSession] = useState(false);
-  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const canCreateScanSession = useCan(endpointAccessMap.scanSessionsCreate);
   const canScan = useCan(endpointAccessMap.scanSessionsScan);
@@ -61,23 +69,8 @@ const DeliveryRoutesReturn = () => {
     (scanSession?.status !== 'active' || canCompleteScanSession);
 
   useEffect(() => {
-    let isMounted = true;
+    if (!routeId) return;
 
-    if (!routeId) {
-      setIsBootstrapping(false);
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    setIsBootstrapping(true);
-    dispatch(getDeliveryRouteById(routeId))
-      .unwrap()
-      .finally(() => {
-        if (isMounted) {
-          setIsBootstrapping(false);
-        }
-      });
     dispatch(resetScanSessionState());
 
     try {
@@ -93,7 +86,6 @@ const DeliveryRoutesReturn = () => {
     }
 
     return () => {
-      isMounted = false;
       dispatch(resetScanSessionState());
     };
   }, [dispatch, routeId]);
@@ -110,12 +102,12 @@ const DeliveryRoutesReturn = () => {
         scanSession?.id &&
         scanSession.status === 'active'
       ) {
-        void dispatch(completeScanSession(scanSession.id));
+        void completeScanSession(scanSession.id);
       }
     };
   }, [
     canCompleteScanSession,
-    dispatch,
+    completeScanSession,
     scanSession?.id,
     scanSession?.status,
   ]);
@@ -225,7 +217,7 @@ const DeliveryRoutesReturn = () => {
 
   const refreshRoute = async () => {
     if (!routeId) return;
-    await dispatch(getDeliveryRouteById(routeId));
+    await refetchRoute();
   };
 
   const handleStartScanning = async () => {
@@ -237,12 +229,10 @@ const DeliveryRoutesReturn = () => {
     }
 
     try {
-      await dispatch(
-        createScanSession({
+      await createScanSession({
           type: ScanSessionType.Return,
           routeId,
-        })
-      ).unwrap();
+        }).unwrap();
       setScannerOpen(true);
     } catch (error) {
       toast.error(
@@ -269,7 +259,7 @@ const DeliveryRoutesReturn = () => {
 
     try {
       setIsClosingSession(true);
-      await dispatch(completeScanSession(scanSession.id)).unwrap();
+      await completeScanSession(scanSession.id).unwrap();
     } catch (error) {
       toast.error(
         getBackendErrorMessage(
@@ -296,12 +286,10 @@ const DeliveryRoutesReturn = () => {
     }
 
     try {
-      await dispatch(
-        scanSessionCode({
+      await scanSessionCode({
           sessionId: scanSession.id,
           code,
-        })
-      ).unwrap();
+        }).unwrap();
 
       await refreshRoute();
       pushSingleScanToast(
@@ -338,10 +326,10 @@ const DeliveryRoutesReturn = () => {
 
     try {
       if (scanSession?.id && scanSession.status === 'active') {
-        await dispatch(completeScanSession(scanSession.id)).unwrap();
+        await completeScanSession(scanSession.id).unwrap();
       }
 
-      await dispatch(completeDeliveryRouteReturn(routeId)).unwrap();
+      await completeDeliveryRouteReturn(routeId).unwrap();
       localStorage.removeItem(getScanCacheKey(routeId));
       navigate(`${backPath}/${routeId}`);
     } catch (error) {
@@ -405,13 +393,11 @@ const DeliveryRoutesReturn = () => {
     </div>
   );
 
-  const isCurrentRouteLoaded = route?.id === routeId;
-
-  if (isBootstrapping || (routeLoading && !isCurrentRouteLoaded)) {
+  if (routeLoading) {
     return null;
   }
 
-  if (!isCurrentRouteLoaded || !route) {
+  if (!route) {
     return (
       <MainLayout>
         <Heading title={t('deliveryRoutes.returnTitle')} subtitle={t('deliveryRoutes.returnSubtitle')} />

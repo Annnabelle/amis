@@ -2,6 +2,7 @@ import {
   SystemRoles,
   UserSystemAccessStates,
 } from '@edem2000/amis.contracts';
+import type { Paginated } from 'shared/api';
 import type {
   SystemRole,
   UserSystemAccessState,
@@ -58,12 +59,4 @@ export type SystemEmployeeListQuery = {
   query?: string;
 };
 
-export type SystemEmployeesState = {
-  employees: SystemEmployee[];
-  employeeById: SystemEmployee | null;
-  total: number;
-  page: number;
-  limit: number;
-  isLoading: boolean;
-  error: string | null;
-};
+export type SystemEmployeeList = Paginated<SystemEmployee>;

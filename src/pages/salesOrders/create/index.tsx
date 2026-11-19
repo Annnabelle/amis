@@ -6,19 +6,27 @@ import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from 'app/store';
 import { toast } from 'react-toastify';
-import { createSalesOrder } from 'entities/salesOrders/model';
+import { useCreateSalesOrderMutation } from 'entities/salesOrders/api';
 import {
   mapSalesOrderFormToCreateDto,
   SalesOrderContractError,
   type SalesOrderFormValues,
 } from 'entities/salesOrders/mappers';
-import { getProductPackages, searchProducts } from 'entities/products/model';
+import {
+  useLazyGetProductPackagesQuery,
+  useSearchProductsQuery,
+} from 'entities/products/api';
 import type { ProductPackage } from 'entities/products/types';
-import { getCompanyByTin, getOrganizationById } from 'entities/organization/model';
-import { fetchDistrictsByRegion, fetchRegions } from 'entities/references/model';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage.ts';
+import {
+  useLazyGetCompanyByIdQuery,
+  useLazyGetCompanyByTinQuery,
+} from 'entities/organization/api';
+import {
+  useGetDistrictsByRegionQuery,
+  useGetRegionsQuery,
+  useLazyGetDistrictsByRegionQuery,
+} from 'entities/references/api';
 import { useSubmitGuard } from 'shared/lib';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -27,6 +35,7 @@ import { isLanguage, SalesOrderPaymentMethod, SalesOrderPriorities } from 'share
 import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
 import type { Company } from 'entities/organization/types';
 import type { Reference } from 'entities/references/types';
+import { getApiErrorMessage } from 'shared/api';
 import YandexAddressMap, { calculateYandexRouteDistanceKm, type YandexResolvedAddress } from './YandexAddressMap';
 
 const TIN_LENGTH = 9;
@@ -35,15 +44,29 @@ const SalesOrdersCreate = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
-  const { products, isLoading: productsLoading, error: productsError } =
-    useAppSelector((state) => state.products);
+  const [productQuery, setProductQuery] = useState('');
   const {
-    references,
-    districtsByRegionId,
-    loading: referencesLoading,
-    error: referencesError,
-  } = useAppSelector((state) => state.references);
+    data: productsPage,
+    isFetching: productsLoading,
+    error: productsRequestError,
+  } = useSearchProductsQuery(
+    { query: productQuery, page: 1, limit: 10, sortOrder: 'asc' },
+    { skip: !orgId }
+  );
+  const products = useMemo(() => productsPage?.items ?? [], [productsPage]);
+  const [loadPackages] = useLazyGetProductPackagesQuery();
+  const productsError = productsRequestError
+    ? getApiErrorMessage(productsRequestError, t('common.error'))
+    : null;
+  const {
+    data: regions = [],
+    isFetching: referencesLoading,
+    error: regionsError,
+  } = useGetRegionsQuery(undefined, { skip: !orgId });
+  const [loadDistricts] = useLazyGetDistrictsByRegionQuery();
+  const [createSalesOrder] = useCreateSalesOrderMutation();
+  const [findCompanyByTin] = useLazyGetCompanyByTinQuery();
+  const [loadCompanyById] = useLazyGetCompanyByIdQuery();
   const [form] = Form.useForm<SalesOrderFormValues>();
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
   const [isCompanyFound, setIsCompanyFound] = useState(false);
@@ -82,9 +105,17 @@ const SalesOrdersCreate = () => {
   const customerLocation = Form.useWatch(["customer", "addressDetails", "location"], form);
   const deliveryCostPerDistanceUnit = Form.useWatch(["delivery", "costPerDistanceUnit"], form);
   const deliveryTotalDistance = Form.useWatch(["delivery", "totalDistance"], form);
-  const regions = references.regions ?? [];
-  const senderDistricts = senderRegionId ? districtsByRegionId[senderRegionId] ?? [] : [];
-  const customerDistricts = customerRegionId ? districtsByRegionId[customerRegionId] ?? [] : [];
+  const { data: senderDistricts = [] } = useGetDistrictsByRegionQuery(
+    senderRegionId ?? '',
+    { skip: !senderRegionId }
+  );
+  const { data: customerDistricts = [] } = useGetDistrictsByRegionQuery(
+    customerRegionId ?? '',
+    { skip: !customerRegionId }
+  );
+  const referencesError = regionsError
+    ? getApiErrorMessage(regionsError, t('common.error'))
+    : null;
 
   const digitsOnlyParser = (maxDigits?: number) => (value?: string) => {
     const digits = value?.replace(/\D/g, '') ?? '';
@@ -345,8 +376,9 @@ const SalesOrdersCreate = () => {
 
     if (!address && !regionId) return undefined;
 
+    // true — отдать значение из кеша, если район этого региона уже запрашивали.
     const districts = regionId
-      ? districtsByRegionId[regionId] ?? (await dispatch(fetchDistrictsByRegion(regionId)).unwrap()).data
+      ? await loadDistricts(regionId, true).unwrap()
       : [];
     const districtId = resolveReferenceValue(districts, company.address.district);
 
@@ -361,17 +393,12 @@ const SalesOrdersCreate = () => {
     regionId: string,
     owner?: "sender" | "customer"
   ) => {
-    if (districtsByRegionId[regionId]) {
-      return districtsByRegionId[regionId];
-    }
-
     if (owner) {
       setDistrictsLoadingByOwner((prev) => ({ ...prev, [owner]: true }));
     }
 
     try {
-      const payload = await dispatch(fetchDistrictsByRegion(regionId)).unwrap();
-      return payload.data;
+      return await loadDistricts(regionId, true).unwrap();
     } finally {
       if (owner) {
         setDistrictsLoadingByOwner((prev) => ({ ...prev, [owner]: false }));
@@ -482,7 +509,7 @@ const SalesOrdersCreate = () => {
     setIsSearchingCompany(true);
 
     try {
-      const company = await dispatch(getCompanyByTin(normalized)).unwrap();
+      const company = await findCompanyByTin(normalized).unwrap();
 
       if (requestId !== companyLookupRequestRef.current) return;
 
@@ -505,7 +532,7 @@ const SalesOrdersCreate = () => {
     } catch (error: unknown) {
       if (requestId === companyLookupRequestRef.current) {
         setIsSearchingCompany(false);
-        const message = getBackendErrorMessage(error, t('common.error'));
+        const message = getApiErrorMessage(error, t('common.error'));
         setCompanyLookupError(message);
         toast.error(message);
       }
@@ -514,21 +541,8 @@ const SalesOrdersCreate = () => {
 
   useEffect(() => {
     if (!orgId) return;
-    dispatch(fetchRegions());
-    dispatch(
-      searchProducts({
-        query: '',
-        page: 1,
-        limit: 10,
-        sortOrder: 'asc',
-      })
-    );
-  }, [dispatch, orgId]);
 
-  useEffect(() => {
-    if (!orgId) return;
-
-    dispatch(getOrganizationById({ id: orgId }))
+    loadCompanyById({ id: orgId })
       .unwrap()
       .then((company) => {
         setSenderCompany(company);
@@ -540,7 +554,7 @@ const SalesOrdersCreate = () => {
         });
       })
       .catch(() => undefined);
-  }, [currentLanguage, dispatch, form, orgId]);
+  }, [currentLanguage, form, loadCompanyById, orgId]);
 
   useEffect(() => {
     if (!senderCompany || regions.length === 0) return;
@@ -599,14 +613,8 @@ const SalesOrdersCreate = () => {
 
   const handleProductSearch = (value: string) => {
     if (!orgId || !value.trim()) return;
-    dispatch(
-      searchProducts({
-        query: value,
-        page: 1,
-        limit: 10,
-        sortOrder: 'asc',
-      })
-    );
+
+    setProductQuery(value);
   };
 
   const loadProductPackages = async (productId: string): Promise<ProductPackage[]> => {
@@ -623,20 +631,22 @@ const SalesOrdersCreate = () => {
       [productId]: { loading: true, loaded: false, options: prev[productId]?.options ?? [] },
     }));
 
-    const result = await dispatch(getProductPackages({ id: productId }));
+    try {
+      const options = await loadPackages({ id: productId }, true).unwrap();
 
-    if (getProductPackages.fulfilled.match(result)) {
       setPackagesByProductId((prev) => ({
         ...prev,
-        [productId]: { loading: false, loaded: true, options: result.payload },
+        [productId]: { loading: false, loaded: true, options },
       }));
-      return result.payload;
-    } else {
+
+      return options;
+    } catch (error) {
       setPackagesByProductId((prev) => ({
         ...prev,
         [productId]: { loading: false, loaded: false, options: [] },
       }));
-      toast.error(result.payload ?? t('common.error'));
+      toast.error(getApiErrorMessage(error, t('common.error')));
+
       return [];
     }
   };
@@ -700,13 +710,13 @@ const SalesOrdersCreate = () => {
     }
 
     try {
-      await dispatch(createSalesOrder(payload)).unwrap();
+      await createSalesOrder(payload).unwrap();
       toast.success(t('salesOrders.messages.success.create'));
       form.resetFields();
       navigate(listPath);
     } catch (error: unknown) {
       toast.error(
-        getBackendErrorMessage(error, t('common.error'))
+        getApiErrorMessage(error, t('common.error'))
       );
     }
   };

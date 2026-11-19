@@ -5,9 +5,10 @@ import { toast } from "react-toastify";
 import type { Socket } from "socket.io-client";
 
 import { store, useAppDispatch, useAppSelector } from "app/store";
-import { statusChangePatchOf } from "app/statusChangePatches";
+import { statusChangeTagsOf } from "app/statusChangeTags";
 import { resolveStatusChangeCard } from "entities/lifecycle/lib/statusChangeEntities";
 import StatusChangeToast from "entities/lifecycle/ui/statusChangeToast";
+import { baseApi } from "shared/api";
 import { connectStatusChanges } from "shared/lib/statusChangeSocket";
 import {
   hasStatusChangeListRefresh,
@@ -78,10 +79,18 @@ const StatusChangeListener = () => {
       } = current.current;
       const entity = notification.target.type.name;
 
-      const patch = statusChangePatchOf(store.getState(), notification);
+      /**
+       * Запись могла устареть в кеше RTK Query. Если её кто-то читает —
+       * инвалидируем теги, и список с карточкой перечитают себя сами.
+       */
+      const tags = statusChangeTagsOf(notification);
+      const cached = tags
+        ? baseApi.util.selectInvalidatedBy(store.getState(), tags)
+        : [];
+      const isCached = cached.length > 0;
 
-      if (patch) {
-        dispatch(patch);
+      if (tags && isCached) {
+        dispatch(baseApi.util.invalidateTags(tags));
       }
 
       // Своё действие пользователь уже увидел ответом на свой запрос.
@@ -100,7 +109,7 @@ const StatusChangeListener = () => {
       }
 
       // Список сам сообщает о себе, пока он на экране.
-      const onList = !patch && hasStatusChangeListRefresh(entity);
+      const onList = !isCached && hasStatusChangeListRefresh(entity);
 
       const content = (
         <StatusChangeToast

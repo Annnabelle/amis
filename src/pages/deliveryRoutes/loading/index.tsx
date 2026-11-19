@@ -10,18 +10,22 @@ import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
 import CustomButton from 'shared/ui/button';
 import 'shared/ui/details/styles.sass';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { getDeliveryRouteById } from 'entities/deliveryRoutes/model';
 import {
-  completeScanSession,
-  createScanSession,
-  cancelScan,
+  useCompleteDeliveryRouteLoadingMutation,
+  useGetDeliveryRouteByIdQuery,
+} from 'entities/deliveryRoutes/api';
+import {
   replaceScanAttempts,
   resetScanSessionState,
-  scanSessionCode,
 } from 'entities/scanSessions/model';
+import {
+  useCancelScanMutation,
+  useCompleteScanSessionMutation,
+  useCreateScanSessionMutation,
+  useScanSessionCodeMutation,
+} from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
-import { completeDeliveryRouteLoading } from 'entities/deliveryRoutes/model';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
@@ -40,8 +44,16 @@ const DeliveryRoutesLoading = () => {
   const routeId = id ?? '';
   const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
 
-  const route = useAppSelector((state) => state.deliveryRoutes.routeById);
-  const routeLoading = useAppSelector((state) => state.deliveryRoutes.loadingById);
+  const {
+    data: route,
+    isLoading: routeLoading,
+    refetch: refetchRoute,
+  } = useGetDeliveryRouteByIdQuery(routeId, { skip: !routeId });
+  const [completeDeliveryRouteLoading] = useCompleteDeliveryRouteLoadingMutation();
+  const [createScanSession] = useCreateScanSessionMutation();
+  const [completeScanSession] = useCompleteScanSessionMutation();
+  const [scanSessionCode] = useScanSessionCodeMutation();
+  const [cancelScan] = useCancelScanMutation();
   const scanSession = useAppSelector((state) => state.scanSessions.currentSession);
   const recentScans = useAppSelector((state) => state.scanSessions.recentScans);
   const isCreating = useAppSelector((state) => state.scanSessions.isCreating);
@@ -51,7 +63,6 @@ const DeliveryRoutesLoading = () => {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
   const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
-  const [isBootstrapping, setIsBootstrapping] = useState(true);
   const isClosingSession = false;
   const canCreateScanSession = useCan(endpointAccessMap.scanSessionsCreate);
   const canScan = useCan(endpointAccessMap.scanSessionsScan);
@@ -63,23 +74,8 @@ const DeliveryRoutesLoading = () => {
     (scanSession?.status !== 'active' || canCompleteScanSession);
 
   useEffect(() => {
-    let isMounted = true;
+    if (!routeId) return;
 
-    if (!routeId) {
-      setIsBootstrapping(false);
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    setIsBootstrapping(true);
-    dispatch(getDeliveryRouteById(routeId))
-      .unwrap()
-      .finally(() => {
-        if (isMounted) {
-          setIsBootstrapping(false);
-        }
-      });
     dispatch(resetScanSessionState());
 
     try {
@@ -95,7 +91,6 @@ const DeliveryRoutesLoading = () => {
     }
 
     return () => {
-      isMounted = false;
       dispatch(resetScanSessionState());
     };
   }, [dispatch, routeId]);
@@ -113,12 +108,12 @@ const DeliveryRoutesLoading = () => {
         scanSession?.id &&
         scanSession.status === 'active'
       ) {
-        void dispatch(completeScanSession(scanSession.id));
+        void completeScanSession(scanSession.id);
       }
     };
   }, [
     canCompleteScanSession,
-    dispatch,
+    completeScanSession,
     scanSession?.id,
     scanSession?.status,
   ]);
@@ -234,12 +229,10 @@ const DeliveryRoutesLoading = () => {
     }
 
     try {
-      await dispatch(
-        createScanSession({
+      await createScanSession({
           type: ScanSessionType.Loading,
           routeId,
-        })
-      ).unwrap();
+        }).unwrap();
       setScannerMode('loading');
     } catch (error) {
       toast.error(
@@ -255,14 +248,12 @@ const DeliveryRoutesLoading = () => {
   const handleScan = async (code: string) => {
     if (scannerMode === 'delete') {
       try {
-        await dispatch(
-          cancelScan({
+        await cancelScan({
             code,
             routeId,
-          })
-        ).unwrap();
+          }).unwrap();
 
-        await dispatch(getDeliveryRouteById(routeId));
+        await refetchRoute();
         pushSingleScanToast(
           'success',
           t('deliveryRoutes.messages.success.cancelScan', {
@@ -303,14 +294,12 @@ const DeliveryRoutesLoading = () => {
     }
 
     try {
-      await dispatch(
-        scanSessionCode({
+      await scanSessionCode({
           sessionId: scanSession.id,
           code,
-        })
-      ).unwrap();
+        }).unwrap();
 
-      await dispatch(getDeliveryRouteById(routeId));
+      await refetchRoute();
       pushSingleScanToast(
         'success',
         t('deliveryRoutes.messages.success.scanCode', {
@@ -340,15 +329,13 @@ const DeliveryRoutesLoading = () => {
   const executeCompleteLoading = async (comment?: string) => {
     try {
       if (scanSession?.id && scanSession.status === 'active') {
-        await dispatch(completeScanSession(scanSession.id)).unwrap();
+        await completeScanSession(scanSession.id).unwrap();
       }
 
-      await dispatch(
-        completeDeliveryRouteLoading({
-          id: routeId,
-          payload: comment?.trim() ? { comment: comment.trim() } : undefined,
-        })
-      ).unwrap();
+      await completeDeliveryRouteLoading({
+        id: routeId,
+        payload: comment?.trim() ? { comment: comment.trim() } : undefined,
+      }).unwrap();
       localStorage.removeItem(getScanCacheKey(routeId));
       navigate(`${backPath}/${routeId}`);
     } catch (error) {
@@ -383,14 +370,12 @@ const DeliveryRoutesLoading = () => {
 
   const handleDeleteScan = async (code: string) => {
     try {
-      await dispatch(
-        cancelScan({
+      await cancelScan({
           code,
           routeId,
-        })
-      ).unwrap();
+        }).unwrap();
 
-      await dispatch(getDeliveryRouteById(routeId));
+      await refetchRoute();
       toast.success(
         t('deliveryRoutes.messages.success.cancelScan', {
           defaultValue: 'Скан {{code}} удалён',
@@ -462,13 +447,11 @@ const DeliveryRoutesLoading = () => {
     </div>
   );
 
-  const isCurrentRouteLoaded = route?.id === routeId;
-
-  if (isBootstrapping || (routeLoading && !isCurrentRouteLoaded)) {
+  if (routeLoading) {
     return null;
   }
 
-  if (!isCurrentRouteLoaded || !route) {
+  if (!route) {
     return (
       <MainLayout>
         <Heading title={t('deliveryRoutes.loadingTitle')} subtitle={t('deliveryRoutes.loadingSubtitle')} />

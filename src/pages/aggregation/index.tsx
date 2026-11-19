@@ -1,10 +1,13 @@
-import { useAppDispatch, useAppSelector } from 'app/store'
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from "shared/ui/table";
-import {type ErrorDto, createAggregationReport, fetchAggregations} from "entities/aggregation/model";
+import {
+    useCreateAggregationReportMutation,
+    useGetAggregationReportsQuery,
+} from "entities/aggregation/api";
+import { getApiErrorMessage } from "shared/api";
 import {AggregationColumns} from "entities/aggregation/ui/tableData/aggregation";
 import type {AggregationDataType} from "entities/aggregation/ui/tableData/aggregation/types.ts";
 import CustomButton from "shared/ui/button";
@@ -13,12 +16,11 @@ import {DatePicker, Form, Select} from "antd";
 import ModalWindow from "shared/ui/modalWindow";
 import dayjs from "dayjs";
 import type {CreateAggregationReport} from "entities/aggregation/types";
-import {fetchMarkingCodes} from "entities/markingCodes/model";
+import {useGetMarkingCodeOrdersQuery} from "entities/markingCodes/api";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import { PackageType, type AggregationReportStatus } from "shared/types/dtos";
-import { searchProducts} from "entities/products/model";
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import { useSearchProductsQuery } from "entities/products/api";
 import {useSubmitGuard} from "shared/lib/useSubmitGuard";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
@@ -45,21 +47,15 @@ const Aggregations = () => {
     const { t } = useTranslation();
     const params = useParams();
     const orgId = params.id;
-    const dispatch = useAppDispatch()
     const canCreateAggregation = useCan(endpointAccessMap.aggregationReportsCreate);
     const canListProducts = useCan(endpointAccessMap.productsList);
-    const aggregations = useAppSelector((state) => state.aggregations.aggregations)
-    const dataLimit = useAppSelector((state) => state.aggregations.limit)
-    const dataPage = useAppSelector((state) => state.aggregations.page)
-    const dataTotal = useAppSelector((state) => state.aggregations.total)
-    const orders = useAppSelector(state => state.markingCodes.data);
-    const ordersError = useAppSelector(state => state.markingCodes.error);
-    const ordersLoading = useAppSelector(state => state.markingCodes.loading);
-    const error = useAppSelector(state => state.aggregations.error);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
-    const products = useAppSelector(state => state.products.products);
-    const productsLoading = useAppSelector(state => state.products.isLoading);
+    const [productQuery, setProductQuery] = useState('');
+    const { data: productsPage, isFetching: productsLoading } =
+        useSearchProductsQuery({ query: productQuery, page: 1, limit: 10 });
+    const products = useMemo(() => productsPage?.items ?? [], [productsPage]);
     const [modalState, setModalState] = useState<{
         addAggregation: boolean;
     }>({
@@ -74,31 +70,43 @@ const Aggregations = () => {
         dateTo?: Date;
     }>({});
 
-    const refreshAggregations = useCallback(() => {
-        if (!orgId) return;
+    const {
+        data: aggregationsPage,
+        error,
+        refetch: refreshAggregations,
+    } = useGetAggregationReportsQuery(
+        {
+            page: pagination.page,
+            limit: pagination.limit,
+            status: filters.status,
+            dateFrom: filters.dateFrom?.toISOString(),
+            dateTo: filters.dateTo?.toISOString(),
+            productId: selectedProductId,
+        },
+        { skip: !orgId }
+    );
+    const [createAggregationReport] = useCreateAggregationReportMutation();
+    const aggregations = useMemo(
+        () => aggregationsPage?.items ?? [],
+        [aggregationsPage]
+    );
+    const dataPage = pagination.page;
+    const dataLimit = pagination.limit;
+    const dataTotal = aggregationsPage?.total ?? 0;
 
-        dispatch(
-            fetchAggregations({
-                page: dataPage || 1,
-                limit: dataLimit || 10,
-                status: filters.status,
-                dateFrom: filters.dateFrom?.toISOString(),
-                dateTo: filters.dateTo?.toISOString(),
-                productId: selectedProductId,
-            })
-        );
-    }, [
-        dispatch,
-        orgId,
-        dataPage,
-        dataLimit,
-        filters,
-        selectedProductId,
-    ]);
-
-    useEffect(() => {
-        refreshAggregations();
-    }, [refreshAggregations]);
+    /** Партии для выбора родителя и ребёнка нужны только в модальном окне. */
+    const {
+        data: ordersPage,
+        isFetching: ordersLoading,
+        error: ordersRequestError,
+    } = useGetMarkingCodeOrdersQuery(
+        { page: 1, limit: 20, status: "codes_utilized" },
+        { skip: !modalState.addAggregation }
+    );
+    const orders = useMemo(() => ordersPage?.items ?? [], [ordersPage]);
+    const ordersError = ordersRequestError
+        ? getApiErrorMessage(ordersRequestError, t("common.error"))
+        : null;
 
     useStatusChangeListRefresh(
         LifecycleTargetEntity.AggregationReport,
@@ -110,22 +118,10 @@ const Aggregations = () => {
     );
 
     useEffect(() => {
-        if (modalState.addAggregation) {
-            dispatch(
-                fetchMarkingCodes({
-                    page: 1,
-                    limit: 20,
-                    status: "codes_utilized",
-                })
-            );
-        }
-    }, [modalState.addAggregation, dispatch]);
-
-    useEffect(() => {
         if (!error) return;
 
         toast.error(
-            getBackendErrorMessage(error, t("aggregations.messages.createError"))
+            getApiErrorMessage(error, t("aggregations.messages.createError"))
         );
     }, [error, t]);
 
@@ -151,7 +147,7 @@ const Aggregations = () => {
             submittedAt: dayjs(aggregation.submittedAt).format('DD.MM.YYYY'),
             status: aggregation.status.toLowerCase(),
         }))
-    }, [aggregations, dataPage, dataLimit])
+    }, [aggregations])
 
     const childOptions = useMemo(() => {
         if (!chosenParentOrderId || !chosenParentBatchId) return [];
@@ -218,13 +214,13 @@ const Aggregations = () => {
         };
 
         try {
-            await dispatch(createAggregationReport(payload)).unwrap();
+            await createAggregationReport(payload).unwrap();
             toast.success(t("aggregations.messages.createSuccess"));
             handleModal("addAggregation", false);
-            await dispatch(fetchAggregations({ page: 1, limit: dataLimit || 10 }));
+            setPagination((prev) => ({ ...prev, page: 1 }));
         } catch (err) {
             toast.error(
-                getBackendErrorMessage(err as ErrorDto, t("aggregations.messages.createError"))
+                getApiErrorMessage(err, t("aggregations.messages.createError"))
             );
         }
     };
@@ -235,11 +231,7 @@ const Aggregations = () => {
     const handleProductSearch = (value: string) => {
         if (!value) return;
 
-        dispatch(searchProducts({
-            query: value,
-            page: 1,
-            limit: 10,
-        }));
+        setProductQuery(value);
     };
 
 
@@ -373,19 +365,11 @@ const Aggregations = () => {
                                 showSizeChanger: { showSearch: false },
                                 pageSizeOptions: ['10', '20', '30', '40', '50'],
                                 locale: { items_per_page: '' },
-                                onChange: (page, pageSize) => {
-                                    if (!orgId) return;
-                                    dispatch(
-                                        fetchAggregations({
-                                            page,
-                                            limit: pageSize || dataLimit || 10,
-                                            status: filters.status,
-                                            dateFrom: filters.dateFrom?.toISOString(),
-                                            dateTo: filters.dateTo?.toISOString(),
-                                            productId: selectedProductId,
-                                        })
-                                    );
-                                },
+                                onChange: (page, pageSize) =>
+                                    setPagination((prev) => ({
+                                        page,
+                                        limit: pageSize || prev.limit,
+                                    })),
                             }}
                         />
                     </div>

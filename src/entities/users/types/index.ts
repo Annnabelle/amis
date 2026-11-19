@@ -1,5 +1,6 @@
 import type { ChangePasswordQueryDto } from '@edem2000/amis.contracts/api/users/requests';
-import type { ErrorDto, HexString, UserPreferences, UserStatus } from "shared/types/dtos";
+import type { HexString, UserPreferences, UserStatus } from "shared/types/dtos";
+import type { Paginated } from "shared/api";
 
 export type User = {
     id: HexString,
@@ -29,33 +30,23 @@ export type LoginForm = {
   password: string;
 }
 
-export type LoginResult = {
-  success: boolean;
-  user?: User;
-  accessToken?: string;
-  refreshToken?: string;
-  error?: ErrorDto;
+/** Вход и смена своего пароля отдают одно и то же: пользователя и токены. */
+export type AuthSession = {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
 };
 
+export type UserList = Paginated<User>;
+
+/** Сессия на экране: пользователь, токены и признак входа. */
 export type UsersState = {
     user: User | null;
-    userById: User | null;
-    userPreviewById: Record<HexString, UserPreview>;
-    userPreviewLoadingById: Record<HexString, boolean>;
-    updateUser: User | null;
-    searchedUsers: User[];
-    users: User[];
     accessToken: string | null;
     refreshToken: string | null;
-    isLoading: boolean;
-    error: string | null;
-    status: string | null;
     sessionStart: number | null;
     isAuthenticated: boolean;
-    total: number,
-    page: number,
-    limit: number,
-    currentUser: User | null,
+    currentUser: User | null;
 };
 
 // admin "create user" form — no password, the user sets it via the activation email
@@ -87,13 +78,6 @@ export type ChangePassword= {
 
 export type { ChangePasswordQueryDto };
 
-export type ChangePasswordResult = {
-  success: boolean,
-  user: User,
-  tokens: {
-    accessToken: string,
-    refreshToken: string,
-  }
-} | ErrorDto;
+
 
 

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowDown } from "react-icons/io";
-import { useAppDispatch } from "app/store";
-import { updateUserPreferences } from "entities/users/model";
+import { useAppSelector } from "app/store";
+import { useUpdateUserPreferencesMutation } from "entities/users/api";
 import { isLanguage } from "shared/types/dtos";
 import { persistLanguage } from "shared/lib/languagePreference";
 
@@ -16,7 +16,8 @@ const flagMap: Record <string, string> = {
 
 const Languages: React.FC = () => {
   const { i18n } = useTranslation();
-  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
+  const [updateUserPreferences] = useUpdateUserPreferencesMutation();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +37,10 @@ const Languages: React.FC = () => {
 
     void i18n.changeLanguage(language);
     persistLanguage(language);
-    void dispatch(updateUserPreferences({ language }));
+    // На экране входа настройки сохранять некому.
+    if (isAuthenticated) {
+      void updateUserPreferences({ language });
+    }
     setIsOpen(false);
   };
 

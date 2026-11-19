@@ -2,6 +2,7 @@ import {
   CompanyMembershipState,
   CompanyRole,
 } from '@edem2000/amis.contracts'
+import type { Paginated } from 'shared/api'
 
 export {
   CompanyMembershipState,
@@ -41,17 +42,7 @@ export type SearchCompanyMembershipsQuery = {
   role?: CompanyRole;
 };
 
-export type CompanyMembershipsState = {
-  memberships: CompanyMembership[];
-  searchedMemberships: CompanyMembership[];
-  membershipById: CompanyMembership | null;
-  total: number;
-  page: number;
-  limit: number;
-  listRequestKey: string | null;
-  isLoading: boolean;
-  error: string | null;
-};
+export type CompanyMembershipList = Paginated<CompanyMembership>;
 
 export type CompanyMembershipUserPreview = {
   id: string;

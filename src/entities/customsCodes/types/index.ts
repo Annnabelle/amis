@@ -1,6 +1,7 @@
 import {
   AggregatedCustomsCodeOrderStatus,
 } from '@edem2000/amis.contracts'
+import type { Paginated } from 'shared/api'
 
 export {
   AggregatedCustomsCodeOrderStatus,
@@ -30,3 +31,5 @@ export type CustomsCodeOrder = {
   status: AggregatedCustomsCodeOrderStatus;
   external: CustomsCodeExternal;
 };
+
+export type CustomsCodeOrderList = Paginated<CustomsCodeOrder>;

@@ -1,43 +1,36 @@
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "app/store";
-import { getLifecycleSummary } from "entities/lifecycle/model";
+import { useGetLifecycleSummaryQuery } from "entities/lifecycle/api";
+import { getApiErrorMessage } from "shared/api";
 import { getLifecycleTargetConfig, type LifecycleTargetEntity } from "./targets";
 import { useCanReadLifecycle } from "./useCanReadLifecycle";
 
 /**
- * Сводка запрашивается один раз на открытие карточки: её используют и шапка
- * (баннер активной ошибки), и вкладка с лентой. Повторный вызов из второго
- * потребителя отсекается по состоянию в сторе.
+ * Сводку используют и шапка (баннер активной ошибки), и вкладка с лентой.
+ * RTK Query сводит их к одной записи кеша: одновременные вызовы склеиваются в
+ * один запрос, а вкладка, открытая позже, перечитывает сводку заново.
  */
 export const useLifecycleSummary = (
   targetId: string | undefined,
   target: LifecycleTargetEntity
 ) => {
-  const dispatch = useAppDispatch();
   const canRead = useCanReadLifecycle(target);
-  const loadedTargetId = useAppSelector((state) => state.lifecycle.targetId);
-  const summary = useAppSelector((state) => state.lifecycle.summary);
-  const isLoading = useAppSelector((state) => state.lifecycle.summaryLoading);
-  const error = useAppSelector((state) => state.lifecycle.summaryError);
-
-  useEffect(() => {
-    if (!targetId || !canRead) return;
-
-    const isCurrentTarget = loadedTargetId === targetId;
-    if (isCurrentTarget && (summary || isLoading || error)) return;
-
-    void dispatch(
-      getLifecycleSummary({
-        targetId,
-        companyScope: getLifecycleTargetConfig(target).companyScope,
-      })
-    );
-  }, [canRead, dispatch, error, isLoading, loadedTargetId, summary, target, targetId]);
+  const {
+    data: summary,
+    isFetching,
+    error: requestError,
+  } = useGetLifecycleSummaryQuery(
+    {
+      targetId: targetId ?? "",
+      companyScope: getLifecycleTargetConfig(target).companyScope,
+    },
+    { skip: !targetId || !canRead }
+  );
 
   return {
     canRead,
-    summary: loadedTargetId === targetId ? summary : null,
-    isLoading,
-    error,
+    summary: summary ?? null,
+    isLoading: isFetching,
+    error: requestError
+      ? getApiErrorMessage(requestError, "lifecycle.errors.loadSummary")
+      : null,
   };
 };

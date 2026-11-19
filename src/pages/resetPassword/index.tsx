@@ -3,8 +3,8 @@ import { Form, Input } from 'antd';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useAppDispatch } from 'app/store';
-import { resetPassword, type AccountActionError } from 'entities/users/model';
+import { useResetPasswordMutation } from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
 import AuthShell from 'pages/auth/authShell';
 import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
@@ -16,7 +16,7 @@ type ResetPasswordFormValues = {
 
 const ResetPasswordPage = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const [resetPassword] = useResetPasswordMutation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,11 +26,11 @@ const ResetPasswordPage = () => {
     if (isSubmitting || !token) return;
 
     setIsSubmitting(true);
-    dispatch(resetPassword({ token, password }))
+    resetPassword({ token, password })
       .unwrap()
       .then(() => setDone(true))
-      .catch((error: AccountActionError) => {
-        toast.error(error?.message || t('auth.resetPassword.error'));
+      .catch((error: unknown) => {
+        toast.error(getApiErrorMessage(error, t('auth.resetPassword.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

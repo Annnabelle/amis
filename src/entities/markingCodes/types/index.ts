@@ -1,3 +1,4 @@
+import type { Paginated } from 'shared/api';
 import { OrderStatus as OrderStatusEnum } from '@edem2000/amis.contracts';
 import type {BatchStatus, ErrorDto, ExternalBatchStatus, ExternalOrderStatus, HexString} from "shared/types/dtos";
 
@@ -144,4 +145,4 @@ export type Batch = {
     };
 }
 
-
+export type OrderBatchList = Paginated<OrderBatchPopulated>;

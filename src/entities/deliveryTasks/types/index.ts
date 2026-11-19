@@ -49,10 +49,4 @@ export type DeliveryTask = {
   updatedAt: Date;
 };
 
-export type DeliveryTasksState = {
-  tasks: DeliveryTask[];
-  taskById: DeliveryTask | null;
-  isLoading: boolean;
-  loadingById: boolean;
-  error: string | null;
-};
+

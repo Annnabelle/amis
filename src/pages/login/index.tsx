@@ -1,8 +1,9 @@
 import type { LoginForm } from 'entities/users/types';
 import {useEffect, useState} from "react";
 import { Form, Input } from 'antd';
-import {useAppDispatch, useAppSelector} from 'app/store';
-import { Login } from 'entities/users/model';
+import {useAppSelector} from 'app/store';
+import { useLoginMutation } from 'entities/users/api';
+import { getApiErrorMessage } from 'shared/api';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +22,6 @@ const mobileToastPosition = () =>
 
 const LoginPage = () => {
     const form = useFormInstance();
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const isAuthenticated = useAppSelector(state => state.users.isAuthenticated);
     const access = useAppSelector(state => state.access.data);
@@ -29,6 +29,7 @@ const LoginPage = () => {
     const accessError = useAppSelector(state => state.access.error);
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [login] = useLoginMutation();
     const { isDarkTheme } = useTheme();
     const isMobile = useIsMobile();
 
@@ -36,18 +37,14 @@ const LoginPage = () => {
         if (isSubmitting) return;
 
         setIsSubmitting(true);
-        dispatch(Login(values)).unwrap()
+        login(values).unwrap()
             .then(() => {
                 toast.success(t('login.messages.successLogin'), {
                     position: mobileToastPosition(),
                 });
             })
             .catch((error: unknown) => {
-                const message =
-                    typeof error === 'string' && error.trim()
-                        ? error
-                        : t('login.messages.errorLogin');
-                toast.error(message);
+                toast.error(getApiErrorMessage(error, t('login.messages.errorLogin')));
                 setIsSubmitting(false);
             });
     };

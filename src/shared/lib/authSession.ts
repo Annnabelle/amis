@@ -23,6 +23,32 @@ export const clearAuthStorage = () => {
   AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
 };
 
+/** Сколько живёт сессия без повторного входа. */
+const SESSION_DURATION_MS = 60 * 60 * 1000;
+
+/**
+ * Запись сессии в localStorage. Живёт здесь, а не в редьюсере: редьюсер
+ * обязан быть чистым, а в StrictMode он вызывается дважды.
+ */
+export const saveAuthSession = ({
+  user,
+  accessToken,
+  refreshToken,
+}: {
+  user: unknown;
+  accessToken: string;
+  refreshToken?: string;
+}) => {
+  localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("accessToken", accessToken);
+
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  }
+
+  localStorage.setItem("sessionEnd", String(Date.now() + SESSION_DURATION_MS));
+};
+
 export const emitAuthSessionExpired = () => {
   window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 };

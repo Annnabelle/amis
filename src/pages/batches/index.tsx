@@ -1,5 +1,4 @@
-import { useAppDispatch, useAppSelector } from 'app/store'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { BatchTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
@@ -7,13 +6,13 @@ import { MarkingCodeTableColumns } from 'entities/markingCodes/ui/tableData/mark
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
-import { getMarkingCodeById } from 'entities/markingCodes/model'
+import { useGetMarkingCodeOrderByIdQuery } from 'entities/markingCodes/api'
 import CustomButton from 'shared/ui/button'
 import { OrderStatus } from '@edem2000/amis.contracts';
 import {toast} from "react-toastify";
-import {createUtilizationReport} from "entities/utilization/model";
+import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import {getApiErrorMessage} from "shared/api";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
@@ -27,13 +26,14 @@ import { getStatusLabel } from "shared/lib/useStatusLabel";
 const Batches = () => {
     const navigate = useNavigate()
     const { t } = useTranslation();
-    const dispatch = useAppDispatch()
     const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
+    const [createUtilizationReport] = useCreateUtilizationReportMutation();
     const { orgId, orderId } = useParams<{
         orgId: string;
         orderId: string;
     }>();
-    const markingCodeById = useAppSelector((state) => state.markingCodes.markingCodeById)
+    const { data: markingCodeById, refetch: refetchOrder } =
+        useGetMarkingCodeOrderByIdQuery({ id: orderId ?? '' }, { skip: !orderId })
     const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
         targetId: orderId,
         target: LifecycleTargetEntity.MarkingCodeOrder,
@@ -41,17 +41,11 @@ const Batches = () => {
     const [tablePage, setTablePage] = useState(1);
     const [tablePageSize, setTablePageSize] = useState(10);
 
-    useEffect(() => {
-        if (orderId){
-            dispatch(getMarkingCodeById({id: orderId}))
-        }
-    }, [dispatch, orderId])
-
     const refreshOrder = useCallback(() => {
         if (orderId) {
-            dispatch(getMarkingCodeById({ id: orderId }));
+            void refetchOrder();
         }
-    }, [dispatch, orderId]);
+    }, [orderId, refetchOrder]);
 
     // Статус заказа меняет обработчик очереди: карточка перечитывает себя сама.
     useStatusChangeRefresh(LifecycleTargetEntity.MarkingCodeOrder, orderId, refreshOrder);
@@ -98,12 +92,10 @@ const Batches = () => {
 
         for (const batch of batchData) {
             try {
-                const results = await dispatch(
-                    createUtilizationReport({
-                        orderId: markingCodeById.id,
-                        batchId: batch.id,
-                    })
-                ).unwrap();
+                const results = await createUtilizationReport({
+                    orderId: markingCodeById.id,
+                    batchId: batch.id,
+                }).unwrap();
 
                 created.push(...results.map((report) => report.reportNumber));
             } catch (error: unknown) {
@@ -114,10 +106,10 @@ const Batches = () => {
         notifyUtilizationReportsCreated(t, created);
 
         if (failure) {
-            toast.error(getBackendErrorMessage(failure, t('common.error')));
+            toast.error(getApiErrorMessage(failure, t('common.error')));
         }
 
-        dispatch(getMarkingCodeById({ id: markingCodeById.id }));
+        void refetchOrder();
     };
 
     return (

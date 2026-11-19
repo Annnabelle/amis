@@ -1,3 +1,4 @@
+import type { Paginated } from 'shared/api';
 
 export type AggregationUnitCode = {
     unitId: string;
@@ -8,5 +9,4 @@ export type AggregationUnitCode = {
     // state: AggregationUnitState;
 }
 
-
-
+export type AggregationUnitCodeList = Paginated<AggregationUnitCode>;

@@ -1,6 +1,5 @@
 import { Form, Select} from 'antd'
-import { useAppDispatch, useAppSelector } from 'app/store'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
@@ -9,18 +8,21 @@ import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import { MarkingCodesTableColumns } from 'entities/markingCodes/ui/tableData/markingCodes'
 import type { MarkingCodesTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
-import { fetchMarkingCodes  } from 'entities/markingCodes/model'
+import { useGetMarkingCodeOrdersQuery } from 'entities/markingCodes/api'
 import OrderForm from './createOrder'
-import { fetchReferencesByType } from 'entities/references/model'
+import { useGetReferencesByTypeQuery } from 'entities/references/api'
 import type { OrderBatchPopulated } from 'entities/markingCodes/types'
-import type { OrderListQueryParams } from '@edem2000/amis.contracts/api/orders/requests';
-import { searchProducts } from 'entities/products/model'
-import {createUtilizationReport} from "entities/utilization/model";
+import type { OrderListQueryRequestDto } from 'entities/markingCodes/dtos';
+import { useSearchProductsQuery } from 'entities/products/api'
+import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
-import { createCustomsCode, fetchCustomsCodes } from "entities/customsCodes/model";
+import {
+    useCreateCustomsCodeOrderMutation,
+    useGetCustomsCodeOrdersQuery,
+} from "entities/customsCodes/api";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
-import {searchCompanyMemberships} from "entities/companyMemberships/model";
+import {useSearchCompanyMembershipsQuery} from "entities/companyMemberships/api";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { CompanyImportStage } from 'entities/companyImport/types';
 import CompanyImportStageButton from 'widgets/companyImport/stageButton';
@@ -28,6 +30,7 @@ import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
+import { getApiErrorMessage } from "shared/api";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
@@ -37,44 +40,61 @@ const MarkingCodes = () => {
     const { t, i18n  } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const orgId = id
-    const dispatch = useAppDispatch()
     const canCreateOrder = useCan(endpointAccessMap.ordersCreate);
     const canCreateUtilization = useCan(endpointAccessMap.utilizationReportsCreate);
+    const [createUtilizationReport] = useCreateUtilizationReportMutation();
     const canCreateCustomsCode = useCan(endpointAccessMap.customsCodesCreate);
     const canSearchCompanyMemberships = useCan(endpointAccessMap.companyMembershipsSearch);
     const canListProducts = useCan(endpointAccessMap.productsList);
-    const markingCodes = useAppSelector((state) => state.markingCodes.data)
-    const customsCodes = useAppSelector((state) => state.customsCodes.data)
-    const dataLimit = useAppSelector((state) => state.markingCodes.limit)
-    const dataPage = useAppSelector((state) => state.markingCodes.page)
-    const dataTotal = useAppSelector((state) => state.markingCodes.total)
-    const packTypeReferences =
-        useAppSelector(state => state.references.references.cisType) ?? [];
-    const referencesError = useAppSelector((state) => state.references.error);
-    const { products } = useAppSelector((state) => state.products);
-    const searchedMemberships = useAppSelector(
-        state => state.companyMemberships.searchedMemberships
+
+    const { data: customsCodesPage } = useGetCustomsCodeOrdersQuery(
+        { page: 1, limit: 1000 },
+        { skip: !orgId || !canCreateCustomsCode }
     );
-    const [queryParams, setQueryParams] = useState<OrderListQueryParams>({
-        page: dataPage || 1,
-        limit: dataLimit || 10,
+    const customsCodes = useMemo(
+        () => customsCodesPage?.items ?? [],
+        [customsCodesPage]
+    );
+    const [createCustomsCodeOrder] = useCreateCustomsCodeOrderMutation();
+
+    const {
+        data: packTypeReferences = [],
+        error: packTypeReferencesError,
+    } = useGetReferencesByTypeQuery("cisType");
+    const referencesError = packTypeReferencesError
+        ? getApiErrorMessage(packTypeReferencesError, t('common.error'))
+        : null;
+    const [productQuery, setProductQuery] = useState('');
+    const { data: productsPage } = useSearchProductsQuery(
+        { query: productQuery, page: 1, limit: 10, sortOrder: 'asc' },
+        { skip: !canListProducts }
+    );
+    const products = useMemo(() => productsPage?.items ?? [], [productsPage]);
+    const [membershipQuery, setMembershipQuery] = useState('');
+    const { data: searchedMembershipsPage } = useSearchCompanyMembershipsQuery(
+        { companyId: orgId ?? '', query: membershipQuery },
+        { skip: !orgId || !membershipQuery }
+    );
+    const searchedMemberships = useMemo(
+        () => searchedMembershipsPage?.items ?? [],
+        [searchedMembershipsPage]
+    );
+    const [queryParams, setQueryParams] = useState<OrderListQueryRequestDto>({
+        page: 1,
+        limit: 10,
     });
     const [createdCustomsCodeBatchIds, setCreatedCustomsCodeBatchIds] = useState<Set<string>>(new Set());
     const [creatingCustomsCodeBatchIds, setCreatingCustomsCodeBatchIds] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
-        dispatch(fetchMarkingCodes(queryParams));
-    }, [dispatch, queryParams]);
-
-    useEffect(() => {
-        if (!orgId || !canCreateCustomsCode) return;
-
-        dispatch(fetchCustomsCodes({ page: 1, limit: 1000 }));
-    }, [canCreateCustomsCode, dispatch, orgId]);
-
-    useEffect(() => {
-        dispatch(fetchReferencesByType("cisType"));
-    }, [dispatch]);
+    const {
+        data: markingCodesPage,
+        refetch: refreshMarkingCodes,
+    } = useGetMarkingCodeOrdersQuery(queryParams);
+    const markingCodes = useMemo(
+        () => markingCodesPage?.items ?? [],
+        [markingCodesPage]
+    );
+    const dataTotal = markingCodesPage?.total ?? 0;
 
     const packageTypeMap = useMemo(() => {
         const lang = i18n.language as keyof (typeof packTypeReferences)[number]["title"];
@@ -109,7 +129,7 @@ const MarkingCodes = () => {
             status: markingCode.status ?? null,
             externalStatus: markingCode.externalStatus ?? null,
         }))
-    }, [markingCodes, dataPage, dataLimit, packageTypeMap])
+    }, [markingCodes, packageTypeMap])
 
     const customsCodeBatchIds = useMemo(() => {
         const batchIds = new Set(customsCodes.map((item) => item.batchId));
@@ -132,10 +152,6 @@ const MarkingCodes = () => {
     const handleModal = (modalName: string, value: boolean) => {
         setModalState((prev) => ({...prev, [modalName] : value}));
     }
-
-    const refreshMarkingCodes = () => {
-        dispatch(fetchMarkingCodes(queryParams));
-    };
 
     const handleOrderCreated = () => {
         handleModal('addMarkingCodes', false);
@@ -163,20 +179,13 @@ const MarkingCodes = () => {
 
     const handleProductSearch = (value: string) => {
         if (value.trim()) {
-          dispatch(
-            searchProducts({
-              query: value,
-              page: 1,
-              limit: 10,
-              sortOrder: "asc",
-            })
-          );
+          setProductQuery(value);
         }
       };
 
-    const updateQueryParam = <K extends keyof OrderListQueryParams>(
+    const updateQueryParam = <K extends keyof OrderListQueryRequestDto>(
         key: K,
-        value: OrderListQueryParams[K]
+        value: OrderListQueryRequestDto[K]
         ) => {
         setQueryParams(prev => ({
             ...prev,
@@ -192,12 +201,10 @@ const MarkingCodes = () => {
         e.stopPropagation();
 
         try {
-            const result = await dispatch(
-                createUtilizationReport({
-                    orderId: record.orderId,
-                    batchId: record.batchId,
-                })
-            ).unwrap();
+            const result = await createUtilizationReport({
+                orderId: record.orderId,
+                batchId: record.batchId,
+            }).unwrap();
 
             notifyUtilizationReportsCreated(
                 t,
@@ -225,17 +232,14 @@ const MarkingCodes = () => {
         try {
             setCreatingCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
 
-            await dispatch(
-                createCustomsCode({
-                    companyId: orgId,
-                    batchId: record.batchId,
-                })
-            ).unwrap();
+            await createCustomsCodeOrder({
+                companyId: orgId,
+                batchId: record.batchId,
+            }).unwrap();
 
             setCreatedCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
             toast.success(t('customsCodes.messages.createSuccess'));
-            dispatch(fetchMarkingCodes(queryParams));
-            dispatch(fetchCustomsCodes({ page: 1, limit: 1000 }));
+            void refreshMarkingCodes();
         } catch (error: unknown) {
             toast.error(
                 getBackendErrorMessage(error, t('customsCodes.messages.createError'))
@@ -284,7 +288,7 @@ const MarkingCodes = () => {
                                             filterOption={false}
                                             onSearch={(value) => {
                                                 if (value.trim() && orgId) {
-                                                    dispatch(searchCompanyMemberships({ companyId: orgId, query: value }));
+                                                    setMembershipQuery(value);
                                                 }
                                             }}
                                             onChange={(value) => updateQueryParam('userId', value)}

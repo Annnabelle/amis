@@ -187,12 +187,187 @@ const compiledEndpoints = endpoints.map((endpoint) => ({
 }));
 const unmappedRequests = [];
 const unresolvedRequests = [];
+const rtkEndpointIssues = [];
+const axiosMisuses = [];
 let requestCount = 0;
+let rtkEndpointCount = 0;
+
+const endpointKeys = new Set(endpoints.map((endpoint) => endpoint.key));
+
+/** Builders of RTK Query that declare an endpoint. */
+const rtkBuilderNames = new Set(['query', 'mutation', 'infiniteQuery']);
+
+const axiosMethods = ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'];
+
+/**
+ * Generic axiosInstance calls (axiosInstance(...) or .request(...)) cannot be
+ * resolved statically, so they are allowed only where the request layer itself
+ * is declared: the instance and the RTK Query baseQuery.
+ */
+const axiosGenericUsageAllowlist = new Set([
+  path.join(sourceRoot, 'shared', 'lib', 'axiosInstance.ts'),
+  path.join(sourceRoot, 'shared', 'api', 'axiosBaseQuery.ts'),
+]);
+
+/** endpointAccessMap keys passed to request(...) inside a query builder. */
+const inspectQueryBuilder = (node, sourceFile) => {
+  const result = {
+    keys: [],
+    invalidKeys: [],
+    hasRequestCall: false,
+    literalUrl: false,
+  };
+
+  const walk = (current) => {
+    if (
+      ts.isCallExpression(current) &&
+      ts.isIdentifier(current.expression) &&
+      current.expression.text === 'request'
+    ) {
+      result.hasRequestCall = true;
+      const target = current.arguments[0]
+        ? unwrapExpression(current.arguments[0])
+        : null;
+
+      if (
+        target &&
+        ts.isPropertyAccessExpression(target) &&
+        target.expression.getText(sourceFile) === 'endpointAccessMap'
+      ) {
+        const key = target.name.text;
+        result.keys.push(key);
+        if (!endpointKeys.has(key)) result.invalidKeys.push(key);
+      } else {
+        result.invalidKeys.push(
+          target ? target.getText(sourceFile) : '<no argument>'
+        );
+      }
+    }
+
+    if (ts.isObjectLiteralExpression(current)) {
+      for (const property of current.properties) {
+        if (
+          ts.isPropertyAssignment(property) &&
+          getPropertyName(property, sourceFile) === 'url'
+        ) {
+          result.literalUrl = true;
+        }
+      }
+    }
+
+    ts.forEachChild(current, walk);
+  };
+
+  walk(node);
+
+  return result;
+};
 
 for (const filePath of listSourceFiles(sourceRoot)) {
   const sourceFile = readSourceFile(filePath);
 
+  const toLocation = (node) => {
+    const position = sourceFile.getLineAndCharacterOfPosition(
+      node.getStart(sourceFile)
+    );
+
+    return path.relative(projectRoot, filePath) + ':' + (position.line + 1);
+  };
+
   const visit = (node) => {
+    // An RTK Query endpoint must take its method and path from endpointAccessMap.
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      rtkBuilderNames.has(node.expression.name.text) &&
+      node.arguments[0]
+    ) {
+      const config = unwrapExpression(node.arguments[0]);
+
+      if (ts.isObjectLiteralExpression(config)) {
+        const definition = new Map();
+        for (const property of config.properties) {
+          if (!ts.isPropertyAssignment(property)) continue;
+          definition.set(
+            getPropertyName(property, sourceFile),
+            property.initializer
+          );
+        }
+
+        if (definition.has('query') || definition.has('queryFn')) {
+          rtkEndpointCount += 1;
+          const location = toLocation(node);
+
+          if (definition.has('queryFn')) {
+            rtkEndpointIssues.push(
+              location +
+                ' queryFn bypasses the access map - declare the endpoint as query: request(endpointAccessMap.x)'
+            );
+          } else {
+            const inspected = inspectQueryBuilder(
+              definition.get('query'),
+              sourceFile
+            );
+
+            if (inspected.literalUrl) {
+              rtkEndpointIssues.push(
+                location +
+                  ' literal url in an endpoint - the path comes from endpointAccessMap via request()'
+              );
+            } else if (!inspected.hasRequestCall) {
+              rtkEndpointIssues.push(
+                location + ' query without request(endpointAccessMap.x)'
+              );
+            }
+
+            for (const key of inspected.invalidKeys) {
+              rtkEndpointIssues.push(
+                location + ' request(' + key + ') is not an endpointAccessMap entry'
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // A generic axiosInstance call escapes the static check.
+    if (
+      ts.isIdentifier(node) &&
+      node.text === 'axiosInstance' &&
+      !axiosGenericUsageAllowlist.has(filePath)
+    ) {
+      const parent = node.parent;
+      const isModuleBinding =
+        parent &&
+        (ts.isImportClause(parent) ||
+          ts.isImportSpecifier(parent) ||
+          ts.isNamespaceImport(parent) ||
+          ts.isExportSpecifier(parent));
+
+      if (!isModuleBinding) {
+        if (
+          parent &&
+          ts.isPropertyAccessExpression(parent) &&
+          parent.expression === node
+        ) {
+          if (!axiosMethods.includes(parent.name.text.toUpperCase())) {
+            axiosMisuses.push(
+              toLocation(node) +
+                ' axiosInstance.' +
+                parent.name.text +
+                '(...) - checkable forms: ' +
+                axiosMethods.map((method) => method.toLowerCase()).join(', ')
+            );
+          }
+        } else {
+          axiosMisuses.push(
+            toLocation(node) +
+              ' axiosInstance used directly - the URL is not statically resolvable'
+          );
+        }
+      }
+    }
+
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
@@ -201,10 +376,7 @@ for (const filePath of listSourceFiles(sourceRoot)) {
       const method = node.expression.name.text.toUpperCase();
       if (['GET', 'POST', 'PATCH', 'DELETE', 'PUT'].includes(method)) {
         requestCount += 1;
-        const position = sourceFile.getLineAndCharacterOfPosition(
-          node.getStart(sourceFile)
-        );
-        const location = `${path.relative(projectRoot, filePath)}:${position.line + 1}`;
+        const location = toLocation(node);
         const requestUrl = node.arguments[0]
           ? renderRequestUrl(node.arguments[0], sourceFile)
           : null;
@@ -259,14 +431,26 @@ if (unmappedRequests.length > 0) {
   for (const request of unmappedRequests) console.error(`  ${request}`);
 }
 
+if (rtkEndpointIssues.length > 0) {
+  console.error('RTK Query endpoints not bound to the endpoint access map:');
+  for (const issue of rtkEndpointIssues) console.error(`  ${issue}`);
+}
+
+if (axiosMisuses.length > 0) {
+  console.error('Unverifiable axiosInstance usage:');
+  for (const misuse of axiosMisuses) console.error(`  ${misuse}`);
+}
+
 if (
   duplicates.length > 0 ||
   unresolvedRequests.length > 0 ||
-  unmappedRequests.length > 0
+  unmappedRequests.length > 0 ||
+  rtkEndpointIssues.length > 0 ||
+  axiosMisuses.length > 0
 ) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Endpoint access map check passed: ${endpoints.length} endpoints, ${requestCount} axios requests.`
+    `Endpoint access map check passed: ${endpoints.length} endpoints, ${requestCount} axios requests, ${rtkEndpointCount} RTK Query endpoints.`
   );
 }

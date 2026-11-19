@@ -1,3 +1,4 @@
+import type { Paginated } from 'shared/api';
 import type {
   AccessCodesDto,
   AddressDto,
@@ -70,19 +71,7 @@ export class UpdateCompany {
   status?: CompanyStatus;
 }
 
-export type OrganizationState = {
-  organization: Company | null,
-  organizationById: Company | null,
-  updateOrganization: Company | null,
-  organizations: Company[],
-  searchedOrganizations: Company[],
-  total: number,
-  page: number,
-  limit: number,
-  isLoading: boolean,
-  error: string | null,
-  status: string | null,
-};
+export type CompanyList = Paginated<Company>;
 
 
 

@@ -1,5 +1,6 @@
 import type { InvoiceStatus } from '@edem2000/amis.contracts';
 import type { PackageType, MarkingCodeStatus } from "shared/types/dtos";
+import type { Paginated } from "shared/api";
 
 export type InvoiceParticipant = {
   tin?: string;
@@ -70,28 +71,8 @@ export type InvoiceMarkingCode = {
   packageType: PackageType | string;
 };
 
-export type InvoiceMarkingCodesState = {
-  data: InvoiceMarkingCode[];
-  total: number;
-  page: number;
-  limit: number;
-  loading: boolean;
-  error: string | null;
-};
+export type InvoiceList = Paginated<Invoice>;
 
-export type InvoicesState = {
-  invoices: Invoice[];
-  invoiceById: Invoice | null;
-  items: InvoiceItem[];
-  codesByProductId: Record<string, InvoiceMarkingCodesState>;
-  itemsTotal: number;
-  itemsPage: number;
-  itemsLimit: number;
-  total: number;
-  page: number;
-  limit: number;
-  isLoading: boolean;
-  loadingById: boolean;
-  itemsLoading: boolean;
-  error: string | null;
-};
+export type InvoiceItemList = Paginated<InvoiceItem>;
+
+export type InvoiceMarkingCodeList = Paginated<InvoiceMarkingCode>;

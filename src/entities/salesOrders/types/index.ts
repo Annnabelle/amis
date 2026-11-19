@@ -4,6 +4,7 @@ import type {
   SalesOrderPriority,
   SalesOrderStatus,
 } from "shared/types/dtos";
+import type { Paginated } from "shared/api";
 
 export type SalesOrder = {
   id: string;
@@ -107,13 +108,4 @@ export type CreateSalesOrderPayload = {
   comment?: string;
 };
 
-export type SalesOrdersState = {
-  orders: SalesOrder[];
-  orderById: SalesOrder | null;
-  total: number;
-  page: number;
-  limit: number;
-  createdOrder: SalesOrder | null;
-  isLoading: boolean;
-  error: string | null;
-};
+export type SalesOrderList = Paginated<SalesOrder>;

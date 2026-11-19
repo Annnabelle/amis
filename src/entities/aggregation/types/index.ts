@@ -1,3 +1,4 @@
+import type { Paginated } from 'shared/api';
 import type {AggregationReportExternalStatus, AggregationReportStatus, HexString} from "shared/types/dtos";
 
 export type CreateAggregationReport = {
@@ -70,5 +71,4 @@ export type GetAggregationReportsResponseTypes = {
     status: AggregationReportStatus;
 }
 
-
-
+export type AggregationReportList = Paginated<GetAggregationReportsResponseTypes>;

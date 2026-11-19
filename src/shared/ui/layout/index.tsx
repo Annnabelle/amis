@@ -40,25 +40,28 @@ import { getDeliveryRouteStatusBadgeVariant } from '../statusBadge/variants';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
-import { getOrganizationById } from 'entities/organization/model';
+import { useGetDeliveryRoutesQuery } from 'entities/deliveryRoutes/api';
 import {
-  acceptSystemAccessInvitation,
-  declineSystemAccessInvitation,
-  fetchRoleReferences,
-  respondCompanyMembershipInvitation,
-  setCurrentCompanyId,
-} from 'entities/access/model';
+  useGetCompaniesQuery,
+  useGetCompanyByIdQuery,
+} from 'entities/organization/api';
+import { setCurrentCompanyId } from 'entities/access/model';
+import {
+  useDecideSystemAccessInvitationMutation,
+  useGetRoleReferencesQuery,
+  useLazyGetRoleReferencesQuery,
+  useRespondCompanyMembershipInvitationMutation,
+} from 'entities/access/api';
 import {
   AccessModules,
-  getRoleReferenceCacheKey,
   RoleScope,
   type AccessModule,
+  type RoleReference,
 } from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
 import { isLanguage, type Language } from 'shared/types/dtos';
-import { canAccessEndpoint } from 'entities/access/lib';
+import { canAccessEndpoint, useCan } from 'entities/access/lib';
 import {
   endpointAccessMap,
   type StaticEndpointAccess,
@@ -112,13 +115,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const access = useAppSelector((state) => state.access.data);
   const storedCompanyId = useAppSelector((state) => state.access.currentCompanyId);
-  const routes = useAppSelector((state) => state.deliveryRoutes.routes);
-  const organizations = useAppSelector(
-    (state) => state.organizations.organizations
-  );
-  const organizationById = useAppSelector(
-    (state) => state.organizations.organizationById
-  );
+
 
   const systemModules = useMemo(
     () => access?.system.modules ?? [],
@@ -135,18 +132,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     (invitation) => invitation.state === 'invited'
   ) ?? [];
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
-  const systemRoleReferences = useAppSelector(
-    (state) => state.access.roleReferences[RoleScope.System] ?? []
+  const { data: systemRoleReferences = [] } = useGetRoleReferencesQuery(
+    { scope: RoleScope.System },
+    { skip: !access }
   );
-  const roleReferences = useAppSelector((state) => state.access.roleReferences);
-  const roleReferencesLoaded = useAppSelector((state) => state.access.roleReferencesLoaded);
-  const roleReferencesLoading = useAppSelector((state) => state.access.roleReferencesLoading);
-  const areSystemRoleReferencesLoaded = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoaded[RoleScope.System])
-  );
-  const areSystemRoleReferencesLoading = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoading[RoleScope.System])
-  );
+  const [loadCompanyRoleReferences] = useLazyGetRoleReferencesQuery();
+  const [decideSystemAccessInvitation] =
+    useDecideSystemAccessInvitationMutation();
+  const [respondCompanyMembershipInvitation] =
+    useRespondCompanyMembershipInvitationMutation();
+  /**
+   * Роли читаются на каждое приглашение своим запросом, а хук в цикле звать
+   * нельзя, поэтому ответы складываются здесь по компании.
+   */
+  const [companyInvitationRoles, setCompanyInvitationRoles] = useState<
+    Record<string, RoleReference[]>
+  >({});
   const systemRoleLabels = useMemo(
     () =>
       systemRoleReferences.reduce<Record<string, string>>((acc, role) => {
@@ -159,13 +160,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     () =>
       pendingCompanyInvitations.reduce<Record<string, Record<string, string>>>(
         (acc, invitation) => {
-          const key = getRoleReferenceCacheKey(
-            RoleScope.Company,
-            invitation.company.id
-          );
-          acc[invitation.company.id] = (roleReferences[key] ?? []).reduce<
-            Record<string, string>
-          >((roleAcc, role) => {
+          acc[invitation.company.id] = (
+            companyInvitationRoles[invitation.company.id] ?? []
+          ).reduce<Record<string, string>>((roleAcc, role) => {
             roleAcc[role.alias] = getLocalizedText(role.name, currentLanguage);
             return roleAcc;
           }, {});
@@ -173,7 +170,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         },
         {}
       ),
-    [currentLanguage, pendingCompanyInvitations, roleReferences]
+    [companyInvitationRoles, currentLanguage, pendingCompanyInvitations]
   );
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
@@ -182,6 +179,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const isOrganizationRoot = location.pathname === '/organization';
   const isOrganizationScreen = pathSegments[0] === 'organization' && Boolean(orgId) && !section;
   const isRoutesScreen = pathSegments[0] === 'organization' && Boolean(orgId) && section === 'delivery-routes' && !routeId;
+  /** Рейсы нужны только мобильному меню рейсов, поэтому вне него запрос не идёт. */
+  const { data: routes = [] } = useGetDeliveryRoutesQuery(
+    {},
+    { skip: !isMobile || !orgId || section !== 'delivery-routes' }
+  );
   const isSystemScreen = [
     '/users',
     '/system-employees',
@@ -192,6 +194,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const selectedCompanyId = routeCompanyId ?? storedCompanyId ?? companies[0]?.companyId;
   const membershipCompany = companies.find(
     (company) => company.companyId === selectedCompanyId
+  );
+  const canListCompanies = useCan(endpointAccessMap.companiesList);
+  /** Системный сотрудник в контуре компании: названия в меню берём из неё. */
+  const { data: organizationById } = useGetCompanyByIdQuery(
+    { id: selectedCompanyId ?? '' },
+    { skip: !selectedCompanyId || Boolean(membershipCompany) || !canListCompanies }
+  );
+  /** Список компаний нужен только мобильному переключателю. */
+  const { data: companiesPage } = useGetCompaniesQuery(
+    { page: 1, limit: 1000, sortOrder: 'asc' },
+    { skip: !isMobile || !canListCompanies }
+  );
+  const organizations = useMemo(
+    () => companiesPage?.items ?? [],
+    [companiesPage]
   );
   const isSystemCompanyContext = Boolean(
     selectedCompanyId && storedCompanyId === selectedCompanyId && !membershipCompany
@@ -233,69 +250,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }, [access?.system.permissions, companies, organizations, systemModules]);
 
   useEffect(() => {
-    if (
-      !access ||
-      areSystemRoleReferencesLoaded ||
-      areSystemRoleReferencesLoading
-    ) {
-      return;
-    }
-
-    void dispatch(fetchRoleReferences({ scope: RoleScope.System }));
-  }, [
-    areSystemRoleReferencesLoaded,
-    areSystemRoleReferencesLoading,
-    access,
-    dispatch,
-  ]);
-
-  useEffect(() => {
     pendingCompanyInvitations.forEach((invitation) => {
-      const key = getRoleReferenceCacheKey(
-        RoleScope.Company,
-        invitation.company.id
-      );
+      const companyId = invitation.company.id;
 
-      if (roleReferencesLoaded[key] || roleReferencesLoading[key]) {
-        return;
-      }
+      if (companyInvitationRoles[companyId]) return;
 
-      void dispatch(fetchRoleReferences({
-        scope: RoleScope.Company,
-        companyId: invitation.company.id,
-      }));
+      // true — отдать значение из кеша, если роли этой компании уже брали.
+      void loadCompanyRoleReferences(
+        { scope: RoleScope.Company, companyId },
+        true
+      )
+        .unwrap()
+        .then((roles) => {
+          setCompanyInvitationRoles((prev) => ({ ...prev, [companyId]: roles }));
+        })
+        .catch(() => undefined);
     });
-  }, [
-    dispatch,
-    pendingCompanyInvitations,
-    roleReferencesLoaded,
-    roleReferencesLoading,
-  ]);
-
-  useEffect(() => {
-    if (
-      !selectedCompanyId ||
-      membershipCompany ||
-      (organizationById && String(organizationById.id) === selectedCompanyId)
-    ) {
-      return;
-    }
-
-    dispatch(getOrganizationById({ id: selectedCompanyId }));
-  }, [
-    dispatch,
-    membershipCompany,
-    organizationById,
-    selectedCompanyId,
-  ]);
-
-  useEffect(() => {
-    if (!isMobile || !orgId || section !== 'delivery-routes') {
-      return;
-    }
-
-    dispatch(getDeliveryRoutes({}));
-  }, [dispatch, isMobile, orgId, section]);
+  }, [companyInvitationRoles, loadCompanyRoleReferences, pendingCompanyInvitations]);
 
   type CompanyModuleMenuItem = {
     module: AccessModule;
@@ -813,7 +784,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           className="layout-sider-invitation-accept"
                           size="sm"
                           onClick={() => {
-                            void dispatch(acceptSystemAccessInvitation({ id: invitation.id }));
+                            void decideSystemAccessInvitation({
+                              id: invitation.id,
+                              decision: 'accept',
+                            });
                           }}
                         >
                           {t('systemEmployees.actions.accept')}
@@ -823,7 +797,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           className="layout-sider-invitation-decline"
                           size="sm"
                           onClick={() => {
-                            void dispatch(declineSystemAccessInvitation({ id: invitation.id }));
+                            void decideSystemAccessInvitation({
+                              id: invitation.id,
+                              decision: 'decline',
+                            });
                           }}
                         >
                           {t('systemEmployees.actions.decline')}
@@ -862,10 +839,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           className="layout-sider-invitation-accept"
                           size="sm"
                           onClick={() => {
-                            void dispatch(respondCompanyMembershipInvitation({
+                            void respondCompanyMembershipInvitation({
                               id: invitation.id,
                               decision: 'accept',
-                            }));
+                            });
                           }}
                         >
                           {t('companyMemberships.actions.accept')}
@@ -875,10 +852,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           className="layout-sider-invitation-decline"
                           size="sm"
                           onClick={() => {
-                            void dispatch(respondCompanyMembershipInvitation({
+                            void respondCompanyMembershipInvitation({
                               id: invitation.id,
                               decision: 'decline',
-                            }));
+                            });
                           }}
                         >
                           {t('companyMemberships.actions.decline')}

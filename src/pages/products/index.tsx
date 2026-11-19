@@ -1,6 +1,5 @@
 import {Form, Input} from 'antd'
 import { IoSearch } from 'react-icons/io5'
-import { useAppDispatch, useAppSelector } from 'app/store'
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,15 +10,22 @@ import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import { FormActions, FormGrid, FormRow, SelectField, TextAreaField, TextField } from 'shared/ui/form'
-import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts } from 'entities/products/model'
+import { useGetCompanyByIdQuery } from 'entities/organization/api'
+import {
+    useCreateProductMutation,
+    useDeleteProductMutation,
+    useGetProductByIdQuery,
+    useGetProductsQuery,
+    useSearchProductsQuery,
+} from 'entities/products/api'
 import { ProductsTableColumns } from 'entities/products/ui/tableData/products'
 import type { ProductTableDataType } from 'entities/products/ui/tableData/products/types'
 import type { CreateProduct, Product } from 'entities/products/types'
 import { useNavigate, useParams } from 'react-router-dom'
-import {fetchReferencesByType} from "entities/references/model";
+import {useGetReferencesByTypeQuery} from "entities/references/api";
+import {getApiErrorMessage} from "shared/api";
 import type {LangKey} from "shared/lib/consts.ts";
 import type {MultiLanguage} from "shared/types/dtos";
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from "entities/access/lib";
@@ -33,30 +39,60 @@ const Products = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
     const navigate = useNavigate()
-    const dispatch = useAppDispatch()
     const canReadProduct = useCan(endpointAccessMap.productsRead);
     const canCreateProduct = useCan(endpointAccessMap.productsCreate);
     const canUpdateProduct = useCan(endpointAccessMap.productsUpdate);
     const canDeleteProduct = useCan(endpointAccessMap.productsDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
-    const products = useAppSelector((state) => state.products.products)
-    const dataLimit = useAppSelector((state) => state.products.limit)
-    const dataPage = useAppSelector((state) => state.products.page)
-    const dataTotal = useAppSelector((state) => state.products.total)
-    const productById = useAppSelector((state) => state.products.productById)
     const shortNameEdited = useRef(false);
-    const [isSearching, setIsSearching] = useState(false);
-    const countryReferences =
-        useAppSelector(state => state.references.references.countryCode) ?? [];
-
-    const productGroupReferences =
-        useAppSelector(state => state.references.references.productGroup) ?? [];
+    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+    const isSearching = searchQuery.length > 0;
+    const { data: productsPage } = useGetProductsQuery(
+        { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
+        { skip: isSearching }
+    );
+    const { data: searchedProductsPage } = useSearchProductsQuery(
+        { query: searchQuery, page: 1, limit: pagination.limit, sortOrder: 'asc' },
+        { skip: !isSearching }
+    );
+    const [createProduct] = useCreateProductMutation();
+    const [deleteProduct] = useDeleteProductMutation();
+    const shownProductsPage = isSearching ? searchedProductsPage : productsPage;
+    const products = useMemo(
+        () => shownProductsPage?.items ?? [],
+        [shownProductsPage]
+    );
+    const dataPage = pagination.page;
+    const dataLimit = pagination.limit;
+    const dataTotal = shownProductsPage?.total ?? 0;
+    const { data: productById } = useGetProductByIdQuery(
+        { id: selectedProductId ?? '' },
+        { skip: !selectedProductId || !canReadProduct }
+    );
+    const {
+        data: countryReferences = [],
+        isFetching: countryReferencesLoading,
+        error: countryReferencesError,
+    } = useGetReferencesByTypeQuery("countryCode");
+    const {
+        data: productGroupReferences = [],
+        isFetching: productGroupReferencesLoading,
+        error: productGroupReferencesError,
+    } = useGetReferencesByTypeQuery("productGroup");
     type Lang = LangKey;
     const orgId = id
-    const companyError = useAppSelector(state => state.organizations.error)
-    const companyLoading = useAppSelector(state => state.organizations.isLoading)
-    const referencesError = useAppSelector(state => state.references.error)
-    const referencesLoading = useAppSelector(state => state.references.loading)
+    const { isFetching: companyLoading, error: companyRequestError } =
+        useGetCompanyByIdQuery({ id: id ?? '' }, { skip: !id });
+    const companyError = companyRequestError
+        ? getApiErrorMessage(companyRequestError, t('common.error'))
+        : null;
+    const referencesRequestError = countryReferencesError ?? productGroupReferencesError;
+    const referencesError = referencesRequestError
+        ? getApiErrorMessage(referencesRequestError, t('common.error'))
+        : null;
+    const referencesLoading = countryReferencesLoading || productGroupReferencesLoading;
 
     const currentLang = (i18n.language as Lang) || 'en';
     const productGroupTitleByAlias = useMemo(() => {
@@ -75,11 +111,6 @@ const Products = () => {
     const companyProductGroups = useMemo(() => {
         return productGroupReferences;
     }, [productGroupReferences])
-
-    useEffect(() => {
-        dispatch(fetchReferencesByType("countryCode"));
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
@@ -105,18 +136,6 @@ const Products = () => {
             })
         }
     }, [productById, form])
-
-    useEffect(() => {
-        if (!isSearching) {
-            dispatch(
-            getAllProducts({
-                page: dataPage || 1,
-                limit: dataLimit || 10,
-                sortOrder: "asc",
-            })
-            );
-        }
-    }, [dispatch, id, dataPage, dataLimit, isSearching]);
 
    const ProductsData = useMemo(() => {
         return products.map((product, index) => ({
@@ -158,7 +177,7 @@ const Products = () => {
                 expiration: Number(values.expiration), // 👈 здесь преобразование
             };
 
-            await dispatch(createProduct(newData)).unwrap();
+            await createProduct(newData).unwrap();
 
             toast.success(t("products.messages.success.createProduct"));
 
@@ -171,7 +190,7 @@ const Products = () => {
 
         } catch (error: unknown) {
             toast.error(
-                getBackendErrorMessage(error, t('products.messages.error.createProduct'))
+                getApiErrorMessage(error, t('products.messages.error.createProduct'))
             );
         }
     };
@@ -180,8 +199,6 @@ const Products = () => {
         useSubmitGuard(handleRegisterProduct);
 
 
-
-    const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
     const handleRowClick = (type: 'Product', action: 'retrieve' | 'edit' | 'delete', record: ProductTableDataType) => {
         if (type === 'Product'){
@@ -202,12 +219,6 @@ const Products = () => {
         }
     };
 
-    useEffect(() => {
-        if (selectedProductId && canReadProduct){
-            dispatch(getProductById({id: selectedProductId}))
-        }
-    }, [canReadProduct, dispatch, selectedProductId])
-
 
     const handleDeleteProduct = (record: ProductTableDataType) => {
         const product = products.find((u) => u.id === record.key) ?? null;
@@ -225,53 +236,21 @@ const Products = () => {
         if (!modalState.productData) return;
 
         try {
-            const resultAction = await dispatch(
-            deleteProduct({ id: modalState.productData.id })
-            );
-
-            if (deleteProduct.fulfilled.match(resultAction)) {
-                toast.success(t('products.messages.success.deleteProduct'));
-                handleModal("deleteProduct", false);
-
-                await dispatch(getAllProducts({ 
-                    page: 1,
-                    limit: 10,
-                    sortOrder: 'asc',
-                    status: 'active',
-                    sortBy: 'name',
-                }));
-            } else {
-                toast.error(t('products.messages.error.deleteProduct'));
-            }
+            // Список перезапросится сам: мутация инвалидирует тег товара.
+            await deleteProduct({ id: modalState.productData.id }).unwrap();
+            toast.success(t('products.messages.success.deleteProduct'));
+            handleModal("deleteProduct", false);
         } catch (err) {
-            toast.error((err as string) || t('products.messages.error.deleteProduct'));
+            toast.error(
+                getApiErrorMessage(err, t('products.messages.error.deleteProduct'))
+            );
         }
     };
 
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.trim();
-
-        if (value.length > 0) {
-            setIsSearching(true);
-            dispatch(
-            searchProducts({
-                query: value,
-                page: 1,
-                limit: dataLimit || 10,
-                sortOrder: "asc",
-            })
-            );
-        } else {
-            setIsSearching(false);
-            dispatch(
-            getAllProducts({
-                page: 1,
-                limit: dataLimit || 10,
-                sortOrder: "asc",
-            })
-            );
-        }
+        setSearchQuery(e.target.value.trim());
+        setPagination((prev) => ({ ...prev, page: 1 }));
     };
 
     const getTitle = (title: MultiLanguage | undefined, fallback: string = "") => {
@@ -340,9 +319,11 @@ const Products = () => {
                             showSizeChanger: { showSearch: false },
                             pageSizeOptions: ['10', '20', '30', '40', '50'],
                             locale: { items_per_page: '' },
-                            onChange: (newPage, newLimit) => {
-                            dispatch(getAllProducts({ page: newPage, limit: newLimit || dataLimit || 10, sortOrder: "asc" }));
-                            },
+                            onChange: (newPage, newLimit) =>
+                                setPagination((prev) => ({
+                                    page: newPage,
+                                    limit: newLimit || prev.limit,
+                                })),
                         }}
                     />
                 </div>

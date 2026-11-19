@@ -1,7 +1,5 @@
-import { useAppDispatch, useAppSelector } from 'app/store'
-import {useEffect} from 'react'
 import { useTranslation } from 'react-i18next'
-import {getBatch} from 'entities/markingCodes/model'
+import {useGetOrderBatchQuery} from 'entities/markingCodes/api'
 import {useParams} from "react-router-dom";
 import BatchItem from "./batchItem.tsx";
 import {Tag} from "antd";
@@ -23,18 +21,15 @@ const getStatusColor = (status?: string | null) => {
 
 const MarkingCodeProductBatches = () => {
     const { t } = useTranslation();
-    const dispatch = useAppDispatch()
-    const orderProductBatch = useAppSelector((state) => state.markingCodes.batch)
     const { orgId, orderId, batchId } = useParams<{
         orgId: string;
         orderId: string;
         batchId: string;
     }>();
-
-    useEffect(() => {
-        if (!orderId || !batchId) return;
-        dispatch(getBatch({orderId: orderId, batchId: batchId}))
-    }, [batchId, dispatch, orderId]);
+    const { data: orderProductBatch } = useGetOrderBatchQuery(
+        { orderId: orderId ?? '', batchId: batchId ?? '' },
+        { skip: !orderId || !batchId }
+    );
 
     return (
         <div className="box batch-inner-box">

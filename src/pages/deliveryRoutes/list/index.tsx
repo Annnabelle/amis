@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
@@ -6,8 +6,7 @@ import CustomButton from 'shared/ui/button';
 import ComponentTable from 'shared/ui/table';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { getDeliveryRoutes } from 'entities/deliveryRoutes/model';
+import { useGetDeliveryRoutesQuery } from 'entities/deliveryRoutes/api';
 import { DeliveryRoutesTableColumns } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes';
 import type { DeliveryRoutesTableDataType } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes/types';
 import { useIsMobile } from 'shared/lib';
@@ -16,24 +15,21 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const DeliveryRoutesList = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const canCreateRoute = useCan(endpointAccessMap.deliveryRoutesCreate);
   const canReadRoute = useCan(endpointAccessMap.deliveryRoutesRead);
 
-  const routes = useAppSelector((state) => state.deliveryRoutes.routes);
-  const dataTotal = useAppSelector((state) => state.deliveryRoutes.total);
-  const isLoading = useAppSelector((state) => state.deliveryRoutes.isLoading);
+  const { data: routes = [], isFetching: isLoading } = useGetDeliveryRoutesQuery(
+    {},
+    { skip: !orgId }
+  );
+  const dataTotal = routes.length;
 
   const createPath = orgId
     ? `/organization/${orgId}/delivery-routes/create`
     : '/organization';
-
-  useEffect(() => {
-    dispatch(getDeliveryRoutes({}));
-  }, [dispatch, orgId]);
 
   const deliveryRoutesData = useMemo<DeliveryRoutesTableDataType[]>(() => {
     return routes.map((route) => ({

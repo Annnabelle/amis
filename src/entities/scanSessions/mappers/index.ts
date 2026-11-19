@@ -1,7 +1,5 @@
 import type { ScanSessionResponseDto } from '@edem2000/amis.contracts/api/common/responses';
-import type { CancelScanResponseDto, CompleteScanSessionResponseDto, CreateScanSessionResponseDto, ScanCodeResponseDto } from '@edem2000/amis.contracts/api/scan-sessions/responses';
 import type { ScanSession } from "entities/scanSessions/types";
-import type { PackageType, ErrorDto } from "shared/types/dtos";
 
 const toDate = (value: string | Date | undefined): Date | undefined => {
   if (!value) return undefined;
@@ -36,72 +34,3 @@ export const mapScanSessionDtoToEntity = (
   createdAt: toDate(dto.createdAt) ?? new Date(),
   updatedAt: toDate(dto.updatedAt) ?? new Date(),
 });
-
-const isErrorDto = (
-  dto:
-    | CreateScanSessionResponseDto
-    | CompleteScanSessionResponseDto
-    | ScanCodeResponseDto
-    | CancelScanResponseDto
-): dto is ErrorDto => "errorCode" in dto;
-
-export const mapCreateScanSessionResponseDtoToEntity = (
-  dto: CreateScanSessionResponseDto
-): { success: boolean; scanSession?: ScanSession; error?: ErrorDto } => {
-  if (isErrorDto(dto)) {
-    return { success: false, error: dto };
-  }
-
-  return {
-    success: dto.success,
-    scanSession: mapScanSessionDtoToEntity(dto.scanSession),
-  };
-};
-
-export const mapCompleteScanSessionResponseDtoToEntity = (
-  dto: CompleteScanSessionResponseDto
-): { success: boolean; scanSession?: ScanSession; error?: ErrorDto } => {
-  if (isErrorDto(dto)) {
-    return { success: false, error: dto };
-  }
-
-  return {
-    success: dto.success,
-    scanSession: mapScanSessionDtoToEntity(dto.scanSession),
-  };
-};
-
-export const mapScanCodeResponseDtoToEntity = (
-  dto: ScanCodeResponseDto
-): {
-  success: boolean;
-  error?: ErrorDto;
-  markingCode?: {
-    productId: string;
-    gtin: string;
-    packageType: PackageType;
-  };
-} => {
-  if (isErrorDto(dto)) {
-    return { success: false, error: dto };
-  }
-
-  return {
-    success: dto.success,
-    markingCode: {
-      productId: dto.markingCode.productId,
-      gtin: dto.markingCode.gtin,
-      packageType: dto.markingCode.packageType,
-    },
-  };
-};
-
-export const mapCancelScanResponseDtoToEntity = (
-  dto: CancelScanResponseDto
-): { success: boolean; error?: ErrorDto } => {
-  if (isErrorDto(dto)) {
-    return { success: false, error: dto };
-  }
-
-  return { success: dto.success };
-};

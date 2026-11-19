@@ -1,8 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "app/store";
 import {useEffect} from "react";
-import { getOrganizationById, updateOrganization } from "entities/organization/model";
+import {
+    useGetCompanyByIdQuery,
+    useUpdateCompanyMutation,
+} from "entities/organization/api";
+import { getApiErrorMessage } from "shared/api";
 import type { UpdateCompanyDto } from '@edem2000/amis.contracts/api/companies/requests';
 import { toast } from "react-toastify";
 import MainLayout from "shared/ui/layout";
@@ -17,9 +20,12 @@ import {useNavigationBack} from "shared/lib";
 const OrganizationsEdit = () => {
     const { t } = useTranslation();
     const navigateBack = useNavigationBack();
-    const dispatch = useAppDispatch()
     const { id } = useParams<{ id: string }>();
-    const organizationById = useAppSelector((state) => state.organizations.organizationById)
+    const { data: organizationById } = useGetCompanyByIdQuery(
+        { id: id ?? '' },
+        { skip: !id }
+    );
+    const [updateCompany] = useUpdateCompanyMutation();
     const [form] = Form.useForm()
     // const productGroupReferences = useAppSelector(
     //     (state) => state.references.references.productGroup
@@ -68,12 +74,6 @@ const OrganizationsEdit = () => {
         }
     }, [organizationById, form])
 
-    useEffect(() => {
-        if (id){
-            dispatch(getOrganizationById({id: id}))
-        }
-    }, [dispatch, id])
-
     const directorName = organizationById?.responsibleEmployees.director?.name
         ? [
             organizationById.responsibleEmployees.director.name.last,
@@ -87,18 +87,13 @@ const OrganizationsEdit = () => {
         if (!id) return;
 
         try {
-            const resultAction = await dispatch(
-             updateOrganization({ id: id, data: values })
-            );
-
-            if (updateOrganization.fulfilled.match(resultAction)) {
-                toast.success(t('organizations.messages.success.updateUser'));
-                    await dispatch(getOrganizationById({ id: id }));
-                } else {
-                toast.error(t('organizations.messages.error.updateUser'));
-            }
+            // Карточка перечитается сама: мутация инвалидирует тег компании.
+            await updateCompany({ id, data: values }).unwrap();
+            toast.success(t('organizations.messages.success.updateUser'));
         } catch (err) {
-            toast.error((err as string) || t('organizations.messages.error.updateUser'));
+            toast.error(
+                getApiErrorMessage(err, t('organizations.messages.error.updateUser'))
+            );
         }
     };
 

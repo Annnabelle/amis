@@ -1,3 +1,4 @@
+import type { Paginated } from 'shared/api';
 import type {PackageType, HexString, MultiLanguage} from "shared/types/dtos";
 
 export type ProductClassification = {
@@ -70,18 +71,7 @@ export type CreateProduct = {
     companyId: HexString;
 }
 
-export type ProductState = {
-    product: Product | null;
-    productById: Product | null;
-    updateProduct: Product | null;
-    products: Product[];
-    isLoading: boolean;
-    error: string | null;
-    status: string | null;
-    total: number,
-    page: number,
-    limit: number,
-}
+export type ProductList = Paginated<Product>;
 
 export type UpdateProduct = {
     name?: string;

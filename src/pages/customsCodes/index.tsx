@@ -4,18 +4,18 @@ import { SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from 'app/store';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 import {
-  createCustomsCode,
-  fetchCustomsCodeById,
-  fetchCustomsCodes,
-  initiateDissolutionAggregatedCustomsCodeOrder,
-  signDissolutionAggregatedCustomsCodeOrder,
-  signRegistrationAggregatedCustomsCodeOrder,
-} from 'entities/customsCodes/model';
-import { fetchMarkingCodes } from 'entities/markingCodes/model';
+  useCreateCustomsCodeOrderMutation,
+  useGetCustomsCodeOrdersQuery,
+  useInitiateCustomsCodeOrderDissolutionMutation,
+  useLazyGetCustomsCodeOrderByIdQuery,
+  useSignCustomsCodeOrderDissolutionMutation,
+  useSignCustomsCodeOrderRegistrationMutation,
+} from 'entities/customsCodes/api';
+import { getApiErrorMessage } from 'shared/api';
+import { useGetMarkingCodeOrdersQuery } from 'entities/markingCodes/api';
 import { OrderStatusType } from 'entities/markingCodes/types';
 import {
   AggregatedCustomsCodeOrderStatus,
@@ -37,7 +37,6 @@ import {
   getCertificateTitle,
   type EImzoCertificate,
 } from 'shared/lib/eImzo';
-import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 
 type CustomsCodeTableRow = {
   key: string;
@@ -74,21 +73,46 @@ const CustomsCodesPage = () => {
   const { t } = useTranslation();
   const { orgId } = useParams();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const canCreate = useCan(endpointAccessMap.customsCodesCreate);
   const canRead = useCan(endpointAccessMap.customsCodesRead);
   const canSignRegistrationOrder = useCan(endpointAccessMap.customsCodesSignRegistration);
   const canDissolve = useCan(endpointAccessMap.customsCodesInitiateDissolution);
   const canSignDissolutionOrder = useCan(endpointAccessMap.customsCodesSignDissolution);
   const canListOrders = useCan(endpointAccessMap.ordersList);
-  const { data, total, page, limit, loading, creating, dissolving, signing, error } = useAppSelector(
-    (state) => state.customsCodes
-  );
-  const batches = useAppSelector((state) => state.markingCodes.data);
-  const batchesLoading = useAppSelector((state) => state.markingCodes.loading);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const { page, limit } = pagination;
+  const {
+    data: ordersPage,
+    isFetching: loading,
+    error,
+    refetch: refreshCustomsCodes,
+  } = useGetCustomsCodeOrdersQuery({ page, limit }, { skip: !orgId });
+  const [createCustomsCodeOrder, { isLoading: creating }] =
+    useCreateCustomsCodeOrderMutation();
+  const [initiateDissolution, { isLoading: dissolving }] =
+    useInitiateCustomsCodeOrderDissolutionMutation();
+  const [signRegistration, { isLoading: signingRegistration }] =
+    useSignCustomsCodeOrderRegistrationMutation();
+  const [signDissolution, { isLoading: signingDissolution }] =
+    useSignCustomsCodeOrderDissolutionMutation();
+  const [loadCustomsCodeOrder] = useLazyGetCustomsCodeOrderByIdQuery();
+  const signing = signingRegistration || signingDissolution;
+  const data = useMemo(() => ordersPage?.items ?? [], [ordersPage]);
+  const total = ordersPage?.total ?? 0;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const { data: batchesPage, isFetching: batchesLoading } =
+    useGetMarkingCodeOrdersQuery(
+      {
+        page: 1,
+        limit: 50,
+        status: OrderStatusType.CodesAggregated,
+        packageType: PackageType.Unit,
+      },
+      { skip: !createModalOpen || !canListOrders }
+    );
+  const batches = useMemo(() => batchesPage?.items ?? [], [batchesPage]);
   const [selectedOrder, setSelectedOrder] = useState<CustomsCodeOrder | null>(null);
   const [signMode, setSignMode] = useState<SignMode>('registration');
   const [selectedBatchId, setSelectedBatchId] = useState<string>();
@@ -109,16 +133,6 @@ const CustomsCodesPage = () => {
     [t]
   );
 
-  const refreshCustomsCodes = useCallback(() => {
-    if (!orgId) return;
-
-    dispatch(fetchCustomsCodes({ page, limit }));
-  }, [dispatch, orgId, page, limit]);
-
-  useEffect(() => {
-    refreshCustomsCodes();
-  }, [refreshCustomsCodes]);
-
   useStatusChangeListRefresh(
     LifecycleTargetEntity.AggregatedCustomsCodeOrder,
     refreshCustomsCodes
@@ -131,7 +145,7 @@ const CustomsCodesPage = () => {
   useEffect(() => {
     if (!error) return;
 
-    toast.error(getBackendErrorMessage(error, t('customsCodes.messages.loadError')));
+    toast.error(getApiErrorMessage(error, t('customsCodes.messages.loadError')));
   }, [error, t]);
 
   const loadCertificates = useCallback(() => {
@@ -158,19 +172,6 @@ const CustomsCodesPage = () => {
 
     loadCertificates();
   }, [loadCertificates, modalOpen]);
-
-  useEffect(() => {
-    if (!createModalOpen || !canListOrders) return;
-
-    dispatch(
-      fetchMarkingCodes({
-        page: 1,
-        limit: 50,
-        status: OrderStatusType.CodesAggregated,
-        packageType: PackageType.Unit,
-      })
-    );
-  }, [canListOrders, createModalOpen, dispatch]);
 
   const rows = useMemo<CustomsCodeTableRow[]>(() => {
     return data.map((order, index) => ({
@@ -214,12 +215,10 @@ const CustomsCodesPage = () => {
     if (!orgId || !selectedBatchId) return;
 
     try {
-      const createdOrder = await dispatch(
-        createCustomsCode({
-          companyId: orgId,
-          batchId: selectedBatchId,
-        })
-      ).unwrap();
+      const createdOrder = await createCustomsCodeOrder({
+        companyId: orgId,
+        batchId: selectedBatchId,
+      }).unwrap();
 
       toast.success(t('customsCodes.messages.createSuccess'));
       closeCreateModal();
@@ -229,16 +228,16 @@ const CustomsCodesPage = () => {
           await wait(2000);
         }
 
-        const refreshedOrder = await dispatch(fetchCustomsCodeById(createdOrder.id)).unwrap();
+        const refreshedOrder = await loadCustomsCodeOrder(createdOrder.id).unwrap();
 
         if (canSignRegistration(refreshedOrder)) {
           break;
         }
       }
 
-      dispatch(fetchCustomsCodes({ page: 1, limit }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
     } catch (err) {
-      toast.error(getBackendErrorMessage(err, t('customsCodes.messages.createError')));
+      toast.error(getApiErrorMessage(err, t('customsCodes.messages.createError')));
     }
   };
 
@@ -250,9 +249,7 @@ const CustomsCodesPage = () => {
 
   const handleInitiateDissolution = useCallback(async (order: CustomsCodeOrder) => {
     try {
-      const initiatedOrder = await dispatch(
-        initiateDissolutionAggregatedCustomsCodeOrder(order.id)
-      ).unwrap();
+      const initiatedOrder = await initiateDissolution(order.id).unwrap();
 
       toast.success(t('customsCodes.messages.dissolutionInitiated'));
 
@@ -263,18 +260,16 @@ const CustomsCodesPage = () => {
           await wait(2000);
         }
 
-        orderForSigning = await dispatch(fetchCustomsCodeById(order.id)).unwrap();
+        orderForSigning = await loadCustomsCodeOrder(order.id).unwrap();
       }
-
-      dispatch(fetchCustomsCodes({ page, limit }));
 
       if (canSignDissolution(orderForSigning)) {
         openSignModal(orderForSigning, 'dissolution');
       }
     } catch (err) {
-      toast.error(getBackendErrorMessage(err, t('customsCodes.messages.dissolutionError')));
+      toast.error(getApiErrorMessage(err, t('customsCodes.messages.dissolutionError')));
     }
-  }, [dispatch, limit, openSignModal, page, t]);
+  }, [initiateDissolution, loadCustomsCodeOrder, openSignModal, t]);
 
   const handleSign = async () => {
     if (!selectedOrder) return;
@@ -310,18 +305,17 @@ const CustomsCodesPage = () => {
       };
 
       if (signMode === 'registration') {
-        await dispatch(signRegistrationAggregatedCustomsCodeOrder(payload)).unwrap();
+        await signRegistration(payload).unwrap();
       } else {
-        await dispatch(signDissolutionAggregatedCustomsCodeOrder(payload)).unwrap();
+        await signDissolution(payload).unwrap();
       }
 
       toast.success(t('customsCodes.messages.signSuccess'));
       closeSignModal();
-      dispatch(fetchCustomsCodes({ page, limit }));
     } catch (err) {
       const message = getEImzoErrorMessage(
         err,
-        getBackendErrorMessage(err, t('customsCodes.messages.signError'))
+        getApiErrorMessage(err, t('customsCodes.messages.signError'))
       );
 
       toast.error(message);
@@ -482,9 +476,11 @@ const CustomsCodesPage = () => {
                 showSizeChanger: { showSearch: false },
                 pageSizeOptions: ['10', '20', '30', '40', '50'],
                 locale: { items_per_page: '' },
-                onChange: (nextPage, nextLimit) => {
-                  dispatch(fetchCustomsCodes({ page: nextPage, limit: nextLimit || limit }));
-                },
+                onChange: (nextPage, nextLimit) =>
+                  setPagination((prev) => ({
+                    page: nextPage,
+                    limit: nextLimit || prev.limit,
+                  })),
               }}
             />
           </div>

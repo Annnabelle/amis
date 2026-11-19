@@ -5,14 +5,16 @@ import { toast } from "react-toastify";
 
 import FormComponent from "shared/ui/formComponent";
 import CustomButton from "shared/ui/button";
-import { useAppDispatch, useAppSelector } from "app/store";
 import type { CreateOrderDto } from '@edem2000/amis.contracts/api/orders/requests';
-import { createOrder } from "entities/markingCodes/model";
-import { searchProducts, getProductById } from "entities/products/model";
-import { useEffect, useState } from "react";
-import { fetchReferencesByType } from "entities/references/model";
+import { useCreateMarkingCodeOrderMutation } from "entities/markingCodes/api";
+import {
+  useLazyGetProductByIdQuery,
+  useSearchProductsQuery,
+} from "entities/products/api";
+import { useEffect, useMemo, useState } from "react";
+import { useGetReferencesByTypeQuery } from "entities/references/api";
+import { getApiErrorMessage } from "shared/api";
 import { useParams } from "react-router-dom";
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { PackageType } from "shared/types/dtos";
@@ -56,25 +58,39 @@ const OrderForm = ({ onCreated }: OrderFormProps) => {
   const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const orgId = id;
-  const dispatch = useAppDispatch();
   // const generateOptions = [
   //   { value: "self", label: t("markingCodes.independently") },
   //   { value: "operator", label: t("markingCodes.byOperator") },
   // ];
 
-  const packTypeReferences =
-      useAppSelector((state) => state.references.references.cisType) ?? [];
-
+  const [createMarkingCodeOrder] = useCreateMarkingCodeOrderMutation();
   const {
-    products,
-    productById: rawProductById,
-    isLoading: productsLoading,
-    error: productsError,
-  } = useAppSelector(
-      (state) => state.products
-  );
-  const referencesLoading = useAppSelector((state) => state.references.loading);
-  const referencesError = useAppSelector((state) => state.references.error);
+    data: packTypeReferences = [],
+    isFetching: referencesLoading,
+    error: packTypeReferencesError,
+  } = useGetReferencesByTypeQuery("cisType");
+
+  const [productQuery, setProductQuery] = useState("");
+  const {
+    data: productsPage,
+    isFetching: productsLoading,
+    error: productsRequestError,
+  } = useSearchProductsQuery({
+    query: productQuery,
+    page: 1,
+    limit: 10,
+    sortOrder: "asc",
+    companyId: orgId,
+  });
+  const products = useMemo(() => productsPage?.items ?? [], [productsPage]);
+  const [loadProductById, { data: rawProductById }] =
+    useLazyGetProductByIdQuery();
+  const productsError = productsRequestError
+    ? getApiErrorMessage(productsRequestError, t('common.error'))
+    : null;
+  const referencesError = packTypeReferencesError
+    ? getApiErrorMessage(packTypeReferencesError, t('common.error'))
+    : null;
   const formItems = Form.useWatch("items", form) ?? [];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,17 +110,9 @@ const OrderForm = ({ onCreated }: OrderFormProps) => {
     }));
   }, [rawProductById]);
 
-  useEffect(() => {
-    dispatch(fetchReferencesByType("cisType"));
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(searchProducts({ query: "", page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
-  }, [dispatch, orgId]);
-
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
-      dispatch(searchProducts({ query: value, page: 1, limit: 10, sortOrder: "asc", companyId: orgId }));
+      setProductQuery(value);
     }
   };
 
@@ -191,17 +199,14 @@ const OrderForm = ({ onCreated }: OrderFormProps) => {
       })),
     };
 
-    const resultAction = await dispatch(createOrder(payload));
-
-    if (createOrder.fulfilled.match(resultAction)) {
+    try {
+      await createMarkingCodeOrder(payload).unwrap();
       toast.success(t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated"));
       form.resetFields();
-      setIsSubmitting(false);
       onCreated?.();
-    } else if (createOrder.rejected.match(resultAction)) {
-      toast.error(
-          getBackendErrorMessage(resultAction.payload, t('common.error'))
-      );
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, t('common.error')));
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -264,7 +269,7 @@ const OrderForm = ({ onCreated }: OrderFormProps) => {
                             onSearch={handleProductSearch}
                             onChange={(productId) => {
                               form.setFieldValue(["items", field.name, "packType"], undefined);
-                              dispatch(getProductById({ id: productId }));
+                              void loadProductById({ id: productId });
                             }}
                             options={products.map((product) => ({
                               value: product.id,

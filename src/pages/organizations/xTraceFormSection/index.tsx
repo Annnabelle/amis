@@ -1,9 +1,9 @@
 import { Form, Input, Tag} from "antd";
-import { useAppDispatch, useAppSelector } from "app/store";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { validateCompanyXTraceToken } from "entities/xTrace/model";
+import { useLazyValidateCompanyXTraceTokenQuery } from "entities/xTrace/api";
+import { getApiErrorMessage } from "shared/api";
 import type { LanguageKey } from "shared/lib";
 import dayjs from "dayjs";
 
@@ -17,10 +17,13 @@ interface XTraceFormSectionProps {
 
 const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => {
     const { t, i18n } = useTranslation();
-    const dispatch = useAppDispatch();
     const lang = i18n.language as LanguageKey;
 
-    const { data, loading, error } = useAppSelector((state) => state.xTrace);
+    const [validateXTraceToken, { data, isFetching: loading, error: requestError }] =
+        useLazyValidateCompanyXTraceTokenQuery();
+    const error = requestError
+        ? getApiErrorMessage(requestError, t("organizations.addUserForm.validation.xTrace.invalidToken"))
+        : null;
 
     const [xTraceValidated, setXTraceValidated] = useState(false);
 
@@ -69,7 +72,7 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
 
         if (!tin || !token) return;
 
-        dispatch(validateCompanyXTraceToken({ tin, token }));
+        void validateXTraceToken({ tin, token });
     };
 
     return (

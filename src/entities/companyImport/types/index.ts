@@ -86,19 +86,3 @@ export const CompanyImportErrorCode = {
   NotFound: 10601,
 } as const;
 
-export type CompanyImportState = {
-  /** Компания, про которую спрашивали: при смене организации данные чужие. */
-  companyId: string | null;
-  current: CompanyImport | null;
-  /**
-   * Сервер ответил хотя бы раз. До этого «прогона нет» и «ещё не спрашивали»
-   * неразличимы, а показывать по ним надо разное.
-   */
-  loaded: boolean;
-  loading: boolean;
-  /** Когда сервер отвечал в прошлый раз: по нему отбрасываем частый опрос. */
-  lastFetchedAt: number | null;
-  error: string | null;
-  /** Какие этапы запускаются прямо сейчас: по ним кнопка раздела ждёт ответ. */
-  startingStages: CompanyImportStage[] | null;
-};

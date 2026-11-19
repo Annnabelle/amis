@@ -1,8 +1,6 @@
 import type { Dayjs } from "dayjs";
 import type { SalesOrderAddressResponseDto, SalesOrderResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import type { CreateSalesOrderDto } from '@edem2000/amis.contracts/api/sales-orders/requests';
-import type { CreateSalesOrderResponseDto } from '@edem2000/amis.contracts/api/sales-orders/responses';
-import type { ErrorDto } from "shared/types/dtos";
 import type { SalesOrder } from "entities/salesOrders/types";
 import type { SalesOrderPaymentMethod, SalesOrderPriority } from "shared/types/dtos";
 import type { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
@@ -114,34 +112,6 @@ export const mapSalesOrderDtoToEntity = (
   createdAt: toDate(dto.createdAt) ?? new Date(),
   updatedAt: toDate(dto.updatedAt) ?? new Date(),
 });
-
-export const mapCreateSalesOrderResponseDtoToEntity = (
-  dto: CreateSalesOrderResponseDto
-): { success: boolean; salesOrder?: SalesOrder; error?: ErrorDto } => {
-  if ("errorCode" in dto) {
-    return { success: false, error: dto };
-  }
-
-  if (!dto.success || !("salesOrder" in dto)) {
-    return {
-      success: false,
-      error: {
-        success: false,
-        errorCode: 100,
-        errorMessage: {
-          ru: "Неизвестный формат ответа сервера",
-          en: "Unknown server response format",
-          uz: "Server javobining nomaʼlum formati",
-        },
-      },
-    };
-  }
-
-  return {
-    success: dto.success,
-    salesOrder: mapSalesOrderDtoToEntity(dto.salesOrder),
-  };
-};
 
 export type SalesOrderFormValues = {
   sender?: {

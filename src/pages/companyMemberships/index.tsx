@@ -5,22 +5,22 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "app/store";
+import { useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
 import { useSubmitGuard } from "shared/lib";
-import { fetchAssignableRoles, fetchRoleReferences } from "entities/access/model";
 import {
-  getRoleReferenceCacheKey,
-  RoleScope,
-  type RoleReference,
-} from "entities/access/types";
+  useGetAssignableRolesQuery,
+  useGetRoleReferencesQuery,
+} from "entities/access/api";
+import { RoleScope, type RoleReference } from "entities/access/types";
 import {
-  createCompanyMembershipInvitation,
-  deleteCompanyMembership,
-  getCompanyMembershipById,
-  getCompanyMemberships,
-  updateCompanyMembershipRoles,
-} from "entities/companyMemberships/model";
+  useCreateCompanyMembershipInvitationMutation,
+  useDeleteCompanyMembershipMutation,
+  useGetCompanyMembershipByIdQuery,
+  useGetCompanyMembershipsQuery,
+  useUpdateCompanyMembershipRolesMutation,
+} from "entities/companyMemberships/api";
+import { getApiErrorMessage } from "shared/api";
 import {
   CompanyMembershipState,
   type CompanyMembership,
@@ -31,7 +31,7 @@ import {
   CompanyMembershipsTableColumns,
 } from "entities/companyMemberships/ui/tableData/companyMemberships";
 import type { CompanyMembershipTableDataType } from "entities/companyMemberships/ui/tableData/companyMemberships/types";
-import { searchUsers } from "entities/users/model";
+import { useLazySearchUsersQuery } from "entities/users/api";
 import type { UserPreview, User } from "entities/users/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
@@ -64,9 +64,6 @@ type RoleOption = {
   description: string;
 };
 
-type SearchUsersPayload = {
-  data?: User[];
-};
 
 const getLocalizedText = (
   value: Record<Language, string>,
@@ -116,41 +113,27 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CompanyMemberships = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
   const companyId = orgId ?? "";
-  const companyRoleReferenceKey = getRoleReferenceCacheKey(
-    RoleScope.Company,
-    companyId
-  );
   const canRead = useCan(endpointAccessMap.companyMembershipsRead);
   const canCreate = useCan(endpointAccessMap.companyMembershipsCreate);
   const canUpdate = useCan(endpointAccessMap.companyMembershipsUpdate);
   const canDelete = useCan(endpointAccessMap.companyMembershipsDelete);
-  const memberships = useAppSelector((state) => state.companyMemberships.memberships);
-  const membershipById = useAppSelector((state) => state.companyMemberships.membershipById);
-  const dataPage = useAppSelector((state) => state.companyMemberships.page);
-  const dataLimit = useAppSelector((state) => state.companyMemberships.limit);
-  const dataTotal = useAppSelector((state) => state.companyMemberships.total);
-  const isLoading = useAppSelector((state) => state.companyMemberships.isLoading);
+
   const currentUser = useAppSelector((state) => state.users.currentUser);
-  const assignableCompanyRoles = useAppSelector(
-    (state) => (state.access.assignableRoles[companyRoleReferenceKey] ?? []) as RoleReference<CompanyRole>[]
+  const { data: assignableRoles = [], isFetching: areRolesLoading } =
+    useGetAssignableRolesQuery(
+      { scope: RoleScope.Company, companyId },
+      { skip: !companyId }
+    );
+  const {
+    data: roleReferences = [],
+    isFetching: areRoleReferencesLoading,
+  } = useGetRoleReferencesQuery(
+    { scope: RoleScope.Company, companyId },
+    { skip: !companyId }
   );
-  const companyRoleReferences = useAppSelector(
-    (state) => (state.access.roleReferences[companyRoleReferenceKey] ?? []) as RoleReference<CompanyRole>[]
-  );
-  const areRolesLoading = useAppSelector((state) =>
-    Boolean(state.access.assignableRolesLoading[companyRoleReferenceKey])
-  );
-  const areRolesLoaded = useAppSelector((state) =>
-    Boolean(state.access.assignableRolesLoaded[companyRoleReferenceKey])
-  );
-  const areRoleReferencesLoading = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoading[companyRoleReferenceKey])
-  );
-  const areRoleReferencesLoaded = useAppSelector((state) =>
-    Boolean(state.access.roleReferencesLoaded[companyRoleReferenceKey])
-  );
+  const assignableCompanyRoles = assignableRoles as RoleReference<CompanyRole>[];
+  const companyRoleReferences = roleReferences as RoleReference<CompanyRole>[];
   const [inviteForm] = Form.useForm<InviteForm>();
   const [rolesForm] = Form.useForm<RolesForm>();
   const [query, setQuery] = useState<CompanyMembershipListQuery>({
@@ -225,28 +208,21 @@ const CompanyMemberships = () => {
     [t]
   );
 
-  useEffect(() => {
-    if (!query.companyId) return;
-    dispatch(getCompanyMemberships(query));
-  }, [dispatch, query]);
-
-  useEffect(() => {
-    if (areRolesLoaded || areRolesLoading) {
-      return;
-    }
-
-    if (!companyId) return;
-    void dispatch(fetchAssignableRoles({ scope: RoleScope.Company, companyId }));
-  }, [areRolesLoaded, areRolesLoading, companyId, dispatch]);
-
-  useEffect(() => {
-    if (areRoleReferencesLoaded || areRoleReferencesLoading) {
-      return;
-    }
-
-    if (!companyId) return;
-    void dispatch(fetchRoleReferences({ scope: RoleScope.Company, companyId }));
-  }, [areRoleReferencesLoaded, areRoleReferencesLoading, companyId, dispatch]);
+  const { data: membershipsPage, isFetching: isLoading } =
+    useGetCompanyMembershipsQuery(query, { skip: !query.companyId });
+  const [createCompanyMembershipInvitation] =
+    useCreateCompanyMembershipInvitationMutation();
+  const [updateCompanyMembershipRoles] =
+    useUpdateCompanyMembershipRolesMutation();
+  const [deleteCompanyMembership] = useDeleteCompanyMembershipMutation();
+  const [searchUsersByQuery] = useLazySearchUsersQuery();
+  const memberships = useMemo(
+    () => membershipsPage?.items ?? [],
+    [membershipsPage]
+  );
+  const dataPage = query.page;
+  const dataLimit = query.limit;
+  const dataTotal = membershipsPage?.total ?? 0;
 
   const searchInviteUserByEmail = useCallback(async (email: string) => {
     setInviteUser(null);
@@ -255,39 +231,32 @@ const CompanyMemberships = () => {
     setLastSearchedInviteEmail(email);
 
     try {
-      const result = await dispatch(
-        searchUsers({
-          query: email,
-          page: 1,
-          limit: 10,
-          sortOrder: "asc",
-        })
-      );
+      const found = await searchUsersByQuery({
+        query: email,
+        page: 1,
+        limit: 10,
+        sortOrder: "asc",
+      }).unwrap();
+      const user =
+        found.items.find((item) => item.email.trim().toLowerCase() === email) ??
+        null;
 
-      if (searchUsers.fulfilled.match(result)) {
-        const payload = result.payload as SearchUsersPayload;
-        const user =
-          payload.data?.find(
-            (item) => item.email.trim().toLowerCase() === email
-          ) ?? null;
-
-        if (user) {
-          setInviteUser(user);
-          inviteForm.setFieldValue("userId", user.id);
-          return;
-        }
-
-        inviteForm.setFields([
-          {
-            name: "email",
-            errors: [t("companyMemberships.validation.userNotFound")],
-          },
-        ]);
+      if (user) {
+        setInviteUser(user);
+        inviteForm.setFieldValue("userId", user.id);
+        return;
       }
+
+      inviteForm.setFields([
+        {
+          name: "email",
+          errors: [t("companyMemberships.validation.userNotFound")],
+        },
+      ]);
     } finally {
       setIsInviteUserSearching(false);
     }
-  }, [dispatch, inviteForm, t]);
+  }, [inviteForm, searchUsersByQuery, t]);
 
   useEffect(() => {
     if (modalState.edit && selectedMembership) {
@@ -353,12 +322,6 @@ const CompanyMemberships = () => {
     setModalState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const refreshList = () => {
-    if (query.companyId) {
-      dispatch(getCompanyMemberships(query));
-    }
-  };
-
   const handleTableAction = async (
     action: "read" | "edit" | "delete",
     record: CompanyMembershipTableDataType
@@ -376,9 +339,6 @@ const CompanyMemberships = () => {
 
     if (action === "read") {
       openModal("details", true);
-      if (record.key && companyId) {
-        await dispatch(getCompanyMembershipById({ companyId, id: record.key }));
-      }
       return;
     }
 
@@ -393,25 +353,23 @@ const CompanyMemberships = () => {
   const handleInvite = async (values: InviteForm) => {
     if (!companyId || !values.userId) return;
 
-    const result = await dispatch(
-      createCompanyMembershipInvitation({
+    try {
+      await createCompanyMembershipInvitation({
         companyId,
         data: {
           userId: values.userId,
           roles: values.roles,
         },
-      })
-    );
+      }).unwrap();
 
-    if (createCompanyMembershipInvitation.fulfilled.match(result)) {
       toast.success(t("companyMemberships.messages.success.invite"));
       inviteForm.resetFields();
       openModal("invite", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, t("companyMemberships.messages.error.invite"))
+      );
     }
-
-    toast.error(result.payload ?? t("companyMemberships.messages.error.invite"));
   };
 
   const { isSubmitting: isInviting, onSubmit: submitInvite } = useSubmitGuard(handleInvite);
@@ -419,41 +377,44 @@ const CompanyMemberships = () => {
   const handleUpdateRoles = async (values: RolesForm) => {
     if (!selectedMembership || !companyId) return;
 
-    const result = await dispatch(
-      updateCompanyMembershipRoles({
+    try {
+      await updateCompanyMembershipRoles({
         companyId,
         id: selectedMembership.id,
         data: { roles: values.roles },
-      })
-    );
+      }).unwrap();
 
-    if (updateCompanyMembershipRoles.fulfilled.match(result)) {
       toast.success(t("companyMemberships.messages.success.update"));
       openModal("edit", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, t("companyMemberships.messages.error.update"))
+      );
     }
-
-    toast.error(result.payload ?? t("companyMemberships.messages.error.update"));
   };
 
   const handleDelete = async () => {
     if (!selectedMembership || !companyId) return;
 
-    const result = await dispatch(
-      deleteCompanyMembership({ companyId, id: selectedMembership.id })
-    );
+    try {
+      await deleteCompanyMembership({
+        companyId,
+        id: selectedMembership.id,
+      }).unwrap();
 
-    if (deleteCompanyMembership.fulfilled.match(result)) {
       toast.success(t("companyMemberships.messages.success.revoke"));
       openModal("delete", false);
-      refreshList();
-      return;
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, t("companyMemberships.messages.error.revoke"))
+      );
     }
-
-    toast.error(result.payload ?? t("companyMemberships.messages.error.revoke"));
   };
 
+  const { data: membershipById } = useGetCompanyMembershipByIdQuery(
+    { companyId, id: selectedMembership?.id ?? "" },
+    { skip: !modalState.details || !companyId || !selectedMembership?.id }
+  );
   const visibleDetails = membershipById ?? selectedMembership;
   const visibleDetailsPreview =
     visibleDetails?.user ??

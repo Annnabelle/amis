@@ -1,17 +1,21 @@
-import { useCallback, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "app/store";
+import { useCallback } from "react";
 import { useCan } from "entities/access/lib";
 import {
-  getCurrentCompanyImport,
-  startCompanyImport,
-} from "entities/companyImport/model";
+  COMPANY_IMPORT_START_CACHE_KEY,
+  companyImportApi,
+  useGetCurrentCompanyImportQuery,
+  useStartCompanyImportMutation,
+} from "entities/companyImport/api";
 import {
   COMPANY_IMPORT_POLL_INTERVAL_MS,
+  CompanyImportErrorCode,
   type CompanyImport,
   type CompanyImportStage,
   type CompanyImportStageState,
 } from "entities/companyImport/types";
+import { getApiErrorMessage } from "shared/api";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
+import { readBackendErrorCode } from "./backendErrorCode";
 import { findCompanyImportStage, isCompanyImportActive } from "./stages";
 
 export type UseCompanyImportResult = {
@@ -30,65 +34,78 @@ export type UseCompanyImportResult = {
 /**
  * Текущий прогон импорта компании: один запрос на открытие раздела и опрос,
  * пока прогон идёт. Потребителей несколько — кнопки разделов и панель на
- * странице интеграций, — поэтому состояние живёт в сторе, а не в компоненте.
+ * странице интеграций, — и RTK Query сводит их к одной подписке: лишних
+ * запросов нет, а состояние запуска общее через fixedCacheKey.
  */
 export const useCompanyImport = (
   companyId?: string
 ): UseCompanyImportResult => {
-  const dispatch = useAppDispatch();
   const canRead = useCan(endpointAccessMap.companyImportCurrent);
   const canStart = useCan(endpointAccessMap.companyImportStart);
-  const loadedCompanyId = useAppSelector((state) => state.companyImport.companyId);
-  const current = useAppSelector((state) => state.companyImport.current);
-  const loaded = useAppSelector((state) => state.companyImport.loaded);
-  const isLoading = useAppSelector((state) => state.companyImport.loading);
-  const error = useAppSelector((state) => state.companyImport.error);
-  const startingStages = useAppSelector(
-    (state) => state.companyImport.startingStages
-  );
+  /** Читаем кеш без подписки: по нему решаем, нужен ли опрос. */
+  const cached =
+    companyImportApi.endpoints.getCurrentCompanyImport.useQueryState();
+  const isPollingNeeded = isCompanyImportActive(cached.data ?? null);
 
-  const isCurrentCompany = loadedCompanyId === companyId;
-  const companyImport = isCurrentCompany ? current : null;
-  const isActive = isCompanyImportActive(companyImport);
+  const {
+    data: companyImport,
+    isFetching,
+    isSuccess,
+    error: requestError,
+    refetch,
+  } = useGetCurrentCompanyImportQuery(undefined, {
+    skip: !companyId || !canRead,
+    /** Опрашиваем, только пока прогон идёт: завершённый сам не изменится. */
+    pollingInterval: isPollingNeeded ? COMPANY_IMPORT_POLL_INTERVAL_MS : 0,
+    // В свёрнутой вкладке опрашивать некого: смотреть на ответ никто не будет.
+    skipPollingIfUnfocused: true,
+  });
+  const [startCompanyImport, startState] = useStartCompanyImportMutation({
+    fixedCacheKey: COMPANY_IMPORT_START_CACHE_KEY,
+  });
 
-  useEffect(() => {
-    if (!companyId || !canRead) return;
-    if (isCurrentCompany && (loaded || isLoading || error)) return;
-
-    void dispatch(getCurrentCompanyImport({ companyId }));
-  }, [canRead, companyId, dispatch, error, isCurrentCompany, isLoading, loaded]);
-
-  useEffect(() => {
-    if (!companyId || !canRead || !isActive) return;
-
-    const intervalId = window.setInterval(() => {
-      /** В свёрнутой вкладке опрашивать некого: смотреть на ответ никто не будет. */
-      if (document.hidden) return;
-
-      void dispatch(getCurrentCompanyImport({ companyId }));
-    }, COMPANY_IMPORT_POLL_INTERVAL_MS);
-
-    return () => window.clearInterval(intervalId);
-  }, [canRead, companyId, dispatch, isActive]);
+  /** Прогонов не было — это не сбой, а пустое состояние раздела. */
+  const isNotFound =
+    readBackendErrorCode(requestError) === CompanyImportErrorCode.NotFound;
 
   const start = useCallback(
     async (stages?: CompanyImportStage[]) => {
       if (!companyId) return;
 
-      await dispatch(startCompanyImport({ companyId, stages })).unwrap();
+      try {
+        await startCompanyImport({ stages }).unwrap();
+      } catch (error) {
+        /**
+         * Запуск второго прогона запрещён уникальностью: нажавшему интереснее
+         * увидеть тот, что уже идёт, чем сообщение об отказе.
+         */
+        if (
+          readBackendErrorCode(error) === CompanyImportErrorCode.AlreadyRunning
+        ) {
+          await refetch();
+          return;
+        }
+
+        throw error;
+      }
     },
-    [companyId, dispatch]
+    [companyId, refetch, startCompanyImport]
   );
 
   return {
     canRead,
     canStart,
-    companyImport,
-    loaded: isCurrentCompany && loaded,
-    isLoading,
-    isActive,
-    error,
-    startingStages,
+    companyImport: companyImport ?? null,
+    loaded: isSuccess || isNotFound,
+    isLoading: isFetching,
+    isActive: isCompanyImportActive(companyImport ?? null),
+    error:
+      requestError && !isNotFound
+        ? getApiErrorMessage(requestError, "companyImport.errors.load")
+        : null,
+    startingStages: startState.isLoading
+      ? startState.originalArgs?.stages ?? null
+      : null,
     start,
   };
 };

@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dayjs from "dayjs";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Empty, Segmented, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "app/store";
-import { getWaybillById } from "entities/waybills/model";
+import { useGetWaybillByIdQuery } from "entities/waybills/api";
 import { getWaybillStatusKey } from "entities/waybills/lib/status";
 import type { WaybillContractedPartySnapshotResponseDto, WaybillVehicleSnapshotResponseDto } from '@edem2000/amis.contracts/api/common/responses';
-import { getSalesOrderById } from "entities/salesOrders/model";
-import { getDeliveryRouteById } from "entities/deliveryRoutes/model";
-import { getDeliveryTaskById } from "entities/deliveryTasks/model";
+import { useGetSalesOrderByIdQuery } from "entities/salesOrders/api";
+import { useGetDeliveryRouteByIdQuery } from "entities/deliveryRoutes/api";
+import { useGetDeliveryTaskByIdQuery } from "entities/deliveryTasks/api";
 import { useCan } from "entities/access/lib";
 import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
@@ -49,7 +48,6 @@ type WaybillDetailsSection = "overview" | "parties" | "cargo" | "system";
 
 const WaybillsDetails = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const { t } = useTranslation();
   const canReadSalesOrder = useCan(endpointAccessMap.salesOrdersRead);
@@ -62,40 +60,24 @@ const WaybillsDetails = () => {
   const [waybillFileLoading, setWaybillFileLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<WaybillDetailsSection>("overview");
 
-  const waybill = useAppSelector((state) => state.waybills.waybillById);
-  const isLoading = useAppSelector((state) => state.waybills.loadingById);
-  const salesOrder = useAppSelector((state) => state.salesOrders.orderById);
-  const deliveryRoute = useAppSelector((state) => state.deliveryRoutes.routeById);
-  const deliveryTask = useAppSelector((state) => state.deliveryTasks.taskById);
+  const { data: waybill, isLoading } = useGetWaybillByIdQuery(
+    { id: id ?? "" },
+    { skip: !id }
+  );
+  const { data: salesOrder } = useGetSalesOrderByIdQuery(
+    { id: waybill?.salesOrderId ?? "" },
+    { skip: !waybill?.salesOrderId || !canReadSalesOrder }
+  );
+  const { data: deliveryRoute } = useGetDeliveryRouteByIdQuery(
+    waybill?.deliveryRouteId ?? "",
+    { skip: !waybill?.deliveryRouteId || !canReadDeliveryRoute }
+  );
+  const { data: deliveryTask } = useGetDeliveryTaskByIdQuery(
+    waybill?.deliveryTaskId ?? "",
+    { skip: !waybill?.deliveryTaskId || !canReadDeliveryTask }
+  );
   const listPath = orgId ? `/organization/${orgId}/waybills` : "/organization";
 
-  useEffect(() => {
-    if (!id) return;
-    dispatch(getWaybillById({ id }));
-  }, [dispatch, id]);
-
-  useEffect(() => {
-    if (!waybill || waybill.id !== id) return;
-
-    if (waybill.salesOrderId && canReadSalesOrder) {
-      dispatch(getSalesOrderById({ id: waybill.salesOrderId }));
-    }
-
-    if (waybill.deliveryRouteId && canReadDeliveryRoute) {
-      dispatch(getDeliveryRouteById(waybill.deliveryRouteId));
-    }
-
-    if (waybill.deliveryTaskId && canReadDeliveryTask) {
-      dispatch(getDeliveryTaskById(waybill.deliveryTaskId));
-    }
-  }, [
-    canReadDeliveryRoute,
-    canReadDeliveryTask,
-    canReadSalesOrder,
-    dispatch,
-    id,
-    waybill,
-  ]);
 
   const linkedPath = (section: string, linkedId?: string) => {
     if (!linkedId) return undefined;
@@ -147,11 +129,11 @@ const WaybillsDetails = () => {
     }
   };
 
-  if (isLoading && waybill?.id !== id) {
+  if (isLoading) {
     return null;
   }
 
-  if (!waybill || waybill.id !== id) {
+  if (!waybill) {
     return (
       <MainLayout>
         <Heading title={t("waybills.detailsTitle")} subtitle={t("common.details")}>

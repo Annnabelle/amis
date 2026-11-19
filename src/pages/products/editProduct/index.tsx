@@ -1,9 +1,11 @@
 import {Form} from 'antd'
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from 'app/store';
 import { useEffect } from 'react';
-import { getProductById, updateProduct } from 'entities/products/model';
+import {
+    useGetProductByIdQuery,
+    useUpdateProductMutation,
+} from 'entities/products/api';
 import type { UpdateProductDto } from '@edem2000/amis.contracts/api/products/requests';
 import { toast } from 'react-toastify';
 import MainLayout from 'shared/ui/layout';
@@ -12,29 +14,44 @@ import CustomButton from 'shared/ui/button';
 import { useNavigationBack } from 'shared/lib';
 import FormComponent from 'shared/ui/formComponent';
 import { FormActions, FormGrid, FormRow, SelectField, TextAreaField, TextField } from 'shared/ui/form';
-import {fetchReferencesByType} from "entities/references/model";
+import {useGetReferencesByTypeQuery} from "entities/references/api";
+import {getApiErrorMessage} from "shared/api";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 
 const ProductsEdit = () => {
     const { id } = useParams<{ id: string }>();
     const { t, i18n } = useTranslation();
-    const dispatch = useAppDispatch()
-    const referencesError = useAppSelector((state) => state.references.error);
-    const productError = useAppSelector((state) => state.products.error);
-    const referencesLoading = useAppSelector((state) => state.references.loading);
-    const productLoading = useAppSelector((state) => state.products.isLoading);
+    const {
+        data: productGroupReferences = [],
+        isFetching: productGroupReferencesLoading,
+        error: productGroupReferencesError,
+    } = useGetReferencesByTypeQuery("productGroup");
+    const {
+        data: countryReferences = [],
+        isFetching: countryReferencesLoading,
+        error: countryReferencesError,
+    } = useGetReferencesByTypeQuery("countryCode");
+    const referencesRequestError = countryReferencesError ?? productGroupReferencesError;
+    const referencesError = referencesRequestError
+        ? getApiErrorMessage(referencesRequestError, t('common.error'))
+        : null;
+    const {
+        data: productById,
+        isFetching: productLoading,
+        error: productRequestError,
+    } = useGetProductByIdQuery({ id: id ?? '' }, { skip: !id });
+    const [updateProduct] = useUpdateProductMutation();
+    const productError = productRequestError
+        ? getApiErrorMessage(productRequestError, t('common.error'))
+        : null;
+    const referencesLoading = countryReferencesLoading || productGroupReferencesLoading;
     const requiredDataUnavailable =
         referencesLoading ||
         productLoading ||
         Boolean(referencesError) ||
         Boolean(productError);
-    const productById = useAppSelector((state) => state.products.productById)
     const navigateBack = useNavigationBack();
-    const productGroupReferences =
-        useAppSelector(state => state.references.references.productGroup) ?? [];
-    const countryReferences =
-        useAppSelector(state => state.references.references.countryCode) ?? [];
     type Lang = 'ru' | 'en' | 'uz';
 
     const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
@@ -43,15 +60,7 @@ const ProductsEdit = () => {
         throw new Error("Company ID is required but not found in route params");
     }
 
-    useEffect(() => {
-        dispatch(fetchReferencesByType("countryCode"));
-    }, [dispatch]);
-
     const [form] = Form.useForm()
-
-    useEffect(() => {
-        dispatch(fetchReferencesByType("productGroup"));
-    }, [dispatch]);
 
     useEffect(() => {
         if (productById) {
@@ -72,29 +81,17 @@ const ProductsEdit = () => {
         }
     }, [productById, form])
 
-    useEffect(() => {
-        if (id){
-            dispatch(getProductById({id: id}))
-        }
-    }, [dispatch, id])
-
     const handleUpdateProduct = async (values: UpdateProductDto) => {
         if (!id) return;
 
         try {
-            const resultAction = await dispatch(
-             updateProduct({ id: id, data: values })
-            );
-
-            if (updateProduct.fulfilled.match(resultAction)) {
-                toast.success(t('products.messages.success.updateProduct'));
-
-                await dispatch(getProductById({ id: id }));
-                } else {
-                toast.error(t('products.messages.error.updateProduct'));
-            }
+            // Карточка перечитается сама: мутация инвалидирует тег товара.
+            await updateProduct({ id, data: values }).unwrap();
+            toast.success(t('products.messages.success.updateProduct'));
         } catch (err) {
-            toast.error((err as string) || t('products.messages.error.updateProduct'));
+            toast.error(
+                getApiErrorMessage(err, t('products.messages.error.updateProduct'))
+            );
         }
     };
 

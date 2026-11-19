@@ -1,9 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from 'app/store';
-import { getInvoices } from 'entities/invoices/model';
+import { useGetInvoicesQuery } from 'entities/invoices/api';
 import { InvoicesTableColumns } from 'entities/invoices/ui/tableData/invoices';
 import type { InvoicesTableDataType } from 'entities/invoices/ui/tableData/invoices/types';
 import MainLayout from 'shared/ui/layout';
@@ -16,25 +15,22 @@ const InvoicesList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const canReadInvoice = useCan(endpointAccessMap.invoicesRead);
 
-  const invoices = useAppSelector((state) => state.invoices.invoices);
-  const dataLimit = useAppSelector((state) => state.invoices.limit);
-  const dataPage = useAppSelector((state) => state.invoices.page);
-  const dataTotal = useAppSelector((state) => state.invoices.total);
-  const isLoading = useAppSelector((state) => state.invoices.isLoading);
-
-  useEffect(() => {
-    dispatch(
-      getInvoices({
-        page: dataPage || 1,
-        limit: dataLimit || 10,
-        sortOrder: 'desc',
-        sortBy: 'createdAt',
-      })
-    );
-  }, [dispatch, dataPage, dataLimit, orgId]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const { data: invoicesPage, isFetching: isLoading } = useGetInvoicesQuery(
+    {
+      page: pagination.page,
+      limit: pagination.limit,
+      sortOrder: 'desc',
+      sortBy: 'createdAt',
+    },
+    { skip: !orgId }
+  );
+  const invoices = useMemo(() => invoicesPage?.items ?? [], [invoicesPage]);
+  const dataPage = pagination.page;
+  const dataLimit = pagination.limit;
+  const dataTotal = invoicesPage?.total ?? 0;
 
   const invoicesData = useMemo<InvoicesTableDataType[]>(() => {
     return invoices.map((invoice) => ({
@@ -80,16 +76,11 @@ const InvoicesList = () => {
                 showSizeChanger: { showSearch: false },
                 pageSizeOptions: ['10', '20', '30', '40', '50'],
                 locale: { items_per_page: '' },
-                onChange: (newPage, newLimit) => {
-                  dispatch(
-                    getInvoices({
-                      page: newPage,
-                      limit: newLimit || dataLimit || 10,
-                      sortOrder: 'desc',
-                      sortBy: 'createdAt',
-                    })
-                  );
-                },
+                onChange: (newPage, newLimit) =>
+                  setPagination((prev) => ({
+                    page: newPage,
+                    limit: newLimit || prev.limit,
+                  })),
               }}
             />
           </div>
