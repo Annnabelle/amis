@@ -104,11 +104,17 @@ export const PermissionRoute = ({
   children,
 }: PermissionRouteProps) => {
   const location = useLocation();
+  const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
   const userAccess = useAppSelector((state) => state.access.data);
   const loading = useAppSelector((state) => state.access.loading);
   const error = useAppSelector((state) => state.access.error);
   const isMobile = useIsMobile();
   const companyId = getCompanyIdFromPath(location.pathname);
+
+  /** Без входа прав никто не запросит — ждать нечего, сразу на страницу входа. */
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   if (loading || (!userAccess && !error)) {
     return <GlobalLoader loading />;
