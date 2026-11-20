@@ -46,12 +46,17 @@ const userDto = {
   lastLoggedInAt: null,
 };
 
+const sessionEnd = new Date("2026-11-27T10:00:00.000Z");
+
 const loginResponse = {
   status: 200,
   data: {
     success: true,
     user: userDto,
-    tokens: { accessToken: "access-1", refreshToken: "refresh-1" },
+    tokens: {
+      accessToken: "access-1",
+      refreshExpiresAt: sessionEnd.toISOString(),
+    },
   },
 };
 
@@ -116,8 +121,12 @@ describe("связка стора", () => {
     expect(users.isAuthenticated).toBe(true);
     expect(users.currentUser?.id).toBe("user-1");
     expect(users.accessToken).toBe("access-1");
-    expect(localStorage.getItem("accessToken")).toBe("access-1");
-    expect(localStorage.getItem("sessionEnd")).not.toBeNull();
+    // Токены в localStorage не попадают: access в памяти, refresh в cookie.
+    expect(localStorage.getItem("accessToken")).toBeNull();
+    expect(localStorage.getItem("refreshToken")).toBeNull();
+    expect(localStorage.getItem("sessionEnd")).toBe(
+      String(sessionEnd.getTime())
+    );
   });
 
   it("отказ входа не роняет сессию и не пишет токены", async () => {

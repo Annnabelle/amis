@@ -30,22 +30,26 @@ export type LoginForm = {
   password: string;
 }
 
-/** Вход и смена своего пароля отдают одно и то же: пользователя и токены. */
+/**
+ * Вход и смена своего пароля отдают одно и то же: пользователя, access-токен
+ * и конец сессии. refresh-токен клиенту не виден — он в httpOnly-cookie.
+ */
 export type AuthSession = {
   user: User;
   accessToken: string;
-  refreshToken: string;
+  sessionEnd: number;
 };
 
 export type UserList = Paginated<User>;
 
-/** Сессия на экране: пользователь, токены и признак входа. */
+/** Сессия на экране: пользователь, токен в памяти и признак входа. */
 export type UsersState = {
     user: User | null;
     accessToken: string | null;
-    refreshToken: string | null;
     sessionStart: number | null;
     isAuthenticated: boolean;
+    /** Идёт восстановление сессии по cookie: роутер ждёт и никуда не уводит. */
+    isRestoring: boolean;
     currentUser: User | null;
 };
 

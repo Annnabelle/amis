@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Avatar } from "antd";
 import { LuUserRound, LuKeyRound, LuLogOut } from "react-icons/lu";
 import { IoIosArrowDown } from "react-icons/io";
-import { useAppSelector, useAppDispatch } from "app/store";
+import { useAppSelector } from "app/store";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "./styles.sass";
-import { logout } from "entities/users/model";
+import { useLogout } from "entities/users/lib/useLogout";
 
 type UserInfoProps = {
   showDropdown?: boolean;
@@ -23,7 +23,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const user = useAppSelector((s) => s.users.currentUser);
-  const dispatch = useAppDispatch();
+  const requestLogout = useLogout();
   const navigate = useNavigate();
 
   const handleClickOutside = useCallback(
@@ -43,8 +43,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   }, [handleClickOutside]);
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/", { replace: true });
+    void requestLogout().then(() => navigate("/", { replace: true }));
   };
 
   const go = (path: string) => {
