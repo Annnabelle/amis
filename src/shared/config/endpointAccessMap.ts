@@ -176,6 +176,8 @@ export const endpointAccessMap = {
   customsCodesSignRegistration: endpoint({ method: "POST", path: "/customs-code-orders/registration/sign", permission: Permissions.CustomsCodeOrderSignRegistration, scope: EndpointScopes.Company }),
   customsCodesInitiateDissolution: endpoint({ method: "POST", path: "/customs-code-orders/:id/dissolve", permission: Permissions.CustomsCodeOrderInitiateDissolution, scope: EndpointScopes.Company }),
   customsCodesSignDissolution: endpoint({ method: "POST", path: "/customs-code-orders/dissolution/sign", permission: Permissions.CustomsCodeOrderSignDissolution, scope: EndpointScopes.Company }),
+  // Право создания: завести на партию второй заказ нельзя, и возобновление — единственный путь к новой попытке.
+  customsCodesResume: endpoint({ method: "POST", path: "/customs-code-orders/:id/resume", permission: Permissions.CustomsCodeOrderCreate, scope: EndpointScopes.Company }),
 
   auditList: endpoint({ method: "GET", path: "/audit", permission: Permissions.AuditList, scope: EndpointScopes.Global }),
   auditRead: endpoint({ method: "GET", path: "/audit/:id", permission: Permissions.AuditRead, scope: EndpointScopes.Global }),

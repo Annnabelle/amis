@@ -76,6 +76,9 @@ export type OrderBatchPopulated = {
     orderStatus: OrderStatus;
     orderExternalStatus?: ExternalOrderStatus;
     orderedAt: string; // Date.toISOString()
+
+    /** На партию уже заведён заказ АИК — создавать второй нечего. */
+    hasAggregatedCustomsCode: boolean;
 }
 
 export type OrderProductDetails = {

@@ -30,6 +30,7 @@ export function mapMarkingCodesDtoToEntity(dto: OrderBatchPopulatedResponseDto):
         isPaid: dto.isPaid,
         externalStatus: dto.externalStatus,
         orderedAt: dto.orderedAt,
+        hasAggregatedCustomsCode: dto.hasAggregatedCustomsCode,
     }
 }
 

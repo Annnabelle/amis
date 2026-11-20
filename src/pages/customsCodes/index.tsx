@@ -11,11 +11,13 @@ import {
   useGetCustomsCodeOrdersQuery,
   useInitiateCustomsCodeOrderDissolutionMutation,
   useLazyGetCustomsCodeOrderByIdQuery,
+  useResumeCustomsCodeOrderMutation,
   useSignCustomsCodeOrderDissolutionMutation,
   useSignCustomsCodeOrderRegistrationMutation,
 } from 'entities/customsCodes/api';
 import { getApiErrorMessage } from 'shared/api';
 import { useGetMarkingCodeOrdersQuery } from 'entities/markingCodes/api';
+import { useSearchProductsQuery } from 'entities/products/api';
 import { OrderStatusType } from 'entities/markingCodes/types';
 import {
   AggregatedCustomsCodeOrderStatus,
@@ -28,6 +30,7 @@ import { useCan } from 'entities/access/lib';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
+import { DetailItems } from 'shared/ui/details';
 import ModalWindow from 'shared/ui/modalWindow';
 import CustomButton from 'shared/ui/button';
 import EntityStatusBadge from 'shared/ui/statusBadge/entityStatus';
@@ -37,6 +40,7 @@ import {
   getCertificateTitle,
   type EImzoCertificate,
 } from 'shared/lib/eImzo';
+import './styles.sass';
 
 type CustomsCodeTableRow = {
   key: string;
@@ -46,6 +50,8 @@ type CustomsCodeTableRow = {
   orderId: string;
   batchId: string;
   productId: string;
+  productName: string;
+  gtin: string;
   quantity: number;
   customsCode: string;
   measurement: string;
@@ -55,16 +61,24 @@ type CustomsCodeTableRow = {
 
 type SignMode = 'registration' | 'dissolution';
 
+// Только по статусу: документ со всеми кодами партии в строку списка не
+// приезжает, его подтягивает модалка подписи.
 const canSignRegistration = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.ReadyForSign &&
-  Boolean(order.external.registration.documentBase64);
+  order.status === AggregatedCustomsCodeOrderStatus.ReadyForSign ||
+  order.status === AggregatedCustomsCodeOrderStatus.SignedForRegistration;
 
+// Отказ вендора оставляет код зарегистрированным, поэтому снять его можно и из него.
 const canInitiateDissolution = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.Registered;
+  order.status === AggregatedCustomsCodeOrderStatus.Registered ||
+  order.status === AggregatedCustomsCodeOrderStatus.DissolutionFailed;
+
+// Отказ регистрации: второй заказ на партию не заводится, повтор идёт по этому же.
+const canResume = (order: CustomsCodeOrder) =>
+  order.status === AggregatedCustomsCodeOrderStatus.RegistrationFailed;
 
 const canSignDissolution = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.DissolutionInitialized &&
-  Boolean(order.external.dissolution.documentBase64);
+  order.status === AggregatedCustomsCodeOrderStatus.DissolutionInitialized ||
+  order.status === AggregatedCustomsCodeOrderStatus.SignedForDissolution;
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const E_IMZO_ERROR_KEY_PREFIX = 'customsCodes.eImzoErrors.';
@@ -79,6 +93,7 @@ const CustomsCodesPage = () => {
   const canDissolve = useCan(endpointAccessMap.customsCodesInitiateDissolution);
   const canSignDissolutionOrder = useCan(endpointAccessMap.customsCodesSignDissolution);
   const canListOrders = useCan(endpointAccessMap.ordersList);
+  const canListProducts = useCan(endpointAccessMap.productsList);
   const [pagination, setPagination] = useState({ page: 1, limit: 10 });
   const { page, limit } = pagination;
   const {
@@ -95,6 +110,8 @@ const CustomsCodesPage = () => {
     useSignCustomsCodeOrderRegistrationMutation();
   const [signDissolution, { isLoading: signingDissolution }] =
     useSignCustomsCodeOrderDissolutionMutation();
+  const [resumeCustomsCodeOrder, { isLoading: resuming }] =
+    useResumeCustomsCodeOrderMutation();
   const [loadCustomsCodeOrder] = useLazyGetCustomsCodeOrderByIdQuery();
   const signing = signingRegistration || signingDissolution;
   const data = useMemo(() => ordersPage?.items ?? [], [ordersPage]);
@@ -102,6 +119,15 @@ const CustomsCodesPage = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [batchProductId, setBatchProductId] = useState<string>();
+  const [productQuery, setProductQuery] = useState('');
+  const { data: productsPage } = useSearchProductsQuery(
+    { query: productQuery, page: 1, limit: 20, sortOrder: 'asc' },
+    { skip: !createModalOpen || !canListProducts }
+  );
+  const products = useMemo(() => productsPage?.items ?? [], [productsPage]);
+  // Фильтр по товару сужает выборку на сервере: клиентский поиск достаёт
+  // только то, что уже в первой странице.
   const { data: batchesPage, isFetching: batchesLoading } =
     useGetMarkingCodeOrdersQuery(
       {
@@ -109,6 +135,7 @@ const CustomsCodesPage = () => {
         limit: 50,
         status: OrderStatusType.CodesAggregated,
         packageType: PackageType.Unit,
+        productId: batchProductId,
       },
       { skip: !createModalOpen || !canListOrders }
     );
@@ -182,6 +209,8 @@ const CustomsCodesPage = () => {
       orderId: order.orderId,
       batchId: order.batchId,
       productId: order.productId,
+      productName: order.product?.name ?? '-',
+      gtin: order.product?.gtin ?? '-',
       quantity: order.quantity,
       customsCode: order.customsCode ?? '-',
       measurement: order.measurement?.value ?? '-',
@@ -190,12 +219,26 @@ const CustomsCodesPage = () => {
     }));
   }, [data, limit, page]);
 
-  const openSignModal = useCallback((order: CustomsCodeOrder, mode: SignMode) => {
-    setSelectedOrder(order);
+  const openSignModal = useCallback(async (order: CustomsCodeOrder, mode: SignMode) => {
+    const signed = mode === 'registration'
+      ? order.external.registration.documentBase64
+      : order.external.dissolution.documentBase64;
+    let full = order;
+
+    if (!signed) {
+      try {
+        full = await loadCustomsCodeOrder(order.id).unwrap();
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, t('customsCodes.messages.loadError')));
+        return;
+      }
+    }
+
+    setSelectedOrder(full);
     setSignMode(mode);
     setSelectedCertificateIndex(undefined);
     setModalOpen(true);
-  }, []);
+  }, [loadCustomsCodeOrder, t]);
 
   const closeSignModal = () => {
     setModalOpen(false);
@@ -206,9 +249,16 @@ const CustomsCodesPage = () => {
     setEImzoError(null);
   };
 
+  const handleProductSearch = (value: string) => {
+    if (value.trim()) {
+      setProductQuery(value);
+    }
+  };
+
   const closeCreateModal = () => {
     setCreateModalOpen(false);
     setSelectedBatchId(undefined);
+    setBatchProductId(undefined);
   };
 
   const handleCreate = async () => {
@@ -216,26 +266,28 @@ const CustomsCodesPage = () => {
 
     try {
       const createdOrder = await createCustomsCodeOrder({
-        companyId: orgId,
         batchId: selectedBatchId,
       }).unwrap();
 
       toast.success(t('customsCodes.messages.createSuccess'));
       closeCreateModal();
+      setPagination((prev) => ({ ...prev, page: 1 }));
 
-      for (let attempt = 0; attempt < 5; attempt += 1) {
-        if (attempt > 0) {
-          await wait(2000);
-        }
+      let preparedOrder = createdOrder;
 
-        const refreshedOrder = await loadCustomsCodeOrder(createdOrder.id).unwrap();
-
-        if (canSignRegistration(refreshedOrder)) {
-          break;
-        }
+      for (let attempt = 0; attempt < 5 && !canSignRegistration(preparedOrder); attempt += 1) {
+        await wait(2000);
+        preparedOrder = await loadCustomsCodeOrder(createdOrder.id).unwrap();
       }
 
-      setPagination((prev) => ({ ...prev, page: 1 }));
+      // Документ собирает воркер: если он не успел, модалка не открывается —
+      // и об этом надо сказать, иначе создание выглядит как потерянное.
+      if (canSignRegistration(preparedOrder)) {
+        await openSignModal(preparedOrder, 'registration');
+        return;
+      }
+
+      toast.info(t('customsCodes.messages.documentPending'));
     } catch (err) {
       toast.error(getApiErrorMessage(err, t('customsCodes.messages.createError')));
     }
@@ -264,12 +316,21 @@ const CustomsCodesPage = () => {
       }
 
       if (canSignDissolution(orderForSigning)) {
-        openSignModal(orderForSigning, 'dissolution');
+        await openSignModal(orderForSigning, 'dissolution');
       }
     } catch (err) {
       toast.error(getApiErrorMessage(err, t('customsCodes.messages.dissolutionError')));
     }
   }, [initiateDissolution, loadCustomsCodeOrder, openSignModal, t]);
+
+  const handleResume = useCallback(async (order: CustomsCodeOrder) => {
+    try {
+      await resumeCustomsCodeOrder(order.id).unwrap();
+      toast.success(t('customsCodes.messages.resumeStarted'));
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
+    }
+  }, [resumeCustomsCodeOrder, t]);
 
   const handleSign = async () => {
     if (!selectedOrder) return;
@@ -339,11 +400,25 @@ const CustomsCodesPage = () => {
       minWidth: 150,
     },
     {
+      title: t('customsCodes.table.product'),
+      dataIndex: 'productName',
+      key: 'productName',
+      minWidth: 220,
+      flex: 1,
+      // Название и GTIN в одной ячейке: колонка на каждый из них увела бы
+      // статус и действия за край.
+      render: (_value, row) => (
+        <div className="customs-code-product">
+          <span className="customs-code-product-name">{row.productName}</span>
+          <span className="customs-code-product-gtin">{row.gtin}</span>
+        </div>
+      ),
+    },
+    {
       title: t('customsCodes.table.customsCode'),
       dataIndex: 'customsCode',
       key: 'customsCode',
       minWidth: 160,
-      flex: 1,
     },
     {
       title: t('customsCodes.table.quantity'),
@@ -380,7 +455,7 @@ const CustomsCodesPage = () => {
               className="table-action-btn"
               onClick={(event) => {
                 event.stopPropagation();
-                openSignModal(row.order, 'registration');
+                void openSignModal(row.order, 'registration');
             }}
           >
               {t('customsCodes.actions.sign')}
@@ -406,7 +481,23 @@ const CustomsCodesPage = () => {
           );
         }
 
-        if (!canSignDissolutionOrder || !canSignDissolution(row.order)) {
+        if (canSignDissolutionOrder && canSignDissolution(row.order)) {
+          return (
+            <CustomButton
+              type="button"
+              variant="outline"
+              className="table-action-btn"
+              onClick={(event) => {
+                event.stopPropagation();
+                void openSignModal(row.order, 'dissolution');
+              }}
+            >
+              {t('customsCodes.actions.sign')}
+            </CustomButton>
+          );
+        }
+
+        if (!canCreate || !canResume(row.order)) {
           return null;
         }
 
@@ -415,34 +506,48 @@ const CustomsCodesPage = () => {
             type="button"
             variant="outline"
             className="table-action-btn"
+            disabled={resuming}
             onClick={(event) => {
               event.stopPropagation();
-              openSignModal(row.order, 'dissolution');
+              handleResume(row.order);
             }}
           >
-            {t('customsCodes.actions.sign')}
+            {resuming && <SyncOutlined spin />}
+            {t('customsCodes.actions.resume')}
           </CustomButton>
         );
       },
     },
   ], [
+    canCreate,
     canDissolve,
     canSignDissolutionOrder,
     canSignRegistrationOrder,
     dissolving,
     handleInitiateDissolution,
+    handleResume,
     openSignModal,
+    resuming,
     t,
   ]);
 
   const batchOptions = useMemo(() => {
     return batches
-      .filter((batch) => batch.packageType?.toLowerCase() === PackageType.Unit)
+      .filter(
+        (batch) =>
+          batch.packageType?.toLowerCase() === PackageType.Unit &&
+          !batch.hasAggregatedCustomsCode
+      )
       .map((batch) => ({
         value: batch.batchId,
         label: `${batch.batchNumber} | ${batch.orderNumber} | ${batch.productName}`,
       }));
   }, [batches]);
+
+  const productOptions = useMemo(
+    () => products.map((product) => ({ value: product.id, label: product.name })),
+    [products]
+  );
 
   return (
     <MainLayout>
@@ -495,6 +600,38 @@ const CustomsCodesPage = () => {
         maskClosable={!signing && !localSigning}
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          {/* Под ЭЦП уходит base64, которого не видно: состав документа — здесь. */}
+          {selectedOrder && (
+            <DetailItems
+              items={[
+                {
+                  label: t('customsCodes.table.accOrderNumber'),
+                  value: selectedOrder.accOrderNumber ?? '-',
+                },
+                {
+                  label: t('customsCodes.table.customsCode'),
+                  value: selectedOrder.customsCode ?? '-',
+                },
+                {
+                  label: t('customsCodes.table.product'),
+                  value: selectedOrder.product
+                    ? `${selectedOrder.product.name} · ${selectedOrder.product.gtin}`
+                    : '-',
+                },
+                {
+                  label: t('customsCodes.table.quantity'),
+                  value: selectedOrder.quantity,
+                },
+                {
+                  label: t('customsCodes.table.measurement'),
+                  value: selectedOrder.measurement
+                    ? `${selectedOrder.measurement.value} · ${selectedOrder.measurement.quantity}`
+                    : '-',
+                },
+              ]}
+            />
+          )}
+
           <Alert
             type={eImzoError ? 'warning' : 'info'}
             showIcon
@@ -554,6 +691,25 @@ const CustomsCodesPage = () => {
         maskClosable={!creating}
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          {canListProducts && (
+            <Select
+              size="large"
+              style={{ width: '100%' }}
+              allowClear
+              showSearch
+              filterOption={false}
+              placeholder={t('customsCodes.createModal.selectProduct')}
+              value={batchProductId}
+              notFoundContent={t('customsCodes.createModal.productsNotFound')}
+              options={productOptions}
+              onSearch={handleProductSearch}
+              onChange={(value?: string) => {
+                setBatchProductId(value);
+                setSelectedBatchId(undefined);
+              }}
+            />
+          )}
+
           <Select
             size="large"
             style={{ width: '100%' }}

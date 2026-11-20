@@ -1,7 +1,15 @@
 import { Alert, Spin } from 'antd';
+import { SyncOutlined } from '@ant-design/icons';
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetCustomsCodeOrderByIdQuery } from 'entities/customsCodes/api';
+import {
+  useGetCustomsCodeOrderByIdQuery,
+  useResumeCustomsCodeOrderMutation,
+} from 'entities/customsCodes/api';
+import { JobStatus } from '@edem2000/amis.contracts';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { getApiErrorMessage } from 'shared/api';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
@@ -22,12 +30,26 @@ import Heading from 'shared/ui/mainHeading';
 const CustomsCodeDetails = () => {
   const navigate = useNavigate();
   const { orgId, id } = useParams<{ orgId: string; id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const canResume = useCan(endpointAccessMap.customsCodesResume);
   const {
     data: order,
     isLoading,
     error: loadRequestError,
   } = useGetCustomsCodeOrderByIdQuery(id ?? '', { skip: !id });
+  const [resumeCustomsCodeOrder, { isLoading: resuming }] =
+    useResumeCustomsCodeOrderMutation();
+
+  const handleResume = async () => {
+    if (!id) return;
+
+    try {
+      await resumeCustomsCodeOrder(id).unwrap();
+      toast.success(t('customsCodes.messages.resumeStarted'));
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
+    }
+  };
   const loadError = loadRequestError
     ? getApiErrorMessage(loadRequestError, t('customsCodes.messages.loadError'))
     : null;
@@ -67,12 +89,33 @@ const CustomsCodeDetails = () => {
   const notGeneratedLabel = t('customsCodes.details.fields.notGenerated');
 
   const generalItems = [
+    {
+      label: t('customsCodes.table.product'),
+      value: order.product ? `${order.product.name} · ${order.product.gtin}` : '-',
+    },
     { label: t('customsCodes.details.fields.orderId'), value: order.orderId },
     { label: t('customsCodes.details.fields.batchId'), value: order.batchId },
     { label: t('customsCodes.details.fields.productId'), value: order.productId },
     { label: t('customsCodes.table.quantity'), value: order.quantity },
     { label: t('customsCodes.table.measurement'), value: order.measurement?.value ?? '-' },
   ];
+
+  const processing = order.processing;
+  // Шаги исполняет воркер: без этого признака его остановка и исчерпавшая попытки
+  // задача в интерфейсе неотличимы от обычного ожидания.
+  const processingStalled =
+    processing?.jobStatus === JobStatus.DeadLettered ||
+    processing?.jobStatus === JobStatus.Cancelled;
+
+  const processingItems = processing
+    ? [
+        { label: t('customsCodes.details.fields.processingStep'), value: processing.jobType },
+        {
+          label: t('customsCodes.details.fields.processingAttempts'),
+          value: `${processing.attempts} / ${processing.maxAttempts}`,
+        },
+      ]
+    : [];
 
   const documentItems = [
     {
@@ -94,6 +137,25 @@ const CustomsCodeDetails = () => {
       </Heading>
 
       {lifecycleBanner}
+
+      {processingStalled && (
+        <Alert
+          type="warning"
+          showIcon
+          message={t('customsCodes.details.fields.processingStalled')}
+          description={
+            processing?.lastError ? processing.lastError[i18n.language as 'ru' | 'uz' | 'en'] : undefined
+          }
+          action={
+            canResume ? (
+              <CustomButton size="sm" fullWidth={false} disabled={resuming} onClick={handleResume}>
+                {resuming && <SyncOutlined spin />}
+                {t('customsCodes.actions.resume')}
+              </CustomButton>
+            ) : undefined
+          }
+        />
+      )}
 
       <EntityTabs
         defaultActiveKey={OVERVIEW_TAB_KEY}
@@ -139,6 +201,11 @@ const CustomsCodeDetails = () => {
                       <DetailCard title={t('customsCodes.details.sections.documents')}>
                         <DetailItems items={documentItems} />
                       </DetailCard>
+                      {processing && (
+                        <DetailCard title={t('customsCodes.details.sections.processing')}>
+                          <DetailItems items={processingItems} />
+                        </DetailCard>
+                      )}
                     </DetailGrid>
                   </div>
                 </div>

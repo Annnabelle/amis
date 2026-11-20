@@ -16,10 +16,7 @@ import type { OrderListQueryRequestDto } from 'entities/markingCodes/dtos';
 import { useSearchProductsQuery } from 'entities/products/api'
 import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
-import {
-    useCreateCustomsCodeOrderMutation,
-    useGetCustomsCodeOrdersQuery,
-} from "entities/customsCodes/api";
+import { useCreateCustomsCodeOrderMutation } from "entities/customsCodes/api";
 import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import {useSearchCompanyMembershipsQuery} from "entities/companyMemberships/api";
@@ -47,14 +44,6 @@ const MarkingCodes = () => {
     const canSearchCompanyMemberships = useCan(endpointAccessMap.companyMembershipsSearch);
     const canListProducts = useCan(endpointAccessMap.productsList);
 
-    const { data: customsCodesPage } = useGetCustomsCodeOrdersQuery(
-        { page: 1, limit: 1000 },
-        { skip: !orgId || !canCreateCustomsCode }
-    );
-    const customsCodes = useMemo(
-        () => customsCodesPage?.items ?? [],
-        [customsCodesPage]
-    );
     const [createCustomsCodeOrder] = useCreateCustomsCodeOrderMutation();
 
     const { error: packTypeReferencesError } =
@@ -117,16 +106,23 @@ const MarkingCodes = () => {
             packageType: markingCode.packageType,
             status: markingCode.status ?? null,
             externalStatus: markingCode.externalStatus ?? null,
+            hasAggregatedCustomsCode: markingCode.hasAggregatedCustomsCode,
         }))
     }, [markingCodes, t])
 
+    // Признак приходит в самой строке партии: выборка заказов АИК отдельным
+    // запросом обрезается пагинацией, и обработанные партии из неё выпадают.
     const customsCodeBatchIds = useMemo(() => {
-        const batchIds = new Set(customsCodes.map((item) => item.batchId));
+        const batchIds = new Set(
+            markingCodes
+                .filter((markingCode) => markingCode.hasAggregatedCustomsCode)
+                .map((markingCode) => markingCode.batchId)
+        );
 
         createdCustomsCodeBatchIds.forEach((batchId) => batchIds.add(batchId));
 
         return batchIds;
-    }, [createdCustomsCodeBatchIds, customsCodes]);
+    }, [createdCustomsCodeBatchIds, markingCodes]);
 
     const [modalState, setModalState] = useState<{
         addMarkingCodes: boolean;
@@ -221,17 +217,14 @@ const MarkingCodes = () => {
         try {
             setCreatingCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
 
-            await createCustomsCodeOrder({
-                companyId: orgId,
-                batchId: record.batchId,
-            }).unwrap();
+            await createCustomsCodeOrder({ batchId: record.batchId }).unwrap();
 
             setCreatedCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
             toast.success(t('customsCodes.messages.createSuccess'));
             void refreshMarkingCodes();
         } catch (error: unknown) {
             toast.error(
-                getBackendErrorMessage(error, t('customsCodes.messages.createError'))
+                getApiErrorMessage(error, t('customsCodes.messages.createError'))
             );
         } finally {
             setCreatingCustomsCodeBatchIds((prev) => {

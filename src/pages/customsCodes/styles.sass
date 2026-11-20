@@ -1,0 +1,17 @@
+// Товар строки — название и GTIN в одной ячейке: отдельная колонка под каждый
+// увела бы статус и действия за правый край таблицы.
+.customs-code-product
+    display: flex
+    flex-direction: column
+    gap: 2px
+    min-width: 0
+
+    &-name
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+
+    &-gtin
+        color: var(--text-secondary)
+        font-family: var(--mono, ui-monospace, Consolas, monospace)
+        font-size: 12px
