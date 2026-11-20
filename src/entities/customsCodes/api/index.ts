@@ -7,6 +7,7 @@ import type {
   CreateAggregatedCustomsCodeResponseDto,
   GetAggregatedCustomsCodeOrderResponseDto,
   InitiateAggregatedCustomsCodeOrderDissolutionResponseDto,
+  ResumeAggregatedCustomsCodeOrderResponseDto,
   SignDissolvementAggregatedCustomsCodeOrderResponseDto,
   SignRegistrationAggregatedCustomsCodeOrderResponseDto,
 } from "@edem2000/amis.contracts/api/aggregated-customs-code/responses";
@@ -91,6 +92,18 @@ export const customsCodesApi = baseApi.injectEndpoints({
       ],
     }),
 
+    resumeCustomsCodeOrder: build.mutation<CustomsCodeOrder, string>({
+      query: (id) =>
+        request(endpointAccessMap.customsCodesResume, { pathParams: { id } }),
+      transformResponse: (
+        response: SuccessOf<ResumeAggregatedCustomsCodeOrderResponseDto>
+      ) => mapCustomsCodeOrderDtoToEntity(response.aggregatedCustomsCode),
+      invalidatesTags: (_result, _error, id) => [
+        { type: ApiTags.CustomsCodeOrder, id },
+        ...listTag,
+      ],
+    }),
+
     signCustomsCodeOrderDissolution: build.mutation<
       CustomsCodeOrder,
       SignAggregatedCustomsCodeOrderDto
@@ -113,4 +126,5 @@ export const {
   useSignCustomsCodeOrderRegistrationMutation,
   useInitiateCustomsCodeOrderDissolutionMutation,
   useSignCustomsCodeOrderDissolutionMutation,
+  useResumeCustomsCodeOrderMutation,
 } = customsCodesApi;

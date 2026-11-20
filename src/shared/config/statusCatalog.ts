@@ -179,7 +179,6 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
       generated: "info",
       ready_for_sign: "warning",
       signed_for_registration: "info",
-      verified: "cyan",
       verified_for_registration: "cyan",
       registration_requested: "warning",
       registered: "success",
@@ -187,7 +186,9 @@ export const statusVariants: Record<StatusEntity, EntityStatusVariants> = {
       dissolution_initialized: "warning",
       signed_for_dissolution: "orange",
       verified_for_dissolution: "purple",
+      dissolution_requested: "warning",
       dissolved: "purple",
+      dissolution_failed: "danger",
     },
   },
 };
