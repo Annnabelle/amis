@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -20,6 +19,7 @@ import Heading from "shared/ui/mainHeading";
 import ModalWindow from "shared/ui/modalWindow";
 import ComponentTable from "shared/ui/table";
 
+import { formatDate } from 'shared/lib/formatDate';
 const Vehicles = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
@@ -50,7 +50,7 @@ const Vehicles = () => {
         name: vehicle.name,
         plateNumber: vehicle.plateNumber,
         comment: [vehicle.characteristics.brand, vehicle.characteristics.model].filter(Boolean).join(" "),
-        createdAt: vehicle.createdAt ? dayjs(vehicle.createdAt).format("DD.MM.YYYY") : "-",
+        createdAt: vehicle.createdAt ? formatDate(vehicle.createdAt) : "-",
       })),
     [vehicles]
   );

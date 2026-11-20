@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
 import { DownloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Empty, Pagination, Spin, Tag } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -27,6 +26,7 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import axiosInstance from 'shared/lib/axiosInstance';
 import { BASE_URL, getFileNameFromDisposition } from 'shared/lib';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
+import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 import {
   DetailCard,
   DetailGrid,
@@ -38,8 +38,6 @@ import {
 } from 'shared/ui/details';
 import './styles.sass';
 
-const formatDate = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY') : '-');
-const formatDateTime = (value?: Date) => (value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-');
 const formatNumber = (value?: number) => (value != null ? value.toLocaleString() : '-');
 const getExternalStatusLabel = (
   t: ReturnType<typeof useTranslation>['t'],

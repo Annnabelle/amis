@@ -33,6 +33,7 @@ import type { AuditCategory } from "shared/types/dtos";
 import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
+import { formatDate } from 'shared/lib/formatDate';
 import {
   endpointAccessMap,
   type StaticEndpointAccess,
@@ -102,10 +103,10 @@ const AuditLogsPage: React.FC = () => {
       status: actor.status || "",
       actorId: actor.id || "",
       lastLoggedInAt: actor.lastLoggedInAt
-        ? dayjs(actor.lastLoggedInAt).format('DD.MM.YYYY')
+        ? formatDate(actor.lastLoggedInAt)
         : "",
       location: log.ip || "—",
-      date: dayjs(log.occurredAt).format('DD.MM.YYYY'),
+      date: formatDate(log.occurredAt),
       time: dayjs(log.occurredAt).format('HH:mm:ss'),
       message: log.message ?? null,
       targetEntity: log.targetEntity || "",

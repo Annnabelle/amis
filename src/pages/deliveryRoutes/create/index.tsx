@@ -26,6 +26,7 @@ import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
 import { PermissionLink, RequiredDataAlert } from 'entities/access/ui';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
+import { formatDate } from 'shared/lib/formatDate';
 const getPriorityColor = (priority?: string) => {
   if (!priority) return 'default';
 
@@ -225,7 +226,7 @@ const DeliveryRoutesCreate = () => {
           key: order.id,
           customer: order.customer.name,
           dueDate: order.fulfillment.dueDate
-            ? dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY')
+            ? formatDate(order.fulfillment.dueDate)
             : '-',
           priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
           ordered,
@@ -277,8 +278,8 @@ const DeliveryRoutesCreate = () => {
       tin: order.customer.tin,
       address: order.customer.address,
       salesOrderNumber: order.salesOrderNumber ?? '-',
-      contractDate: order.contract?.date ? dayjs(order.contract.date).format('DD.MM.YYYY') : '-',
-      dueDate: dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY'),
+      contractDate: order.contract?.date ? formatDate(order.contract.date) : '-',
+      dueDate: formatDate(order.fulfillment.dueDate),
       priority: order.fulfillment.priority,
       items: order.items.map(item => ({
         productName: item.product.name,

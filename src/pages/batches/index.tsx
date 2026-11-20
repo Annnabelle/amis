@@ -13,7 +13,6 @@ import {toast} from "react-toastify";
 import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import {getApiErrorMessage} from "shared/api";
-import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useStatusChangeRefresh } from 'shared/lib/statusChanges';
@@ -23,6 +22,7 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
+import { formatDateTimeSeconds } from 'shared/lib/formatDate';
 const Batches = () => {
     const navigate = useNavigate()
     const { t } = useTranslation();
@@ -123,7 +123,7 @@ const Batches = () => {
                 },
                 orderTime: {
                     title: `${t('markingCodes.batches.orderTime')}:`,
-                    value: `${dayjs(markingCodeById?.orderedAt).format('DD.MM.YYYY HH:mm:ss')  || ''}`
+                    value: `${formatDateTimeSeconds(markingCodeById?.orderedAt)  || ''}`
                 },
                 orderStatus: {
                     title: `${t('markingCodes.batches.orderStatus')}:`,

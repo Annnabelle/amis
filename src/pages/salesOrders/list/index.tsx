@@ -5,13 +5,13 @@ import CustomButton from 'shared/ui/button';
 import ComponentTable from 'shared/ui/table';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 import { useGetSalesOrdersQuery } from 'entities/salesOrders/api';
 import { SalesOrdersTableColumns } from 'entities/salesOrders/ui/tableData/salesOrders';
 import type { SalesOrdersTableDataType } from 'entities/salesOrders/ui/tableData/salesOrders/types';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
+import { formatDate } from 'shared/lib/formatDate';
 const SalesOrdersList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -40,7 +40,7 @@ const SalesOrdersList = () => {
       customerName: order.customer.name,
       customerTin: order.customer.tin,
       dueDate: order.fulfillment.dueDate
-        ? dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY')
+        ? formatDate(order.fulfillment.dueDate)
         : '-',
       priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
       priorityKey: order.fulfillment.priority,

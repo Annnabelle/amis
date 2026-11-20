@@ -1,4 +1,5 @@
 import {Form, Input, Spin, Steps, Tag} from 'antd'
+import { normalizeLanguage } from 'shared/lib/language';
 import { IoSearch } from 'react-icons/io5'
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -35,7 +36,7 @@ import {
 import type { XTraceIntegrationTokenValidation } from 'entities/xTrace/types';
 import { useGetReferencesByTypeQuery } from 'entities/references/api';
 import { getApiErrorMessage } from 'shared/api';
-import dayjs from 'dayjs';
+import { formatDateTime } from 'shared/lib/formatDate';
 import './styles.sass';
 
 const TIN_LENGTH = 9;
@@ -111,7 +112,7 @@ const Organizations = () => {
     const dataPage = pagination.page;
     const dataLimit = pagination.limit;
     const dataTotal = shownCompaniesPage?.total ?? 0;
-    const currentLanguage = i18n.language.split('-')[0] as "ru" | "en" | "uz";
+    const currentLanguage = normalizeLanguage(i18n.language);
 
     const tableOrganizations = useMemo(() => {
         return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
@@ -706,7 +707,7 @@ const Organizations = () => {
                                                 <div className="detail-item">
                                                     <span className="label inline-label">{t('organizations.addUserForm.label.expireDate')}</span>
                                                     <span className="detail-separator">:</span>
-                                                    <span className="value">{dayjs(xTraceValidationData.expireDate).format('DD.MM.YYYY HH:mm')}</span>
+                                                    <span className="value">{formatDateTime(xTraceValidationData.expireDate)}</span>
                                                 </div>
                                                 <div className="detail-item">
                                                     <span className="label inline-label">{t('organizations.testFlag')}</span>
@@ -895,7 +896,7 @@ const Organizations = () => {
                                         <div className="detail-item">
                                             <span className="label inline-label">{t('organizations.addUserForm.label.createdAt')}</span>
                                             <span className="detail-separator">:</span>
-                                            <span className="value">{dayjs(fakturaUzIntegration.createdAt).format('DD.MM.YYYY HH:mm')}</span>
+                                            <span className="value">{formatDateTime(fakturaUzIntegration.createdAt)}</span>
                                         </div>
                                     </div>
                                 </div>

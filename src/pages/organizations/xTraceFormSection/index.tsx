@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { useLazyValidateCompanyXTraceTokenQuery } from "entities/xTrace/api";
 import { getApiErrorMessage } from "shared/api";
 import type { LanguageKey } from "shared/lib";
-import dayjs from "dayjs";
 
+import { formatDateTimeSeconds } from 'shared/lib/formatDate';
 interface XTraceFormSectionProps {
     form: FormInstance;
     setIsValidated: (val: boolean) => void;
@@ -52,7 +52,7 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
                 xTrace: {
                     token: form.getFieldValue(["accessCodes", "xTrace", "token"]),
                     expireDate: data.expireDate
-                        ? dayjs(data.expireDate).format("DD.MM.YYYY HH:mm:ss")
+                        ? formatDateTimeSeconds(data.expireDate)
                         : undefined,
                 },
             },
