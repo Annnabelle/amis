@@ -4,6 +4,7 @@ import { Link, useLocation, type LinkProps } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from 'app/store';
 import { canAccessEndpoint, useCan } from 'entities/access/lib';
+import { resolveSectionKeys } from 'entities/access/lib/permissionSections';
 import type { StaticEndpointAccess } from 'shared/config/endpointAccessMap';
 import { parseCompanyFromPath } from 'shared/lib/companyPath';
 
@@ -71,16 +72,22 @@ export const RequiredDataAlert = ({
       errors.filter((error): error is string => Boolean(error))
     ),
   ];
+  const missingSections = resolveSectionKeys(missingPermissions).map((key) =>
+    t(key),
+  );
   const details = [...new Set([...missingPermissions, ...requestErrors])];
   const missingPermissionsKey = missingPermissions.join(',');
 
   useEffect(() => {
     if (!missingPermissionsKey) return;
 
-    console.error('[Access contract violation]', {
-      path: location.pathname,
-      missingPermissions: missingPermissionsKey.split(','),
-    });
+    /** Машинные имена прав — разработчику, а не в консоль живого приложения. */
+    if (import.meta.env.DEV) {
+      console.error('[Access contract violation]', {
+        path: location.pathname,
+        missingPermissions: missingPermissionsKey.split(','),
+      });
+    }
   }, [location.pathname, missingPermissionsKey]);
 
   if (details.length === 0) return null;
@@ -92,9 +99,9 @@ export const RequiredDataAlert = ({
       message={t('common.requiredDataUnavailable')}
       description={
         <div>
-          {missingPermissions.length > 0 && (
+          {missingSections.length > 0 && (
             <div>
-              {t('common.missingPermissions')}: {missingPermissions.join(', ')}
+              {t('common.missingPermissions')}: {missingSections.join(', ')}
             </div>
           )}
           {requestErrors.map((error) => (

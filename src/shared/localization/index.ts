@@ -174,6 +174,17 @@ export const resources = {
                 applyAll: "Apply all",
                 send: "Send",
             },
+            access: {
+                sections: {
+                    references: "Reference data",
+                    roles: "Roles",
+                    uploads: "Files",
+                    scanSessions: "Scanning",
+                    lifecycle: "Record history",
+                    jobs: "Background jobs",
+                    companyImport: "Company import",
+                },
+            },
             navigation: {
                 products: "Products",
                 management: "Management",
@@ -2590,6 +2601,17 @@ export const resources = {
                 applyAll: "Нанести все",
                 send: "Отправить",
             },
+            access: {
+                sections: {
+                    references: "Справочники",
+                    roles: "Роли",
+                    uploads: "Файлы",
+                    scanSessions: "Сканирование",
+                    lifecycle: "История записей",
+                    jobs: "Фоновые задачи",
+                    companyImport: "Импорт компании",
+                },
+            },
             navigation: {
                 products: "Продукция",
                 management: "Управление",
@@ -4997,6 +5019,17 @@ export const resources = {
                 apply: "Qo‘llash",
                 applyAll: "Hammasini qo‘llash",
                 yuborish: "Yuborish",
+            },
+            access: {
+                sections: {
+                    references: "Ma’lumotnomalar",
+                    roles: "Rollar",
+                    uploads: "Fayllar",
+                    scanSessions: "Skanerlash",
+                    lifecycle: "Yozuvlar tarixi",
+                    jobs: "Fon vazifalari",
+                    companyImport: "Kompaniya importi",
+                },
             },
             navigation: {
                 products: "Mahsulotlar",
