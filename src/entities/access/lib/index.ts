@@ -1,8 +1,11 @@
+import { useLocation } from "react-router-dom";
+
 import { useAppSelector } from "app/store";
 import type {
   Permission,
   UserAccess,
 } from "entities/access/types";
+import { parseCompanyFromPath } from "shared/lib/companyPath";
 import {
   DynamicEndpointScopes,
   EndpointScopes,
@@ -86,14 +89,8 @@ export function useCan(
   const companyId = useAppSelector(
     (state) => state.access.currentCompanyId
   );
-  const pathSegments =
-    typeof window === "undefined"
-      ? []
-      : window.location.pathname.split("/").filter(Boolean);
-  const routeCompanyId =
-    pathSegments[0] === "organization" && pathSegments.length > 2
-      ? pathSegments[1]
-      : null;
+  const location = useLocation();
+  const routeCompanyId = parseCompanyFromPath(location.pathname);
 
   const resolveScope = (): PermissionScope => {
     if (endpoint.scope === EndpointScopes.Dynamic) {

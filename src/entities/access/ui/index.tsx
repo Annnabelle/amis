@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppSelector } from 'app/store';
 import { canAccessEndpoint, useCan } from 'entities/access/lib';
 import type { StaticEndpointAccess } from 'shared/config/endpointAccessMap';
+import { parseCompanyFromPath } from 'shared/lib/companyPath';
 
 type CanProps = {
   endpoint: StaticEndpointAccess;
@@ -55,11 +56,7 @@ export const RequiredDataAlert = ({
   const currentCompanyId = useAppSelector(
     (state) => state.access.currentCompanyId
   );
-  const pathSegments = location.pathname.split('/').filter(Boolean);
-  const routeCompanyId =
-    pathSegments[0] === 'organization' && pathSegments.length > 2
-      ? pathSegments[1]
-      : null;
+  const routeCompanyId = parseCompanyFromPath(location.pathname);
   const companyId = routeCompanyId ?? currentCompanyId;
   const missingPermissions = access
     ? endpoints

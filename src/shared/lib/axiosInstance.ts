@@ -13,6 +13,7 @@ import {
 } from './authSession';
 import { getAccessToken } from './authToken';
 import { getRuntimeCompanyId } from './companyContext';
+import { parseCompanyFromPath } from './companyPath';
 import { CompanyScopeOptions } from './requestScope';
 import {
   EndpointScopes,
@@ -30,9 +31,7 @@ const getRequestPathname = (url?: string) => {
 };
 
 const getCompanyIdFromLocation = () =>
-  window.location.pathname.match(
-    /^\/organization\/([^/]+)(?:\/|$)/
-  )?.[1] ?? null;
+  parseCompanyFromPath(window.location.pathname);
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
