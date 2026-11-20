@@ -1,7 +1,7 @@
-import type { SuccessOf } from "shared/api";
 import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import type { ChangePasswordDto, CreateUserDto, LoginDto, RegisterUserDto, UpdateUserDto } from '@edem2000/amis.contracts/api/users/requests';
-import type { ChangePasswordResponseDto, LoginResponseDto, UserPreviewDto } from '@edem2000/amis.contracts/api/users/responses';
+import type { UserPreviewDto } from '@edem2000/amis.contracts/api/users/responses';
+import type { ChangePasswordResponseBodyDto, LoginResponseBodyDto } from 'entities/users/dtos';
 import type { AddUserForm, AuthSession, ChangePassword, LoginForm, RegisterForm, UserPreview, User } from "entities/users/types";
 
 // PhoneInput emits digits without the leading "+"; the API expects E.164 (+998…)
@@ -80,21 +80,21 @@ export const mapUpdateUserFormToDto = (form: Partial<User>): UpdateUserDto => {
 
 /** Смена пароля отдаёт новые токены: сессию после неё надо переписать. */
 export const mapChangePwdDtoToSession = (
-  dto: SuccessOf<ChangePasswordResponseDto>
+  dto: ChangePasswordResponseBodyDto
 ): AuthSession => ({
   user: mapUsersDtoToEntity(dto.user),
   accessToken: dto.tokens.accessToken,
-  refreshToken: dto.tokens.refreshToken,
+  sessionEnd: new Date(dto.tokens.refreshExpiresAt).getTime(),
 });
 
 
 export function mapLoginResponseDtoToSession(
-  dto: SuccessOf<LoginResponseDto>
+  dto: LoginResponseBodyDto
 ): AuthSession {
   return {
     user: mapUsersDtoToEntity(dto.user),
     accessToken: dto.tokens.accessToken,
-    refreshToken: dto.tokens.refreshToken,
+    sessionEnd: new Date(dto.tokens.refreshExpiresAt).getTime(),
   };
 }
 

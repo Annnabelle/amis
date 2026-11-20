@@ -12,14 +12,16 @@ import type {
 import type { UserCompanyMembershipsResponseDto } from "@edem2000/amis.contracts/api/company-memberships/responses";
 import type {
   AccountActionResponseDto,
-  ChangePasswordResponseDto,
   GetUserPreviewResponseDto,
   GetUserResponseDto,
   GetUserSystemAccessResponseDto,
-  LoginResponseDto,
   ResetPasswordResponseDto,
   UpdateUserResponseDto,
 } from "@edem2000/amis.contracts/api/users/responses";
+import type {
+  ChangePasswordResponseBodyDto,
+  LoginResponseBodyDto,
+} from "entities/users/dtos";
 import { mapCompanyMembershipDtoToEntity } from "entities/companyMemberships/mappers";
 import type { CompanyMembership } from "entities/companyMemberships/types";
 import { mapSystemEmployeeDtoToEntity } from "entities/systemEmployees/mappers";
@@ -74,7 +76,7 @@ export const usersApi = baseApi.injectEndpoints({
         request(endpointAccessMap.authLogin, {
           data: mapLoginFormToLoginDto(form),
         }),
-      transformResponse: (response: SuccessOf<LoginResponseDto>) =>
+      transformResponse: (response: LoginResponseBodyDto) =>
         mapLoginResponseDtoToSession(response),
       /** Токены в хранилище пишутся здесь, а не в редьюсере: редьюсер чистый. */
       onQueryStarted: async (_form, { queryFulfilled }) => {
@@ -87,6 +89,12 @@ export const usersApi = baseApi.injectEndpoints({
           // необработанное отклонение промиса.
         }
       },
+    }),
+
+    /** Выход снимает httpOnly-cookie: из браузера её не удалить. */
+    logout: build.mutation<void, void>({
+      query: () => request(endpointAccessMap.authLogout),
+      transformResponse: (): void => undefined,
     }),
 
     getUsers: build.query<UserList, GetUsersDto>({
@@ -230,7 +238,7 @@ export const usersApi = baseApi.injectEndpoints({
           pathParams: { id: userId },
           data,
         }),
-      transformResponse: (response: SuccessOf<ChangePasswordResponseDto>) =>
+      transformResponse: (response: ChangePasswordResponseBodyDto) =>
         mapChangePwdDtoToSession(response),
     }),
 
@@ -240,7 +248,7 @@ export const usersApi = baseApi.injectEndpoints({
         request(endpointAccessMap.currentUserPasswordUpdate, {
           data: mapChangePwdFormToChangePwdDto(form),
         }),
-      transformResponse: (response: SuccessOf<ChangePasswordResponseDto>) =>
+      transformResponse: (response: ChangePasswordResponseBodyDto) =>
         mapChangePwdDtoToSession(response),
       onQueryStarted: async (_form, { queryFulfilled }) => {
         try {
@@ -282,6 +290,7 @@ export const usersApi = baseApi.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useLogoutMutation,
   useGetUsersQuery,
   useSearchUsersQuery,
   useLazySearchUsersQuery,

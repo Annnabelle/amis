@@ -45,6 +45,7 @@ export const endpointAccessMap = {
   authHealth: endpoint({ method: "GET", path: "/auth/health", permission: null, scope: EndpointScopes.Public }),
   authLogin: endpoint({ method: "POST", path: "/auth/login", permission: null, scope: EndpointScopes.Public }),
   authRefresh: endpoint({ method: "POST", path: "/auth/refresh", permission: null, scope: EndpointScopes.Public }),
+  authLogout: endpoint({ method: "POST", path: "/auth/logout", permission: null, scope: EndpointScopes.Public }),
   authRegister: endpoint({ method: "POST", path: "/auth/register", permission: null, scope: EndpointScopes.Public }),
   authVerifyEmail: endpoint({ method: "POST", path: "/auth/verify-email", permission: null, scope: EndpointScopes.Public }),
   authSetPassword: endpoint({ method: "POST", path: "/auth/set-password", permission: null, scope: EndpointScopes.Public }),

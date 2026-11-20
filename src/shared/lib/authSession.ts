@@ -1,8 +1,14 @@
 import { CoreErrorCodes } from "@edem2000/amis.contracts";
+import { clearAccessToken, setAccessToken } from "./authToken";
 
 export const AUTH_SESSION_EXPIRED_EVENT = "auth-session-expired";
 export const AUTH_SESSION_REFRESHED_EVENT = "auth-session-refreshed";
 
+/**
+ * accessToken и refreshToken здесь больше не пишутся — токены ушли в память
+ * и в httpOnly-cookie. Ключи остались, чтобы вычистить их у тех, кто уже вошёл
+ * до этого изменения.
+ */
 const AUTH_STORAGE_KEYS = [
   "user",
   "userName",
@@ -13,33 +19,15 @@ const AUTH_STORAGE_KEYS = [
   "sessionEnd",
 ];
 
+/** Что клиент знает о сессии: токен в памяти и её конец. */
 export type AuthTokens = {
   accessToken: string;
-  refreshToken: string;
+  sessionEnd: number;
 };
 
 export const clearAuthStorage = () => {
+  clearAccessToken();
   AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
-};
-
-/** Срок сессии, если в токене нет exp. */
-const FALLBACK_SESSION_DURATION_MS = 60 * 60 * 1000;
-
-/** exp токена: срок, после которого он не принимается. */
-export const readTokenExpiry = (token: string): number | null => {
-  const payload = token.split(".")[1];
-
-  if (!payload) return null;
-
-  try {
-    const decoded = JSON.parse(
-      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
-    ) as { exp?: unknown };
-
-    return typeof decoded.exp === "number" ? decoded.exp * 1000 : null;
-  } catch {
-    return null;
-  }
 };
 
 export const getSessionEnd = (): number | null => {
@@ -49,36 +37,29 @@ export const getSessionEnd = (): number | null => {
 };
 
 /**
- * Токены сессии в localStorage. Живут здесь, а не в редьюсере: редьюсер
- * обязан быть чистым, а в StrictMode он вызывается дважды.
- *
- * Конец сессии — exp refresh-токена: до него истёкший access продлевается
- * молча, и выходить пользователю незачем.
+ * Конец сессии — срок refresh-cookie, его присылает сервер: до него истёкший
+ * access продлевается молча, и выходить пользователю незачем.
  */
-export const saveAuthTokens = ({ accessToken, refreshToken }: AuthTokens) => {
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
-  localStorage.setItem(
-    "sessionEnd",
-    String(
-      readTokenExpiry(refreshToken) ??
-        readTokenExpiry(accessToken) ??
-        Date.now() + FALLBACK_SESSION_DURATION_MS
-    )
-  );
+export const saveAuthTokens = ({ accessToken, sessionEnd }: AuthTokens) => {
+  setAccessToken(accessToken);
+  localStorage.setItem("sessionEnd", String(sessionEnd));
 };
 
+/**
+ * Пользователь в localStorage — кеш для первой отрисовки, не доступ: запросы
+ * всё равно идут с токеном из памяти.
+ */
 export const saveAuthSession = ({
   user,
   accessToken,
-  refreshToken,
+  sessionEnd,
 }: {
   user: unknown;
   accessToken: string;
-  refreshToken: string;
+  sessionEnd: number;
 }) => {
   localStorage.setItem("user", JSON.stringify(user));
-  saveAuthTokens({ accessToken, refreshToken });
+  saveAuthTokens({ accessToken, sessionEnd });
 };
 
 export const emitAuthSessionExpired = () => {
@@ -94,10 +75,9 @@ export const emitAuthSessionRefreshed = (tokens: AuthTokens) => {
 };
 
 export const isStoredSessionExpired = () => {
-  const token = localStorage.getItem("accessToken");
   const sessionEnd = getSessionEnd();
 
-  return Boolean(token && sessionEnd && sessionEnd <= Date.now());
+  return sessionEnd !== null && sessionEnd <= Date.now();
 };
 
 /**

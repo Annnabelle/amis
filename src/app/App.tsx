@@ -7,7 +7,12 @@ import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
-import { logout, sessionRefreshed } from 'entities/users/model';
+import {
+  sessionRefreshed,
+  sessionRestoreFailed,
+  sessionRestored,
+} from 'entities/users/model';
+import { useLogout } from 'entities/users/lib/useLogout';
 import {
   useGetCurrentUserQuery,
   useUpdateUserPreferencesMutation,
@@ -25,6 +30,7 @@ import {
   isStoredSessionExpired,
   type AuthTokens,
 } from 'shared/lib/authSession';
+import { refreshAuthSession } from 'shared/lib/axiosInstance';
 import StatusChangeListener from './statusChangeListener';
 import './styles/App.sass';
 
@@ -70,14 +76,42 @@ const resolveEffectiveTheme = (
   return mode;
 };
 
+/**
+ * После перезагрузки страницы access-токена в памяти нет, а refresh-cookie
+ * есть: один запрос к /auth/refresh поднимает сессию. Пока он идёт, роутер
+ * держит загрузку и никуда не уводит.
+ */
+const SessionRestore = () => {
+  const dispatch = useAppDispatch();
+  const isRestoring = useAppSelector((state) => state.users.isRestoring);
+
+  useEffect(() => {
+    if (!isRestoring) return;
+
+    let cancelled = false;
+
+    void refreshAuthSession().then((tokens) => {
+      if (cancelled) return;
+
+      dispatch(tokens ? sessionRestored(tokens) : sessionRestoreFailed());
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, isRestoring]);
+
+  return null;
+};
+
 const AuthSessionGuard = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const requestLogout = useLogout();
 
   useEffect(() => {
     const handleLogout = () => {
-      dispatch(logout());
-      navigate('/', { replace: true });
+      void requestLogout().then(() => navigate('/', { replace: true }));
     };
 
     const handleSessionCheck = () => {
@@ -101,8 +135,9 @@ const AuthSessionGuard = () => {
       }
     };
 
+    // Выход в другой вкладке стирает срок сессии: токенов в хранилище нет.
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'accessToken' && !event.newValue) {
+      if (event.key === 'sessionEnd' && !event.newValue) {
         handleLogout();
       }
     };
@@ -127,7 +162,7 @@ const AuthSessionGuard = () => {
       window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, requestLogout]);
 
   return null;
 };
@@ -269,6 +304,7 @@ function App() {
       >
         <GlobalLoader loading={loading} />
         <BrowserRouter>
+          <SessionRestore />
           <AuthSessionGuard />
           <AccessBootstrap />
           <CompanyRouteSync />

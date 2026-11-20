@@ -2,8 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CoreErrorCodes } from "@edem2000/amis.contracts";
 
 /**
- * Срок сессии и признак истёкшей сессии. Оба раньше угадывались — константой
- * на час и поиском подстрок в тексте ошибки.
+ * Сессия на клиенте: access-токен в памяти, срок сессии от сервера, признак
+ * истёкшей сессии по машинному коду. Раньше токены лежали в localStorage,
+ * а срок и признак угадывались.
  */
 const createStorage = () => {
   const values = new Map<string, string>();
@@ -25,75 +26,67 @@ vi.stubGlobal("window", {
 });
 
 const {
+  clearAuthStorage,
   getSessionEnd,
   isSessionExpiredResponse,
   isStoredSessionExpired,
-  readTokenExpiry,
+  saveAuthSession,
   saveAuthTokens,
 } = await import("shared/lib/authSession");
+const { getAccessToken } = await import("shared/lib/authToken");
 
-const tokenWithExp = (expSeconds: number | null) => {
-  const payload = expSeconds === null ? { sub: "user-1" } : { exp: expSeconds };
-  const encoded = btoa(JSON.stringify(payload))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
+const inAnHour = () => Date.now() + 60 * 60 * 1000;
 
-  return `header.${encoded}.signature`;
-};
-
-describe("срок сессии", () => {
+describe("хранение сессии", () => {
   beforeEach(() => {
-    localStorage.clear();
+    clearAuthStorage();
   });
 
-  it("читает exp из токена", () => {
-    const exp = Math.floor(Date.now() / 1000) + 900;
+  it("держит access-токен в памяти, а не в localStorage", () => {
+    saveAuthTokens({ accessToken: "access-1", sessionEnd: inAnHour() });
 
-    expect(readTokenExpiry(tokenWithExp(exp))).toBe(exp * 1000);
+    expect(getAccessToken()).toBe("access-1");
+    expect(localStorage.getItem("accessToken")).toBeNull();
+    expect(localStorage.getItem("refreshToken")).toBeNull();
   });
 
-  it("возвращает null, если токен не разбирается", () => {
-    expect(readTokenExpiry("not-a-token")).toBeNull();
-    expect(readTokenExpiry("header..signature")).toBeNull();
-    expect(readTokenExpiry(tokenWithExp(null))).toBeNull();
-  });
+  it("берёт конец сессии от сервера", () => {
+    const sessionEnd = inAnHour();
 
-  it("берёт конец сессии из refresh-токена: до него access продлевается", () => {
-    const accessExp = Math.floor(Date.now() / 1000) + 60;
-    const refreshExp = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
+    saveAuthTokens({ accessToken: "access-1", sessionEnd });
 
-    saveAuthTokens({
-      accessToken: tokenWithExp(accessExp),
-      refreshToken: tokenWithExp(refreshExp),
-    });
-
-    expect(getSessionEnd()).toBe(refreshExp * 1000);
+    expect(getSessionEnd()).toBe(sessionEnd);
     expect(isStoredSessionExpired()).toBe(false);
   });
 
-  it("откатывается на час, если exp в токене нет", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-11-20T10:00:00.000Z"));
-
-    saveAuthTokens({
-      accessToken: tokenWithExp(null),
-      refreshToken: tokenWithExp(null),
-    });
-
-    expect(getSessionEnd()).toBe(
-      new Date("2026-11-20T11:00:00.000Z").getTime()
-    );
-
-    vi.useRealTimers();
-  });
-
-  it("считает сессию истёкшей, когда refresh-токен уже не живёт", () => {
-    saveAuthTokens({
-      accessToken: tokenWithExp(Math.floor(Date.now() / 1000) - 3600),
-      refreshToken: tokenWithExp(Math.floor(Date.now() / 1000) - 1),
-    });
+  it("считает сессию истёкшей, когда её срок прошёл", () => {
+    saveAuthTokens({ accessToken: "access-1", sessionEnd: Date.now() - 1 });
 
     expect(isStoredSessionExpired()).toBe(true);
+  });
+
+  it("без сессии ничего не истекает", () => {
+    expect(getSessionEnd()).toBeNull();
+    expect(isStoredSessionExpired()).toBe(false);
+  });
+
+  it("кеширует пользователя для первой отрисовки", () => {
+    saveAuthSession({
+      user: { id: "user-1" },
+      accessToken: "access-1",
+      sessionEnd: inAnHour(),
+    });
+
+    expect(localStorage.getItem("user")).toBe('{"id":"user-1"}');
+  });
+
+  it("выход убирает и токен из памяти, и срок сессии", () => {
+    saveAuthTokens({ accessToken: "access-1", sessionEnd: inAnHour() });
+
+    clearAuthStorage();
+
+    expect(getAccessToken()).toBeNull();
+    expect(getSessionEnd()).toBeNull();
   });
 });
 

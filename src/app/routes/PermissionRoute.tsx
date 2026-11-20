@@ -24,11 +24,17 @@ export const PermissionRoute = ({
 }: PermissionRouteProps) => {
   const location = useLocation();
   const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
+  const isRestoring = useAppSelector((state) => state.users.isRestoring);
   const userAccess = useAppSelector((state) => state.access.data);
   const loading = useAppSelector((state) => state.access.loading);
   const error = useAppSelector((state) => state.access.error);
   const isMobile = useIsMobile();
   const companyId = getCompanyIdFromPath(location.pathname);
+
+  /** Сессия поднимается по cookie: права запросятся сразу после этого. */
+  if (isRestoring) {
+    return <GlobalLoader loading />;
+  }
 
   /** Без входа прав никто не запросит — ждать нечего, сразу на страницу входа. */
   if (!isAuthenticated) {
