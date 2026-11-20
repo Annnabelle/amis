@@ -18,6 +18,13 @@ import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import { useCreateCustomsCodeOrderMutation } from "entities/customsCodes/api";
 import {toast} from "react-toastify";
+import { BatchStatus } from "shared/types/dtos";
+import {
+    hasStatusInCatalog,
+    LifecycleScope,
+    StatusEntity,
+} from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
 import {useParams} from "react-router-dom";
 import {useSearchCompanyMembershipsQuery} from "entities/companyMemberships/api";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
@@ -153,14 +160,31 @@ const MarkingCodes = () => {
         LifecycleTargetEntity.MarkingCodeOrderBatch,
     ]);
 
-    const statusOptions = useMemo(() => {
-        const statuses = t('markingCodes.batches.orderNotExternalStatus', { returnObjects: true }) as Record<string, string>;
-
-        return Object.entries(statuses).map(([key, label]) => ({
-            value: key,   // это будет точно совпадать с тем, что ожидает бек
-            label,       // перевод
-        }));
-    }, [t]);
+    /**
+     * Статусы фильтра — из каталога статусов: коды совпадают с теми, что
+     * ждёт бэкенд, а подписи приходят оттуда же, откуда в ленте и карточках.
+     */
+    const statusOptions = useMemo(
+        () =>
+            Object.values(BatchStatus)
+                .filter((status) =>
+                    hasStatusInCatalog(
+                        StatusEntity.MarkingCodeOrderBatch,
+                        LifecycleScope.Internal,
+                        status
+                    )
+                )
+                .map((status) => ({
+                    value: status,
+                    label: getStatusLabel(
+                        t,
+                        StatusEntity.MarkingCodeOrderBatch,
+                        LifecycleScope.Internal,
+                        status
+                    ),
+                })),
+        [t]
+    );
 
     const handleProductSearch = (value: string) => {
         if (value.trim()) {
