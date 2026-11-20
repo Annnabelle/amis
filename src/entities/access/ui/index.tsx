@@ -81,7 +81,7 @@ export const RequiredDataAlert = ({
   useEffect(() => {
     if (!missingPermissionsKey) return;
 
-    /** Машинные имена прав — разработчику, а не в консоль живого приложения. */
+    /** Машинные имена прав — разработчику: только в dev-сборке. */
     if (import.meta.env.DEV) {
       console.error('[Access contract violation]', {
         path: location.pathname,
