@@ -6,7 +6,9 @@ import React, {
   useMemo,
 } from 'react';
 import { type MenuProps } from 'antd';
-import { Layout, Menu, Select, Switch, Tag } from 'antd';
+import { Menu, Select, Switch, Tag } from 'antd';
+
+import PageLayout from './pageLayout';
 import {
   ApartmentOutlined,
   UserOutlined,
@@ -33,10 +35,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
 import Session from 'widgets/session';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
-import Languages from '../languages';
-import StatusBadge from '../statusBadge';
-import CustomButton from '../button';
-import { getDeliveryRouteStatusBadgeVariant } from '../statusBadge/variants';
+import Languages from 'shared/ui/languages';
+import StatusBadge from 'shared/ui/statusBadge';
+import CustomButton from 'shared/ui/button';
+import { getDeliveryRouteStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -46,6 +48,7 @@ import {
   useGetCompanyByIdQuery,
 } from 'entities/organization/api';
 import { setCurrentCompanyId } from 'entities/access/model';
+import { useUpdateUserPreferencesMutation } from 'entities/users/api';
 import {
   useDecideSystemAccessInvitationMutation,
   useGetRoleReferencesQuery,
@@ -66,8 +69,6 @@ import {
   endpointAccessMap,
   type StaticEndpointAccess,
 } from 'shared/config/endpointAccessMap';
-
-const { Header, Content, Sider } = Layout;
 
 // Порядок групп в меню компании. Системное меню не группируется.
 const COMPANY_MENU_GROUPS = ['marking', 'shipping', 'company'] as const;
@@ -115,6 +116,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const access = useAppSelector((state) => state.access.data);
   const storedCompanyId = useAppSelector((state) => state.access.currentCompanyId);
+  const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
+  const [updateUserPreferences] = useUpdateUserPreferencesMutation();
+
+  /** Выбранный язык сохраняется в профиле; на экране входа сохранять некому. */
+  const handleLanguageChange = useCallback(
+    (language: Language) => {
+      if (!isAuthenticated) return;
+
+      void updateUserPreferences({ language });
+    },
+    [isAuthenticated, updateUserPreferences]
+  );
 
 
   const systemModules = useMemo(
@@ -709,9 +722,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <Layout className="layout">
-      {!isMobile && (
-        <Header className="layout-header">
+    <PageLayout
+      isMobile={isMobile}
+      siderCollapsed={collapsed}
+      header={
+        <>
           <div className="layout-header-container">
             <div className="layout-header-container-items">
               <h1 className="logo">AMIS</h1>
@@ -726,284 +741,267 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   unCheckedChildren={<SunOutlined />}
                 />
               </div>
-              <Languages />
+              <Languages onLanguageChange={handleLanguageChange} />
               <Session />
               <UserInfo />
             </div>
           </div>
-        </Header>
-      )}
-
-      {isMobile && (
+        </>
+      }
+      mobileHeader={
+        <>
         <div className="mobile-header">
           <span className="mobile-header-logo">AMIS</span>
           <div className="mobile-header-profile">
             <UserInfo showProfileAction={false} />
           </div>
         </div>
-      )}
-
-      <div className="layout-content-wrapper">
-        <Layout className="layout-content">
-          {!isMobile && hasSidebarNavigation && (
-            <Sider
-              collapsible
-              collapsed={collapsed}
-              trigger={null}
-              width={260}
-              collapsedWidth={80}
-              className={`layout-sider ${collapsed ? 'is-collapsed' : 'is-opened'}`}
-              style={{
-                width: 'auto',
-                minWidth: collapsed ? 80 : 220,
-                maxWidth: collapsed ? 80 : 420,
-                transition: 'min-width 0.3s ease, max-width 0.3s ease',
-              }}
-            >
-              <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
-                <CustomButton
-                  variant="text"
-                  icon={collapsed ? <GiHamburgerMenu /> : <IoClose />}
-                  iconOnly
-                  onClick={() => setCollapsed(!collapsed)}
-                  aria-label={collapsed ? t('navigation.openMenu', { defaultValue: 'Открыть меню' }) : t('navigation.closeMenu', { defaultValue: 'Закрыть меню' })}
-                />
-              </div>
-
-              {!collapsed && (pendingSystemInvitations.length > 0 || pendingCompanyInvitations.length > 0) && (
-                <div className="layout-sider-invitations">
-                  {pendingSystemInvitations.map((invitation) => (
-                    <div className="layout-sider-invitation" key={invitation.id}>
-                      <div className="layout-sider-invitation-copy">
-                        <p className="layout-sider-invitation-title">
-                          {t('systemEmployees.invitations.title')}
-                        </p>
-                        <p className="layout-sider-invitation-subtitle">
-                          {t('systemEmployees.invitations.rolesPrefix')}
-                        </p>
-                        <div className="layout-sider-invitation-roles">
-                          {invitation.roles.map((role) => (
-                            <Tag key={role} style={{ width: 'auto' }}>
-                              {systemRoleLabels[role] ?? role}
-                            </Tag>
-                          ))}
-                        </div>
-                        <div className="layout-sider-invitation-created-by">
-                          <span className="layout-sider-invitation-created-by-label">
-                            {t('systemEmployees.fields.invitedBy')}
-                          </span>
-                          <UserPreviewCardById userId={invitation.createdBy} />
-                        </div>
-                      </div>
-                      <div className="layout-sider-invitation-actions">
-                        <CustomButton
-                          className="layout-sider-invitation-accept"
-                          size="sm"
-                          onClick={() => {
-                            void decideSystemAccessInvitation({
-                              id: invitation.id,
-                              decision: 'accept',
-                            });
-                          }}
-                        >
-                          {t('systemEmployees.actions.accept')}
-                        </CustomButton>
-                        <CustomButton
-                          variant="danger"
-                          className="layout-sider-invitation-decline"
-                          size="sm"
-                          onClick={() => {
-                            void decideSystemAccessInvitation({
-                              id: invitation.id,
-                              decision: 'decline',
-                            });
-                          }}
-                        >
-                          {t('systemEmployees.actions.decline')}
-                        </CustomButton>
-                      </div>
-                    </div>
-                  ))}
-                  {pendingCompanyInvitations.map((invitation) => (
-                    <div className="layout-sider-invitation" key={invitation.id}>
-                      <div className="layout-sider-invitation-copy">
-                        <p className="layout-sider-invitation-title">
-                          {t('companyMemberships.invitations.title')}
-                        </p>
-                        <p className="layout-sider-invitation-subtitle">
-                          {invitation.company.name}
-                        </p>
-                        <p className="layout-sider-invitation-subtitle">
-                          {t('companyMemberships.invitations.rolesPrefix')}
-                        </p>
-                        <div className="layout-sider-invitation-roles">
-                          {invitation.roles.map((role) => (
-                            <Tag key={role} style={{ width: 'auto' }}>
-                              {companyRoleLabelsByCompany[invitation.company.id]?.[role] ?? role}
-                            </Tag>
-                          ))}
-                        </div>
-                        <div className="layout-sider-invitation-created-by">
-                          <span className="layout-sider-invitation-created-by-label">
-                            {t('companyMemberships.fields.invitedBy')}
-                          </span>
-                          <UserPreviewCardById userId={invitation.createdBy} />
-                        </div>
-                      </div>
-                      <div className="layout-sider-invitation-actions">
-                        <CustomButton
-                          className="layout-sider-invitation-accept"
-                          size="sm"
-                          onClick={() => {
-                            void respondCompanyMembershipInvitation({
-                              id: invitation.id,
-                              decision: 'accept',
-                            });
-                          }}
-                        >
-                          {t('companyMemberships.actions.accept')}
-                        </CustomButton>
-                        <CustomButton
-                          variant="danger"
-                          className="layout-sider-invitation-decline"
-                          size="sm"
-                          onClick={() => {
-                            void respondCompanyMembershipInvitation({
-                              id: invitation.id,
-                              decision: 'decline',
-                            });
-                          }}
-                        >
-                          {t('companyMemberships.actions.decline')}
-                        </CustomButton>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <Menu
-                key={`menu-${collapsed ? 'collapsed' : 'open'}`}
-                mode="inline"
-                inlineCollapsed={collapsed}
-                selectedKeys={selectedKeys}
-                items={systemMenuItems}
-                inlineIndent={24}
-                className="layout-sider-menu"
+        </>
+      }
+      sider={
+        hasSidebarNavigation ? (
+          <>
+            <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
+              <CustomButton
+                variant="text"
+                icon={collapsed ? <GiHamburgerMenu /> : <IoClose />}
+                iconOnly
+                onClick={() => setCollapsed(!collapsed)}
+                aria-label={collapsed ? t('navigation.openMenu', { defaultValue: 'Открыть меню' }) : t('navigation.closeMenu', { defaultValue: 'Закрыть меню' })}
               />
+            </div>
 
-              {selectableCompanies.length > 0 && (
-                <>
-                  {!collapsed && (
-                    <div className="layout-company-selector">
-                      <Select
-                        value={selectedCompanyId}
-                        options={selectableCompanies.map((company) => ({
-                          value: company.companyId,
-                          label: company.name,
-                        }))}
-                        onChange={handleCompanyChange}
-                        className="layout-company-selector-control"
-                        popupClassName="company-selector-popup"
-                        popupMatchSelectWidth={false}
-                      />
+            {!collapsed && (pendingSystemInvitations.length > 0 || pendingCompanyInvitations.length > 0) && (
+              <div className="layout-sider-invitations">
+                {pendingSystemInvitations.map((invitation) => (
+                  <div className="layout-sider-invitation" key={invitation.id}>
+                    <div className="layout-sider-invitation-copy">
+                      <p className="layout-sider-invitation-title">
+                        {t('systemEmployees.invitations.title')}
+                      </p>
+                      <p className="layout-sider-invitation-subtitle">
+                        {t('systemEmployees.invitations.rolesPrefix')}
+                      </p>
+                      <div className="layout-sider-invitation-roles">
+                        {invitation.roles.map((role) => (
+                          <Tag key={role} style={{ width: 'auto' }}>
+                            {systemRoleLabels[role] ?? role}
+                          </Tag>
+                        ))}
+                      </div>
+                      <div className="layout-sider-invitation-created-by">
+                        <span className="layout-sider-invitation-created-by-label">
+                          {t('systemEmployees.fields.invitedBy')}
+                        </span>
+                        <UserPreviewCardById userId={invitation.createdBy} />
+                      </div>
                     </div>
-                  )}
+                    <div className="layout-sider-invitation-actions">
+                      <CustomButton
+                        className="layout-sider-invitation-accept"
+                        size="sm"
+                        onClick={() => {
+                          void decideSystemAccessInvitation({
+                            id: invitation.id,
+                            decision: 'accept',
+                          });
+                        }}
+                      >
+                        {t('systemEmployees.actions.accept')}
+                      </CustomButton>
+                      <CustomButton
+                        variant="danger"
+                        className="layout-sider-invitation-decline"
+                        size="sm"
+                        onClick={() => {
+                          void decideSystemAccessInvitation({
+                            id: invitation.id,
+                            decision: 'decline',
+                          });
+                        }}
+                      >
+                        {t('systemEmployees.actions.decline')}
+                      </CustomButton>
+                    </div>
+                  </div>
+                ))}
+                {pendingCompanyInvitations.map((invitation) => (
+                  <div className="layout-sider-invitation" key={invitation.id}>
+                    <div className="layout-sider-invitation-copy">
+                      <p className="layout-sider-invitation-title">
+                        {t('companyMemberships.invitations.title')}
+                      </p>
+                      <p className="layout-sider-invitation-subtitle">
+                        {invitation.company.name}
+                      </p>
+                      <p className="layout-sider-invitation-subtitle">
+                        {t('companyMemberships.invitations.rolesPrefix')}
+                      </p>
+                      <div className="layout-sider-invitation-roles">
+                        {invitation.roles.map((role) => (
+                          <Tag key={role} style={{ width: 'auto' }}>
+                            {companyRoleLabelsByCompany[invitation.company.id]?.[role] ?? role}
+                          </Tag>
+                        ))}
+                      </div>
+                      <div className="layout-sider-invitation-created-by">
+                        <span className="layout-sider-invitation-created-by-label">
+                          {t('companyMemberships.fields.invitedBy')}
+                        </span>
+                        <UserPreviewCardById userId={invitation.createdBy} />
+                      </div>
+                    </div>
+                    <div className="layout-sider-invitation-actions">
+                      <CustomButton
+                        className="layout-sider-invitation-accept"
+                        size="sm"
+                        onClick={() => {
+                          void respondCompanyMembershipInvitation({
+                            id: invitation.id,
+                            decision: 'accept',
+                          });
+                        }}
+                      >
+                        {t('companyMemberships.actions.accept')}
+                      </CustomButton>
+                      <CustomButton
+                        variant="danger"
+                        className="layout-sider-invitation-decline"
+                        size="sm"
+                        onClick={() => {
+                          void respondCompanyMembershipInvitation({
+                            id: invitation.id,
+                            decision: 'decline',
+                          });
+                        }}
+                      >
+                        {t('companyMemberships.actions.decline')}
+                      </CustomButton>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-                  <Menu
-                    mode="inline"
-                    inlineCollapsed={collapsed}
-                    selectedKeys={selectedKeys}
-                    items={companyMenuItems}
-                    inlineIndent={16}
-                    className="layout-sider-menu layout-company-menu"
-                  />
+            <Menu
+              key={`menu-${collapsed ? 'collapsed' : 'open'}`}
+              mode="inline"
+              inlineCollapsed={collapsed}
+              selectedKeys={selectedKeys}
+              items={systemMenuItems}
+              inlineIndent={24}
+              className="layout-sider-menu"
+            />
+
+            {selectableCompanies.length > 0 && (
+              <>
+                {!collapsed && (
+                  <div className="layout-company-selector">
+                    <Select
+                      value={selectedCompanyId}
+                      options={selectableCompanies.map((company) => ({
+                        value: company.companyId,
+                        label: company.name,
+                      }))}
+                      onChange={handleCompanyChange}
+                      className="layout-company-selector-control"
+                      popupClassName="company-selector-popup"
+                      popupMatchSelectWidth={false}
+                    />
+                  </div>
+                )}
+
+                <Menu
+                  mode="inline"
+                  inlineCollapsed={collapsed}
+                  selectedKeys={selectedKeys}
+                  items={companyMenuItems}
+                  inlineIndent={16}
+                  className="layout-sider-menu layout-company-menu"
+                />
                 </>
               )}
-            </Sider>
-          )}
+          </>
+        ) : null
+      }
+    >
+          {mobileNav && (
+            <div className="mobile-sider">
+              <div className="mobile-sider-header">
+                {mobileNav.backPath ? (
+                  <button
+                    type="button"
+                    className="mobile-sider-back"
+                    onClick={() => navigate(mobileNav.backPath as string)}
+                  >
+                    <LeftOutlined />
+                  </button>
+                ) : (
+                  <span className="mobile-sider-back-placeholder is-hidden" />
+                )}
 
-          <Content className={`layout-content-container ${isMobile ? 'layout-content-container-mobile' : ''}`}>
-            {mobileNav && (
-              <div className="mobile-sider">
-                <div className="mobile-sider-header">
-                  {mobileNav.backPath ? (
-                    <button
-                      type="button"
-                      className="mobile-sider-back"
-                      onClick={() => navigate(mobileNav.backPath as string)}
-                    >
-                      <LeftOutlined />
-                    </button>
-                  ) : (
-                    <span className="mobile-sider-back-placeholder is-hidden" />
-                  )}
-
-                  <div className="mobile-sider-header-copy">
-                    <span className="mobile-sider-eyebrow">AMIS</span>
-                    <h2>{mobileNav.title}</h2>
-                    {mobileNav.subtitle ? <p>{mobileNav.subtitle}</p> : null}
-                  </div>
-                </div>
-
-                <div className="mobile-sider-list">
-                  {mobileNav.items.map((item) => (
-                    <button
-                      key={item.key}
-                      type="button"
-                      className={`mobile-sider-item ${item.isActive ? 'is-active' : ''}`}
-                      onClick={item.onClick}
-                    >
-                      {item.status ? (
-                        <div className="mobile-sider-item-row">
-                          <span className="mobile-sider-item-label">{item.label}</span>
-                          <StatusBadge
-                            variant={getDeliveryRouteStatusBadgeVariant(item.status)}
-                            mode="compact"
-                          >
-                            {item.meta}
-                          </StatusBadge>
-                        </div>
-                      ) : (
-                        <span className="mobile-sider-item-label">{item.label}</span>
-                      )}
-                      {!item.status && item.meta ? (
-                        <span className="mobile-sider-item-meta">{item.meta}</span>
-                      ) : null}
-                    </button>
-                  ))}
+                <div className="mobile-sider-header-copy">
+                  <span className="mobile-sider-eyebrow">AMIS</span>
+                  <h2>{mobileNav.title}</h2>
+                  {mobileNav.subtitle ? <p>{mobileNav.subtitle}</p> : null}
                 </div>
               </div>
-            )}
 
-            {children}
-
-            {isMobile && orgId && mobileTabbarItems.length > 0 && (
-              <nav
-                className="mobile-tabbar"
-                style={{
-                  gridTemplateColumns: `repeat(${mobileTabbarItems.length}, minmax(0, 1fr))`,
-                }}
-                aria-label={t('navigation.mobileTabs')}
-              >
-                {mobileTabbarItems.map((item) => (
-                  <Link
+              <div className="mobile-sider-list">
+                {mobileNav.items.map((item) => (
+                  <button
                     key={item.key}
-                    to={item.path}
-                    className={`mobile-tabbar-item ${section === item.key ? 'is-active' : ''}`}
+                    type="button"
+                    className={`mobile-sider-item ${item.isActive ? 'is-active' : ''}`}
+                    onClick={item.onClick}
                   >
-                    <span className="mobile-tabbar-icon" aria-hidden="true">
-                      {item.icon}
-                    </span>
-                    <span className="mobile-tabbar-label">{item.label}</span>
-                  </Link>
+                    {item.status ? (
+                      <div className="mobile-sider-item-row">
+                        <span className="mobile-sider-item-label">{item.label}</span>
+                        <StatusBadge
+                          variant={getDeliveryRouteStatusBadgeVariant(item.status)}
+                          mode="compact"
+                        >
+                          {item.meta}
+                        </StatusBadge>
+                      </div>
+                    ) : (
+                      <span className="mobile-sider-item-label">{item.label}</span>
+                    )}
+                    {!item.status && item.meta ? (
+                      <span className="mobile-sider-item-meta">{item.meta}</span>
+                    ) : null}
+                  </button>
                 ))}
-              </nav>
-            )}
-          </Content>
-        </Layout>
-      </div>
-    </Layout>
+              </div>
+            </div>
+          )}
+
+          {children}
+
+          {isMobile && orgId && mobileTabbarItems.length > 0 && (
+            <nav
+              className="mobile-tabbar"
+              style={{
+                gridTemplateColumns: `repeat(${mobileTabbarItems.length}, minmax(0, 1fr))`,
+              }}
+              aria-label={t('navigation.mobileTabs')}
+            >
+              {mobileTabbarItems.map((item) => (
+                <Link
+                  key={item.key}
+                  to={item.path}
+                  className={`mobile-tabbar-item ${section === item.key ? 'is-active' : ''}`}
+                >
+                  <span className="mobile-tabbar-icon" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                  <span className="mobile-tabbar-label">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          )}
+    </PageLayout>
   );
 };
 

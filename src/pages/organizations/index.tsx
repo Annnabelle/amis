@@ -2,7 +2,7 @@ import {Form, Input, Spin, Steps, Tag} from 'antd'
 import { IoSearch } from 'react-icons/io5'
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from 'shared/ui/layout'
+import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
 import {

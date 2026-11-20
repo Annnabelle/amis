@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Empty, Spin } from 'antd';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import StatusBadge from 'shared/ui/statusBadge';

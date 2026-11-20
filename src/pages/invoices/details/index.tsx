@@ -15,7 +15,7 @@ import type { InvoiceItemsTableDataType } from 'entities/invoices/ui/tableData/i
 import { useGetSalesOrderByIdQuery } from 'entities/salesOrders/api';
 import { useGetDeliveryRouteByIdQuery } from 'entities/deliveryRoutes/api';
 import { useGetDeliveryTaskByIdQuery } from 'entities/deliveryTasks/api';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { statusColors } from 'shared/ui/statuses';

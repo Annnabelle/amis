@@ -13,7 +13,7 @@ import type { LeadTableDataType } from "entities/leads/ui/tableData/leads/types"
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import FilterBar from "shared/ui/filterBar/filterBar";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ComponentTable from "shared/ui/table";
 import "./styles.sass";

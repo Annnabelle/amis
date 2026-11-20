@@ -20,7 +20,7 @@ import {
   ApartmentOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import { useTranslation } from "react-i18next";
 import { useGetAuditLogsQuery } from "entities/auditLog/api";

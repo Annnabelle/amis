@@ -38,7 +38,7 @@ import CustomButton from "shared/ui/button";
 import FilterBar from "shared/ui/filterBar/filterBar";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import FormComponent from "shared/ui/formComponent";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ModalWindow from "shared/ui/modalWindow";
 import ComponentTable from "shared/ui/table";

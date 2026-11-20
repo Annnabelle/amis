@@ -8,7 +8,7 @@ import {
 } from 'entities/products/api';
 import type { UpdateProductDto } from '@edem2000/amis.contracts/api/products/requests';
 import { toast } from 'react-toastify';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { useNavigationBack } from 'shared/lib';

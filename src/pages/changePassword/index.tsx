@@ -8,7 +8,7 @@ import {
 import { getApiErrorMessage } from 'shared/api'
 import type { ChangePassword } from 'entities/users/types'
 import { Form, Input } from 'antd'
-import MainLayout from 'shared/ui/layout'
+import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'

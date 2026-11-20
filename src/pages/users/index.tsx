@@ -14,7 +14,7 @@ import {
 import { getApiErrorMessage } from 'shared/api'
 import type { UserTableDataType } from 'entities/users/ui/tableData/users/types'
 import type { AddUserForm, User } from 'entities/users/types'
-import MainLayout from 'shared/ui/layout'
+import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
 import dayjs from 'dayjs'

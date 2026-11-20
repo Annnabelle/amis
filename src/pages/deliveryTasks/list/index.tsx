@@ -1,4 +1,4 @@
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';

@@ -8,7 +8,7 @@ import {
 import { getApiErrorMessage } from "shared/api";
 import type { UpdateCompanyDto } from '@edem2000/amis.contracts/api/companies/requests';
 import { toast } from "react-toastify";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";

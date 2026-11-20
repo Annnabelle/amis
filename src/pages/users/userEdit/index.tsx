@@ -9,7 +9,7 @@ import {
 import { getApiErrorMessage } from 'shared/api'
 import { useNavigationBack } from 'shared/lib'
 import { toast } from 'react-toastify'
-import MainLayout from 'shared/ui/layout'
+import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'

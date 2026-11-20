@@ -29,7 +29,7 @@ import { isFormValidationError, useIsMobile, useNavigationBack } from 'shared/li
 import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import FormComponent from 'shared/ui/formComponent';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import ModalWindow from 'shared/ui/modalWindow';
 import StatusBadge from 'shared/ui/statusBadge';

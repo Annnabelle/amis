@@ -27,7 +27,7 @@ import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { PackageType } from 'shared/types/dtos';
 import { StatusEntity } from 'shared/config/statusCatalog';
 import { useCan } from 'entities/access/lib';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
 import { DetailItems } from 'shared/ui/details';

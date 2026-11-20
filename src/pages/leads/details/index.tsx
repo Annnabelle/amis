@@ -16,7 +16,7 @@ import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import CustomButton from "shared/ui/button";
 import EntityTabs, { OVERVIEW_TAB_KEY } from "shared/ui/entityTabs";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import { statusColors } from "shared/ui/statuses";
 import "../styles.sass";
