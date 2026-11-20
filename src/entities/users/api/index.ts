@@ -12,16 +12,14 @@ import type {
 import type { UserCompanyMembershipsResponseDto } from "@edem2000/amis.contracts/api/company-memberships/responses";
 import type {
   AccountActionResponseDto,
+  ChangePasswordResponseDto,
   GetUserPreviewResponseDto,
   GetUserResponseDto,
   GetUserSystemAccessResponseDto,
+  LoginResponseDto,
   ResetPasswordResponseDto,
   UpdateUserResponseDto,
 } from "@edem2000/amis.contracts/api/users/responses";
-import type {
-  ChangePasswordResponseBodyDto,
-  LoginResponseBodyDto,
-} from "entities/users/dtos";
 import { mapCompanyMembershipDtoToEntity } from "entities/companyMemberships/mappers";
 import type { CompanyMembership } from "entities/companyMemberships/types";
 import { mapSystemEmployeeDtoToEntity } from "entities/systemEmployees/mappers";
@@ -76,7 +74,7 @@ export const usersApi = baseApi.injectEndpoints({
         request(endpointAccessMap.authLogin, {
           data: mapLoginFormToLoginDto(form),
         }),
-      transformResponse: (response: LoginResponseBodyDto) =>
+      transformResponse: (response: SuccessOf<LoginResponseDto>) =>
         mapLoginResponseDtoToSession(response),
       /** Токены в хранилище пишутся здесь, а не в редьюсере: редьюсер чистый. */
       onQueryStarted: async (_form, { queryFulfilled }) => {
@@ -238,7 +236,7 @@ export const usersApi = baseApi.injectEndpoints({
           pathParams: { id: userId },
           data,
         }),
-      transformResponse: (response: ChangePasswordResponseBodyDto) =>
+      transformResponse: (response: SuccessOf<ChangePasswordResponseDto>) =>
         mapChangePwdDtoToSession(response),
     }),
 
@@ -248,7 +246,7 @@ export const usersApi = baseApi.injectEndpoints({
         request(endpointAccessMap.currentUserPasswordUpdate, {
           data: mapChangePwdFormToChangePwdDto(form),
         }),
-      transformResponse: (response: ChangePasswordResponseBodyDto) =>
+      transformResponse: (response: SuccessOf<ChangePasswordResponseDto>) =>
         mapChangePwdDtoToSession(response),
       onQueryStarted: async (_form, { queryFulfilled }) => {
         try {

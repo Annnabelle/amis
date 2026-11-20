@@ -1,5 +1,7 @@
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
+import type { LoginResponseDto } from '@edem2000/amis.contracts/api/users/responses';
+import type { SuccessOf } from 'shared/api/types';
 import { BASE_URL } from './consts';
 import {
   clearAuthStorage,
@@ -106,23 +108,12 @@ type RetriableConfig = InternalAxiosRequestConfig & {
   retriedAfterRefresh?: boolean;
 };
 
-/**
- * Из тела продления интерцептору нужны только эти два поля. Полная форма
- * ответа живёт в entities/users/dtos, но слой запросов на сущности не смотрит.
- */
-type RefreshResponseBody = {
-  tokens: {
-    accessToken: string;
-    refreshExpiresAt: string;
-  };
-};
-
 let refreshInFlight: Promise<AuthTokens | null> | null = null;
 
 const requestNewTokens = async (): Promise<AuthTokens | null> => {
   try {
     // Тело пустое: refresh-токен приходит httpOnly-cookie, клиент его не видит.
-    const { data } = await axiosInstance.post<RefreshResponseBody>(
+    const { data } = await axiosInstance.post<SuccessOf<LoginResponseDto>>(
       `${BASE_URL}/auth/refresh`,
       {}
     );
