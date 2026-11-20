@@ -13,7 +13,6 @@ const storedRefreshToken = localStorage.getItem("refreshToken");
  * в entities/users/api, а слайс слушает их результаты.
  */
 const initialState: UsersState = {
-  user: storedUser,
   accessToken: storedAccessToken,
   refreshToken: storedRefreshToken,
   sessionStart: storedAccessToken ? Date.now() : null,
@@ -26,7 +25,6 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
       state.sessionStart = null;
@@ -49,7 +47,6 @@ export const usersSlice = createSlice({
     builder
       /** Вход и смена своего пароля дают новую сессию. */
       .addMatcher(login.matchFulfilled, (state, action) => {
-        state.user = action.payload.user;
         state.currentUser = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
@@ -57,7 +54,6 @@ export const usersSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addMatcher(changeOwnPassword.matchFulfilled, (state, action) => {
-        state.user = action.payload.user;
         state.currentUser = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
@@ -66,11 +62,9 @@ export const usersSlice = createSlice({
       })
       .addMatcher(getCurrentUser.matchFulfilled, (state, action) => {
         state.currentUser = action.payload;
-        state.user = action.payload;
       })
       .addMatcher(updateUserPreferences.matchFulfilled, (state, action) => {
         state.currentUser = action.payload;
-        state.user = action.payload;
       });
   },
 });

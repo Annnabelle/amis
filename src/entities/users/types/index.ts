@@ -41,7 +41,6 @@ export type UserList = Paginated<User>;
 
 /** Сессия на экране: пользователь, токены и признак входа. */
 export type UsersState = {
-    user: User | null;
     accessToken: string | null;
     refreshToken: string | null;
     sessionStart: number | null;
