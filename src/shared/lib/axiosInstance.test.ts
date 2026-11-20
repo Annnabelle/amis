@@ -102,8 +102,12 @@ describe("продление сессии в интерцепторе", () => {
     axiosInstance.defaults.adapter = answer;
   });
 
-  it("посылает cookie и не кладёт refresh-токен в тело", () => {
-    expect(axiosInstance.defaults.withCredentials).toBe(true);
+  it("посылает cookie только ручкам сессии", async () => {
+    const session = await axiosInstance.post("/auth/refresh", {});
+    const regular = await axiosInstance.get("/users/me");
+
+    expect(session.config.withCredentials).toBe(true);
+    expect(regular.config.withCredentials).toBe(false);
   });
 
   it("продлевает сессию один раз на все ожидающие запросы и повторяет их", async () => {

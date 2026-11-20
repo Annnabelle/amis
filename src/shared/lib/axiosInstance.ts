@@ -34,16 +34,30 @@ const getCompanyIdFromLocation = () =>
     /^\/organization\/([^/]+)(?:\/|$)/
   )?.[1] ?? null;
 
+/**
+ * Ручки сессии: только им нужна httpOnly-cookie с refresh-токеном, и только
+ * их ответы не управляют сессией — вход сообщает об ошибке формы, а неудачу
+ * продления разбирает ветка по исходному запросу.
+ */
+const SESSION_ENDPOINT_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout'];
+
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  // Без этого браузер не пошлёт httpOnly-cookie с refresh-токеном.
-  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {
+  /**
+   * Cookie уходит только к ручкам сессии: запрос с учётными данными требует
+   * от сервера конкретный origin и Access-Control-Allow-Credentials, поэтому
+   * остальные запросы остаются обычными для CORS.
+   */
+  config.withCredentials = SESSION_ENDPOINT_PATHS.includes(
+    getRequestPathname(config.url)
+  );
+
   const token = getAccessToken();
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
@@ -96,12 +110,6 @@ axiosInstance.interceptors.request.use((config) => {
 }, (error) => {
   return Promise.reject(error);
 });
-
-/**
- * Ответы самих ручек сессии ею не управляют: вход сообщает об ошибке формы,
- * а неудачу продления разбирает ветка ниже, по исходному запросу.
- */
-const SESSION_ENDPOINT_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout'];
 
 /** Повторяем запрос после обновления ровно один раз. */
 type RetriableConfig = InternalAxiosRequestConfig & {
