@@ -146,7 +146,6 @@ export const resources = {
                 organization: "Organization",
                 order: "Orders",
             },
-            sessionEndsIn: 'Session ends in',
             search: {
                 byName: 'Search by name',
                 byOrganization: 'Search by organization',
@@ -2562,7 +2561,6 @@ export const resources = {
                 organization: "Организации",
                 order: "Заказы",
             },
-            sessionEndsIn: 'Окончание сессии через',
             search: {
                 byName: 'Поиск по имени',
                 byOrganization: 'Поиск по организациям',
@@ -4970,7 +4968,6 @@ export const resources = {
                 organization: "Tashkilot",
                 order: "Buyurtmalar",
             },
-            sessionEndsIn: 'Sessiya tugashiga',
             search: {
                 byName: 'Ism bo‘yicha qidirish',
                 byOrganization: 'Tashkilotlar bo‘yicha qidirish',

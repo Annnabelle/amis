@@ -31,7 +31,6 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
-import Session from 'widgets/session';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from '../languages';
 import StatusBadge from '../statusBadge';
@@ -727,7 +726,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 />
               </div>
               <Languages />
-              <Session />
               <UserInfo />
             </div>
           </div>
