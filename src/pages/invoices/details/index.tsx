@@ -179,9 +179,9 @@ const InvoicesDetails = () => {
         window.URL.revokeObjectURL(url);
       } else {
         /**
-         * Без noopener в параметрах: с ним window.open возвращает null, и
-         * отличить блокировку вкладки от успеха нельзя, а blob-ссылку надо
-         * отозвать. Изоляцию даёт opener = null сразу после открытия.
+         * Изоляция открытой вкладки — через opener = null: window.open с
+         * noopener возвращает null, и блокировку вкладки не отличить от
+         * успеха, а blob-ссылку надо отозвать.
          */
         const openedWindow = window.open(url, '_blank');
 
