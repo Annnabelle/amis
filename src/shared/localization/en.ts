@@ -5,6 +5,23 @@
  * конфликтует лишь с правкой того же языка.
  */
 const en = {
+    access: {
+    sections: {
+        references: "Reference data",
+        roles: "Roles",
+        uploads: "Files",
+        scanSessions: "Scanning",
+        lifecycle: "Record history",
+        jobs: "Background jobs",
+        companyImport: "Company import",
+    },
+    },
+    errorBoundary: {
+        title: "Something went wrong",
+        description: "The page could not be drawn. Try again - if it repeats, reload the page.",
+        retry: "Try again",
+        reload: "Reload page",
+    },
     orders: {
         orderNumber: "Order number"
     },
@@ -524,7 +541,8 @@ const en = {
             submit: "Run"
         },
         toast: {
-            started: "The import has started"
+            started: "The import has started",
+            startError: "Import did not start",
         },
         errors: {
             load: "Failed to load the import state",

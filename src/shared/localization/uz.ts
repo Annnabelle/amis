@@ -5,6 +5,23 @@
  * конфликтует лишь с правкой того же языка.
  */
 const uz = {
+    access: {
+    sections: {
+        references: "Ma’lumotnomalar",
+        roles: "Rollar",
+        uploads: "Fayllar",
+        scanSessions: "Skanerlash",
+        lifecycle: "Yozuvlar tarixi",
+        jobs: "Fon vazifalari",
+        companyImport: "Kompaniya importi",
+    },
+    },
+    errorBoundary: {
+        title: "Nimadir xato ketdi",
+        description: "Sahifani chizib bo‘lmadi. Yana urinib ko‘ring — takrorlansa, sahifani qayta yuklang.",
+        retry: "Yana urinib ko‘rish",
+        reload: "Sahifani qayta yuklash",
+    },
     orders: {
         orderNumber: "Buyurtma raqami"
     },
@@ -524,7 +541,8 @@ const uz = {
             submit: "Boshlash"
         },
         toast: {
-            started: "Import boshlandi"
+            started: "Import boshlandi",
+            startError: "Import boshlanmadi",
         },
         errors: {
             load: "Import holatini yuklab bo‘lmadi",
