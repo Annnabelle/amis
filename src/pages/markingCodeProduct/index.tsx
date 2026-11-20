@@ -51,8 +51,8 @@ const MarkingCodeProduct = () => {
             return [];
         }
 
-        return orderProduct.data.map((product, index) => ({
-            key: `${index + 1}`,
+        return orderProduct.data.map((product) => ({
+            key: product.code,
             code: product.code,
             status: product.status,
         }));

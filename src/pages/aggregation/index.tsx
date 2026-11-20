@@ -138,7 +138,7 @@ const Aggregations = () => {
 
     const AggregationsData = useMemo(() => {
         return aggregations.map((aggregation, index) => ({
-            key: index.toString() + 1,
+            key: aggregation.id,
             number: index + 1,
             aggregationNumber: aggregation.aggregationNumber,
             id: aggregation.id,
@@ -278,82 +278,76 @@ const Aggregations = () => {
                             <FilterBar className="filters-large filters-large-inputs">
                                 {canListProducts && (
                                 <FilterBarItem>
-                                    <Form.Item name="status" className="input">
-                                        <Select
-                                            size="large"
-                                            className="input"
-                                            placeholder={
-                                                <span className="custom-placeholder">
-                                                    {t('search.selectStatus')}
-                                                </span>
-                                            }
-                                            allowClear
-                                            options={[
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'new'), value: 'new' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'requested'), value: 'requested' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'vendor_pending'), value: 'vendor_pending' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'partially_processed'), value: 'partially_processed' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'success'), value: 'success' },
-                                                { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'error'), value: 'error' },
-                                            ]}
-                                            onChange={(value) =>
-                                                setFilters(prev => ({
-                                                    ...prev,
-                                                    status: value,
-                                                }))
-                                            }
-                                        />
-                                    </Form.Item>
+                                    {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                    <Select
+                                        size="large"
+                                        className="input"
+                                        placeholder={
+                                            <span className="custom-placeholder">
+                                                {t('search.selectStatus')}
+                                            </span>
+                                        }
+                                        allowClear
+                                        options={[
+                                            { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'new'), value: 'new' },
+                                            { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'requested'), value: 'requested' },
+                                            { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'vendor_pending'), value: 'vendor_pending' },
+                                            { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'partially_processed'), value: 'partially_processed' },
+                                            { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'success'), value: 'success' },
+                                            { label: getStatusLabel(t, StatusEntity.AggregationReport, LifecycleScope.Internal, 'error'), value: 'error' },
+                                        ]}
+                                        onChange={(value) =>
+                                            setFilters(prev => ({
+                                                ...prev,
+                                                status: value,
+                                            }))
+                                        }
+                                    />
                                 </FilterBarItem>
                                 )}
                                 <FilterBarItem>
-                                    <Form.Item name="dateRange" className="input">
-                                        <DatePicker.RangePicker
-                                            size="large"
-                                            placeholder={[t('search.chooseDate'), t('search.chooseDate')]}
-                                            className="input"
-                                            onChange={(dates) => {
-                                                setFilters(prev => ({
-                                                    ...prev,
-                                                    dateFrom: dates?.[0]?.toDate(),
-                                                    dateTo: dates?.[1]?.toDate(),
-                                                }));
-                                            }}
-                                        />
-                                    </Form.Item>
+                                    {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                    <DatePicker.RangePicker
+                                        size="large"
+                                        placeholder={[t('search.chooseDate'), t('search.chooseDate')]}
+                                        className="input"
+                                        onChange={(dates) => {
+                                            setFilters(prev => ({
+                                                ...prev,
+                                                dateFrom: dates?.[0]?.toDate(),
+                                                dateTo: dates?.[1]?.toDate(),
+                                            }));
+                                        }}
+                                    />
                                 </FilterBarItem>
                                 <FilterBarItem>
-                                    <Form.Item
-                                        name="product"
+                                    {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                    <Select
+                                        size="large"
+                                        showSearch
                                         className="input"
-                                    >
-                                        <Select
-                                            size="large"
-                                            showSearch
-                                            className="input"
-                                            placeholder={
-                                                <span className="custom-placeholder">
-                                                    {t('search.selectProduct')}
-                                                </span>
-                                            }
-                                            filterOption={false}
-                                            allowClear
-                                            loading={productsLoading}
-                                            optionLabelProp="label"
-                                            dropdownMatchSelectWidth={false}
-                                            onSearch={handleProductSearch}
-                                            onClear={() => {
-                                                setSelectedProductId(undefined);
-                                            }}
-                                            onChange={(productId) => {
-                                                setSelectedProductId(productId);
-                                            }}
-                                            options={products?.map(product => ({
-                                                value: product.id,
-                                                label: product.name,
-                                            }))}
-                                        />
-                                    </Form.Item>
+                                        placeholder={
+                                            <span className="custom-placeholder">
+                                                {t('search.selectProduct')}
+                                            </span>
+                                        }
+                                        filterOption={false}
+                                        allowClear
+                                        loading={productsLoading}
+                                        optionLabelProp="label"
+                                        dropdownMatchSelectWidth={false}
+                                        onSearch={handleProductSearch}
+                                        onClear={() => {
+                                            setSelectedProductId(undefined);
+                                        }}
+                                        onChange={(productId) => {
+                                            setSelectedProductId(productId);
+                                        }}
+                                        options={products?.map(product => ({
+                                            value: product.id,
+                                            label: product.name,
+                                        }))}
+                                    />
                                 </FilterBarItem>
                             </FilterBar>
                         </div>

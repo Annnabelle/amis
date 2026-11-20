@@ -32,7 +32,7 @@ import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { CompanyImportStage } from 'entities/companyImport/types';
-import { useSubmitGuard } from 'shared/lib';
+import { useDebouncedValue, useSubmitGuard } from 'shared/lib';
 import CompanyImportStageButton from 'widgets/companyImport/stageButton';
 
 const Products = () => {
@@ -47,14 +47,15 @@ const Products = () => {
     const shortNameEdited = useRef(false);
     const [pagination, setPagination] = useState({ page: 1, limit: 10 });
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedQuery = useDebouncedValue(searchQuery);
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-    const isSearching = searchQuery.length > 0;
+    const isSearching = debouncedQuery.length > 0;
     const { data: productsPage } = useGetProductsQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
         { skip: isSearching }
     );
     const { data: searchedProductsPage } = useSearchProductsQuery(
-        { query: searchQuery, page: 1, limit: pagination.limit, sortOrder: 'asc' },
+        { query: debouncedQuery, page: 1, limit: pagination.limit, sortOrder: 'asc' },
         { skip: !isSearching }
     );
     const [createProduct] = useCreateProductMutation();
@@ -281,16 +282,15 @@ const Products = () => {
                     <div className="box-container-items-item">
                         <FilterBar>
                             <FilterBarItem>
-                                <Form.Item name="searchExpert" className="input">
-                                    <Input
-                                        size="large"
-                                        className="input"
-                                        placeholder={t('search.byName')}
-                                        suffix={<IoSearch />}
-                                        allowClear
-                                        onChange={handleSearchChange}
-                                    />
-                                </Form.Item>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                <Input
+                                    size="large"
+                                    className="input"
+                                    placeholder={t('search.byName')}
+                                    suffix={<IoSearch />}
+                                    allowClear
+                                    onChange={handleSearchChange}
+                                />
                             </FilterBarItem>
                         </FilterBar>
                     </div>
