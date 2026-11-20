@@ -112,6 +112,11 @@ const WaybillsDetails = () => {
         link.remove();
         window.URL.revokeObjectURL(url);
       } else {
+        /**
+         * Без noopener в параметрах: с ним window.open возвращает null, и
+         * отличить блокировку вкладки от успеха нельзя, а blob-ссылку надо
+         * отозвать. Изоляцию даёт opener = null сразу после открытия.
+         */
         const openedWindow = window.open(url, "_blank");
 
         if (openedWindow) {

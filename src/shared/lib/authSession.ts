@@ -49,6 +49,25 @@ export const saveAuthSession = ({
   localStorage.setItem("sessionEnd", String(Date.now() + SESSION_DURATION_MS));
 };
 
+/**
+ * Профиль из localStorage. Разбор идёт на импорте модуля слайса, поэтому
+ * битое значение гасило приложение белым экраном ещё до страницы входа:
+ * теперь ключ чистится, а пользователь просто оказывается неавторизованным.
+ */
+export const readStoredUser = <T>(): T | null => {
+  const stored = localStorage.getItem("user");
+
+  if (!stored) return null;
+
+  try {
+    return JSON.parse(stored) as T;
+  } catch {
+    localStorage.removeItem("user");
+
+    return null;
+  }
+};
+
 export const emitAuthSessionExpired = () => {
   window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 };

@@ -5,6 +5,7 @@ import { ConfigProvider, theme } from 'antd';
 import Router from './routes';
 import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
+import ErrorBoundary from 'shared/ui/errorBoundary';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
 import { logout } from 'entities/users/model';
@@ -254,7 +255,9 @@ function App() {
           <AccessBootstrap />
           <CompanyRouteSync />
           <StatusChangeListener />
-          <Router />
+          <ErrorBoundary>
+            <Router />
+          </ErrorBoundary>
         </BrowserRouter>
       </ConfigProvider>
     </ThemeContext.Provider>

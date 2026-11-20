@@ -17,7 +17,7 @@ const Session = () => {
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     const sessionEnd = localStorage.getItem("sessionEnd");
     if (sessionEnd) {
-      return Math.floor((parseInt(sessionEnd) - Date.now()) / 1000);
+      return Math.floor((parseInt(sessionEnd, 10) - Date.now()) / 1000);
     }
     return SESSION_DURATION;
   });

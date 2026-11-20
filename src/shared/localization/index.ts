@@ -206,6 +206,12 @@ export const resources = {
                     company: "Company"
                 }
             },
+            errorBoundary: {
+                title: "Something went wrong",
+                description: "The page could not be drawn. Try again - if it repeats, reload the page.",
+                retry: "Try again",
+                reload: "Reload page",
+            },
             statusCatalog: {
                 lead: {
                     internal: {
@@ -521,6 +527,7 @@ export const resources = {
                 },
                 toast: {
                     started: "The import has started",
+                    startError: "Import did not start",
                 },
                 errors: {
                     load: "Failed to load the import state",
@@ -2622,6 +2629,12 @@ export const resources = {
                     company: "Компания",
                 },
             },
+            errorBoundary: {
+                title: "Что-то пошло не так",
+                description: "Страницу не удалось отрисовать. Попробуйте снова — если повторяется, перезагрузите страницу.",
+                retry: "Попробовать снова",
+                reload: "Перезагрузить страницу",
+            },
             statusCatalog: {
                 lead: {
                     internal: {
@@ -2937,6 +2950,7 @@ export const resources = {
                 },
                 toast: {
                     started: "Импорт запущен",
+                    startError: "Импорт не запустился",
                 },
                 errors: {
                     load: "Не удалось получить состояние импорта",
@@ -5030,6 +5044,12 @@ export const resources = {
                     company: "Kompaniya",
                 },
             },
+            errorBoundary: {
+                title: "Nimadir xato ketdi",
+                description: "Sahifani chizib bo‘lmadi. Yana urinib ko‘ring — takrorlansa, sahifani qayta yuklang.",
+                retry: "Yana urinib ko‘rish",
+                reload: "Sahifani qayta yuklash",
+            },
             statusCatalog: {
                 lead: {
                     internal: {
@@ -5345,6 +5365,7 @@ export const resources = {
                 },
                 toast: {
                     started: "Import boshlandi",
+                    startError: "Import boshlanmadi",
                 },
                 errors: {
                     load: "Import holatini yuklab bo‘lmadi",

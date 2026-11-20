@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { usersApi } from "entities/users/api";
 import type { User, UsersState } from "entities/users/types";
-import { clearAuthStorage } from "shared/lib/authSession";
+import { clearAuthStorage, readStoredUser } from "shared/lib/authSession";
 
-const storedUser = localStorage.getItem("user");
+const storedUser = readStoredUser<User>();
 const storedAccessToken = localStorage.getItem("accessToken");
 const storedRefreshToken = localStorage.getItem("refreshToken");
 
@@ -13,12 +13,12 @@ const storedRefreshToken = localStorage.getItem("refreshToken");
  * в entities/users/api, а слайс слушает их результаты.
  */
 const initialState: UsersState = {
-  user: storedUser ? (JSON.parse(storedUser) as User) : null,
+  user: storedUser,
   accessToken: storedAccessToken,
   refreshToken: storedRefreshToken,
   sessionStart: storedAccessToken ? Date.now() : null,
   isAuthenticated: !!storedAccessToken,
-  currentUser: storedUser ? (JSON.parse(storedUser) as User) : null,
+  currentUser: storedUser,
 };
 
 export const usersSlice = createSlice({
