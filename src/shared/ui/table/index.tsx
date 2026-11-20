@@ -3,8 +3,8 @@ import type { TablePaginationConfig, TableProps } from 'antd';
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { useTableWidth } from './useTableWidth';
 import './styles.sass';
-import {useAdaptiveColumns} from "./useAdaptiveColumns.tsx";
-import type {AdaptiveColumn} from "./types.ts";
+import {useAdaptiveColumns} from "./useAdaptiveColumns";
+import type {AdaptiveColumn} from "./types";
 
 interface ComponentTableProps<T> {
     onRowClick?: (record: T) => void;

@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
-import BatchItem from "../../markingCodeProduct/batchItem.tsx";
+import BatchItem from "../../markingCodeProduct/batchItem";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useGetAggregationReportByIdQuery } from "entities/aggregation/api";
 import "../../markingCodeProduct/styles.sass"
 import { Tag } from "antd";
-import { statusColors } from "shared/ui/statuses.tsx";
+import { statusColors } from "shared/ui/statuses";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";

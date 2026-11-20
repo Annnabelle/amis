@@ -2,7 +2,7 @@ import { Tag} from 'antd';
 import { ActionDropdownButton, TextCell } from 'shared/ui/table/cells';
 import type { OrganizationTableDataType } from './types';
 import type { TFunction } from 'i18next';
-import type {AdaptiveColumn} from "shared/ui/table/types.ts";
+import type {AdaptiveColumn} from "shared/ui/table/types";
 import StatusBadge from 'shared/ui/statusBadge';
 import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 

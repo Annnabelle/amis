@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next";
 import { getInvoiceStatusKey } from "entities/invoices/lib/status";
-import type { AdaptiveColumn } from "shared/ui/table/types.ts";
+import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { InvoicesTableDataType } from "./types";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';

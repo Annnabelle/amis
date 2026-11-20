@@ -22,7 +22,7 @@ import { VehicleFormModal } from 'entities/vehicles/ui/vehicleFormModal';
 import type { Vehicle } from 'entities/vehicles/types';
 import dayjs from 'dayjs';
 import ComponentTable from 'shared/ui/table';
-import type { AdaptiveColumn } from 'shared/ui/table/types.ts';
+import type { AdaptiveColumn } from 'shared/ui/table/types';
 import { PermissionLink, RequiredDataAlert } from 'entities/access/ui';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 

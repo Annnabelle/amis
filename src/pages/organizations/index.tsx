@@ -22,8 +22,8 @@ import FormComponent from 'shared/ui/formComponent'
 import StatusBadge from 'shared/ui/statusBadge'
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants'
 import { useNavigate } from 'react-router-dom'
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { FormatUzbekPhoneNumber, isFormValidationError, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
