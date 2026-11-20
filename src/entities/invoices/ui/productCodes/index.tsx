@@ -1,4 +1,5 @@
 import { Empty, Pagination, Spin } from "antd";
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetInvoiceCodesQuery } from "entities/invoices/api";
@@ -18,7 +19,7 @@ export const InvoiceProductCodes = ({
   productId,
 }: InvoiceProductCodesProps) => {
   const { t } = useTranslation();
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const { data, isFetching, error } = useGetInvoiceCodesQuery({
     id: invoiceId,
     productId,

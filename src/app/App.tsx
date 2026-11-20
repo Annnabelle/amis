@@ -29,7 +29,7 @@ const THEME_TRANSITION_CLASS = 'theme-transition';
 const getCssVariable = (name: string) =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-const getAntdThemeTokens = () => ({
+const readAntdThemeTokens = () => ({
   colorPrimary: getCssVariable('--main-primary'),
   colorBgBase: getCssVariable('--main-bg'),
   colorTextBase: getCssVariable('--basic-black'),
@@ -41,6 +41,25 @@ const getAntdThemeTokens = () => ({
   borderRadius: 8,
   borderRadiusLG: 12,
 });
+
+/**
+ * Чтение CSS-переменных — синхронный reflow, поэтому каждая тема измеряется
+ * один раз. Ключ кеша — применённая тема: значения переменных зависят от
+ * data-theme на html.
+ */
+const themeTokensCache = new Map<string, ReturnType<typeof readAntdThemeTokens>>();
+
+const getAntdThemeTokens = (theme: string) => {
+  const cached = themeTokensCache.get(theme);
+
+  if (cached) return cached;
+
+  const tokens = readAntdThemeTokens();
+
+  themeTokensCache.set(theme, tokens);
+
+  return tokens;
+};
 
 const THEME_MODES: readonly ThemeMode[] = [AppTheme.Light, AppTheme.Dark, AppTheme.System];
 
@@ -158,7 +177,7 @@ function App() {
   const [updateUserPreferences] = useUpdateUserPreferencesMutation();
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
   const [systemPrefersDark, setSystemPrefersDark] = useState(prefersDarkScheme);
-  const [antdThemeTokens, setAntdThemeTokens] = useState(getAntdThemeTokens);
+  const [antdThemeTokens, setAntdThemeTokens] = useState(readAntdThemeTokens);
   const appliedPreferencesRef = useRef<string | null>(null);
   const effectiveTheme = resolveEffectiveTheme(themeMode, systemPrefersDark);
   const isDarkTheme = effectiveTheme === 'dark';
@@ -197,7 +216,7 @@ function App() {
     root.classList.add(THEME_TRANSITION_CLASS);
     root.setAttribute('data-theme', effectiveTheme);
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
-    setAntdThemeTokens(getAntdThemeTokens());
+    setAntdThemeTokens(getAntdThemeTokens(effectiveTheme));
 
     const timeoutId = window.setTimeout(() => {
       root.classList.remove(THEME_TRANSITION_CLASS);

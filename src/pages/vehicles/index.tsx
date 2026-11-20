@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -24,7 +25,7 @@ const Vehicles = () => {
   const { orgId } = useParams<{ orgId: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const { data, isFetching } = useGetVehiclesQuery(
     { page: pagination.page, limit: pagination.limit, sortOrder: "asc" },
     { skip: !orgId }
