@@ -14,6 +14,7 @@ import {
 } from 'entities/users/api';
 import { useGetCurrentUserAccessQuery } from 'entities/access/api';
 import { AppTheme, isLanguage } from 'shared/types/dtos';
+import { parseCompanyFromPath } from 'shared/lib/companyPath';
 import { persistLanguage } from 'shared/lib/languagePreference';
 import {
   clearAccess,
@@ -138,13 +139,7 @@ const CompanyRouteSync = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    const companyId =
-      pathSegments[0] === 'organization' && pathSegments.length > 1
-        ? pathSegments[1]
-        : null;
-
-    dispatch(setCurrentCompanyId(companyId));
+    dispatch(setCurrentCompanyId(parseCompanyFromPath(location.pathname)));
   }, [dispatch, location.pathname]);
 
   return null;

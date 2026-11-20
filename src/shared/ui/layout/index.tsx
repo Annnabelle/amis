@@ -60,6 +60,7 @@ import {
 } from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
+import { parseCompanyFromPath } from 'shared/lib/companyPath';
 import { isLanguage, type Language } from 'shared/types/dtos';
 import { canAccessEndpoint, useCan } from 'entities/access/lib';
 import {
@@ -181,7 +182,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     [companyInvitationRoles, currentLanguage, pendingCompanyInvitations]
   );
   const pathSegments = location.pathname.split('/').filter(Boolean);
-  const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
+  const orgId = parseCompanyFromPath(location.pathname) ?? undefined;
   const section = pathSegments[2];
   const routeId = section === 'delivery-routes' ? pathSegments[3] : undefined;
   const isOrganizationRoot = location.pathname === '/organization';
