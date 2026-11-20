@@ -5,7 +5,6 @@ import { ConfigProvider, theme } from 'antd';
 import Router from './routes';
 import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
-import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
 import { logout } from 'entities/users/model';
 import {
@@ -152,7 +151,6 @@ const CompanyRouteSync = () => {
 
 function App() {
   const { darkAlgorithm, defaultAlgorithm } = theme;
-  const loading = useAppSelector((state) => state.loader.loading);
   const currentUser = useAppSelector((state) => state.users.currentUser);
   const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
   const [updateUserPreferences] = useUpdateUserPreferencesMutation();
@@ -191,6 +189,18 @@ function App() {
       }
     }
   }, [currentUser]);
+
+  /** Атрибут lang нужен скринридерам и переносам строк. */
+  useEffect(() => {
+    const applyLanguage = (language: string) => {
+      document.documentElement.lang = language;
+    };
+
+    applyLanguage(i18n.language);
+    i18n.on('languageChanged', applyLanguage);
+
+    return () => i18n.off('languageChanged', applyLanguage);
+  }, []);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -248,7 +258,6 @@ function App() {
           },
         }}
       >
-        <GlobalLoader loading={loading} />
         <BrowserRouter>
           <AuthSessionGuard />
           <AccessBootstrap />
