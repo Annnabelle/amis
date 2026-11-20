@@ -8,6 +8,8 @@ import type { SuccessOf } from "shared/api";
  *
  * Блокирует мерж ветки: пока 0.1.6 не опубликован и этот файл не удалён,
  * фронт описывает контракт сам, а так быть не должно.
+ *
+ * @blocked-by-contracts 0.1.6
  */
 export type LoginResponseBodyDto = Omit<SuccessOf<LoginResponseDto>, "tokens"> & {
   tokens: {

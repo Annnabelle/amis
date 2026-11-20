@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "check:endpoints": "node scripts/check-endpoints.mjs",
+    "check:contracts": "node scripts/check-contract-blockers.mjs",
     "test": "vitest run",
-    "build": "npm run check:endpoints && tsc -b && vite build",
+    "build": "npm run check:contracts && npm run check:endpoints && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
