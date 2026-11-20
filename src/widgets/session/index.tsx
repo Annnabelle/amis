@@ -1,54 +1,42 @@
 import { useEffect, useState } from "react";
 import { FieldTimeOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {useAppDispatch} from "app/store";
-import {logout} from "entities/users/model";
+import { emitAuthSessionExpired, getSessionEnd } from "shared/lib/authSession";
 import "./styles.sass";
 
-/** Сколько живёт сессия без повторного входа, в секундах. */
-const SESSION_DURATION = 60 * 60;
+/** Остаток сессии в секундах; null — срока нет, таймер нечему показывать. */
+const secondsLeft = (): number | null => {
+  const sessionEnd = getSessionEnd();
+
+  if (sessionEnd === null) return null;
+
+  return Math.max(0, Math.floor((sessionEnd - Date.now()) / 1000));
+};
 
 const Session = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
-  const [timeLeft, setTimeLeft] = useState<number>(() => {
-    const sessionEnd = localStorage.getItem("sessionEnd");
-    if (sessionEnd) {
-      return Math.floor((parseInt(sessionEnd) - Date.now()) / 1000);
-    }
-    return SESSION_DURATION;
-  });
+  const [timeLeft, setTimeLeft] = useState<number | null>(secondsLeft);
 
   useEffect(() => {
-    const sessionEndStr = localStorage.getItem("sessionEnd");
-    let endTimestamp: number;
-
-    if (sessionEndStr) {
-      endTimestamp = parseInt(sessionEndStr, 10);
-    } else {
-      endTimestamp = Date.now() + SESSION_DURATION * 1000;
-      localStorage.setItem("sessionEnd", String(endTimestamp));
-    }
-
     const timer = setInterval(() => {
-      const remaining = Math.floor((endTimestamp - Date.now()) / 1000);
+      const remaining = secondsLeft();
+
       setTimeLeft(remaining);
 
-      if (remaining <= 0) {
-        clearInterval(timer);
-        dispatch(logout());
-        navigate("/");
+      // Выход — один путь, через AuthSessionGuard: виджет только сообщает событие.
+      if (remaining === 0) {
+        emitAuthSessionExpired();
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [dispatch, navigate]);
+  }, []);
 
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds: number | null) => {
+    if (seconds === null) return "--:--:--";
     if (seconds <= 0) return "00:00:00";
+
     const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
     const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
     const s = String(seconds % 60).padStart(2, "0");
@@ -83,5 +71,3 @@ const Session = () => {
 };
 
 export default Session;
-
-

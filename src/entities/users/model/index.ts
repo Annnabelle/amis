@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 import { usersApi } from "entities/users/api";
 import type { User, UsersState } from "entities/users/types";
-import { clearAuthStorage } from "shared/lib/authSession";
+import { clearAuthStorage, type AuthTokens } from "shared/lib/authSession";
 
 const storedUser = localStorage.getItem("user");
 const storedAccessToken = localStorage.getItem("accessToken");
@@ -41,6 +42,11 @@ export const usersSlice = createSlice({
     clearUser(state) {
       state.currentUser = null;
     },
+    /** Молчаливое продление сессии: пользователь тот же, токены новые. */
+    sessionRefreshed: (state, action: PayloadAction<AuthTokens>) => {
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+    },
   },
   extraReducers: (builder) => {
     const { login, changeOwnPassword, getCurrentUser, updateUserPreferences } =
@@ -75,6 +81,6 @@ export const usersSlice = createSlice({
   },
 });
 
-export const { logout, login, clearUser } = usersSlice.actions;
+export const { logout, login, clearUser, sessionRefreshed } = usersSlice.actions;
 
 export default usersSlice.reducer;

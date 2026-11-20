@@ -7,7 +7,7 @@ import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
-import { logout } from 'entities/users/model';
+import { logout, sessionRefreshed } from 'entities/users/model';
 import {
   useGetCurrentUserQuery,
   useUpdateUserPreferencesMutation,
@@ -19,7 +19,12 @@ import {
   clearAccess,
   setCurrentCompanyId,
 } from 'entities/access/model';
-import { AUTH_SESSION_EXPIRED_EVENT, isStoredSessionExpired } from 'shared/lib/authSession';
+import {
+  AUTH_SESSION_EXPIRED_EVENT,
+  AUTH_SESSION_REFRESHED_EVENT,
+  isStoredSessionExpired,
+  type AuthTokens,
+} from 'shared/lib/authSession';
 import StatusChangeListener from './statusChangeListener';
 import './styles/App.sass';
 
@@ -87,6 +92,15 @@ const AuthSessionGuard = () => {
       }
     };
 
+    // Продление сессии идёт в интерцепторе: слайс узнаёт о новых токенах отсюда.
+    const handleSessionRefreshed = (event: Event) => {
+      const tokens = (event as CustomEvent<AuthTokens>).detail;
+
+      if (tokens) {
+        dispatch(sessionRefreshed(tokens));
+      }
+    };
+
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'accessToken' && !event.newValue) {
         handleLogout();
@@ -94,6 +108,7 @@ const AuthSessionGuard = () => {
     };
 
     window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleLogout);
+    window.addEventListener(AUTH_SESSION_REFRESHED_EVENT, handleSessionRefreshed);
     window.addEventListener('focus', handleSessionCheck);
     window.addEventListener('pageshow', handleSessionCheck);
     window.addEventListener('storage', handleStorageChange);
@@ -103,6 +118,10 @@ const AuthSessionGuard = () => {
 
     return () => {
       window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleLogout);
+      window.removeEventListener(
+        AUTH_SESSION_REFRESHED_EVENT,
+        handleSessionRefreshed
+      );
       window.removeEventListener('focus', handleSessionCheck);
       window.removeEventListener('pageshow', handleSessionCheck);
       window.removeEventListener('storage', handleStorageChange);

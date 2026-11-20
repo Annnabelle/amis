@@ -1,9 +1,13 @@
 import axios from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
+import type { LoginResponseDto } from '@edem2000/amis.contracts/api/users/responses';
 import { BASE_URL } from './consts';
 import {
   clearAuthStorage,
   emitAuthSessionExpired,
-  isAuthErrorResponse,
+  emitAuthSessionRefreshed,
+  isSessionExpiredResponse,
+  saveAuthTokens,
 } from './authSession';
 import { getRuntimeCompanyId } from './companyContext';
 import { CompanyScopeOptions } from './requestScope';
@@ -88,21 +92,87 @@ axiosInstance.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-axiosInstance.interceptors.response.use((response) => response, (error) => {
+/**
+ * Ответы самих ручек сессии ею не управляют: вход сообщает об ошибке формы,
+ * а неудачу продления разбирает ветка ниже, по исходному запросу.
+ */
+const SESSION_ENDPOINT_PATHS = ['/auth/login', '/auth/refresh'];
+
+/** Повторяем запрос после обновления ровно один раз. */
+type RetriableConfig = InternalAxiosRequestConfig & {
+  retriedAfterRefresh?: boolean;
+};
+
+let refreshInFlight: Promise<string | null> | null = null;
+
+const requestNewTokens = async (): Promise<string | null> => {
+  const refreshToken = localStorage.getItem('refreshToken');
+
+  if (!refreshToken) return null;
+
+  try {
+    const { data } = await axiosInstance.post<LoginResponseDto>(
+      `${BASE_URL}/auth/refresh`,
+      { refreshToken }
+    );
+
+    if (!data.success) return null;
+
+    const tokens = {
+      accessToken: data.tokens.accessToken,
+      refreshToken: data.tokens.refreshToken,
+    };
+
+    saveAuthTokens(tokens);
+    emitAuthSessionRefreshed(tokens);
+
+    return tokens.accessToken;
+  } catch {
+    return null;
+  }
+};
+
+/** Один запрос на обновление для всех ожидающих: остальные ждут его результат. */
+const refreshAccessToken = (): Promise<string | null> => {
+  refreshInFlight ??= requestNewTokens().finally(() => {
+    refreshInFlight = null;
+  });
+
+  return refreshInFlight;
+};
+
+axiosInstance.interceptors.response.use((response) => response, async (error) => {
   const status = error.response?.status;
   const data = error.response?.data;
-  const requestUrl = error.config?.url ?? '';
+  const config = error.config as RetriableConfig | undefined;
+  const requestPath = getRequestPathname(config?.url);
   const hasToken = Boolean(localStorage.getItem('accessToken'));
-  const isLoginRequest = requestUrl.includes('/auth/login');
 
-  if (hasToken && !isLoginRequest && isAuthErrorResponse(status, data)) {
-    clearAuthStorage();
-    emitAuthSessionExpired();
+  if (
+    !hasToken ||
+    SESSION_ENDPOINT_PATHS.includes(requestPath) ||
+    !isSessionExpiredResponse(status, data)
+  ) {
+    return Promise.reject(error);
   }
+
+  const refreshable = config !== undefined && !config.retriedAfterRefresh;
+
+  // Истёкший access-токен продлевается молча: страница и заполненная форма остаются.
+  if (refreshable) {
+    const accessToken = await refreshAccessToken();
+
+    if (accessToken) {
+      config.retriedAfterRefresh = true;
+
+      return axiosInstance.request(config);
+    }
+  }
+
+  clearAuthStorage();
+  emitAuthSessionExpired();
 
   return Promise.reject(error);
 });
 
 export default axiosInstance;
-
-
