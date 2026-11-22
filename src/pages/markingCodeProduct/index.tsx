@@ -65,6 +65,8 @@ const MarkingCodeProduct = () => {
     const paginationTotal =
         orderProduct && 'total' in orderProduct ? orderProduct.total : 0;
 
+    const columns = useMemo(() => OrderProductTableColumns(t), [t]);
+
     return (
     <MainLayout>
         <RequiredDataAlert
@@ -90,7 +92,7 @@ const MarkingCodeProduct = () => {
                                 <div className="box-container">
                                     <div className="box-container-items">
                                         <ComponentTable<OrderProductDataType>
-                                            columns={OrderProductTableColumns(t)}
+                                            columns={columns}
                                             data={OrderProductData}
                                             pagination={{
                                                 current: paginationCurrent,

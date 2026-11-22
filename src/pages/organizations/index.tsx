@@ -23,6 +23,7 @@ import StatusBadge from 'shared/ui/statusBadge'
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants'
 import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { FormatUzbekPhoneNumber, isFormValidationError, useDebouncedValue, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
@@ -82,7 +83,7 @@ const Organizations = () => {
     const isMobile = useIsMobile();
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedQuery = useDebouncedValue(searchQuery);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+    const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const isSearching = debouncedQuery.trim().length > 0;
     const { data: companiesPage } = useGetCompaniesQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },

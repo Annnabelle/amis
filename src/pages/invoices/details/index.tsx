@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import dayjs from 'dayjs';
 import { DownloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Empty, Pagination, Spin, Tag } from 'antd';
@@ -91,7 +92,7 @@ const InvoicesDetails = () => {
     invoiceDeliveryTaskId ?? '',
     { skip: !invoiceDeliveryTaskId || !canReadDeliveryTask }
   );
-  const [itemsPagination, setItemsPagination] = useState({ page: 1, limit: 10 });
+  const [itemsPagination, setItemsPagination] = useState({ ...DEFAULT_PAGINATION });
   const { data: invoiceItemsPageData, isFetching: invoiceItemsLoading } =
     useGetInvoiceItemsQuery(
       { id: id ?? '', page: itemsPagination.page, limit: itemsPagination.limit },
@@ -178,6 +179,11 @@ const InvoicesDetails = () => {
         link.remove();
         window.URL.revokeObjectURL(url);
       } else {
+        /**
+         * Изоляция открытой вкладки — через opener = null: window.open с
+         * noopener возвращает null, и блокировку вкладки не отличить от
+         * успеха, а blob-ссылку надо отозвать.
+         */
         const openedWindow = window.open(url, '_blank');
 
         if (openedWindow) {

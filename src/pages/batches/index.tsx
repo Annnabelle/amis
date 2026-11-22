@@ -112,6 +112,8 @@ const Batches = () => {
         void refetchOrder();
     };
 
+    const columns = useMemo(() => MarkingCodeTableColumns(t, orgId), [orgId, t]);
+
     return (
     <MainLayout>
         <Heading
@@ -163,7 +165,7 @@ const Batches = () => {
                             <div className="box-container">
                                 <div className="box-container-items">
                                     <ComponentTable<BatchTableDataType>
-                                        columns={MarkingCodeTableColumns(t, orgId)}
+                                        columns={columns}
                                         data={MarkingCodeData}
                                         pagination={{
                                             current: tablePage,

@@ -1,5 +1,6 @@
 export { default as axiosInstance } from "./axiosInstance";
 export { BASE_URL } from "./consts";
+export { parseCompanyFromPath } from "./companyPath";
 export { getBackendErrorMessage } from "./getBackendErrorMessage";
 export { isFormValidationError } from "./formValidation";
 export { resolveMultiLanguage } from "./multiLanguage";
