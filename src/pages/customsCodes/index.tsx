@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { Alert, Select, Space } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
@@ -94,7 +95,7 @@ const CustomsCodesPage = () => {
   const canSignDissolutionOrder = useCan(endpointAccessMap.customsCodesSignDissolution);
   const canListOrders = useCan(endpointAccessMap.ordersList);
   const canListProducts = useCan(endpointAccessMap.productsList);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const { page, limit } = pagination;
   const {
     data: ordersPage,

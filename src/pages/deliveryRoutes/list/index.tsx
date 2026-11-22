@@ -50,6 +50,8 @@ const DeliveryRoutesList = () => {
     }));
   }, [routes]);
 
+  const columns = useMemo(() => DeliveryRoutesTableColumns(t), [t]);
+
   return (
     <MainLayout>
       {!isMobile && (
@@ -65,7 +67,7 @@ const DeliveryRoutesList = () => {
         <div className="box-container">
           <div className="box-container-items">
             <ComponentTable<DeliveryRoutesTableDataType>
-              columns={DeliveryRoutesTableColumns(t)}
+              columns={columns}
               data={deliveryRoutesData}
               loading={isLoading}
               onRowClick={

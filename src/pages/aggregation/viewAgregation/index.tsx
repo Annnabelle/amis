@@ -129,6 +129,8 @@ const AggregationReportPage: React.FC = () => {
         }
     };
 
+    const columns = useMemo(() => UnitsColumns(t), [t]);
+
     return (
         <MainLayout>
             <Heading title={t('aggregations.agregationReportPage.aggregation')} subtitle={t('organizations.subtitle')}>
@@ -227,7 +229,7 @@ const AggregationReportPage: React.FC = () => {
                                 </div>
 
                                 <ComponentTable<UnitCodeType>
-                                    columns={UnitsColumns(t)}
+                                    columns={columns}
                                     data={group.codes}
                                     pagination={false}
                                 />

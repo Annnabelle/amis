@@ -24,6 +24,9 @@ import StatusBadge from 'shared/ui/statusBadge';
 import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 
+/** Пустой список одной ссылкой: иначе селектор ломает мемоизацию. */
+const EMPTY_MODULES: readonly AccessModule[] = [];
+
 const hasValue = (value?: string | number | null) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
 
@@ -50,7 +53,9 @@ const OrganizationsInner = () => {
     { id: id ?? '' },
     { skip: !id }
   );
-  const systemModules = useAppSelector((state) => state.access.data?.system.modules ?? []);
+  const systemModules = useAppSelector(
+    (state) => state.access.data?.system.modules ?? EMPTY_MODULES
+  );
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.Company,
@@ -58,7 +63,7 @@ const OrganizationsInner = () => {
 
   const getFirstCompanyModulePath = (
     companyId: string,
-    modules: AccessModule[]
+    modules: readonly AccessModule[]
   ) => {
     const modulePaths: Array<{ module: AccessModule; path: string }> = [
       { module: AccessModules.Products, path: `/organization/${companyId}/products` },

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -19,7 +20,7 @@ const WaybillsList = () => {
   const { t } = useTranslation();
   const canReadWaybill = useCan(endpointAccessMap.waybillsRead);
 
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const { data: waybillsPage, isFetching: isLoading } = useGetWaybillsQuery(
     {
       page: pagination.page,
@@ -48,6 +49,8 @@ const WaybillsList = () => {
     }));
   }, [waybills]);
 
+  const columns = useMemo(() => WaybillsTableColumns(t, orgId), [orgId, t]);
+
   return (
     <MainLayout>
       <Heading title={t("waybills.title")} subtitle={t("common.total")} totalAmount={`${dataTotal}`} />
@@ -55,7 +58,7 @@ const WaybillsList = () => {
         <div className="box-container">
           <div className="box-container-items">
             <ComponentTable<WaybillsTableDataType>
-              columns={WaybillsTableColumns(t, orgId)}
+              columns={columns}
               data={waybillsData}
               loading={isLoading}
               scroll={false}

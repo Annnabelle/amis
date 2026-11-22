@@ -6,6 +6,7 @@ import {
   selectableCompanyImportStages,
   type CompanyImportStage,
 } from "entities/companyImport/types";
+import { getApiErrorMessage } from "shared/api";
 import CustomButton from "shared/ui/button";
 import ModalWindow from "shared/ui/modalWindow";
 
@@ -39,7 +40,9 @@ const CompanyImportStartModal = ({
       toast.success(t("companyImport.toast.started"));
       onClose();
     } catch (error) {
-      toast.error(t(String(error)));
+      toast.error(
+        getApiErrorMessage(error, t("companyImport.toast.startError")),
+      );
     }
   };
 

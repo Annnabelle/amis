@@ -62,6 +62,25 @@ export const saveAuthSession = ({
   saveAuthTokens({ accessToken, sessionEnd });
 };
 
+/**
+ * Профиль из localStorage. Разбор идёт на импорте модуля слайса, до первого
+ * рендера, поэтому битое значение чистится молча: пользователь оказывается
+ * неавторизованным и видит страницу входа.
+ */
+export const readStoredUser = <T>(): T | null => {
+  const stored = localStorage.getItem("user");
+
+  if (!stored) return null;
+
+  try {
+    return JSON.parse(stored) as T;
+  } catch {
+    localStorage.removeItem("user");
+
+    return null;
+  }
+};
+
 export const emitAuthSessionExpired = () => {
   window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 };

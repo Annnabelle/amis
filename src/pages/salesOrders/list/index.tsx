@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -20,7 +21,7 @@ const SalesOrdersList = () => {
   );
   const canReadSalesOrder = useCan(endpointAccessMap.salesOrdersRead
   );
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const { data: ordersPage, isFetching: isLoading } = useGetSalesOrdersQuery(
     { page: pagination.page, limit: pagination.limit, sortOrder: 'desc' },
     { skip: !orgId }
@@ -50,6 +51,9 @@ const SalesOrdersList = () => {
     }));
   }, [orders, t]);
   
+  const columns = useMemo(() => SalesOrdersTableColumns(t, orgId), [orgId, t]);
+
+  
   return (
     <MainLayout>
       <Heading title={t('salesOrders.title')} subtitle={t('common.total')} totalAmount={`${dataTotal}`}>
@@ -65,7 +69,7 @@ const SalesOrdersList = () => {
         <div className="box-container">
           <div className="box-container-items">
             <ComponentTable<SalesOrdersTableDataType>
-              columns={SalesOrdersTableColumns(t, orgId)}
+              columns={columns}
               data={SalesOrdersData}
               loading={isLoading}
               onRowClick={

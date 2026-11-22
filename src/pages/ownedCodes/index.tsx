@@ -88,6 +88,9 @@ const OwnedCodes = () => {
     [codes]
   );
 
+  const summaryColumns = useMemo(() => OwnedCodesSummaryColumns(t), [t]);
+  const codeColumns = useMemo(() => OwnedCodesTableColumns(t), [t]);
+
   const summaryTab = (
     <div className="box">
       <div className="box-container">
@@ -116,7 +119,7 @@ const OwnedCodes = () => {
           */}
           <ComponentTable<OwnedCodesSummaryRow>
             loading={summaryLoading}
-            columns={OwnedCodesSummaryColumns(t)}
+            columns={summaryColumns}
             data={summaryRows}
             pagination={false}
             scroll={false}
@@ -158,7 +161,7 @@ const OwnedCodes = () => {
 
           <ComponentTable<OwnedCodesTableDataType>
             loading={isLoading}
-            columns={OwnedCodesTableColumns(t)}
+            columns={codeColumns}
             data={codeRows}
             pagination={{
               current: page,
