@@ -6,15 +6,16 @@
   "scripts": {
     "dev": "vite",
     "check:endpoints": "node scripts/check-endpoints.mjs",
+    "check:contracts": "node scripts/check-contract-blockers.mjs",
     "test": "vitest run",
-    "build": "npm run check:endpoints && tsc -b && vite build && npm run check:bundle",
+    "build": "npm run check:contracts && npm run check:endpoints && tsc -b && vite build && npm run check:bundle",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
-    "@edem2000/amis.contracts": "^0.1.5",
+    "@edem2000/amis.contracts": "^0.1.6",
     "@reduxjs/toolkit": "^2.8.2",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",

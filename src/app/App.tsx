@@ -7,19 +7,31 @@ import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
 import GlobalLoader from 'shared/ui/loader';
 import { ThemeContext, type ThemeMode } from './themeContext';
-import { logout } from 'entities/users/model';
+import {
+  sessionRefreshed,
+  sessionRestoreFailed,
+  sessionRestored,
+} from 'entities/users/model';
+import { useLogout } from 'entities/users/lib/useLogout';
 import {
   useGetCurrentUserQuery,
   useUpdateUserPreferencesMutation,
 } from 'entities/users/api';
 import { useGetCurrentUserAccessQuery } from 'entities/access/api';
 import { AppTheme, isLanguage } from 'shared/types/dtos';
+import { parseCompanyFromPath } from 'shared/lib/companyPath';
 import { persistLanguage } from 'shared/lib/languagePreference';
 import {
   clearAccess,
   setCurrentCompanyId,
 } from 'entities/access/model';
-import { AUTH_SESSION_EXPIRED_EVENT, isStoredSessionExpired } from 'shared/lib/authSession';
+import {
+  AUTH_SESSION_EXPIRED_EVENT,
+  AUTH_SESSION_REFRESHED_EVENT,
+  isStoredSessionExpired,
+  type AuthTokens,
+} from 'shared/lib/authSession';
+import { refreshAuthSession } from 'shared/lib/axiosInstance';
 import StatusChangeListener from './statusChangeListener';
 import './styles/App.sass';
 
@@ -84,14 +96,42 @@ const resolveEffectiveTheme = (
   return mode;
 };
 
+/**
+ * После перезагрузки страницы access-токена в памяти нет, а refresh-cookie
+ * есть: один запрос к /auth/refresh поднимает сессию. Пока он идёт, роутер
+ * держит загрузку и никуда не уводит.
+ */
+const SessionRestore = () => {
+  const dispatch = useAppDispatch();
+  const isRestoring = useAppSelector((state) => state.users.isRestoring);
+
+  useEffect(() => {
+    if (!isRestoring) return;
+
+    let cancelled = false;
+
+    void refreshAuthSession().then((tokens) => {
+      if (cancelled) return;
+
+      dispatch(tokens ? sessionRestored(tokens) : sessionRestoreFailed());
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, isRestoring]);
+
+  return null;
+};
+
 const AuthSessionGuard = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const requestLogout = useLogout();
 
   useEffect(() => {
     const handleLogout = () => {
-      dispatch(logout());
-      navigate('/', { replace: true });
+      void requestLogout().then(() => navigate('/', { replace: true }));
     };
 
     const handleSessionCheck = () => {
@@ -106,13 +146,24 @@ const AuthSessionGuard = () => {
       }
     };
 
+    // Продление сессии идёт в интерцепторе: слайс узнаёт о новых токенах отсюда.
+    const handleSessionRefreshed = (event: Event) => {
+      const tokens = (event as CustomEvent<AuthTokens>).detail;
+
+      if (tokens) {
+        dispatch(sessionRefreshed(tokens));
+      }
+    };
+
+    // Выход в другой вкладке стирает срок сессии: токенов в хранилище нет.
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'accessToken' && !event.newValue) {
+      if (event.key === 'sessionEnd' && !event.newValue) {
         handleLogout();
       }
     };
 
     window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleLogout);
+    window.addEventListener(AUTH_SESSION_REFRESHED_EVENT, handleSessionRefreshed);
     window.addEventListener('focus', handleSessionCheck);
     window.addEventListener('pageshow', handleSessionCheck);
     window.addEventListener('storage', handleStorageChange);
@@ -122,12 +173,16 @@ const AuthSessionGuard = () => {
 
     return () => {
       window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleLogout);
+      window.removeEventListener(
+        AUTH_SESSION_REFRESHED_EVENT,
+        handleSessionRefreshed
+      );
       window.removeEventListener('focus', handleSessionCheck);
       window.removeEventListener('pageshow', handleSessionCheck);
       window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, requestLogout]);
 
   return null;
 };
@@ -157,13 +212,7 @@ const CompanyRouteSync = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    const companyId =
-      pathSegments[0] === 'organization' && pathSegments.length > 1
-        ? pathSegments[1]
-        : null;
-
-    dispatch(setCurrentCompanyId(companyId));
+    dispatch(setCurrentCompanyId(parseCompanyFromPath(location.pathname)));
   }, [dispatch, location.pathname]);
 
   return null;
@@ -269,6 +318,7 @@ function App() {
       >
         <GlobalLoader loading={loading} />
         <BrowserRouter>
+          <SessionRestore />
           <AuthSessionGuard />
           <AccessBootstrap />
           <CompanyRouteSync />
