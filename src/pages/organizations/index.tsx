@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom'
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
-import { FormatUzbekPhoneNumber, isFormValidationError, useIsMobile } from 'shared/lib';
+import { FormatUzbekPhoneNumber, isFormValidationError, useDebouncedValue, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import {
@@ -83,15 +83,16 @@ const Organizations = () => {
         useGetReferencesByTypeQuery("productGroup");
     const isMobile = useIsMobile();
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedQuery = useDebouncedValue(searchQuery);
     const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
-    const isSearching = searchQuery.trim().length > 0;
+    const isSearching = debouncedQuery.trim().length > 0;
     const { data: companiesPage } = useGetCompaniesQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
         { skip: isSearching || (isMobile && !canListCompanies) }
     );
     const { data: searchedCompaniesPage } = useSearchCompaniesQuery(
         {
-            query: searchQuery,
+            query: debouncedQuery,
             page: pagination.page,
             limit: pagination.limit,
             sortOrder: 'asc',
@@ -116,8 +117,8 @@ const Organizations = () => {
     const currentLanguage = normalizeLanguage(i18n.language);
 
     const tableOrganizations = useMemo(() => {
-        return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
-    }, [organizations, searchQuery, searchedOrganizations]);
+        return isSearching ? searchedOrganizations : organizations;
+    }, [isSearching, organizations, searchedOrganizations]);
 
     const formatEmployeeName = (employee?: Company["responsibleEmployees"]["director"]) => {
         if (!employee?.name) return "";
@@ -412,15 +413,14 @@ const Organizations = () => {
                         <div className="box-container-items-item">
                             <FilterBar>
                                 <FilterBarItem>
-                                    <Form.Item name="searchExpert" className="input">
-                                        <Input
-                                            size="large"
-                                            placeholder={t('search.byOrganization')}
-                                            suffix={<IoSearch />}
-                                            allowClear
-                                            onChange={handleSearchChange}
-                                        />
-                                    </Form.Item>
+                                    {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                    <Input
+                                        size="large"
+                                        placeholder={t('search.byOrganization')}
+                                        suffix={<IoSearch />}
+                                        allowClear
+                                        onChange={handleSearchChange}
+                                    />
                                 </FilterBarItem>
                             </FilterBar>
                         </div>
