@@ -4,8 +4,11 @@ import { Provider } from 'react-redux'
 import { store } from './store'
 import { ToastContainer } from 'react-toastify'
 import App from './App'
-import './i18n';
+import { i18nReady } from './i18n';
 import './styles/index.sass'
+
+/** Переводы активного языка грузятся чанком — ждём до первого рендера. */
+await i18nReady;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
