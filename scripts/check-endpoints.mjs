@@ -145,6 +145,8 @@ const listSourceFiles = (directory) =>
     const entryPath = path.join(directory, entry.name);
 
     if (entry.isDirectory()) return listSourceFiles(entryPath);
+    // Тесты в сеть не ходят: они подменяют адаптер axios, проверять их адреса нечего.
+    if (/\.test\.tsx?$/.test(entry.name)) return [];
     return /\.tsx?$/.test(entry.name) ? [entryPath] : [];
   });
 

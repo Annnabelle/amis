@@ -23,6 +23,7 @@ import type { ProductTableDataType } from 'entities/products/ui/tableData/produc
 import type { CreateProduct, Product } from 'entities/products/types'
 import { useNavigate, useParams } from 'react-router-dom'
 import {useGetReferencesByTypeQuery} from "entities/references/api";
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import {getApiErrorMessage} from "shared/api";
 import type {LangKey} from "shared/lib/consts.ts";
 import type {MultiLanguage} from "shared/types/dtos";
@@ -45,7 +46,7 @@ const Products = () => {
     const canDeleteProduct = useCan(endpointAccessMap.productsDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
     const shortNameEdited = useRef(false);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+    const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
     const isSearching = searchQuery.length > 0;

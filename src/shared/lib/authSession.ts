@@ -1,5 +1,14 @@
-export const AUTH_SESSION_EXPIRED_EVENT = "auth-session-expired";
+import { CoreErrorCodes } from "@edem2000/amis.contracts";
+import { clearAccessToken, setAccessToken } from "./authToken";
 
+export const AUTH_SESSION_EXPIRED_EVENT = "auth-session-expired";
+export const AUTH_SESSION_REFRESHED_EVENT = "auth-session-refreshed";
+
+/**
+ * accessToken и refreshToken здесь больше не пишутся — токены ушли в память
+ * и в httpOnly-cookie. Ключи остались, чтобы вычистить их у тех, кто уже вошёл
+ * до этого изменения.
+ */
 const AUTH_STORAGE_KEYS = [
   "user",
   "userName",
@@ -10,107 +19,107 @@ const AUTH_STORAGE_KEYS = [
   "sessionEnd",
 ];
 
-const TOKEN_ERROR_MARKERS = [
-  "access token",
-  "bearer",
-  "jwt",
-  "token expired",
-  "invalid token",
-  "unauthorized",
-];
+/** Что клиент знает о сессии: токен в памяти и её конец. */
+export type AuthTokens = {
+  accessToken: string;
+  sessionEnd: number;
+};
 
 export const clearAuthStorage = () => {
+  clearAccessToken();
   AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
 };
 
-/** Сколько живёт сессия без повторного входа. */
-const SESSION_DURATION_MS = 60 * 60 * 1000;
+export const getSessionEnd = (): number | null => {
+  const stored = Number(localStorage.getItem("sessionEnd"));
+
+  return Number.isFinite(stored) && stored > 0 ? stored : null;
+};
 
 /**
- * Запись сессии в localStorage. Живёт здесь, а не в редьюсере: редьюсер
- * обязан быть чистым, а в StrictMode он вызывается дважды.
+ * Конец сессии — срок refresh-cookie, его присылает сервер: до него истёкший
+ * access продлевается молча, и выходить пользователю незачем.
+ */
+export const saveAuthTokens = ({ accessToken, sessionEnd }: AuthTokens) => {
+  setAccessToken(accessToken);
+  localStorage.setItem("sessionEnd", String(sessionEnd));
+};
+
+/**
+ * Пользователь в localStorage — кеш для первой отрисовки, не доступ: запросы
+ * всё равно идут с токеном из памяти.
  */
 export const saveAuthSession = ({
   user,
   accessToken,
-  refreshToken,
+  sessionEnd,
 }: {
   user: unknown;
   accessToken: string;
-  refreshToken?: string;
+  sessionEnd: number;
 }) => {
   localStorage.setItem("user", JSON.stringify(user));
-  localStorage.setItem("accessToken", accessToken);
+  saveAuthTokens({ accessToken, sessionEnd });
+};
 
-  if (refreshToken) {
-    localStorage.setItem("refreshToken", refreshToken);
+/**
+ * Профиль из localStorage. Разбор идёт на импорте модуля слайса, до первого
+ * рендера, поэтому битое значение чистится молча: пользователь оказывается
+ * неавторизованным и видит страницу входа.
+ */
+export const readStoredUser = <T>(): T | null => {
+  const stored = localStorage.getItem("user");
+
+  if (!stored) return null;
+
+  try {
+    return JSON.parse(stored) as T;
+  } catch {
+    localStorage.removeItem("user");
+
+    return null;
   }
-
-  localStorage.setItem("sessionEnd", String(Date.now() + SESSION_DURATION_MS));
 };
 
 export const emitAuthSessionExpired = () => {
   window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 };
 
-export const isStoredSessionExpired = () => {
-  const token = localStorage.getItem("accessToken");
-  const sessionEnd = Number(localStorage.getItem("sessionEnd"));
-
-  return Boolean(token && sessionEnd && sessionEnd <= Date.now());
-};
-
-const getErrorText = (data: unknown): string => {
-  if (!data) return "";
-
-  if (typeof data === "string") {
-    return data;
-  }
-
-  if (typeof data === "object") {
-    const record = data as Record<string, unknown>;
-    const values = [
-      record.message,
-      record.error,
-      record.errorMessage,
-      record.details,
-    ];
-
-    return values
-      .map((value) => {
-        if (typeof value === "string") return value;
-        if (value && typeof value === "object") return JSON.stringify(value);
-        return "";
-      })
-      .join(" ");
-  }
-
-  return "";
-};
-
-export const isAuthErrorResponse = (status?: number, data?: unknown) => {
-  if (status !== 401 && status !== 403) {
-    return false;
-  }
-
-  const errorText = getErrorText(data).toLowerCase();
-  const hasTokenErrorMarker = TOKEN_ERROR_MARKERS.some((marker) =>
-    errorText.includes(marker)
+export const emitAuthSessionRefreshed = (tokens: AuthTokens) => {
+  window.dispatchEvent(
+    new CustomEvent<AuthTokens>(AUTH_SESSION_REFRESHED_EVENT, {
+      detail: tokens,
+    })
   );
+};
 
-  if (hasTokenErrorMarker) {
-    return true;
-  }
+export const isStoredSessionExpired = () => {
+  const sessionEnd = getSessionEnd();
 
-  if (data && typeof data === "object") {
-    const response = data as Record<string, unknown>;
-    const isBusinessError =
-      response.success === false && response.errorCode !== undefined;
+  return sessionEnd !== null && sessionEnd <= Date.now();
+};
 
-    if (isBusinessError) {
-      return false;
-    }
-  }
+/**
+ * Истёкшую сессию от бизнес-ошибки отличает машинный код, а не текст ответа:
+ * 401 без кода — отказ guard'а, 401 с другим кодом — ответ домена (неверный
+ * пароль, заблокированный аккаунт). 403 — нехватка прав, сессия тут цела.
+ */
+const SESSION_ERROR_CODES: readonly number[] = [
+  CoreErrorCodes.AuthenticationRequired,
+];
 
-  return status === 401;
+const readErrorCode = (data: unknown): number | null => {
+  if (!data || typeof data !== "object") return null;
+
+  const code = (data as { errorCode?: unknown }).errorCode;
+
+  return typeof code === "number" ? code : null;
+};
+
+export const isSessionExpiredResponse = (status?: number, data?: unknown) => {
+  if (status !== 401) return false;
+
+  const errorCode = readErrorCode(data);
+
+  return errorCode === null || SESSION_ERROR_CODES.includes(errorCode);
 };

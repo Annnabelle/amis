@@ -146,7 +146,6 @@ export const resources = {
                 organization: "Organization",
                 order: "Orders",
             },
-            sessionEndsIn: 'Session ends in',
             search: {
                 byName: 'Search by name',
                 byOrganization: 'Search by organization',
@@ -173,6 +172,17 @@ export const resources = {
                 apply: "Apply",
                 applyAll: "Apply all",
                 send: "Send",
+            },
+            access: {
+                sections: {
+                    references: "Reference data",
+                    roles: "Roles",
+                    uploads: "Files",
+                    scanSessions: "Scanning",
+                    lifecycle: "Record history",
+                    jobs: "Background jobs",
+                    companyImport: "Company import",
+                },
             },
             navigation: {
                 products: "Products",
@@ -205,6 +215,12 @@ export const resources = {
                     shipping: "Shipments",
                     company: "Company"
                 }
+            },
+            errorBoundary: {
+                title: "Something went wrong",
+                description: "The page could not be drawn. Try again - if it repeats, reload the page.",
+                retry: "Try again",
+                reload: "Reload page",
             },
             statusCatalog: {
                 lead: {
@@ -521,6 +537,7 @@ export const resources = {
                 },
                 toast: {
                     started: "The import has started",
+                    startError: "Import did not start",
                 },
                 errors: {
                     load: "Failed to load the import state",
@@ -2562,7 +2579,6 @@ export const resources = {
                 organization: "Организации",
                 order: "Заказы",
             },
-            sessionEndsIn: 'Окончание сессии через',
             search: {
                 byName: 'Поиск по имени',
                 byOrganization: 'Поиск по организациям',
@@ -2589,6 +2605,17 @@ export const resources = {
                 apply: "Нанести",
                 applyAll: "Нанести все",
                 send: "Отправить",
+            },
+            access: {
+                sections: {
+                    references: "Справочники",
+                    roles: "Роли",
+                    uploads: "Файлы",
+                    scanSessions: "Сканирование",
+                    lifecycle: "История записей",
+                    jobs: "Фоновые задачи",
+                    companyImport: "Импорт компании",
+                },
             },
             navigation: {
                 products: "Продукция",
@@ -2621,6 +2648,12 @@ export const resources = {
                     shipping: "Отгрузки",
                     company: "Компания",
                 },
+            },
+            errorBoundary: {
+                title: "Что-то пошло не так",
+                description: "Страницу не удалось отрисовать. Попробуйте снова — если повторяется, перезагрузите страницу.",
+                retry: "Попробовать снова",
+                reload: "Перезагрузить страницу",
             },
             statusCatalog: {
                 lead: {
@@ -2937,6 +2970,7 @@ export const resources = {
                 },
                 toast: {
                     started: "Импорт запущен",
+                    startError: "Импорт не запустился",
                 },
                 errors: {
                     load: "Не удалось получить состояние импорта",
@@ -4970,7 +5004,6 @@ export const resources = {
                 organization: "Tashkilot",
                 order: "Buyurtmalar",
             },
-            sessionEndsIn: 'Sessiya tugashiga',
             search: {
                 byName: 'Ism bo‘yicha qidirish',
                 byOrganization: 'Tashkilotlar bo‘yicha qidirish',
@@ -4997,6 +5030,17 @@ export const resources = {
                 apply: "Qo‘llash",
                 applyAll: "Hammasini qo‘llash",
                 yuborish: "Yuborish",
+            },
+            access: {
+                sections: {
+                    references: "Ma’lumotnomalar",
+                    roles: "Rollar",
+                    uploads: "Fayllar",
+                    scanSessions: "Skanerlash",
+                    lifecycle: "Yozuvlar tarixi",
+                    jobs: "Fon vazifalari",
+                    companyImport: "Kompaniya importi",
+                },
             },
             navigation: {
                 products: "Mahsulotlar",
@@ -5029,6 +5073,12 @@ export const resources = {
                     shipping: "Jo'natmalar",
                     company: "Kompaniya",
                 },
+            },
+            errorBoundary: {
+                title: "Nimadir xato ketdi",
+                description: "Sahifani chizib bo‘lmadi. Yana urinib ko‘ring — takrorlansa, sahifani qayta yuklang.",
+                retry: "Yana urinib ko‘rish",
+                reload: "Sahifani qayta yuklash",
             },
             statusCatalog: {
                 lead: {
@@ -5345,6 +5395,7 @@ export const resources = {
                 },
                 toast: {
                     started: "Import boshlandi",
+                    startError: "Import boshlanmadi",
                 },
                 errors: {
                     load: "Import holatini yuklab bo‘lmadi",
