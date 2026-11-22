@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 /.env
+
+# Конфигурация окружения: локальная копия из public/runtime-config.example.js
+public/runtime-config.js
