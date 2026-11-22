@@ -89,6 +89,12 @@ export const usersApi = baseApi.injectEndpoints({
       },
     }),
 
+    /** Выход снимает httpOnly-cookie: из браузера её не удалить. */
+    logout: build.mutation<void, void>({
+      query: () => request(endpointAccessMap.authLogout),
+      transformResponse: (): void => undefined,
+    }),
+
     getUsers: build.query<UserList, GetUsersDto>({
       query: (params) => request(endpointAccessMap.usersList, { params }),
       transformResponse: toPaginated(mapUsersDtoToEntity),
@@ -282,6 +288,7 @@ export const usersApi = baseApi.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useLogoutMutation,
   useGetUsersQuery,
   useSearchUsersQuery,
   useLazySearchUsersQuery,

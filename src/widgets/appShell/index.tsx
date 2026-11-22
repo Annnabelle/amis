@@ -33,7 +33,6 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoClose } from 'react-icons/io5';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
-import Session from 'widgets/session';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from 'shared/ui/languages';
 import StatusBadge from 'shared/ui/statusBadge';
@@ -63,6 +62,7 @@ import {
 } from 'entities/access/types';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
+import { parseCompanyFromPath } from 'shared/lib/companyPath';
 import { isLanguage, type Language } from 'shared/types/dtos';
 import { canAccessEndpoint, useCan } from 'entities/access/lib';
 import {
@@ -194,7 +194,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     [companyInvitationRoles, currentLanguage, pendingCompanyInvitations]
   );
   const pathSegments = location.pathname.split('/').filter(Boolean);
-  const orgId = pathSegments[0] === 'organization' ? pathSegments[1] : undefined;
+  const orgId = parseCompanyFromPath(location.pathname) ?? undefined;
   const section = pathSegments[2];
   const routeId = section === 'delivery-routes' ? pathSegments[3] : undefined;
   const isOrganizationRoot = location.pathname === '/organization';
@@ -742,7 +742,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 />
               </div>
               <Languages onLanguageChange={handleLanguageChange} />
-              <Session />
               <UserInfo />
             </div>
           </div>
