@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import ComponentTable from 'shared/ui/table';

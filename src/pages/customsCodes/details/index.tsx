@@ -24,7 +24,7 @@ import {
   RouteMetaChip,
 } from 'shared/ui/details';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 
 const CustomsCodeDetails = () => {

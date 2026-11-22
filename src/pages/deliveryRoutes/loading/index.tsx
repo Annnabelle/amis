@@ -4,7 +4,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
 import CustomButton from 'shared/ui/button';

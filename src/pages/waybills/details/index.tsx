@@ -16,7 +16,7 @@ import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL, getFileNameFromDisposition } from "shared/lib";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import EntityTabs, { OVERVIEW_TAB_KEY } from "shared/ui/entityTabs";

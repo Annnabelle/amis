@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useGetInvoicesQuery } from 'entities/invoices/api';
 import { InvoicesTableColumns } from 'entities/invoices/ui/tableData/invoices';
 import type { InvoicesTableDataType } from 'entities/invoices/ui/tableData/invoices/types';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
 import { useCan } from 'entities/access/lib';

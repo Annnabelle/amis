@@ -1,7 +1,7 @@
 import { Select} from 'antd'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import MainLayout from 'shared/ui/layout'
+import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
 import CustomButton from 'shared/ui/button'

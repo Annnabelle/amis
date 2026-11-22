@@ -18,7 +18,7 @@ import {
   type RoleReference,
 } from 'entities/access/types';
 import { useAppSelector } from 'app/store';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { FormatUzbekPhoneNumber, useNavigationBack } from 'shared/lib';

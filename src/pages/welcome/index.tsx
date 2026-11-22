@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { LuMailPlus } from "react-icons/lu";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import "./styles.sass";
 
 const WelcomePage = () => {

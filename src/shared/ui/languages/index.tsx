@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowDown } from "react-icons/io";
-import { useAppSelector } from "app/store";
-import { useUpdateUserPreferencesMutation } from "entities/users/api";
-import { isLanguage } from "shared/types/dtos";
+import { isLanguage, type Language } from "shared/types/dtos";
 import { persistLanguage } from "shared/lib/languagePreference";
 
 import "./styles.sass";
@@ -14,10 +12,13 @@ const flagMap: Record <string, string> = {
   uz: "Uzbek",
 };
 
-const Languages: React.FC = () => {
+type LanguagesProps = {
+  /** Что сделать с выбранным языком помимо переключения интерфейса. */
+  onLanguageChange?: (language: Language) => void;
+};
+
+const Languages: React.FC<LanguagesProps> = ({ onLanguageChange }) => {
   const { i18n } = useTranslation();
-  const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
-  const [updateUserPreferences] = useUpdateUserPreferencesMutation();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,10 +38,7 @@ const Languages: React.FC = () => {
 
     void i18n.changeLanguage(language);
     persistLanguage(language);
-    // На экране входа настройки сохранять некому.
-    if (isAuthenticated) {
-      void updateUserPreferences({ language });
-    }
+    onLanguageChange?.(language);
     setIsOpen(false);
   };
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import ComponentTable from 'shared/ui/table';

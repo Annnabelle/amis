@@ -5,6 +5,29 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
 
+/**
+ * Направление зависимостей FSD: pages → widgets → entities → shared.
+ * Каждому слою запрещены импорты из тех, что выше него.
+ */
+const layerBoundaries = [
+  { layer: 'shared', forbidden: ['app', 'entities', 'widgets', 'pages'] },
+  { layer: 'entities', forbidden: ['widgets', 'pages'] },
+  { layer: 'widgets', forbidden: ['pages'] },
+].map(({ layer, forbidden }) => ({
+  files: [`src/${layer}/**/*.{ts,tsx}`],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: forbidden.map((upper) => ({
+          group: [`${upper}/*`, `${upper}/**`],
+          message: `Слой ${layer} не зависит от ${upper}: поднимите использование выше или опустите тип в shared.`,
+        })),
+      },
+    ],
+  },
+}));
+
 export default tseslint.config([
   globalIgnores(['dist']),
   {
@@ -37,4 +60,5 @@ export default tseslint.config([
       ],
     },
   },
+  ...layerBoundaries,
 ])

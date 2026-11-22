@@ -1,7 +1,7 @@
 import { DatePicker, Form, Input, InputNumber, Radio, Select, Spin, Tooltip } from 'antd';
 import { CloseOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { debugLog } from 'shared/lib/debugLog';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';

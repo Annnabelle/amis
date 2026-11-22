@@ -7,7 +7,7 @@ import { WaybillsTableColumns } from "entities/waybills/ui/tableData/waybills";
 import type { WaybillsTableDataType } from "entities/waybills/ui/tableData/waybills/types";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ComponentTable from "shared/ui/table";
 

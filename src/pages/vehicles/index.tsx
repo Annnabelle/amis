@@ -15,7 +15,7 @@ import { VehicleFormModal } from "entities/vehicles/ui/vehicleFormModal";
 import { getApiErrorMessage } from "shared/api";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
-import MainLayout from "shared/ui/layout";
+import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ModalWindow from "shared/ui/modalWindow";
 import ComponentTable from "shared/ui/table";

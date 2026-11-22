@@ -1,6 +1,6 @@
 import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
-import MainLayout from 'shared/ui/layout';
+import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
