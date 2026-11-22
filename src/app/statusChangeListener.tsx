@@ -9,6 +9,7 @@ import { statusChangeTagsOf } from "app/statusChangeTags";
 import { resolveStatusChangeCard } from "entities/lifecycle/lib/statusChangeEntities";
 import StatusChangeToast from "entities/lifecycle/ui/statusChangeToast";
 import { baseApi } from "shared/api";
+import { refreshAuthSession } from "shared/lib/axiosInstance";
 import { connectStatusChanges } from "shared/lib/statusChangeSocket";
 import {
   hasStatusChangeListRefresh,
@@ -191,7 +192,33 @@ const StatusChangeListener = () => {
       return;
     }
 
-    let socket: Socket | null = connectStatusChanges(accessToken);
+    let socket: Socket | null = null;
+    let recovering = false;
+
+    /**
+     * Сервер рвёт соединение и при протухшем токене, и при своём перезапуске,
+     * не называя причину. Продление сессии чинит оба случая: новый токен
+     * приходит в слайс, эффект перезапускается и поднимает соединение. Явный
+     * connect нужен на случай, когда токен не изменился.
+     */
+    const recoverSession = () => {
+      if (recovering) return;
+
+      recovering = true;
+
+      void refreshAuthSession()
+        .then((tokens) => {
+          if (tokens) socket?.connect();
+        })
+        .finally(() => {
+          recovering = false;
+        });
+    };
+
+    socket = connectStatusChanges({
+      token: accessToken,
+      onServerRejection: recoverSession,
+    });
 
     return () => {
       socket?.disconnect();

@@ -8,6 +8,7 @@ import React, {
 import { type MenuProps } from 'antd';
 import { Menu, Select, Switch, Tag } from 'antd';
 
+import ConnectionBadge from './connectionBadge';
 import PageLayout from './pageLayout';
 import {
   ApartmentOutlined,
@@ -733,6 +734,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </div>
 
             <div className="layout-header-container-items">
+              <ConnectionBadge />
               <div className="theme-toggle">
                 <Switch
                   checked={isDarkTheme}

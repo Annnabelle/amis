@@ -27,7 +27,9 @@ const uz = {
     },
     statusChange: {
         refresh: "Roʻyxatni yangilash",
-        open: "Ochish"
+        open: "Ochish",
+        offline: "Bildirishnomalar o‘chiq",
+        offlineHint: "Bildirishnomalar aloqasi uzildi: ekrandagi holat o‘zgarishlari kechikishi mumkin. Aloqa avtomatik tiklanadi.",
     },
     common:{
         yes: "Ha",

@@ -27,7 +27,9 @@ const en = {
     },
     statusChange: {
         refresh: "Refresh the list",
-        open: "Open"
+        open: "Open",
+        offline: "Notifications offline",
+        offlineHint: "The notification connection is down: status changes on screen may lag behind. The connection is restored automatically.",
     },
     common:{
         yes: "Yes",
