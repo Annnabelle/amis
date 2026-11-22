@@ -1,11 +1,19 @@
 import axios from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
+import type { LoginResponseDto } from '@edem2000/amis.contracts/api/users/responses';
+import type { SuccessOf } from 'shared/api/types';
 import { BASE_URL } from './consts';
 import {
   clearAuthStorage,
   emitAuthSessionExpired,
-  isAuthErrorResponse,
+  emitAuthSessionRefreshed,
+  isSessionExpiredResponse,
+  saveAuthTokens,
+  type AuthTokens,
 } from './authSession';
+import { getAccessToken } from './authToken';
 import { getRuntimeCompanyId } from './companyContext';
+import { parseCompanyFromPath } from './companyPath';
 import { CompanyScopeOptions } from './requestScope';
 import {
   EndpointScopes,
@@ -23,19 +31,19 @@ const getRequestPathname = (url?: string) => {
 };
 
 const getCompanyIdFromLocation = () =>
-  window.location.pathname.match(
-    /^\/organization\/([^/]+)(?:\/|$)/
-  )?.[1] ?? null;
+  parseCompanyFromPath(window.location.pathname);
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  // Без этого браузер не пошлёт httpOnly-cookie с refresh-токеном.
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = getAccessToken();
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
@@ -88,21 +96,86 @@ axiosInstance.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-axiosInstance.interceptors.response.use((response) => response, (error) => {
+/**
+ * Ответы самих ручек сессии ею не управляют: вход сообщает об ошибке формы,
+ * а неудачу продления разбирает ветка ниже, по исходному запросу.
+ */
+const SESSION_ENDPOINT_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout'];
+
+/** Повторяем запрос после обновления ровно один раз. */
+type RetriableConfig = InternalAxiosRequestConfig & {
+  retriedAfterRefresh?: boolean;
+};
+
+let refreshInFlight: Promise<AuthTokens | null> | null = null;
+
+const requestNewTokens = async (): Promise<AuthTokens | null> => {
+  try {
+    // Тело пустое: refresh-токен приходит httpOnly-cookie, клиент его не видит.
+    const { data } = await axiosInstance.post<SuccessOf<LoginResponseDto>>(
+      `${BASE_URL}/auth/refresh`,
+      {}
+    );
+
+    const tokens = {
+      accessToken: data.tokens.accessToken,
+      sessionEnd: new Date(data.tokens.refreshExpiresAt).getTime(),
+    };
+
+    saveAuthTokens(tokens);
+    emitAuthSessionRefreshed(tokens);
+
+    return tokens;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Один запрос на обновление для всех ожидающих: остальные ждут его результат.
+ * Он же восстанавливает сессию после перезагрузки страницы — access-токен
+ * жил в памяти и перезагрузку не переживает.
+ */
+export const refreshAuthSession = (): Promise<AuthTokens | null> => {
+  refreshInFlight ??= requestNewTokens().finally(() => {
+    refreshInFlight = null;
+  });
+
+  return refreshInFlight;
+};
+
+axiosInstance.interceptors.response.use((response) => response, async (error) => {
   const status = error.response?.status;
   const data = error.response?.data;
-  const requestUrl = error.config?.url ?? '';
-  const hasToken = Boolean(localStorage.getItem('accessToken'));
-  const isLoginRequest = requestUrl.includes('/auth/login');
+  const config = error.config as RetriableConfig | undefined;
+  const requestPath = getRequestPathname(config?.url);
+  const hasToken = Boolean(getAccessToken());
 
-  if (hasToken && !isLoginRequest && isAuthErrorResponse(status, data)) {
-    clearAuthStorage();
-    emitAuthSessionExpired();
+  if (
+    !hasToken ||
+    SESSION_ENDPOINT_PATHS.includes(requestPath) ||
+    !isSessionExpiredResponse(status, data)
+  ) {
+    return Promise.reject(error);
   }
+
+  const refreshable = config !== undefined && !config.retriedAfterRefresh;
+
+  // Истёкший access-токен продлевается молча: страница и заполненная форма остаются.
+  if (refreshable) {
+    const tokens = await refreshAuthSession();
+
+    if (tokens) {
+      config.retriedAfterRefresh = true;
+
+      return axiosInstance.request(config);
+    }
+  }
+
+  clearAuthStorage();
+  emitAuthSessionExpired();
 
   return Promise.reject(error);
 });
 
 export default axiosInstance;
-
-

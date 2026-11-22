@@ -5,6 +5,7 @@ import {
   CompanyImportStageStatus,
   type CompanyImportStage,
 } from "entities/companyImport/types";
+import { getApiErrorMessage } from "shared/api";
 import CustomButton from "shared/ui/button";
 import type { ButtonVariant } from "shared/ui/button";
 
@@ -42,7 +43,9 @@ const CompanyImportStageButton = ({
       await start();
       toast.success(t("companyImport.toast.started"));
     } catch (error) {
-      toast.error(t(String(error)));
+      toast.error(
+        getApiErrorMessage(error, t("companyImport.toast.startError")),
+      );
     }
   };
 

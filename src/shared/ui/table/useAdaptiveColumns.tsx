@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import type {AdaptiveColumn} from "./types";
 
 function applyHeaderAlign<T extends object>(col: AdaptiveColumn<T>): AdaptiveColumn<T> {
@@ -29,7 +31,21 @@ function applyHeaderAlign<T extends object>(col: AdaptiveColumn<T>): AdaptiveCol
     };
 }
 
+/**
+ * Ширины колонок по доступной ширине таблицы.
+ *
+ * Результат мемоизирован по ссылке на columns: antd сравнивает колонки по
+ * ссылке, поэтому страница должна передавать сюда мемоизированный массив —
+ * иначе перерасчёт идёт на каждый рендер.
+ */
 export function useAdaptiveColumns<T extends object>(
+    columns: AdaptiveColumn<T>[],
+    tableWidth: number
+): AdaptiveColumn<T>[] {
+    return useMemo(() => computeAdaptiveColumns(columns, tableWidth), [columns, tableWidth]);
+}
+
+function computeAdaptiveColumns<T extends object>(
     columns: AdaptiveColumn<T>[],
     tableWidth: number
 ): AdaptiveColumn<T>[] {
