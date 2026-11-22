@@ -4,7 +4,7 @@ import { IoSearch } from 'react-icons/io5'
 import { toast } from 'react-toastify'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSubmitGuard } from 'shared/lib'
+import { useDebouncedValue, useSubmitGuard } from 'shared/lib'
 import {
     useCreateUserMutation,
     useDeleteUserMutation,
@@ -38,14 +38,15 @@ const Users = () => {
     const navigate = useNavigate();
     const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const [searchQuery, setSearchQuery] = useState('');
-    const isSearching = searchQuery.trim().length > 0;
+    const debouncedQuery = useDebouncedValue(searchQuery);
+    const isSearching = debouncedQuery.trim().length > 0;
     const { data: usersPage } = useGetUsersQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
         { skip: isSearching }
     );
     const { data: searchedUsersPage } = useSearchUsersQuery(
         {
-            query: searchQuery,
+            query: debouncedQuery,
             page: pagination.page,
             limit: pagination.limit,
             sortOrder: 'asc',
@@ -186,16 +187,15 @@ const Users = () => {
                     <div className="box-container-items-item">
                         <FilterBar>
                             <FilterBarItem>
-                                <Form.Item name="searchExpert" className="input">
-                                    <Input
-                                        size="large"
-                                        className="input"
-                                        placeholder={t('search.byName')}
-                                        suffix={<IoSearch />}
-                                        allowClear
-                                        onChange={handleSearchChange}
-                                    />
-                                </Form.Item>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                <Input
+                                    size="large"
+                                    className="input"
+                                    placeholder={t('search.byName')}
+                                    suffix={<IoSearch />}
+                                    allowClear
+                                    onChange={handleSearchChange}
+                                />
                             </FilterBarItem>
                         </FilterBar>
                     </div>
