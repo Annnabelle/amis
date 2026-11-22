@@ -1,4 +1,5 @@
 import { resolveMultiLanguage } from 'shared/lib/multiLanguage';
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import React, { useState, useMemo, type JSX } from "react";
 import {
   List,
@@ -69,7 +70,7 @@ const AuditLogsPage: React.FC = () => {
     page: number;
     limit: number;
     category?: AuditCategory;
-  }>({ page: 1, limit: 10 });
+  }>({ ...DEFAULT_PAGINATION });
   const { data: auditLogs, isFetching: loading } = useGetAuditLogsQuery({
     ...listQuery,
     sortOrder: "desc",

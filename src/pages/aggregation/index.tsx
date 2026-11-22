@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from "shared/ui/table";
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import {
     useCreateAggregationReportMutation,
     useGetAggregationReportsQuery,
@@ -57,7 +58,7 @@ const Aggregations = () => {
     const orgId = params.id;
     const canCreateAggregation = useCan(endpointAccessMap.aggregationReportsCreate);
     const canListProducts = useCan(endpointAccessMap.productsList);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+    const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const [chosenParentOrderId, setChosenParentOrderId] = useState<string | null>(null);
     const [chosenParentBatchId, setChosenParentBatchId] = useState<string | null>(null);
     const [productQuery, setProductQuery] = useState('');
@@ -262,6 +263,9 @@ const Aggregations = () => {
     }, [orders, t]);
 
 
+    const columns = useMemo(() => AggregationColumns(t, orgId), [orgId, t]);
+
+
     return (
         <MainLayout>
             <Heading
@@ -361,7 +365,7 @@ const Aggregations = () => {
                     </div>
                     <div className="box-container-items">
                         <ComponentTable<AggregationDataType>
-                            columns={AggregationColumns(t, orgId)}
+                            columns={columns}
                             data={AggregationsData}
                             rowClassName={(record) =>
                                 recentStatusChanges.has(record.id) ? 'row-status-changed' : ''
