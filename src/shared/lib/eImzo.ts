@@ -1,4 +1,4 @@
-import {config} from "shared/config/runtime.ts";
+import {config} from "shared/config/runtime";
 
 type EImzoRequest = {
   name?: string;

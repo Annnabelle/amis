@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import {useGetOrderBatchQuery} from 'entities/markingCodes/api'
 import {useParams} from "react-router-dom";
-import BatchItem from "./batchItem.tsx";
+import BatchItem from "./batchItem";
 import {Tag} from "antd";
-import {statusColors} from "shared/ui/statuses.tsx";
+import {statusColors} from "shared/ui/statuses";
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard'
 import "./styles.sass"
 import { PermissionLink } from "entities/access/ui";

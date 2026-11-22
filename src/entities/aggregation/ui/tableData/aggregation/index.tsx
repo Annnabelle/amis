@@ -1,7 +1,7 @@
 import {type TableProps, Tag} from 'antd';
 import type { TFunction } from 'i18next';
-import type {AggregationDataType} from "./types.ts";
-import {statusColors} from "shared/ui/statuses.tsx";
+import type {AggregationDataType} from "./types";
+import {statusColors} from "shared/ui/statuses";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";

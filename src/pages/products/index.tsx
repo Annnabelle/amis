@@ -25,10 +25,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {useGetReferencesByTypeQuery} from "entities/references/api";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import {getApiErrorMessage} from "shared/api";
-import type {LangKey} from "shared/lib/consts.ts";
+import type {LangKey} from "shared/lib/consts";
 import type {MultiLanguage} from "shared/types/dtos";
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';

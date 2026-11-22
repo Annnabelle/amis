@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 import type { UnitCodeType } from './types';
-import type {AdaptiveColumn} from "shared/ui/table/types.ts";
+import type {AdaptiveColumn} from "shared/ui/table/types";
 
 export const UnitsColumns = (
     t: TFunction

@@ -8,7 +8,7 @@ import type {
 } from "entities/markingCodes/types";
 import type {ErrorDto} from "shared/types/dtos";
 import type { CodeRow, GetOrderProductCodesResponseDto } from '@edem2000/amis.contracts/api/codes/responses';
-import type {OrderProductCode, OrderProductCodes} from "entities/markingCodes/types/order-product.ts";
+import type {OrderProductCode, OrderProductCodes} from "entities/markingCodes/types/order-product";
 
 export function mapMarkingCodesDtoToEntity(dto: OrderBatchPopulatedResponseDto): OrderBatchPopulated {
     return {

@@ -22,9 +22,9 @@ import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import PhoneInput from 'shared/ui/phoneInput'
 import { useNavigate } from 'react-router-dom'
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 

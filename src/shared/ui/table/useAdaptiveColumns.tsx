@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import type {AdaptiveColumn} from "./types.ts";
+import type {AdaptiveColumn} from "./types";
 
 function applyHeaderAlign<T extends object>(col: AdaptiveColumn<T>): AdaptiveColumn<T> {
     if ('children' in col) {

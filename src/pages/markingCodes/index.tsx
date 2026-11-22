@@ -27,11 +27,11 @@ import {
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 import {useParams} from "react-router-dom";
 import {useSearchCompanyMembershipsQuery} from "entities/companyMemberships/api";
-import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage.ts";
+import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage";
 import { CompanyImportStage } from 'entities/companyImport/types';
 import CompanyImportStageButton from 'widgets/companyImport/stageButton';
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { useCan } from "entities/access/lib";
 import { getApiErrorMessage } from "shared/api";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
