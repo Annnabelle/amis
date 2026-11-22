@@ -65,8 +65,8 @@ const Batches = () => {
     const batchData = markingCodeById?.batches
 
     const MarkingCodeData = useMemo(() => {
-        return batchData?.map((batch, index) => ({
-            key: index + 1,
+        return batchData?.map((batch) => ({
+            key: batch.id,
             id: markingCodeById?.id,
             batchNumber: batch.batchNumber,
             batchId: batch.id,

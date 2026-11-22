@@ -1,4 +1,4 @@
-import { Form, Select} from 'antd'
+import { Select} from 'antd'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'shared/ui/layout'
@@ -92,7 +92,7 @@ const MarkingCodes = () => {
 
      const MarkingCodesData = useMemo(() => {
         return markingCodes.map((markingCode, index) => ({
-            key: index.toString() + 1,
+            key: markingCode.batchId,
             number: index + 1,
             batchNumber: markingCode.batchNumber,
             batchId: markingCode.batchId,
@@ -281,71 +281,68 @@ const MarkingCodes = () => {
                         <FilterBar className="filters-large">
                             {canSearchCompanyMemberships && (
                             <FilterBarItem>
-                                <Form.Item name="user" className="input">
-                                        <Select
-                                            size="large"
-                                            placeholder={
-                                                <span className="custom-placeholder">
-                                                    {t("search.byName")}
-                                                </span>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                    <Select
+                                        size="large"
+                                        placeholder={
+                                            <span className="custom-placeholder">
+                                                {t("search.byName")}
+                                            </span>
+                                        }
+                                        showSearch
+                                        allowClear
+                                        filterOption={false}
+                                        onSearch={(value) => {
+                                            if (value.trim() && orgId) {
+                                                setMembershipQuery(value);
                                             }
-                                            showSearch
-                                            allowClear
-                                            filterOption={false}
-                                            onSearch={(value) => {
-                                                if (value.trim() && orgId) {
-                                                    setMembershipQuery(value);
-                                                }
-                                            }}
-                                            onChange={(value) => updateQueryParam('userId', value)}
-                                            options={searchedMemberships.map(membership => ({
-                                                value: membership.userId,
-                                                label: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
-                                            }))}
-                                        />
+                                        }}
+                                        onChange={(value) => updateQueryParam('userId', value)}
+                                        options={searchedMemberships.map(membership => ({
+                                            value: membership.userId,
+                                            label: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
+                                        }))}
+                                    />
 
-                                </Form.Item>
                             </FilterBarItem>
                             )}
                             {canListProducts && (
                             <FilterBarItem>
-                                <Form.Item name="product" className="input">
-                                    <Select
-                                        size="large"
-                                        placeholder={
-                                            <span className="custom-placeholder">
-                                                {t("search.selectProduct")}
-                                            </span>
-                                        }
-                                        optionLabelProp="label"
-                                        showSearch
-                                        className="input"
-                                        filterOption={false}
-                                        allowClear
-                                        onSearch={handleProductSearch}
-                                        options={products.map((product) => ({
-                                            value: product.id,     // 🆔 отправляем ID
-                                            label: product.name,   // 👀 показываем NAME
-                                        }))}
-                                        onChange={(value) => updateQueryParam('productId', value)}
-                                    />
-                                </Form.Item>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                <Select
+                                    size="large"
+                                    placeholder={
+                                        <span className="custom-placeholder">
+                                            {t("search.selectProduct")}
+                                        </span>
+                                    }
+                                    optionLabelProp="label"
+                                    showSearch
+                                    className="input"
+                                    filterOption={false}
+                                    allowClear
+                                    onSearch={handleProductSearch}
+                                    options={products.map((product) => ({
+                                        value: product.id,     // 🆔 отправляем ID
+                                        label: product.name,   // 👀 показываем NAME
+                                    }))}
+                                    onChange={(value) => updateQueryParam('productId', value)}
+                                />
                             </FilterBarItem>
                             )}
                             <FilterBarItem>
-                                <Form.Item name="status" className="input">
-                                    <Select
-                                        size="large"
-                                        placeholder={
-                                            <span className="custom-placeholder">
-                                                {t('search.selectStatus')}
-                                            </span>
-                                        }
-                                        allowClear
-                                        options={statusOptions}
-                                        onChange={(value) => updateQueryParam('status', value)}
-                                    />
-                                </Form.Item>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                <Select
+                                    size="large"
+                                    placeholder={
+                                        <span className="custom-placeholder">
+                                            {t('search.selectStatus')}
+                                        </span>
+                                    }
+                                    allowClear
+                                    options={statusOptions}
+                                    onChange={(value) => updateQueryParam('status', value)}
+                                />
                             </FilterBarItem>
                         </FilterBar>
                     </div>
