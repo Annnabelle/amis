@@ -1,5 +1,6 @@
 export { default as axiosInstance } from "./axiosInstance";
 export { BASE_URL } from "./consts";
+export { parseCompanyFromPath } from "./companyPath";
 export { formatDate, formatDateTime, formatDateTimeSeconds, formatTime } from "./formatDate";
 export { getBackendErrorMessage } from "./getBackendErrorMessage";
 export { getCurrentLanguage, normalizeLanguage } from "./language";
