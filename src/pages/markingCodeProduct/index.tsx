@@ -9,9 +9,9 @@ import {
 } from 'entities/markingCodes/api'
 import { getApiErrorMessage } from 'shared/api'
 import ComponentTable from "shared/ui/table";
-import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orderProduct/types.ts";
+import type {OrderProductDataType} from "entities/markingCodes/ui/tableData/orderProduct/types";
 import {OrderProductTableColumns} from "entities/markingCodes/ui/tableData/orderProduct";
-import MarkingCodeProductBatches from "./batches.tsx";
+import MarkingCodeProductBatches from "./batches";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
@@ -51,8 +51,8 @@ const MarkingCodeProduct = () => {
             return [];
         }
 
-        return orderProduct.data.map((product, index) => ({
-            key: `${index + 1}`,
+        return orderProduct.data.map((product) => ({
+            key: product.code,
             code: product.code,
             status: product.status,
         }));

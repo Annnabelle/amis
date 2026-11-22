@@ -25,15 +25,15 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {useGetReferencesByTypeQuery} from "entities/references/api";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import {getApiErrorMessage} from "shared/api";
-import type {LangKey} from "shared/lib/consts.ts";
+import type {LangKey} from "shared/lib/consts";
 import type {MultiLanguage} from "shared/types/dtos";
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { CompanyImportStage } from 'entities/companyImport/types';
-import { useSubmitGuard } from 'shared/lib';
+import { useDebouncedValue, useSubmitGuard } from 'shared/lib';
 import CompanyImportStageButton from 'widgets/companyImport/stageButton';
 
 const Products = () => {
@@ -48,14 +48,15 @@ const Products = () => {
     const shortNameEdited = useRef(false);
     const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedQuery = useDebouncedValue(searchQuery);
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-    const isSearching = searchQuery.length > 0;
+    const isSearching = debouncedQuery.length > 0;
     const { data: productsPage } = useGetProductsQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
         { skip: isSearching }
     );
     const { data: searchedProductsPage } = useSearchProductsQuery(
-        { query: searchQuery, page: 1, limit: pagination.limit, sortOrder: 'asc' },
+        { query: debouncedQuery, page: 1, limit: pagination.limit, sortOrder: 'asc' },
         { skip: !isSearching }
     );
     const [createProduct] = useCreateProductMutation();
@@ -282,16 +283,15 @@ const Products = () => {
                     <div className="box-container-items-item">
                         <FilterBar>
                             <FilterBarItem>
-                                <Form.Item name="searchExpert" className="input">
-                                    <Input
-                                        size="large"
-                                        className="input"
-                                        placeholder={t('search.byName')}
-                                        suffix={<IoSearch />}
-                                        allowClear
-                                        onChange={handleSearchChange}
-                                    />
-                                </Form.Item>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                <Input
+                                    size="large"
+                                    className="input"
+                                    placeholder={t('search.byName')}
+                                    suffix={<IoSearch />}
+                                    allowClear
+                                    onChange={handleSearchChange}
+                                />
                             </FilterBarItem>
                         </FilterBar>
                     </div>

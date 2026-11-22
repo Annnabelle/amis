@@ -1,5 +1,4 @@
 import { useState } from "react";
-import dayjs from "dayjs";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Empty, Segmented, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -35,8 +34,7 @@ import "./styles.sass";
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
-const formatDate = (value?: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-");
-const formatDateTime = (value?: string) => (value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "-");
+import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 const formatNumber = (value?: number) => (value != null ? value.toLocaleString() : "-");
 const formatVehicle = (vehicle?: Partial<WaybillVehicleSnapshotResponseDto>) => {
   const parts = [vehicle?.registrationNumber, vehicle?.model].filter(Boolean);

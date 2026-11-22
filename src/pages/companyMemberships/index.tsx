@@ -1,6 +1,5 @@
 import { Form, Input, Select, Tag, Tooltip, type SelectProps } from "antd";
 import type { CSSProperties } from "react";
-import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -46,6 +45,7 @@ import ComponentTable from "shared/ui/table";
 import { statusColors } from "shared/ui/statuses";
 import { FormatUzbekPhoneNumber } from "shared/lib/utils";
 import { isLanguage, type Language } from "shared/types/dtos";
+import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 import "./styles.sass";
 
 type InviteForm = {
@@ -307,7 +307,7 @@ const CompanyMemberships = () => {
         user: membership.user ?? getFallbackPreview(membership.userId),
         roles: membership.roles,
         state: membership.state,
-        createdAt: membership.createdAt ? dayjs(membership.createdAt).format("DD.MM.YYYY") : "-",
+        createdAt: membership.createdAt ? formatDate(membership.createdAt) : "-",
       })),
     [memberships]
   );
@@ -601,13 +601,13 @@ const CompanyMemberships = () => {
               <div className="company-memberships-details-item">
                 <span className="company-memberships-details-label">{t("companyMemberships.fields.createdAt")}</span>
                 <span className="company-memberships-details-value">
-                  {visibleDetails.createdAt ? dayjs(visibleDetails.createdAt).format("DD.MM.YYYY") : "-"}
+                  {visibleDetails.createdAt ? formatDate(visibleDetails.createdAt) : "-"}
                 </span>
               </div>
               <div className="company-memberships-details-item">
                 <span className="company-memberships-details-label">{t("companyMemberships.fields.updatedAt")}</span>
                 <span className="company-memberships-details-value">
-                  {visibleDetails.updatedAt ? dayjs(visibleDetails.updatedAt).format("DD.MM.YYYY HH:mm") : "-"}
+                  {visibleDetails.updatedAt ? formatDateTime(visibleDetails.updatedAt) : "-"}
                 </span>
               </div>
               <div className="company-memberships-details-item company-memberships-details-preview">

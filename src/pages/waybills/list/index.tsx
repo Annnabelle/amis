@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useGetWaybillsQuery } from "entities/waybills/api";
@@ -12,6 +11,7 @@ import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ComponentTable from "shared/ui/table";
 
+import { formatDate } from 'shared/lib/formatDate';
 const formatNumber = (value?: number) => (value != null ? value.toLocaleString() : "-");
 
 const WaybillsList = () => {
@@ -39,13 +39,13 @@ const WaybillsList = () => {
     return waybills.map((waybill) => ({
       key: waybill.id,
       waybillNumber: waybill.waybillNumber || waybill.id,
-      date: dayjs(waybill.date).format("DD.MM.YYYY"),
+      date: formatDate(waybill.date),
       senderName: waybill.parties.sender.legalName || "-",
       consigneeName: waybill.parties.consignee.name || "-",
       deliveryCost: formatNumber(waybill.totals.deliveryCost),
       externalStatus: waybill.external?.status || "-",
       status: waybill.status,
-      createdAt: dayjs(waybill.createdAt).format("DD.MM.YYYY"),
+      createdAt: formatDate(waybill.createdAt),
     }));
   }, [waybills]);
 

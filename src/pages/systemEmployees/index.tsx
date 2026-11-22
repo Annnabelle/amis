@@ -1,6 +1,5 @@
 import { Form, Select, Tag, Tooltip, type SelectProps } from "antd";
 import type { CSSProperties } from "react";
-import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -45,6 +44,7 @@ import ComponentTable from "shared/ui/table";
 import { statusColors } from "shared/ui/statuses";
 import { isLanguage, type Language } from "shared/types/dtos";
 import { FormatUzbekPhoneNumber } from "shared/lib/utils";
+import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 import "./styles.sass";
 
 type InviteForm = {
@@ -208,7 +208,7 @@ const SystemEmployees = () => {
         },
         roles: employee.roles,
         state: employee.state,
-        createdAt: dayjs(employee.createdAt).format("DD.MM.YYYY"),
+        createdAt: formatDate(employee.createdAt),
       })),
     [employees]
   );
@@ -474,11 +474,11 @@ const SystemEmployees = () => {
               </div>
               <div className="system-employees-details-item">
                 <span className="system-employees-details-label">{t("systemEmployees.fields.createdAt")}</span>
-                <span className="system-employees-details-value">{dayjs(visibleDetails.createdAt).format("DD.MM.YYYY")}</span>
+                <span className="system-employees-details-value">{formatDate(visibleDetails.createdAt)}</span>
               </div>
               <div className="system-employees-details-item">
                 <span className="system-employees-details-label">{t("systemEmployees.fields.updatedAt")}</span>
-                <span className="system-employees-details-value">{dayjs(visibleDetails.updatedAt).format("DD.MM.YYYY HH:mm")}</span>
+                <span className="system-employees-details-value">{formatDateTime(visibleDetails.updatedAt)}</span>
               </div>
               <div className="system-employees-details-item system-employees-details-preview">
                 <span className="system-employees-details-label">{t("systemEmployees.fields.invitedBy")}</span>

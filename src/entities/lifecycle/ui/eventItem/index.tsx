@@ -17,6 +17,7 @@ import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { isStatusEntity } from "shared/config/statusCatalog";
 import StatusBadge from "shared/ui/statusBadge";
 import EntityStatusBadge from "shared/ui/statusBadge/entityStatus";
+import { formatDateTime, formatDateTimeSeconds } from 'shared/lib/formatDate';
 import "../styles.sass";
 
 type LifecycleEventItemProps = {
@@ -135,7 +136,7 @@ const LifecycleEventItem = ({
 
             <span
               className="lifecycle-event-time"
-              title={dayjs(event.occurredAt).format("DD.MM.YYYY HH:mm:ss")}
+              title={formatDateTimeSeconds(event.occurredAt)}
             >
               {dayjs(event.occurredAt).format("HH:mm")}
             </span>
@@ -182,9 +183,9 @@ const LifecycleEventItem = ({
                     className="lifecycle-event-chip"
                     title={
                       event.error.lastOccurredAt
-                        ? `${t("lifecycle.fields.lastOccurredAt")}: ${dayjs(
+                        ? `${t("lifecycle.fields.lastOccurredAt")}: ${formatDateTime(
                             event.error.lastOccurredAt
-                          ).format("DD.MM.YYYY HH:mm")}`
+                          )}`
                         : undefined
                     }
                   >

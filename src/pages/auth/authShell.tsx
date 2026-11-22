@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTheme } from 'app/themeContext';
-import lightMainBG from 'shared/assets/main-bg.png';
-import darkMainBG from 'shared/assets/bg-black.png';
+import lightMainBG from 'shared/assets/main-bg.webp';
+import darkMainBG from 'shared/assets/bg-black.webp';
 import './styles.sass';
 
 type AuthShellProps = {

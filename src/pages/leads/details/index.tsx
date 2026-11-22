@@ -1,5 +1,4 @@
 import { Empty, Form, Input, Modal, Tag } from "antd";
-import dayjs from "dayjs";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -23,14 +22,12 @@ import "../styles.sass";
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
+import { formatDateTime } from 'shared/lib/formatDate';
 type StatusForm = {
   comment?: string;
 };
 
 const formatValue = (value?: string | null) => value || "-";
-const formatDateTime = (value?: string) =>
-  value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "-";
-
 const getLeadStatusActionLabelKey = (status: LeadStatusType) => {
   if (status === LeadStatus.InProgress) {
     return "leads.actions.startProgress";

@@ -1,5 +1,6 @@
 import { DatePicker, Form, Input, InputNumber, Radio, Select, Spin, Tooltip } from 'antd';
 import { CloseOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { debugLog } from 'shared/lib/debugLog';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -436,33 +437,33 @@ const SalesOrdersCreate = () => {
     owner: "sender" | "customer",
     selectedAddress: YandexResolvedAddress
   ) => {
-    console.groupCollapsed(`[SalesOrdersCreate] resolve map address references: ${owner}`);
-    console.info("selected address from map", selectedAddress);
-    console.info("available regions", regions.map(getReferenceDebugInfo));
+    debugLog.group(`[SalesOrdersCreate] resolve map address references: ${owner}`);
+    debugLog.info("selected address from map", selectedAddress);
+    debugLog.info("available regions", regions.map(getReferenceDebugInfo));
 
     const region = resolveReferenceByCandidates(regions, selectedAddress.regionCandidates);
-    console.info("region search", {
+    debugLog.info("region search", {
       rawCandidates: selectedAddress.regionCandidates,
       normalizedCandidates: selectedAddress.regionCandidates.map(normalizeReferenceText),
       matched: region ? getReferenceDebugInfo(region) : undefined,
     });
 
     if (!region) {
-      console.warn("result", "region was not found in references");
-      console.groupEnd();
+      debugLog.warn("result", "region was not found in references");
+      debugLog.groupEnd();
       return;
     }
 
     const regionId = getReferenceValue(region);
-    console.info("region result", { regionId });
+    debugLog.info("region result", { regionId });
 
     try {
       const currentDistricts = await loadDistrictsForRegion(regionId);
       const district = resolveReferenceByCandidates(currentDistricts, selectedAddress.districtCandidates);
       const districtId = district ? getReferenceValue(district) : undefined;
 
-      console.info("available districts", currentDistricts.map(getReferenceDebugInfo));
-      console.info("district search", {
+      debugLog.info("available districts", currentDistricts.map(getReferenceDebugInfo));
+      debugLog.info("district search", {
         rawCandidates: selectedAddress.districtCandidates,
         normalizedCandidates: selectedAddress.districtCandidates.map(normalizeReferenceText),
         matched: district ? getReferenceDebugInfo(district) : undefined,
@@ -474,7 +475,7 @@ const SalesOrdersCreate = () => {
         form.setFieldValue([owner, "addressDetails", "address"], selectedAddress.address);
       }
 
-      console.info("form fields set", {
+      debugLog.info("form fields set", {
         owner,
         regionId,
         districtId,
@@ -482,14 +483,14 @@ const SalesOrdersCreate = () => {
       });
 
       if (!districtId) {
-        console.warn("result", "district was not found in references");
+        debugLog.warn("result", "district was not found in references");
       } else {
-        console.info("result", "region and district were resolved");
+        debugLog.info("result", "region and district were resolved");
       }
     } catch (error) {
       console.error("failed to resolve district references", error);
     } finally {
-      console.groupEnd();
+      debugLog.groupEnd();
     }
   };
 
@@ -601,7 +602,7 @@ const SalesOrdersCreate = () => {
       { latitude: customerLatitude, longitude: customerLongitude }
     ).then((result) => {
       if (isActive && result !== undefined) {
-        console.info("[SalesOrdersCreate] set delivery total distance", result);
+        debugLog.info("[SalesOrdersCreate] set delivery total distance", result);
         form.setFieldValue(["delivery", "totalDistance"], result.distance);
         setDeliveryDistanceSource(result.source);
       }

@@ -1,5 +1,4 @@
 import { Form, Input, Modal, Select } from "antd";
-import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +19,7 @@ import "./styles.sass";
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
+import { formatDateTime } from 'shared/lib/formatDate';
 const formatValue = (value?: string | null) => value || "-";
 
 type StatusModalForm = {
@@ -62,7 +62,7 @@ const Leads = () => {
         company: formatValue(lead.company),
         status: lead.status,
         comment: lead.comment,
-        createdAt: dayjs(lead.createdAt).format("DD.MM.YYYY HH:mm"),
+        createdAt: formatDateTime(lead.createdAt),
       })),
     [leads]
   );

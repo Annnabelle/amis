@@ -1,4 +1,5 @@
 import {Form, Input, Spin, Steps, Tag} from 'antd'
+import { normalizeLanguage } from 'shared/lib/language';
 import { IoSearch } from 'react-icons/io5'
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -22,10 +23,10 @@ import FormComponent from 'shared/ui/formComponent'
 import StatusBadge from 'shared/ui/statusBadge'
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants'
 import { useNavigate } from 'react-router-dom'
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
-import { FormatUzbekPhoneNumber, isFormValidationError, useIsMobile } from 'shared/lib';
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
+import { FormatUzbekPhoneNumber, isFormValidationError, useDebouncedValue, useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import {
@@ -36,7 +37,7 @@ import {
 import type { XTraceIntegrationTokenValidation } from 'entities/xTrace/types';
 import { useGetReferencesByTypeQuery } from 'entities/references/api';
 import { getApiErrorMessage } from 'shared/api';
-import dayjs from 'dayjs';
+import { formatDateTime } from 'shared/lib/formatDate';
 import './styles.sass';
 
 const TIN_LENGTH = 9;
@@ -82,15 +83,16 @@ const Organizations = () => {
         useGetReferencesByTypeQuery("productGroup");
     const isMobile = useIsMobile();
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedQuery = useDebouncedValue(searchQuery);
     const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
-    const isSearching = searchQuery.trim().length > 0;
+    const isSearching = debouncedQuery.trim().length > 0;
     const { data: companiesPage } = useGetCompaniesQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
         { skip: isSearching || (isMobile && !canListCompanies) }
     );
     const { data: searchedCompaniesPage } = useSearchCompaniesQuery(
         {
-            query: searchQuery,
+            query: debouncedQuery,
             page: pagination.page,
             limit: pagination.limit,
             sortOrder: 'asc',
@@ -112,11 +114,11 @@ const Organizations = () => {
     const dataPage = pagination.page;
     const dataLimit = pagination.limit;
     const dataTotal = shownCompaniesPage?.total ?? 0;
-    const currentLanguage = i18n.language.split('-')[0] as "ru" | "en" | "uz";
+    const currentLanguage = normalizeLanguage(i18n.language);
 
     const tableOrganizations = useMemo(() => {
-        return searchQuery.trim().length > 0 ? searchedOrganizations : organizations;
-    }, [organizations, searchQuery, searchedOrganizations]);
+        return isSearching ? searchedOrganizations : organizations;
+    }, [isSearching, organizations, searchedOrganizations]);
 
     const formatEmployeeName = (employee?: Company["responsibleEmployees"]["director"]) => {
         if (!employee?.name) return "";
@@ -411,15 +413,14 @@ const Organizations = () => {
                         <div className="box-container-items-item">
                             <FilterBar>
                                 <FilterBarItem>
-                                    <Form.Item name="searchExpert" className="input">
-                                        <Input
-                                            size="large"
-                                            placeholder={t('search.byOrganization')}
-                                            suffix={<IoSearch />}
-                                            allowClear
-                                            onChange={handleSearchChange}
-                                        />
-                                    </Form.Item>
+                                    {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                    <Input
+                                        size="large"
+                                        placeholder={t('search.byOrganization')}
+                                        suffix={<IoSearch />}
+                                        allowClear
+                                        onChange={handleSearchChange}
+                                    />
                                 </FilterBarItem>
                             </FilterBar>
                         </div>
@@ -707,7 +708,7 @@ const Organizations = () => {
                                                 <div className="detail-item">
                                                     <span className="label inline-label">{t('organizations.addUserForm.label.expireDate')}</span>
                                                     <span className="detail-separator">:</span>
-                                                    <span className="value">{dayjs(xTraceValidationData.expireDate).format('DD.MM.YYYY HH:mm')}</span>
+                                                    <span className="value">{formatDateTime(xTraceValidationData.expireDate)}</span>
                                                 </div>
                                                 <div className="detail-item">
                                                     <span className="label inline-label">{t('organizations.testFlag')}</span>
@@ -896,7 +897,7 @@ const Organizations = () => {
                                         <div className="detail-item">
                                             <span className="label inline-label">{t('organizations.addUserForm.label.createdAt')}</span>
                                             <span className="detail-separator">:</span>
-                                            <span className="value">{dayjs(fakturaUzIntegration.createdAt).format('DD.MM.YYYY HH:mm')}</span>
+                                            <span className="value">{formatDateTime(fakturaUzIntegration.createdAt)}</span>
                                         </div>
                                     </div>
                                 </div>

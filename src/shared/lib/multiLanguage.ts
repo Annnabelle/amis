@@ -1,4 +1,5 @@
 import { Language, type MultiLanguage } from "shared/types/dtos";
+import { normalizeLanguage } from "shared/lib/language";
 
 const LANGUAGE_FALLBACK_ORDER = [
   Language.Russian,
@@ -13,7 +14,7 @@ export const resolveMultiLanguage = (
 ): string | null => {
   if (!value) return null;
 
-  const preferred = value[language as Language];
+  const preferred = value[normalizeLanguage(language)];
   if (preferred) return preferred;
 
   for (const fallback of LANGUAGE_FALLBACK_ORDER) {

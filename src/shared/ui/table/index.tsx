@@ -3,8 +3,8 @@ import type { TablePaginationConfig, TableProps } from 'antd';
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { useTableWidth } from './useTableWidth';
 import './styles.sass';
-import {useAdaptiveColumns} from "./useAdaptiveColumns.tsx";
-import type {AdaptiveColumn} from "./types.ts";
+import {useAdaptiveColumns} from "./useAdaptiveColumns";
+import type {AdaptiveColumn} from "./types";
 
 interface ComponentTableProps<T> {
     onRowClick?: (record: T) => void;
@@ -14,6 +14,13 @@ interface ComponentTableProps<T> {
     pagination?: TablePaginationConfig | false;
     rowSelection?: TableRowSelection<T>;
     rowClassName?: string | ((record: T, index: number) => string);
+    /**
+     * Чем antd различает строки. По умолчанию — поле key, которое проставляют
+     * все строковые типы; передавать стоит там, где у записи своего key нет.
+     * На индексе выделение съезжает при смене страницы и сортировки, а
+     * выделением выбирают заказы в маршрут доставки.
+     */
+    rowKey?: TableProps<T>['rowKey'];
     scroll?: TableProps<T>['scroll'] | false;
 }
 
@@ -25,6 +32,7 @@ const ComponentTable = <T extends object>({
       pagination,
       rowSelection,
       rowClassName,
+      rowKey = 'key',
       scroll = { x: 'max-content' },
   }: ComponentTableProps<T>) => {
     const { ref, width } = useTableWidth();
@@ -43,6 +51,7 @@ const ComponentTable = <T extends object>({
                 scroll={scroll === false ? undefined : scroll}
                 columns={adaptiveColumns}
                 dataSource={data}
+                rowKey={rowKey}
                 loading={loading}
                 pagination={pagination}
                 rowSelection={rowSelection}

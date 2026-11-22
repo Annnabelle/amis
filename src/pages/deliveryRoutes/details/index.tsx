@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -40,6 +39,7 @@ import {
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
+import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 import './styles.sass';
 
 const DeliveryRoutesDetails = () => {
@@ -271,7 +271,7 @@ const DeliveryRoutesDetails = () => {
   }
 
   const summaryItems = [
-    { label: t('deliveryRoutes.fields.routeDate'), value: dayjs(route.schedule.routeDate).format('DD.MM.YYYY') },
+    { label: t('deliveryRoutes.fields.routeDate'), value: formatDate(route.schedule.routeDate) },
   ];
 
   const vehicleItems = [
@@ -305,18 +305,18 @@ const DeliveryRoutesDetails = () => {
   const timestampItems = [
     {
       label: t('deliveryRoutes.fields.registeredAt'),
-      value: dayjs(route.timestamps.registeredAt).format('DD.MM.YYYY HH:mm'),
+      value: formatDateTime(route.timestamps.registeredAt),
     },
     route.timestamps.loadingStartedAt
       ? {
           label: t('deliveryRoutes.fields.loadingStartedAt'),
-          value: dayjs(route.timestamps.loadingStartedAt).format('DD.MM.YYYY HH:mm'),
+          value: formatDateTime(route.timestamps.loadingStartedAt),
         }
       : null,
     route.timestamps.departedAt
       ? {
           label: t('deliveryRoutes.fields.departedAt'),
-          value: dayjs(route.timestamps.departedAt).format('DD.MM.YYYY HH:mm'),
+          value: formatDateTime(route.timestamps.departedAt),
         }
       : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;

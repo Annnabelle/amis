@@ -1,4 +1,5 @@
 import { Empty, Form, Input, Spin, Tag } from 'antd';
+import { normalizeLanguage } from 'shared/lib/language';
 import { LeftOutlined } from '@ant-design/icons';
 import { useAppSelector } from 'app/store';
 import { canAccess } from 'entities/access/lib';
@@ -16,7 +17,6 @@ import {
 import type { XTraceIntegrationTokenValidation } from 'entities/xTrace/types';
 import { getApiErrorMessage } from 'shared/api';
 import { useGetReferencesByTypeQuery } from 'entities/references/api';
-import dayjs from 'dayjs';
 import { type ChangeEvent, type ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -34,6 +34,7 @@ import Heading from 'shared/ui/mainHeading';
 import ModalWindow from 'shared/ui/modalWindow';
 import StatusBadge from 'shared/ui/statusBadge';
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
+import { formatDateTime } from 'shared/lib/formatDate';
 import '../organizations/styles.sass';
 
 const COMPANY_IMPORT_TAB_KEY = 'company-import';
@@ -44,9 +45,6 @@ type DetailItem = {
   label: string;
   value: ReactNode;
 };
-
-const formatDate = (value?: string | null) =>
-  value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-';
 
 const renderStatus = (status: string, t: ReturnType<typeof useTranslation>['t']) => (
   <StatusBadge variant={getIntegrationStatusBadgeVariant(status)}>
@@ -95,7 +93,7 @@ const CompanyIntegrations = () => {
     useGetCompanyByIdQuery({ id: orgId ?? '' }, { skip: !orgId });
   const { data: productGroupReferences = [] } =
     useGetReferencesByTypeQuery('productGroup');
-  const currentLanguage = i18n.language.split('-')[0] as 'ru' | 'en' | 'uz';
+  const currentLanguage = normalizeLanguage(i18n.language);
 
   const hasPermission = (permission: Permission) =>
     canAccess({
@@ -285,7 +283,7 @@ const CompanyIntegrations = () => {
     ? [
         { label: t('organizations.status'), value: renderStatus(xTraceIntegration.status, t) },
         { label: t('organizations.testFlag'), value: renderTestFlag(xTraceIntegration.isTest, t) },
-        { label: t('organizations.addUserForm.label.expireDate'), value: formatDate(xTraceIntegration.tokenInfo.expireDate) },
+        { label: t('organizations.addUserForm.label.expireDate'), value: formatDateTime(xTraceIntegration.tokenInfo.expireDate) },
       ]
     : [{ label: t('organizations.status'), value: t('organizations.integrations.notConfigured') }];
 
@@ -506,7 +504,7 @@ const CompanyIntegrations = () => {
                     <div className="detail-item">
                       <span className="label inline-label">{t('organizations.addUserForm.label.expireDate')}</span>
                       <span className="detail-separator">:</span>
-                      <span className="value">{formatDate(xTraceValidationData.expireDate)}</span>
+                      <span className="value">{formatDateTime(xTraceValidationData.expireDate)}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label inline-label">{t('organizations.testFlag')}</span>

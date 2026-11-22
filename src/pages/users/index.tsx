@@ -4,7 +4,7 @@ import { IoSearch } from 'react-icons/io5'
 import { toast } from 'react-toastify'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSubmitGuard } from 'shared/lib'
+import { useDebouncedValue, useSubmitGuard } from 'shared/lib'
 import {
     useCreateUserMutation,
     useDeleteUserMutation,
@@ -17,18 +17,18 @@ import type { AddUserForm, User } from 'entities/users/types'
 import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
-import dayjs from 'dayjs'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
 import PhoneInput from 'shared/ui/phoneInput'
 import { useNavigate } from 'react-router-dom'
-import FilterBar from "shared/ui/filterBar/filterBar.tsx";
+import FilterBar from "shared/ui/filterBar/filterBar";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
+import { formatDate } from 'shared/lib/formatDate';
 const Users = () => {
     const { t } = useTranslation();
     const canReadUser = useCan(endpointAccessMap.usersRead);
@@ -38,14 +38,15 @@ const Users = () => {
     const navigate = useNavigate();
     const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const [searchQuery, setSearchQuery] = useState('');
-    const isSearching = searchQuery.trim().length > 0;
+    const debouncedQuery = useDebouncedValue(searchQuery);
+    const isSearching = debouncedQuery.trim().length > 0;
     const { data: usersPage } = useGetUsersQuery(
         { page: pagination.page, limit: pagination.limit, sortOrder: 'asc' },
         { skip: isSearching }
     );
     const { data: searchedUsersPage } = useSearchUsersQuery(
         {
-            query: searchQuery,
+            query: debouncedQuery,
             page: pagination.page,
             limit: pagination.limit,
             sortOrder: 'asc',
@@ -69,7 +70,7 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
+            lastLoggedInAt: user.lastLoggedInAt ? formatDate(user.lastLoggedInAt) : '-',
             status: user.status,
             action: 'Действие', 
         }))
@@ -186,16 +187,15 @@ const Users = () => {
                     <div className="box-container-items-item">
                         <FilterBar>
                             <FilterBarItem>
-                                <Form.Item name="searchExpert" className="input">
-                                    <Input
-                                        size="large"
-                                        className="input"
-                                        placeholder={t('search.byName')}
-                                        suffix={<IoSearch />}
-                                        allowClear
-                                        onChange={handleSearchChange}
-                                    />
-                                </Form.Item>
+                                {/* Без Form.Item: формы здесь нет, а он тянет её контекст. */}
+                                <Input
+                                    size="large"
+                                    className="input"
+                                    placeholder={t('search.byName')}
+                                    suffix={<IoSearch />}
+                                    allowClear
+                                    onChange={handleSearchChange}
+                                />
                             </FilterBarItem>
                         </FilterBar>
                     </div>

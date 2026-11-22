@@ -1,5 +1,5 @@
 import { Spin } from 'antd';
-import dayjs from 'dayjs';
+import { normalizeLanguage } from 'shared/lib/language';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import MainLayout from 'widgets/appShell';
@@ -17,9 +17,9 @@ import { getApiErrorMessage } from 'shared/api';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
 import { useCan } from 'entities/access/lib';
+import { formatDate } from 'shared/lib/formatDate';
 import './styles.sass';
 
-type Lang = 'ru' | 'en' | 'uz';
 
 const formatValue = (value: string | number | undefined | null) =>
     value === undefined || value === null || value === '' ? '-' : String(value);
@@ -44,7 +44,7 @@ const ProductsView = () => {
         : null;
     const canReadPackages = useCan(endpointAccessMap.productsPackages);
 
-    const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
+    const currentLang = normalizeLanguage(i18n.language);
 
     const {
         data: packages = [],
@@ -162,7 +162,7 @@ const ProductsView = () => {
                                             { label: t('products.classification.name'), value: productById.classification.name },
                                             {
                                                 label: t('products.classification.resolvedAt'),
-                                                value: dayjs(productById.classification.resolvedAt).format('DD.MM.YYYY'),
+                                                value: formatDate(productById.classification.resolvedAt),
                                             },
                                         ]}
                                     />

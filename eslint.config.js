@@ -46,6 +46,18 @@ export default tseslint.config([
       // Забытая зависимость хука — это не стиль, а расчёт по устаревшим данным:
       // мемо считает для прошлой компании, эффект не перезапускается.
       'react-hooks/exhaustive-deps': 'error',
+      // Путь разрешает резолвер алиасов, расширение в импорте — разнобой.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ImportDeclaration[source.value=/\\.tsx?$/]',
+          message: 'Импорт без расширения: путь разрешает резолвер алиасов.',
+        },
+        {
+          selector: 'ImportExpression[source.value=/\\.tsx?$/]',
+          message: 'Импорт без расширения: путь разрешает резолвер алиасов.',
+        },
+      ],
     },
   },
   ...layerBoundaries,

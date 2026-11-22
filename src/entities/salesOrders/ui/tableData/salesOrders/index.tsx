@@ -1,7 +1,7 @@
 import { Tag } from "antd";
 import type { TFunction } from "i18next";
-import { statusColors } from "shared/ui/statuses.tsx";
-import type { AdaptiveColumn } from "shared/ui/table/types.ts";
+import { statusColors } from "shared/ui/statuses";
+import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { SalesOrdersTableDataType } from "./types";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
