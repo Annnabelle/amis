@@ -167,7 +167,6 @@ const ru = {
         organization: "Организации",
         order: "Заказы"
     },
-    sessionEndsIn: 'Окончание сессии через',
     search: {
         byName: 'Поиск по имени',
         byOrganization: 'Поиск по организациям',

@@ -167,7 +167,6 @@ const en = {
         organization: "Organization",
         order: "Orders"
     },
-    sessionEndsIn: 'Session ends in',
     search: {
         byName: 'Search by name',
         byOrganization: 'Search by organization',

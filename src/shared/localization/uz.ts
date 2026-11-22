@@ -167,7 +167,6 @@ const uz = {
         organization: "Tashkilot",
         order: "Buyurtmalar"
     },
-    sessionEndsIn: 'Sessiya tugashiga',
     search: {
         byName: 'Ism bo‘yicha qidirish',
         byOrganization: 'Tashkilotlar bo‘yicha qidirish',
