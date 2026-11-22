@@ -5,13 +5,7 @@ import GlobalLoader from 'shared/ui/loader';
 import type { RouteAccess } from './accessMap';
 import { canAccessRoute, resolveFallbackPath } from './routeAccessPath';
 import { useIsMobile } from 'shared/lib';
-
-const getCompanyIdFromPath = (pathname: string) => {
-  const segments = pathname.split('/').filter(Boolean);
-  return segments[0] === 'organization' && segments.length > 1
-    ? segments[1]
-    : null;
-};
+import { parseCompanyFromPath } from 'shared/lib/companyPath';
 
 type PermissionRouteProps = {
   access: RouteAccess;
@@ -24,11 +18,17 @@ export const PermissionRoute = ({
 }: PermissionRouteProps) => {
   const location = useLocation();
   const isAuthenticated = useAppSelector((state) => state.users.isAuthenticated);
+  const isRestoring = useAppSelector((state) => state.users.isRestoring);
   const userAccess = useAppSelector((state) => state.access.data);
   const loading = useAppSelector((state) => state.access.loading);
   const error = useAppSelector((state) => state.access.error);
   const isMobile = useIsMobile();
-  const companyId = getCompanyIdFromPath(location.pathname);
+  const companyId = parseCompanyFromPath(location.pathname);
+
+  /** Сессия поднимается по cookie: права запросятся сразу после этого. */
+  if (isRestoring) {
+    return <GlobalLoader loading />;
+  }
 
   /** Без входа прав никто не запросит — ждать нечего, сразу на страницу входа. */
   if (!isAuthenticated) {

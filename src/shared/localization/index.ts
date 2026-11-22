@@ -146,7 +146,6 @@ export const resources = {
                 organization: "Organization",
                 order: "Orders",
             },
-            sessionEndsIn: 'Session ends in',
             search: {
                 byName: 'Search by name',
                 byOrganization: 'Search by organization',
@@ -173,6 +172,17 @@ export const resources = {
                 apply: "Apply",
                 applyAll: "Apply all",
                 send: "Send",
+            },
+            access: {
+                sections: {
+                    references: "Reference data",
+                    roles: "Roles",
+                    uploads: "Files",
+                    scanSessions: "Scanning",
+                    lifecycle: "Record history",
+                    jobs: "Background jobs",
+                    companyImport: "Company import",
+                },
             },
             navigation: {
                 products: "Products",
@@ -2569,7 +2579,6 @@ export const resources = {
                 organization: "Организации",
                 order: "Заказы",
             },
-            sessionEndsIn: 'Окончание сессии через',
             search: {
                 byName: 'Поиск по имени',
                 byOrganization: 'Поиск по организациям',
@@ -2596,6 +2605,17 @@ export const resources = {
                 apply: "Нанести",
                 applyAll: "Нанести все",
                 send: "Отправить",
+            },
+            access: {
+                sections: {
+                    references: "Справочники",
+                    roles: "Роли",
+                    uploads: "Файлы",
+                    scanSessions: "Сканирование",
+                    lifecycle: "История записей",
+                    jobs: "Фоновые задачи",
+                    companyImport: "Импорт компании",
+                },
             },
             navigation: {
                 products: "Продукция",
@@ -4984,7 +5004,6 @@ export const resources = {
                 organization: "Tashkilot",
                 order: "Buyurtmalar",
             },
-            sessionEndsIn: 'Sessiya tugashiga',
             search: {
                 byName: 'Ism bo‘yicha qidirish',
                 byOrganization: 'Tashkilotlar bo‘yicha qidirish',
@@ -5011,6 +5030,17 @@ export const resources = {
                 apply: "Qo‘llash",
                 applyAll: "Hammasini qo‘llash",
                 yuborish: "Yuborish",
+            },
+            access: {
+                sections: {
+                    references: "Ma’lumotnomalar",
+                    roles: "Rollar",
+                    uploads: "Fayllar",
+                    scanSessions: "Skanerlash",
+                    lifecycle: "Yozuvlar tarixi",
+                    jobs: "Fon vazifalari",
+                    companyImport: "Kompaniya importi",
+                },
             },
             navigation: {
                 products: "Mahsulotlar",

@@ -1,23 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 import { usersApi } from "entities/users/api";
 import type { User, UsersState } from "entities/users/types";
-import { clearAuthStorage, readStoredUser } from "shared/lib/authSession";
+import {
+  clearAuthStorage,
+  getSessionEnd,
+  readStoredUser,
+  type AuthTokens,
+} from "shared/lib/authSession";
 
 const storedUser = readStoredUser<User>();
-const storedAccessToken = localStorage.getItem("accessToken");
-const storedRefreshToken = localStorage.getItem("refreshToken");
+const storedSessionEnd = getSessionEnd();
 
 /**
- * Сессия пользователя: кто вошёл и с какими токенами. Это состояние
+ * Сессия пользователя: кто вошёл и с каким токеном. Это состояние
  * приложения, а не серверный кеш, поэтому слайс остался. Сами запросы живут
  * в entities/users/api, а слайс слушает их результаты.
+ *
+ * access-токен в памяти, поэтому перезагрузка начинается с восстановления
+ * сессии по cookie: до его конца вход не подтверждён.
  */
 const initialState: UsersState = {
   user: storedUser,
-  accessToken: storedAccessToken,
-  refreshToken: storedRefreshToken,
-  sessionStart: storedAccessToken ? Date.now() : null,
-  isAuthenticated: !!storedAccessToken,
+  accessToken: null,
+  sessionStart: null,
+  isAuthenticated: false,
+  isRestoring: storedSessionEnd !== null && storedSessionEnd > Date.now(),
   currentUser: storedUser,
 };
 
@@ -28,9 +36,9 @@ export const usersSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
-      state.refreshToken = null;
       state.sessionStart = null;
       state.isAuthenticated = false;
+      state.isRestoring = false;
       state.currentUser = null;
       clearAuthStorage();
     },
@@ -40,6 +48,26 @@ export const usersSlice = createSlice({
     },
     clearUser(state) {
       state.currentUser = null;
+    },
+    /** Молчаливое продление сессии: пользователь тот же, токен новый. */
+    sessionRefreshed: (state, action: PayloadAction<AuthTokens>) => {
+      state.accessToken = action.payload.accessToken;
+    },
+    /** Сессия поднята по cookie после перезагрузки страницы. */
+    sessionRestored: (state, action: PayloadAction<AuthTokens>) => {
+      state.accessToken = action.payload.accessToken;
+      state.sessionStart = Date.now();
+      state.isAuthenticated = true;
+      state.isRestoring = false;
+    },
+    /** Поднять не удалось: cookie нет или она не принята. */
+    sessionRestoreFailed: (state) => {
+      state.user = null;
+      state.currentUser = null;
+      state.accessToken = null;
+      state.isAuthenticated = false;
+      state.isRestoring = false;
+      clearAuthStorage();
     },
   },
   extraReducers: (builder) => {
@@ -52,17 +80,17 @@ export const usersSlice = createSlice({
         state.user = action.payload.user;
         state.currentUser = action.payload.user;
         state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
         state.sessionStart = Date.now();
         state.isAuthenticated = true;
+        state.isRestoring = false;
       })
       .addMatcher(changeOwnPassword.matchFulfilled, (state, action) => {
         state.user = action.payload.user;
         state.currentUser = action.payload.user;
         state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
         state.sessionStart = Date.now();
         state.isAuthenticated = true;
+        state.isRestoring = false;
       })
       .addMatcher(getCurrentUser.matchFulfilled, (state, action) => {
         state.currentUser = action.payload;
@@ -75,6 +103,13 @@ export const usersSlice = createSlice({
   },
 });
 
-export const { logout, login, clearUser } = usersSlice.actions;
+export const {
+  logout,
+  login,
+  clearUser,
+  sessionRefreshed,
+  sessionRestored,
+  sessionRestoreFailed,
+} = usersSlice.actions;
 
 export default usersSlice.reducer;
