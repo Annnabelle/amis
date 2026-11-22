@@ -12,7 +12,8 @@
       "shared/*": ["shared/*"],
       "entities/*": ["entities/*"],
       "widgets/*": ["widgets/*"],
-      "pages/*": ["pages/*"]
+      "pages/*": ["pages/*"],
+      "test/*": ["test/*"]
     },
 
     /* Bundler mode */

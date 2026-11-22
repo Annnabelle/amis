@@ -40,7 +40,7 @@ tokens; fine-grained токену достаточно прав `Packages: read`
 | `npm run check:localization` | сверяет ключи трёх языков и находит забытые          |
 | `npm run check:dist-config` | в CI не даёт конфигурации уехать в артефакт           |
 | `npm run check:bundle`    | бюджет размера чанков                                   |
-| `npm run test`            | vitest (`shared/api`, `shared/lib`, `shared/config`, связка стора) |
+| `npm run test`            | vitest: модульные тесты и компонентные на jsdom          |
 | `npm run lint`            | eslint; входит в оба пайплайна деплоя                   |
 | `npm run preview`         | отдаёт собранный `dist/`                                |
 
