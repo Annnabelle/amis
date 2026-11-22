@@ -6,12 +6,12 @@ import {Tag} from "antd";
 import {statusColors} from "shared/ui/statuses.tsx";
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard'
 import "./styles.sass"
-import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
+import { formatDateTimeSeconds } from 'shared/lib/formatDate';
 const getStatusColor = (status?: string | null) => {
     if (!status) return 'default';
 
@@ -104,7 +104,7 @@ const MarkingCodeProductBatches = () => {
 
                         <BatchItem label={t('markingCodes.batches.batchData.orderTime')}>
                             {orderProductBatch?.order?.orderedAt
-                                ? dayjs(orderProductBatch.order.orderedAt).format('DD.MM.YYYY HH:mm:ss')
+                                ? formatDateTimeSeconds(orderProductBatch.order.orderedAt)
                                 : '—'}
                         </BatchItem>
 

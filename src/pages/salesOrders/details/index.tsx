@@ -7,7 +7,6 @@ import StatusBadge from 'shared/ui/statusBadge';
 import { getSalesOrderStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 import { useGetSalesOrderByIdQuery } from 'entities/salesOrders/api';
 import {
   useGetDistrictsByRegionQuery,
@@ -28,6 +27,7 @@ import {
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
+import { formatDate } from 'shared/lib/formatDate';
 import './styles.sass';
 
 const SalesOrdersDetails = () => {
@@ -115,7 +115,7 @@ const SalesOrdersDetails = () => {
   const headerMetaChips = [
     {
       label: t('salesOrders.fields.dueDate'),
-      value: order.fulfillment.dueDate ? dayjs(order.fulfillment.dueDate).format('DD.MM.YYYY') : empty,
+      value: order.fulfillment.dueDate ? formatDate(order.fulfillment.dueDate) : empty,
     },
     { label: t('salesOrders.fields.priority'), value: t(`salesOrders.priority.${order.fulfillment.priority}`) },
     {
@@ -157,7 +157,7 @@ const SalesOrdersDetails = () => {
     { label: t('salesOrders.fields.contractNumber'), value: order.contract?.number ?? empty },
     {
       label: t('salesOrders.fields.contractDate'),
-      value: order.contract?.date ? dayjs(order.contract.date).format('DD.MM.YYYY') : empty,
+      value: order.contract?.date ? formatDate(order.contract.date) : empty,
     },
   ];
 
@@ -231,7 +231,7 @@ const SalesOrdersDetails = () => {
                     {order.createdAt && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span className="label inline-label">{t('salesOrders.fields.createdAt')}:</span>
-                        <span className="value">{dayjs(order.createdAt).format('DD.MM.YYYY')}</span>
+                        <span className="value">{formatDate(order.createdAt)}</span>
                       </div>
                     )}
                   </div>

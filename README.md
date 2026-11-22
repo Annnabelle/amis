@@ -1,69 +1,60 @@
-# React + TypeScript + Vite
+# AMIS — фронтенд
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Веб-приложение AMIS: маркировка, заказы кодов, доставка, документы. React 19 +
+TypeScript + Vite, Redux Toolkit с RTK Query, React Router 7, Ant Design 5,
+i18next, Sass.
 
-Currently, two official plugins are available:
+Архитектура, правила слоёв и контур доступа описаны в [CLAUDE.md](./CLAUDE.md) —
+читать перед первой правкой.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Запуск
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci        # нужен доступ к приватному реестру, см. ниже
+npm run dev   # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Пакет `@edem2000/amis.contracts` лежит в GitHub Packages, поэтому `npm ci`
+требует токен с правом `read:packages`:
+
+```bash
+# ~/.npmrc
+//npm.pkg.github.com/:_authToken=<токен>
+```
+
+## Команды
+
+| Команда                   | Что делает                                              |
+| ------------------------- | ------------------------------------------------------- |
+| `npm run dev`             | дев-сервер Vite                                         |
+| `npm run build`           | проверка контрактов и эндпоинтов, `tsc -b`, сборка      |
+| `npm run check:endpoints` | сверяет каждый запрос с картой доступа                  |
+| `npm run check:contracts` | падает, пока в `dtos/` лежит временная форма контракта  |
+| `npm run test`            | vitest (`shared/api`, `shared/lib`, связка стора)       |
+| `npm run lint`            | eslint; входит в оба пайплайна деплоя                   |
+| `npm run preview`         | отдаёт собранный `dist/`                                |
+
+## Конфигурация окружения
+
+Адрес API и ключи Яндекса читаются из `window.__CONFIG__` — его задаёт
+`public/runtime-config.js`, обычный скрипт рядом с бандлом:
 
 ```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+window.__CONFIG__ = {
+  API_BASE_URL: "http://127.0.0.1:3000",
+  ENV: "development",
+  YANDEX_MAPS_JS_API_KEY: "...",
+  YANDEX_GEOCODER_API_KEY: "...",
+};
 ```
+
+Сборка от окружения не зависит: файл заменяется при деплое. В коде значения
+читаются только через `shared/config/runtime.ts`. Локальные правки
+`public/runtime-config.js` коммитить не нужно.
+
+## Деплой
+
+`.github/workflows/deploy.yml` собирает каждый push в `master` и выкладывает
+артефакт; сам деплой запускается вручную через `workflow_dispatch`.
+`stage-deploy.yml` — то же для стейджа. Оба прогоняют `npm run lint` перед
+сборкой.

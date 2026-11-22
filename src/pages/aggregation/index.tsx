@@ -33,6 +33,7 @@ import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/s
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
 import { getStatusLabel } from "shared/lib/useStatusLabel";
 
+import { formatDate } from 'shared/lib/formatDate';
 const packageTypeOrder: Record<string, number> = {
     [PackageType.BoxLv2]: 0,
     [PackageType.BoxLv1]: 1,
@@ -152,7 +153,7 @@ const Aggregations = () => {
             productName: aggregation.productName,
             aggregationQuantity: String(aggregation.aggregationQuantity),
             quantityPerPackage: String(aggregation.quantityPerPackage),
-            submittedAt: dayjs(aggregation.submittedAt).format('DD.MM.YYYY'),
+            submittedAt: formatDate(aggregation.submittedAt),
             status: aggregation.status.toLowerCase(),
         }))
     }, [aggregations])

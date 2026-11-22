@@ -4,6 +4,7 @@
  * не-компонентные экспорты ломают fast refresh.
  */
 import { config } from "shared/config/runtime";
+import { debugLog } from "shared/lib/debugLog";
 
 export type LocationValue = {
   latitude?: number;
@@ -305,8 +306,8 @@ export const geocodeByAddress = async (address: string) => {
   url.searchParams.set("lang", "ru_RU");
   url.searchParams.set("geocode", address);
 
-  console.groupCollapsed("[SalesOrdersAddressMap] geocode by address");
-  console.info("request", { address, geocode: url.searchParams.get("geocode") });
+  debugLog.group("[SalesOrdersAddressMap] geocode by address");
+  debugLog.info("request", { address, geocode: url.searchParams.get("geocode") });
 
   try {
     const response = await fetch(url.toString());
@@ -314,7 +315,7 @@ export const geocodeByAddress = async (address: string) => {
     const geoObject = data.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject;
     const pos = geoObject?.Point?.pos;
 
-    console.info("raw result", {
+    debugLog.info("raw result", {
       pos,
       text: geoObject?.metaDataProperty?.GeocoderMetaData?.text,
       formatted: geoObject?.metaDataProperty?.GeocoderMetaData?.Address?.formatted,
@@ -322,23 +323,23 @@ export const geocodeByAddress = async (address: string) => {
     });
 
     if (!pos) {
-      console.warn("result", "coordinates not found");
+      debugLog.warn("result", "coordinates not found");
       return undefined;
     }
 
     const [longitude, latitude] = pos.split(" ").map(Number);
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      console.warn("result", "coordinates are invalid", { latitude, longitude });
+      debugLog.warn("result", "coordinates are invalid", { latitude, longitude });
       return undefined;
     }
 
-    console.info("result", { latitude, longitude });
+    debugLog.info("result", { latitude, longitude });
     return { latitude, longitude };
   } catch (error) {
     console.error("failed", error);
     return undefined;
   } finally {
-    console.groupEnd();
+    debugLog.groupEnd();
   }
 };
 
@@ -349,8 +350,8 @@ export const geocodeByLocation = async (location: { latitude: number; longitude:
   url.searchParams.set("lang", "ru_RU");
   url.searchParams.set("geocode", `${location.longitude},${location.latitude}`);
 
-  console.groupCollapsed("[SalesOrdersAddressMap] reverse geocode by location");
-  console.info("request", location);
+  debugLog.group("[SalesOrdersAddressMap] reverse geocode by location");
+  debugLog.info("request", location);
 
   try {
     const response = await fetch(url.toString());
@@ -359,7 +360,7 @@ export const geocodeByLocation = async (location: { latitude: number; longitude:
     const geoObject = featureMembers[0]?.GeoObject;
     const parsedAddress = parseGeocoderAddress(featureMembers);
 
-    console.info("raw result", {
+    debugLog.info("raw result", {
       text: geoObject?.metaDataProperty?.GeocoderMetaData?.text,
       formatted: geoObject?.metaDataProperty?.GeocoderMetaData?.Address?.formatted,
       components: geoObject?.metaDataProperty?.GeocoderMetaData?.Address?.Components,
@@ -375,10 +376,10 @@ export const geocodeByLocation = async (location: { latitude: number; longitude:
         };
       }),
     });
-    console.info("parsed result", parsedAddress);
+    debugLog.info("parsed result", parsedAddress);
 
     if (!parsedAddress) {
-      console.warn("result", "address not found");
+      debugLog.warn("result", "address not found");
     }
 
     return parsedAddress;
@@ -386,7 +387,7 @@ export const geocodeByLocation = async (location: { latitude: number; longitude:
     console.error("failed", error);
     return undefined;
   } finally {
-    console.groupEnd();
+    debugLog.groupEnd();
   }
 };
 
@@ -396,11 +397,11 @@ export const loadYandexMaps = () =>
     const expectedScriptSrc = apiUrl.toString();
 
     const resolveWhenReady = (ymaps: YMapsApi) => {
-      console.info("[SalesOrdersAddressMap] request route modules", ["route"]);
+      debugLog.info("[SalesOrdersAddressMap] request route modules", ["route"]);
       ymaps.ready({
         require: ["route"],
         successCallback: () => {
-          console.info("[SalesOrdersAddressMap] route modules ready", {
+          debugLog.info("[SalesOrdersAddressMap] route modules ready", {
             hasRouteFunction: typeof ymaps.route === "function",
           });
           resolve(ymaps);
@@ -416,7 +417,7 @@ export const loadYandexMaps = () =>
     if (existingScript) {
       const existingScriptSrc = (existingScript as HTMLScriptElement).src;
       if (existingScriptSrc !== expectedScriptSrc) {
-        console.warn("[SalesOrdersAddressMap] reload Yandex Maps API script with expected params", {
+        debugLog.warn("[SalesOrdersAddressMap] reload Yandex Maps API script with expected params", {
           existingScriptSrc,
           expectedScriptSrc,
           hasApiKey: Boolean(config.yandexMapsJsApiKey),
@@ -424,7 +425,7 @@ export const loadYandexMaps = () =>
         existingScript.remove();
         window.ymaps = undefined;
       } else {
-        console.info("[SalesOrdersAddressMap] reuse Yandex Maps API script", {
+        debugLog.info("[SalesOrdersAddressMap] reuse Yandex Maps API script", {
           scriptSrc: existingScriptSrc,
           hasApiKey: Boolean(config.yandexMapsJsApiKey),
         });
@@ -449,7 +450,7 @@ export const loadYandexMaps = () =>
     script.id = YANDEX_MAPS_SCRIPT_ID;
     script.src = expectedScriptSrc;
     script.async = true;
-    console.info("[SalesOrdersAddressMap] load Yandex Maps API script", {
+    debugLog.info("[SalesOrdersAddressMap] load Yandex Maps API script", {
       scriptSrc: script.src,
       hasApiKey: Boolean(config.yandexMapsJsApiKey),
       routeModules: ["route"],
@@ -528,20 +529,20 @@ export const calculateYandexRouteDistanceKm = async (
 ): Promise<{ distance: number; source: "route" | "geo" } | undefined> => {
   if (!isValidLocation(from) || !isValidLocation(to)) return undefined;
 
-  console.groupCollapsed("[SalesOrdersAddressMap] calculate delivery distance");
-  console.info("points", { from, to });
+  debugLog.group("[SalesOrdersAddressMap] calculate delivery distance");
+  debugLog.info("points", { from, to });
 
   try {
     const ymaps = await loadYandexMaps();
 
     if (typeof ymaps.route !== "function") {
       const fallbackResult = calculateYandexGeoDistanceKm(ymaps, from, to);
-      console.warn("ymaps.route is not available, using geo distance", fallbackResult);
+      debugLog.warn("ymaps.route is not available, using geo distance", fallbackResult);
       return fallbackResult;
     }
 
     try {
-      console.info("route calculation started");
+      debugLog.info("route calculation started");
       const route = await ymaps.route(
         [
           { type: "wayPoint", point: [from.latitude, from.longitude] },
@@ -552,19 +553,19 @@ export const calculateYandexRouteDistanceKm = async (
 
       const distance = metersToKm(route.getLength());
       const result = distance === undefined ? undefined : { distance, source: "route" as const };
-      console.info("route calculation success", result);
+      debugLog.info("route calculation success", result);
       return result;
     } catch (error) {
       const fallbackResult = calculateYandexGeoDistanceKm(ymaps, from, to);
-      console.warn("route distance unavailable, using geo distance");
-      console.warn("route error serialized", stringifyYandexError(error));
-      console.warn("geo fallback result", fallbackResult);
+      debugLog.warn("route distance unavailable, using geo distance");
+      debugLog.warn("route error serialized", stringifyYandexError(error));
+      debugLog.warn("geo fallback result", fallbackResult);
       return fallbackResult;
     }
   } catch (error) {
     console.error("[SalesOrdersAddressMap] failed to calculate route distance", stringifyYandexError(error));
     return undefined;
   } finally {
-    console.groupEnd();
+    debugLog.groupEnd();
   }
 };

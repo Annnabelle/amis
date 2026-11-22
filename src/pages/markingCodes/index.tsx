@@ -25,7 +25,6 @@ import { CompanyImportStage } from 'entities/companyImport/types';
 import CompanyImportStageButton from 'widgets/companyImport/stageButton';
 import FilterBar from "shared/ui/filterBar/filterBar.tsx";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
-import dayjs from "dayjs";
 import { useCan } from "entities/access/lib";
 import { getApiErrorMessage } from "shared/api";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -33,6 +32,7 @@ import { RequiredDataAlert } from 'entities/access/ui';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useRecentStatusChanges, useStatusChangeListRefresh } from 'shared/lib/statusChanges';
 
+import { formatDateTimeSeconds } from 'shared/lib/formatDate';
 const MarkingCodes = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
@@ -98,7 +98,7 @@ const MarkingCodes = () => {
             totalQuantity: markingCode.totalQuantity,
             orderedQuantity: markingCode.orderedQuantity,
             remainderQuantity: markingCode.remainderQuantity,
-            orderedAt: dayjs(markingCode.orderedAt).format('DD.MM.YYYY HH:mm:ss'),
+            orderedAt: formatDateTimeSeconds(markingCode.orderedAt),
             codesHaveBeenExported:
                 markingCode.totalQuantity === markingCode.orderedQuantity
                     ? t('common.yes')

@@ -1,7 +1,7 @@
 import { Alert } from "antd";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { resolveMultiLanguage } from "entities/lifecycle/lib";
+import { formatDateTime } from 'shared/lib/formatDate';
 import {
   LifecycleErrorClass,
   type LifecycleActiveError,
@@ -56,7 +56,7 @@ const LifecycleActiveErrorAlert = ({
               )}
             <span>
               {t("lifecycle.activeError.since", {
-                date: dayjs(error.since).format("DD.MM.YYYY HH:mm"),
+                date: formatDateTime(error.since),
               })}
             </span>
           </div>

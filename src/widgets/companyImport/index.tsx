@@ -1,5 +1,4 @@
 import { Alert, Empty, Spin } from "antd";
-import dayjs from "dayjs";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { resolveMultiLanguage } from "shared/lib";
@@ -18,14 +17,12 @@ import {
 import CustomButton from "shared/ui/button";
 import StatusBadge from "shared/ui/statusBadge";
 import CompanyImportStartModal from "./startModal";
+import { formatDateTime } from 'shared/lib/formatDate';
 import "./styles.sass";
 
 type CompanyImportPanelProps = {
   companyId?: string;
 };
-
-const formatDateTime = (value?: string) =>
-  value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "-";
 
 /**
  * Ход импорта компании из ASL Belgisi: состояние прогона, этапы и их находки.

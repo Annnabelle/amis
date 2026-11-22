@@ -17,7 +17,6 @@ import type { AddUserForm, User } from 'entities/users/types'
 import MainLayout from 'shared/ui/layout'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
-import dayjs from 'dayjs'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
@@ -29,6 +28,7 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems.tsx";
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
+import { formatDate } from 'shared/lib/formatDate';
 const Users = () => {
     const { t } = useTranslation();
     const canReadUser = useCan(endpointAccessMap.usersRead);
@@ -70,7 +70,7 @@ const Users = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            lastLoggedInAt: user.lastLoggedInAt ? dayjs(user.lastLoggedInAt).format('DD.MM.YYYY') : '-',
+            lastLoggedInAt: user.lastLoggedInAt ? formatDate(user.lastLoggedInAt) : '-',
             status: user.status,
             action: 'Действие', 
         }))

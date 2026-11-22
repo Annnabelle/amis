@@ -3,13 +3,13 @@ import {
     configureStore,
     createListenerMiddleware,
     isAnyOf,
+    isPlain,
     type TypedStartListening,
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 import { logout, usersSlice } from "entities/users/model";
 import { scanSessionsSlice } from "entities/scanSessions/model";
 import { accessSlice, clearAccess, setCurrentCompanyId } from "entities/access/model";
-import {loaderSlice} from "./loader";
 import { baseApi } from "shared/api";
 import { setRuntimeCompanyId } from "shared/lib/companyContext";
 
@@ -17,7 +17,6 @@ const rootReducer = combineReducers({
     users: usersSlice.reducer,
     scanSessions: scanSessionsSlice.reducer,
     access: accessSlice.reducer,
-    loader: loaderSlice.reducer,
     [baseApi.reducerPath]: baseApi.reducer,
 });
 
@@ -60,7 +59,14 @@ export const store = configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-        serializableCheck: false,
+            serializableCheck: {
+                /**
+                 * Доменные типы держат Date: дата — значение, и в сторе она
+                 * допустима. Класс, File, Map и функция остаются ошибкой.
+                 */
+                isSerializable: (value: unknown) =>
+                    value instanceof Date || isPlain(value),
+            },
         })
         .prepend(companyContextListener.middleware)
         .concat(baseApi.middleware),

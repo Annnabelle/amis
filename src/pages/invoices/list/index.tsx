@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGetInvoicesQuery } from 'entities/invoices/api';
@@ -12,6 +11,7 @@ import ComponentTable from 'shared/ui/table';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
+import { formatDate } from 'shared/lib/formatDate';
 const InvoicesList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -37,7 +37,7 @@ const InvoicesList = () => {
     return invoices.map((invoice) => ({
       key: invoice.id,
       invoiceNumber: invoice.invoiceNumber || invoice.invoice.number || invoice.id,
-      invoiceDate: dayjs(invoice.invoice.date).format('DD.MM.YYYY'),
+      invoiceDate: formatDate(invoice.invoice.date),
       senderName: invoice.sender.name || '-',
       receiverName: invoice.receiver.name || '-',
       amountWithoutVat: invoice.totals.amountWithoutVat.toLocaleString(),
@@ -45,7 +45,7 @@ const InvoicesList = () => {
       unitsQuantity: invoice.totals.unitsQuantity ?? 0,
       externalStatus: invoice.external?.status || '-',
       status: invoice.status,
-      createdAt: dayjs(invoice.createdAt).format('DD.MM.YYYY'),
+      createdAt: formatDate(invoice.createdAt),
     }));
   }, [invoices]);
 

@@ -1,4 +1,5 @@
 import {Form} from 'antd'
+import { normalizeLanguage } from 'shared/lib/language';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
 import { useEffect } from 'react';
@@ -54,7 +55,7 @@ const ProductsEdit = () => {
     const navigateBack = useNavigationBack();
     type Lang = 'ru' | 'en' | 'uz';
 
-    const currentLang = (i18n.language.split('-')[0] as Lang) || 'en';
+    const currentLang = normalizeLanguage(i18n.language);
 
     if (!id) {
         throw new Error("Company ID is required but not found in route params");
