@@ -1,5 +1,4 @@
 import { Spin } from "antd";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGetVehicleByIdQuery } from "entities/vehicles/api";
@@ -16,6 +15,7 @@ import FormComponent from "shared/ui/formComponent";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import { useNavigationBack } from "shared/lib";
+import { formatDate } from 'shared/lib/formatDate';
 import "./styles.sass";
 
 const formatValue = (value: string | number | undefined | null) =>
@@ -113,11 +113,11 @@ const VehicleDetails = () => {
                             items={[
                               {
                                 label: t("vehicles.fields.createdAt"),
-                                value: vehicle.createdAt ? dayjs(vehicle.createdAt).format("DD.MM.YYYY") : "-",
+                                value: vehicle.createdAt ? formatDate(vehicle.createdAt) : "-",
                               },
                               {
                                 label: t("vehicles.fields.updatedAt"),
-                                value: vehicle.updatedAt ? dayjs(vehicle.updatedAt).format("DD.MM.YYYY") : "-",
+                                value: vehicle.updatedAt ? formatDate(vehicle.updatedAt) : "-",
                               },
                             ]}
                           />

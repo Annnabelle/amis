@@ -1,5 +1,4 @@
 import { Input } from "antd";
-import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoSearch } from "react-icons/io5";
@@ -20,15 +19,13 @@ import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import MainLayout from "shared/ui/layout";
 import Heading from "shared/ui/mainHeading";
 import ComponentTable from "shared/ui/table";
+import { formatDateTime } from 'shared/lib/formatDate';
 import "./styles.sass";
 
 const GTIN_14 = /^\d{14}$/;
 
 const SUMMARY_TAB_KEY = "summary";
 const CODES_TAB_KEY = "codes";
-
-const formatDate = (value?: string) =>
-  value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "—";
 
 /**
  * Коды, которыми владеет компания. Это реестр, а не записи учёта: код, пришедший
@@ -83,7 +80,7 @@ const OwnedCodes = () => {
         packageType: item.packageType,
         parentCode: item.parentCode ?? "—",
         status: item.status,
-        lastSyncedAt: formatDate(item.lastSyncedAt),
+        lastSyncedAt: formatDateTime(item.lastSyncedAt),
       })),
     [codes]
   );
@@ -100,10 +97,10 @@ const OwnedCodes = () => {
             {summary?.freshness ? (
               <>
                 <span>
-                  {t("ownedCodes.summary.freshestAt")}: {formatDate(summary.freshness.newest)}
+                  {t("ownedCodes.summary.freshestAt")}: {formatDateTime(summary.freshness.newest)}
                 </span>
                 <span>
-                  {t("ownedCodes.summary.oldestAt")}: {formatDate(summary.freshness.oldest)}
+                  {t("ownedCodes.summary.oldestAt")}: {formatDateTime(summary.freshness.oldest)}
                 </span>
               </>
             ) : (

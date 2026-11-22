@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import dayjs from 'dayjs';
 import MainLayout from 'shared/ui/layout';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -13,6 +12,7 @@ import { useIsMobile } from 'shared/lib';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
+import { formatDate } from 'shared/lib/formatDate';
 const DeliveryRoutesList = () => {
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -36,7 +36,7 @@ const DeliveryRoutesList = () => {
       key: route.id,
       routeNumber: route.routeNumber,
       status: route.status,
-      routeDate: dayjs(route.schedule.routeDate).format('DD.MM.YYYY'),
+      routeDate: formatDate(route.schedule.routeDate),
       vehicleName: route.vehicle.name,
       plateNumber: route.vehicle.plateNumber || '-',
       driver: route.crew?.driverName || '-',
@@ -46,7 +46,7 @@ const DeliveryRoutesList = () => {
       loadedQuantity: route.totals.loadedQuantity,
       deliveredQuantity: route.totals.deliveredQuantity,
       returnedQuantity: route.totals.returnedQuantity,
-      registeredAt: dayjs(route.timestamps.registeredAt).format('DD.MM.YYYY'),
+      registeredAt: formatDate(route.timestamps.registeredAt),
     }));
   }, [routes]);
 

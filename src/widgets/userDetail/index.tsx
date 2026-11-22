@@ -1,5 +1,4 @@
 import { Empty, Spin, Tag } from 'antd';
-import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
@@ -42,15 +41,13 @@ import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 
+import { formatDateTime } from 'shared/lib/formatDate';
 type UserDetailProps =
   | { self: true; userId?: undefined }
   | { self?: false; userId: string };
 
 const getUserStatusVariant = (status?: string): StatusBadgeVariant =>
   status === 'active' ? 'success' : status === 'inactive' ? 'danger' : 'default';
-
-const formatDateTime = (value?: Date | null) =>
-  value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-';
 
 const getLocalizedText = (
   value: Record<Language, string>,

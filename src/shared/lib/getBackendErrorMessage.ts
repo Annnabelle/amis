@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import { getCurrentLanguage } from 'shared/lib/language';
 
 type Lang = 'ru' | 'uz' | 'en';
 
@@ -14,7 +14,7 @@ export const getBackendErrorMessage = (
     error: BackendError | unknown,
     fallback: string
 ): string => {
-    const lang = i18n.language as Lang;
+    const lang: Lang = getCurrentLanguage();
 
     const backendError = error as BackendError;
     const responseError = backendError?.response?.data;

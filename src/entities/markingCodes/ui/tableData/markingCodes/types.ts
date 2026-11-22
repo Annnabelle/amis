@@ -20,7 +20,7 @@ export interface MarkingCodesTableDataType {
 }
 
 export interface BatchTableDataType {
-    key: number,
+    key: string,
     id: string | undefined,
     batchId: string,
     batchNumber: string;

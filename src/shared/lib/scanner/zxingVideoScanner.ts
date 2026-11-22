@@ -48,9 +48,7 @@ const selectPreferredDeviceId = async (
       if (found) return found.deviceId;
     }
   } catch {
-    console.log('====================================');
-    console.log("smth went wrong");
-    console.log('====================================');
+    /** Хранилище может быть недоступно: выбор камеры тогда не запоминается. */
   }
 
   const preferredDevice = devices.find((device) =>
@@ -62,7 +60,7 @@ const selectPreferredDeviceId = async (
   try {
     localStorage.setItem(LAST_DEVICE_KEY, chosen);
   } catch {
-      console.log("smth went wrong");
+    /** Хранилище может быть недоступно: выбор камеры тогда не запоминается. */
   }
 
   return chosen;
