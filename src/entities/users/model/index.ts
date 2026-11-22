@@ -5,10 +5,11 @@ import type { User, UsersState } from "entities/users/types";
 import {
   clearAuthStorage,
   getSessionEnd,
+  readStoredUser,
   type AuthTokens,
 } from "shared/lib/authSession";
 
-const storedUser = localStorage.getItem("user");
+const storedUser = readStoredUser<User>();
 const storedSessionEnd = getSessionEnd();
 
 /**
@@ -20,12 +21,12 @@ const storedSessionEnd = getSessionEnd();
  * сессии по cookie: до его конца вход не подтверждён.
  */
 const initialState: UsersState = {
-  user: storedUser ? (JSON.parse(storedUser) as User) : null,
+  user: storedUser,
   accessToken: null,
   sessionStart: null,
   isAuthenticated: false,
   isRestoring: storedSessionEnd !== null && storedSessionEnd > Date.now(),
-  currentUser: storedUser ? (JSON.parse(storedUser) as User) : null,
+  currentUser: storedUser,
 };
 
 export const usersSlice = createSlice({
