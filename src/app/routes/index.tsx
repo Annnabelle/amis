@@ -1,5 +1,6 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { lazy, Suspense, type ReactNode } from "react";
+import ErrorBoundary from "shared/ui/errorBoundary";
 import GlobalLoader from "shared/ui/loader";
 import { PermissionRoute } from "./PermissionRoute";
 import { GuestRoute } from "./GuestRoute";
@@ -56,8 +57,30 @@ const WaybillsList = lazy(() => import("pages/waybills/list"));
 const WaybillsDetails = lazy(() => import("pages/waybills/details"));
 const CompanyIntegrations = lazy(() => import("pages/companyIntegrations"));
 
+/**
+ * Своя граница на каждую страницу: ошибка рендера карточки не должна гасить
+ * оболочку, из которой пользователь уходит на другой экран. resetKey снимает
+ * упавшее состояние при переходе — позиция границы в дереве у всех маршрутов
+ * одна, и без ключа она осталась бы сломанной.
+ */
+const ProtectedPage = ({
+  access,
+  children,
+}: {
+  access: RouteAccess;
+  children: ReactNode;
+}) => {
+  const location = useLocation();
+
+  return (
+    <PermissionRoute access={access}>
+      <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
+    </PermissionRoute>
+  );
+};
+
 const protectedPage = (access: RouteAccess, page: ReactNode) => (
-  <PermissionRoute access={access}>{page}</PermissionRoute>
+  <ProtectedPage access={access}>{page}</ProtectedPage>
 );
 
 const Router: React.FC = () => {

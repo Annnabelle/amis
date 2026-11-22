@@ -44,7 +44,6 @@ export type UserList = Paginated<User>;
 
 /** Сессия на экране: пользователь, токен в памяти и признак входа. */
 export type UsersState = {
-    user: User | null;
     accessToken: string | null;
     sessionStart: number | null;
     isAuthenticated: boolean;

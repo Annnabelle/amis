@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGetInvoicesQuery } from 'entities/invoices/api';
@@ -17,7 +18,7 @@ const InvoicesList = () => {
   const { t } = useTranslation();
   const canReadInvoice = useCan(endpointAccessMap.invoicesRead);
 
-  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const { data: invoicesPage, isFetching: isLoading } = useGetInvoicesQuery(
     {
       page: pagination.page,
@@ -48,6 +49,8 @@ const InvoicesList = () => {
     }));
   }, [invoices]);
 
+  const columns = useMemo(() => InvoicesTableColumns(t, orgId), [orgId, t]);
+
   return (
     <MainLayout>
       <Heading title={t('invoices.title')} subtitle={t('common.total')} totalAmount={`${dataTotal}`} />
@@ -55,7 +58,7 @@ const InvoicesList = () => {
         <div className="box-container">
           <div className="box-container-items">
             <ComponentTable<InvoicesTableDataType>
-              columns={InvoicesTableColumns(t, orgId)}
+              columns={columns}
               data={invoicesData}
               loading={isLoading}
               scroll={false}

@@ -9,7 +9,8 @@
     "check:contracts": "node scripts/check-contract-blockers.mjs",
     "check:localization": "node scripts/check-localization.mjs",
     "test": "vitest run",
-    "build": "npm run check:contracts && npm run check:endpoints && npm run check:localization && tsc -b && vite build",
+    "build": "npm run check:contracts && npm run check:endpoints && npm run check:localization && tsc -b && vite build && npm run check:bundle",
+    "check:bundle": "node scripts/check-bundle-size.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

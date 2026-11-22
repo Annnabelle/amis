@@ -5,10 +5,11 @@ import type { User, UsersState } from "entities/users/types";
 import {
   clearAuthStorage,
   getSessionEnd,
+  readStoredUser,
   type AuthTokens,
 } from "shared/lib/authSession";
 
-const storedUser = localStorage.getItem("user");
+const storedUser = readStoredUser<User>();
 const storedSessionEnd = getSessionEnd();
 
 /**
@@ -20,12 +21,11 @@ const storedSessionEnd = getSessionEnd();
  * сессии по cookie: до его конца вход не подтверждён.
  */
 const initialState: UsersState = {
-  user: storedUser ? (JSON.parse(storedUser) as User) : null,
   accessToken: null,
   sessionStart: null,
   isAuthenticated: false,
   isRestoring: storedSessionEnd !== null && storedSessionEnd > Date.now(),
-  currentUser: storedUser ? (JSON.parse(storedUser) as User) : null,
+  currentUser: storedUser,
 };
 
 export const usersSlice = createSlice({
@@ -33,7 +33,6 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      state.user = null;
       state.accessToken = null;
       state.sessionStart = null;
       state.isAuthenticated = false;
@@ -61,7 +60,6 @@ export const usersSlice = createSlice({
     },
     /** Поднять не удалось: cookie нет или она не принята. */
     sessionRestoreFailed: (state) => {
-      state.user = null;
       state.currentUser = null;
       state.accessToken = null;
       state.isAuthenticated = false;
@@ -76,7 +74,6 @@ export const usersSlice = createSlice({
     builder
       /** Вход и смена своего пароля дают новую сессию. */
       .addMatcher(login.matchFulfilled, (state, action) => {
-        state.user = action.payload.user;
         state.currentUser = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.sessionStart = Date.now();
@@ -84,7 +81,6 @@ export const usersSlice = createSlice({
         state.isRestoring = false;
       })
       .addMatcher(changeOwnPassword.matchFulfilled, (state, action) => {
-        state.user = action.payload.user;
         state.currentUser = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.sessionStart = Date.now();
@@ -93,11 +89,9 @@ export const usersSlice = createSlice({
       })
       .addMatcher(getCurrentUser.matchFulfilled, (state, action) => {
         state.currentUser = action.payload;
-        state.user = action.payload;
       })
       .addMatcher(updateUserPreferences.matchFulfilled, (state, action) => {
         state.currentUser = action.payload;
-        state.user = action.payload;
       });
   },
 });
