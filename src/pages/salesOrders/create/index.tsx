@@ -1,7 +1,6 @@
-import { DatePicker, Form, Input, InputNumber, Radio, Select, Spin, Tooltip } from 'antd';
+import { Form, Input, Spin } from 'antd';
 import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
-import { CloseOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { debugLog } from 'shared/lib/debugLog';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
@@ -33,17 +32,17 @@ import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';
-import { isLanguage, SalesOrderPaymentMethod, SalesOrderPriorities } from 'shared/types/dtos';
-import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
+import { isLanguage, SalesOrderPaymentMethod } from 'shared/types/dtos';
 import type { Company } from 'entities/organization/types';
 import type { Reference } from 'entities/references/types';
 import { getApiErrorMessage } from 'shared/api';
+import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
 import AddressFields from 'features/salesOrderCreate/ui/addressFields';
+import OrderItemsSection from 'features/salesOrderCreate/ui/orderItemsSection';
+import OrderTermsSection from 'features/salesOrderCreate/ui/orderTermsSection';
 import {
   allowOnlyDigitsKeyDown,
   allowOnlyDigitsPaste,
-  decimalParser,
-  digitsOnlyParser,
 } from 'features/salesOrderCreate/lib/numericInput';
 import {
   calculateDeliveryCost,
@@ -707,316 +706,22 @@ const SalesOrdersCreate = () => {
                 </div>
               </div>
 
-              <div className="form-divider-title">
-                <h4 className="title">{t('salesOrders.sections.contract')}</h4>
-              </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["contract", "number"]}
-                  label={t('salesOrders.fields.contractNumber')}
-                  rules={[{ required: true, message: t('salesOrders.validation.contractNumberRequired') }]}
-                >
-                  <Input className="input" size="large" placeholder={t('salesOrders.placeholders.contractNumber')} />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["contract", "date"]}
-                  label={t('salesOrders.fields.contractDate')}
-                  rules={[{ required: true, message: t('salesOrders.validation.contractDateRequired') }]}
-                >
-                  <DatePicker className="input" size="large" placeholder={t('salesOrders.placeholders.contractDate')} />
-                </Form.Item>
-              </div>
-
-              <div className="form-divider-title">
-                <h4 className="title">{t('salesOrders.sections.fulfillment')}</h4>
-              </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["fulfillment", "dueDate"]}
-                  label={t('salesOrders.createFields.expectedDate', { defaultValue: 'Ожидаемая дата' })}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('salesOrders.createValidation.expectedDateRequired', {
-                        defaultValue: 'Ожидаемая дата обязательна',
-                      }),
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    className="input"
-                    size="large"
-                    placeholder={t('salesOrders.createPlaceholders.expectedDate', {
-                      defaultValue: 'Ожидаемая дата',
-                    })}
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["fulfillment", "priority"]}
-                  label={t('salesOrders.fields.priority')}
-                  rules={[{ required: true, message: t('salesOrders.validation.priorityRequired') }]}
-                >
-                  <Select
-                    className="input"
-                    size="large"
-                    options={SalesOrderPriorities.map((priority) => ({
-                      value: priority,
-                      label: t(`salesOrders.priority.${priority}`),
-                    }))}
-                    placeholder={t('salesOrders.priority.normal')}
-                  />
-                </Form.Item>
-              </div>
-
-              <div className="form-divider-title">
-                <h4 className="title">{t('salesOrders.sections.paymentMethod')}</h4>
-              </div>
-              <div className="form-inputs">
-                <Form.Item
-                  className="input"
-                  name={["fulfillment", "paymentMethod"]}
-                  rules={[{ required: true, message: t('salesOrders.validation.paymentMethodRequired') }]}
-                >
-                  <Radio.Group size="large">
-                    <Radio value={SalesOrderPaymentMethod.Cash}>{t('salesOrders.paymentMethods.cash')}</Radio>
-                    <Radio value={SalesOrderPaymentMethod.Transfer}>{t('salesOrders.paymentMethods.transfer')}</Radio>
-                  </Radio.Group>
-                </Form.Item>
-              </div>
-
-              <div className="form-divider-title">
-                <h4 className="title">{t('waybills.sections.delivery')}</h4>
-              </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["delivery", "type"]}
-                  label={t('waybills.fields.deliveryType')}
-                  rules={[{ required: true, message: t('waybills.fields.deliveryType') }]}
-                >
-                  <Select
-                    className="input"
-                    size="large"
-                    options={Object.values(SalesOrderDeliveryType).map((type) => ({
-                      value: type,
-                      label: t(`waybills.deliveryTypes.${type}`),
-                    }))}
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["delivery", "costPerDistanceUnit"]}
-                  label={t('waybills.fields.costPerKilometer', { defaultValue: 'Цена за 1 км' })}
-                  rules={[{ required: true, message: t('salesOrders.validation.costPerKilometerRequired') }]}
-                >
-                  <InputNumber<string | number>
-                    min={0}
-                    precision={2}
-                    type="text"
-                    size="large"
-                    className="input"
-                    style={{ width: "100%" }}
-                    addonAfter={t('waybills.fields.sum', { defaultValue: 'сум' })}
-                    parser={decimalParser(10, 2)}
-                    inputMode="decimal"
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["delivery", "totalDistance"]}
-                  label={
-                    <span>
-                      {t('waybills.fields.totalDistance')}
-                      {deliveryDistanceSource === "geo" && (
-                        <Tooltip
-                          open
-                          placement="top"
-                          title={t('waybills.fields.geoDistanceFallbackTooltip', {
-                            defaultValue: 'Маршрут недоступен, указано прямое расстояние между выбранными точками',
-                          })}
-                        >
-                          <InfoCircleOutlined style={{ color: 'var(--status-warning-color)', marginLeft: 6 }} />
-                        </Tooltip>
-                      )}
-                    </span>
-                  }
-                >
-                  <InputNumber<string | number>
-                    min={0}
-                    precision={1}
-                    type="text"
-                    size="large"
-                    className="input"
-                    style={{ width: "100%" }}
-                    addonAfter="км"
-                    parser={decimalParser(10, 1)}
-                    inputMode="decimal"
-                  />
-                </Form.Item>
-              </div>
-
-              <div className="sales-order-items-total">
-                <div className="sales-order-items-total__label">
-                  {t('waybills.fields.deliveryTotalCost', { defaultValue: 'Общая стоимость доставки' })}
-                </div>
-                <div className="sales-order-items-total__value">{formattedDeliveryTotalCost}</div>
-              </div>
-
+              <OrderTermsSection
+                deliveryDistanceSource={deliveryDistanceSource}
+                formattedDeliveryTotalCost={formattedDeliveryTotalCost}
+              />
               <div className="form-divider-title">
                 <h4 className="title">{t('salesOrders.sections.items')}</h4>
               </div>
-              <Form.List name="items" initialValue={[{}]}>
-                {(fields, { add, remove }) => (
-                  <div className="create-order-items">
-                    {fields.map((field, index) => {
-                      const rowProductId = Array.isArray(items)
-                        ? (items[field.name]?.productId as string | undefined)
-                        : undefined;
-                      const rowPackages = rowProductId
-                        ? packagesByProductId[rowProductId]
-                        : undefined;
-
-                      return (
-                      <div key={field.key} className="sales-order-item-card">
-                        <div className="sales-order-item-card__header">
-                          <span className="sales-order-item-card__title">
-                            {t('salesOrders.sections.item', { defaultValue: 'Позиция' })} {index + 1}
-                          </span>
-                          <div className="sales-order-item-card__actions">
-                            {fields.length > 1 && (
-                              <CustomButton
-                                variant="danger"
-                                className="create-order-btn"
-                                icon={<CloseOutlined />}
-                                iconOnly
-                                onClick={() => remove(field.name)}
-                                aria-label={t("btn.delete", { defaultValue: "Удалить" })}
-                              />
-                            )}
-                            {index === fields.length - 1 && (
-                              <CustomButton
-                                className="create-order-btn"
-                                icon={<PlusOutlined />}
-                                iconOnly
-                                onClick={() => add()}
-                                aria-label={t("btn.add", { defaultValue: "Добавить" })}
-                              />
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="form-inputs sales-order-item-card__row sales-order-item-card__row--primary">
-                          <Form.Item
-                            className="input sales-order-item sales-order-item--product"
-                            name={[field.name, "productId"]}
-                            label={t('salesOrders.fields.product')}
-                            rules={[{ required: true, message: t('salesOrders.validation.itemProductRequired') }]}
-                          >
-                            <Select
-                              className="input"
-                              size="large"
-                              placeholder={t('salesOrders.fields.product')}
-                              showSearch
-                              filterOption={false}
-                              optionLabelProp="label"
-                              dropdownMatchSelectWidth={false}
-                              onSearch={handleProductSearch}
-                              onChange={(value) => handleItemProductChange(field.name, value)}
-                              options={products.map((product) => ({
-                                value: product.id,
-                                label: product.name,
-                              }))}
-                            />
-                          </Form.Item>
-
-                          <Form.Item
-                            className="input sales-order-item sales-order-item--package"
-                            name={[field.name, "packageCode"]}
-                            label={t('salesOrders.fields.packageCodeShort')}
-                            rules={[{ required: true, message: t('salesOrders.validation.itemPackageRequired') }]}
-                          >
-                            <Select
-                              className="input"
-                              size="large"
-                              placeholder={t('salesOrders.fields.packageCodeShort')}
-                              loading={rowPackages?.loading}
-                              disabled={!rowProductId || rowPackages?.loading}
-                              notFoundContent={
-                                rowPackages?.loading
-                                  ? t('common.loading', { defaultValue: '...' })
-                                  : undefined
-                              }
-                              options={(rowPackages?.options ?? []).map((pkg) => ({
-                                value: pkg.code,
-                                label: getPackageLabel(pkg),
-                              }))}
-                            />
-                          </Form.Item>
-
-                          <Form.Item
-                            className="input sales-order-item sales-order-item--quantity"
-                            name={[field.name, "quantity"]}
-                            label={t('salesOrders.fields.quantity')}
-                            rules={[{ required: true, message: t('salesOrders.validation.itemQuantityRequired') }]}
-                          >
-                            <InputNumber<string | number>
-                              min={1}
-                              max={9999999999}
-                              precision={0}
-                              type="text"
-                              size="large"
-                              className="input"
-                              style={{ width: "100%", minWidth: 120 }}
-                              placeholder={t('salesOrders.placeholders.quantity')}
-                              parser={digitsOnlyParser(10)}
-                              inputMode="numeric"
-                              onKeyDown={allowOnlyDigitsKeyDown(10)}
-                              onPaste={allowOnlyDigitsPaste(10)}
-                            />
-                          </Form.Item>
-                        </div>
-
-                        <div className="form-inputs sales-order-item-card__row sales-order-item-card__row--secondary">
-                          <Form.Item
-                            className="input sales-order-item sales-order-item--unit-price"
-                            name={[field.name, "unitPrice"]}
-                            label={t('salesOrders.fields.unitPrice')}
-                            rules={[{ required: true, message: t('salesOrders.validation.itemUnitPriceRequired') }]}
-                          >
-                            <InputNumber<string | number>
-                              min={100}
-                              max={9999999}
-                              precision={0}
-                              type="text"
-                              size="large"
-                              className="input"
-                              style={{ width: "100%", minWidth: 140 }}
-                              placeholder={t('salesOrders.placeholders.unitPrice')}
-                              parser={digitsOnlyParser(7)}
-                              inputMode="numeric"
-                              onKeyDown={allowOnlyDigitsKeyDown(7)}
-                              onPaste={allowOnlyDigitsPaste(7)}
-                            />
-                          </Form.Item>
-
-                          <Form.Item
-                            className="input sales-order-item sales-order-item--comment"
-                            name={[field.name, "comment"]}
-                            label={t('salesOrders.fields.comment')}
-                          >
-                            <Input className="input" size="large" placeholder={t('salesOrders.placeholders.itemComment')} />
-                          </Form.Item>
-                        </div>
-                      </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Form.List>
+              <OrderItemsSection
+                items={items}
+                products={products}
+                productsLoading={productsLoading}
+                packagesByProductId={packagesByProductId}
+                getPackageLabel={getPackageLabel}
+                onProductSearch={handleProductSearch}
+                onProductChange={handleItemProductChange}
+              />
 
               <div className="sales-order-items-total">
                 <div className="sales-order-items-total__label">{t('salesOrders.fields.totalAmount')}</div>
