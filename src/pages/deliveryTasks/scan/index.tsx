@@ -28,11 +28,10 @@ import { ScanSessionType } from 'entities/scanSessions/types';
 import { getApiErrorMessage } from 'shared/api';
 import { createScanToast, formatCodeForToast } from 'features/scanning/lib/scanToast';
 import ScanList from 'features/scanning/ui/scanList';
+import { groupAcceptedScans, selectRejectedScans } from 'features/scanning/lib/scanGroups';
 import {
   buildProductsById,
-  groupAcceptedScans,
   selectIncompleteProducts,
-  selectRejectedScans,
 } from 'features/deliveryTaskScan/lib/scanGroups';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
