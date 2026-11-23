@@ -1,4 +1,5 @@
 import { Tag } from 'antd';
+import { routes } from "shared/config/routes";
 import CustomButton from 'shared/ui/button';
 import type { TFunction } from 'i18next';
 import type { MarkingCodesTableDataType } from './types';
@@ -28,7 +29,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       <PermissionLink
         endpoint={endpointAccessMap.ordersRead}
         className="table-text link"
-        to={`/organization/${orgId}/orderId/${record?.orderId}/batchId/${record?.batchId}`}
+        to={routes.markingCodeBatch(orgId, record?.orderId, record?.batchId)}
       >
         {record.batchNumber}
       </PermissionLink>
@@ -45,7 +46,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       <PermissionLink
         endpoint={endpointAccessMap.ordersRead}
         className="table-text link"
-        to={`/organization/${orgId}/orders/${record?.orderId}`}
+        to={routes.markingCodeOrder(orgId, record?.orderId)}
       >
         {record.orderNumber}
       </PermissionLink>
@@ -61,7 +62,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
       <PermissionLink
         endpoint={endpointAccessMap.productsRead}
         className="table-text link"
-        to={`/organization/${orgId}/products/${record?.productId}`}
+        to={routes.product(orgId, record?.productId)}
       >
         {record.productName}
       </PermissionLink>

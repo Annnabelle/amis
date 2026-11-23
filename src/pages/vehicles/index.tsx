@@ -1,4 +1,5 @@
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
+import { routes } from "shared/config/routes";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -68,7 +69,7 @@ const Vehicles = () => {
     setSelectedVehicle(vehicle);
 
     if (action === "details") {
-      navigate(`/organization/${orgId}/vehicles/${record.key}`);
+      navigate(routes.vehicle(orgId, record.key));
       return;
     }
 

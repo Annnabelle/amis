@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
@@ -31,8 +32,8 @@ const SalesOrdersList = () => {
   const dataLimit = pagination.limit;
   const dataTotal = ordersPage?.total ?? 0;
   const createPath = orgId
-    ? `/organization/${orgId}/sales-orders/create`
-    : '/organization';
+    ? routes.salesOrderCreate(orgId)
+    : routes.companies();
 
   const SalesOrdersData = useMemo<SalesOrdersTableDataType[]>(() => {
     return orders.map((order) => ({
@@ -77,8 +78,8 @@ const SalesOrdersList = () => {
                   ? (record) =>
                       navigate(
                         orgId
-                          ? `/organization/${orgId}/sales-orders/${record.key}`
-                          : '/organization'
+                          ? routes.salesOrder(orgId, record.key)
+                          : routes.companies()
                       )
                   : undefined
               }

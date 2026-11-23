@@ -1,4 +1,5 @@
 import MainLayout from 'widgets/appShell';
+import { routes } from "shared/config/routes";
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import { Empty } from 'antd';
@@ -14,10 +15,10 @@ const DeliveryTasksDetails = () => {
   const { id, orgId } = useParams<{ id: string; orgId?: string }>();
   const taskId = id ?? '1';
   const { t } = useTranslation();
-  const backPath = orgId ? `/organization/${orgId}/delivery-tasks` : '/organization';
+  const backPath = orgId ? routes.deliveryTasks(orgId) : routes.companies();
   const scanPath = orgId
-    ? `/organization/${orgId}/delivery-tasks/${taskId}/scan`
-    : '/organization';
+    ? routes.deliveryTaskScan(orgId, taskId)
+    : routes.companies();
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: taskId,
     target: LifecycleTargetEntity.DeliveryTask,

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { routes } from "shared/config/routes";
 import { MailOutlined } from "@ant-design/icons";
 import { Form, Input } from 'antd';
 import { Link } from 'react-router-dom';
@@ -39,7 +40,7 @@ const ForgotPasswordPage = () => {
     return (
       <AuthShell
         title={t('auth.forgotPassword.checkInbox.title')}
-        footer={<Link to="/">{t('auth.backToLogin')}</Link>}
+        footer={<Link to={routes.login()}>{t('auth.backToLogin')}</Link>}
       >
         <div className="auth-message">
           <MailOutlined className="auth-message-icon" />
@@ -55,7 +56,7 @@ const ForgotPasswordPage = () => {
     <AuthShell
       title={t('auth.forgotPassword.title')}
       subtitle={t('auth.forgotPassword.subtitle')}
-      footer={<Link to="/">{t('auth.backToLogin')}</Link>}
+      footer={<Link to={routes.login()}>{t('auth.backToLogin')}</Link>}
     >
       <FormComponent onFinish={onFinish}>
         <div className="form-inputs">

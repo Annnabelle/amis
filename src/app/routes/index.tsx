@@ -6,6 +6,7 @@ import { PermissionRoute } from "./PermissionRoute";
 import { GuestRoute } from "./GuestRoute";
 import { AuthRoute } from "./AuthRoute";
 import { routeAccess, type RouteAccess } from "./accessMap";
+import { routePatterns, routes } from "shared/config/routes";
 
 const LoginPage = lazy(() => import("pages/login"));
 const RegisterPage = lazy(() => import("pages/register"));
@@ -87,56 +88,56 @@ const Router: React.FC = () => {
   return (
     <Suspense fallback={<GlobalLoader loading={true}/>}>
       <Routes>
-        <Route path='/' element={<LoginPage />} />
-        <Route path='/register' element={<GuestRoute><RegisterPage /></GuestRoute>} />
-        <Route path='/forgot-password' element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
-        <Route path='/verify-email' element={<VerifyEmailPage />} />
-        <Route path='/activate' element={<ActivatePage />} />
-        <Route path='/reset-password' element={<ResetPasswordPage />} />
-        <Route path='/me' element={<Navigate to="/profile" replace />} />
-        <Route path='/welcome' element={<WelcomePage />} />
-        <Route path='/users' element={protectedPage(routeAccess.usersList, <Users />)} />
-        <Route path='/system-employees' element={protectedPage(routeAccess.systemEmployeesList, <SystemEmployees />)} />
-        <Route path='/leads' element={protectedPage(routeAccess.leadsList, <Leads />)} />
-        <Route path='/leads/:id' element={protectedPage(routeAccess.leadsRead, <LeadDetails />)} />
-        <Route path="/users/:id" element={protectedPage(routeAccess.usersRead, <UsersRetrieve />)} />
-        <Route path="/users/:id/edit" element={protectedPage(routeAccess.usersUpdate, <UsersEdit />)} />
-        <Route path='/organization' element={protectedPage(routeAccess.companiesList, <Organizations/>)}/>
-        <Route path='/organization/:id' element={protectedPage(routeAccess.companiesRead, <OrganizationsInner/>)}/>
-        <Route path='/organization/:orgId/memberships' element={protectedPage(routeAccess.companyMembershipsList, <CompanyMemberships/>)} />
-        <Route path= '/organization/:id/products' element={protectedPage(routeAccess.productsList, <Products/>)}/>
-        <Route path='/profile' element={<AuthRoute><ProfilePage/></AuthRoute>}/>
-        <Route path='/change-password' element={<AuthRoute><ChangePasswordPage/></AuthRoute>}/>
-        <Route path='/audit-logs' element={protectedPage(routeAccess.auditList, <AuditLogsPage/>)}/>
-        <Route path='/organization/:orgId/products/:id' element={protectedPage(routeAccess.productsRead, <ProductsView/>)}/>
-        <Route path='/organization/:id/edit' element={protectedPage(routeAccess.companiesUpdate, <OrganizationsEdit/>)}/>
-        <Route path='/organization/:orgId/products/:id/edit' element={protectedPage(routeAccess.productsUpdate, <ProductsEdit/>)}/>
-        <Route path='/organization/:id/orders' element={protectedPage(routeAccess.ordersList, <MarkingCodes/>)}/>
-        <Route path='/organization/:orgId/codes' element={protectedPage(routeAccess.ownedCodesList, <OwnedCodes/>)}/>
-        <Route path='/organization/:orgId/orders/:orderId' element={protectedPage(routeAccess.ordersRead, <Batches/>)}/>
-        <Route path='/organization/:orgId/orderId/:orderId/batchId/:batchId' element={protectedPage(routeAccess.codesRead, <MarkingCodeProduct/>)}/>
-        <Route path='/organization/:id/agregations' element={protectedPage(routeAccess.reportsList, <Aggregations/>)}/>
-        <Route path='/organization/:orgId/aggregations/:id' element={protectedPage(routeAccess.reportsRead, <AggregationReportPage/>)}/>
-        <Route path='/organization/:orgId/customs-codes' element={protectedPage(routeAccess.customsCodesList, <CustomsCodesPage/>)} />
-        <Route path='/organization/:orgId/customs-codes/:id' element={protectedPage(routeAccess.customsCodesRead, <CustomsCodeDetails/>)} />
-        <Route path='/organization/:orgId/sales-orders' element={protectedPage(routeAccess.salesOrdersList, <SalesOrdersList/>)} />
-        <Route path='/organization/:orgId/sales-orders/create' element={protectedPage(routeAccess.salesOrdersCreate, <SalesOrdersCreate/>)} />
-        <Route path='/organization/:orgId/sales-orders/:id' element={protectedPage(routeAccess.salesOrdersRead, <SalesOrdersDetails/>)} />
-        <Route path='/organization/:orgId/delivery-routes' element={protectedPage(routeAccess.deliveryRoutesList, <DeliveryRoutesList/>)} />
-        <Route path='/organization/:orgId/delivery-routes/create' element={protectedPage(routeAccess.deliveryRoutesCreate, <DeliveryRoutesCreate/>)} />
-        <Route path='/organization/:orgId/delivery-routes/:id' element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesDetails/>)} />
-        <Route path='/organization/:orgId/delivery-routes/:id/loading' element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesLoading/>)} />
-        <Route path='/organization/:orgId/delivery-routes/:id/return' element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesReturn/>)} />
-        <Route path='/organization/:orgId/vehicles' element={protectedPage(routeAccess.vehiclesList, <Vehicles/>)} />
-        <Route path='/organization/:orgId/vehicles/:id' element={protectedPage(routeAccess.vehiclesRead, <VehicleDetails/>)} />
-        <Route path='/organization/:orgId/delivery-tasks' element={protectedPage(routeAccess.deliveryTasksList, <DeliveryTasksList/>)} />
-        <Route path='/organization/:orgId/delivery-tasks/:id' element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksDetails/>)} />
-        <Route path='/organization/:orgId/delivery-tasks/:id/scan' element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksScan/>)} />
-        <Route path='/organization/:orgId/invoices' element={protectedPage(routeAccess.invoicesList, <InvoicesList/>)} />
-        <Route path='/organization/:orgId/invoices/:id' element={protectedPage(routeAccess.invoicesRead, <InvoicesDetails/>)} />
-        <Route path='/organization/:orgId/waybills' element={protectedPage(routeAccess.waybillsList, <WaybillsList/>)} />
-        <Route path='/organization/:orgId/waybills/:id' element={protectedPage(routeAccess.waybillsRead, <WaybillsDetails/>)} />
-        <Route path='/organization/:orgId/integrations' element={protectedPage(routeAccess.integrationsRead, <CompanyIntegrations/>)} />
+        <Route path={routePatterns.login} element={<LoginPage />} />
+        <Route path={routePatterns.register} element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path={routePatterns.forgotPassword} element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
+        <Route path={routePatterns.verifyEmail} element={<VerifyEmailPage />} />
+        <Route path={routePatterns.activate} element={<ActivatePage />} />
+        <Route path={routePatterns.resetPassword} element={<ResetPasswordPage />} />
+        <Route path={routePatterns.me} element={<Navigate to={routes.profile()} replace />} />
+        <Route path={routePatterns.welcome} element={<WelcomePage />} />
+        <Route path={routePatterns.users} element={protectedPage(routeAccess.usersList, <Users />)} />
+        <Route path={routePatterns.systemEmployees} element={protectedPage(routeAccess.systemEmployeesList, <SystemEmployees />)} />
+        <Route path={routePatterns.leads} element={protectedPage(routeAccess.leadsList, <Leads />)} />
+        <Route path={routePatterns.lead} element={protectedPage(routeAccess.leadsRead, <LeadDetails />)} />
+        <Route path={routePatterns.user} element={protectedPage(routeAccess.usersRead, <UsersRetrieve />)} />
+        <Route path={routePatterns.userEdit} element={protectedPage(routeAccess.usersUpdate, <UsersEdit />)} />
+        <Route path={routePatterns.companies} element={protectedPage(routeAccess.companiesList, <Organizations/>)}/>
+        <Route path={routePatterns.company} element={protectedPage(routeAccess.companiesRead, <OrganizationsInner/>)}/>
+        <Route path={routePatterns.companyMemberships} element={protectedPage(routeAccess.companyMembershipsList, <CompanyMemberships/>)} />
+        <Route path={routePatterns.products} element={protectedPage(routeAccess.productsList, <Products/>)}/>
+        <Route path={routePatterns.profile} element={<AuthRoute><ProfilePage/></AuthRoute>}/>
+        <Route path={routePatterns.changePassword} element={<AuthRoute><ChangePasswordPage/></AuthRoute>}/>
+        <Route path={routePatterns.auditLogs} element={protectedPage(routeAccess.auditList, <AuditLogsPage/>)}/>
+        <Route path={routePatterns.product} element={protectedPage(routeAccess.productsRead, <ProductsView/>)}/>
+        <Route path={routePatterns.companyEdit} element={protectedPage(routeAccess.companiesUpdate, <OrganizationsEdit/>)}/>
+        <Route path={routePatterns.productEdit} element={protectedPage(routeAccess.productsUpdate, <ProductsEdit/>)}/>
+        <Route path={routePatterns.markingCodeOrders} element={protectedPage(routeAccess.ordersList, <MarkingCodes/>)}/>
+        <Route path={routePatterns.ownedCodes} element={protectedPage(routeAccess.ownedCodesList, <OwnedCodes/>)}/>
+        <Route path={routePatterns.markingCodeOrder} element={protectedPage(routeAccess.ordersRead, <Batches/>)}/>
+        <Route path={routePatterns.markingCodeBatch} element={protectedPage(routeAccess.codesRead, <MarkingCodeProduct/>)}/>
+        <Route path={routePatterns.aggregations} element={protectedPage(routeAccess.reportsList, <Aggregations/>)}/>
+        <Route path={routePatterns.aggregationReport} element={protectedPage(routeAccess.reportsRead, <AggregationReportPage/>)}/>
+        <Route path={routePatterns.customsCodes} element={protectedPage(routeAccess.customsCodesList, <CustomsCodesPage/>)} />
+        <Route path={routePatterns.customsCode} element={protectedPage(routeAccess.customsCodesRead, <CustomsCodeDetails/>)} />
+        <Route path={routePatterns.salesOrders} element={protectedPage(routeAccess.salesOrdersList, <SalesOrdersList/>)} />
+        <Route path={routePatterns.salesOrderCreate} element={protectedPage(routeAccess.salesOrdersCreate, <SalesOrdersCreate/>)} />
+        <Route path={routePatterns.salesOrder} element={protectedPage(routeAccess.salesOrdersRead, <SalesOrdersDetails/>)} />
+        <Route path={routePatterns.deliveryRoutes} element={protectedPage(routeAccess.deliveryRoutesList, <DeliveryRoutesList/>)} />
+        <Route path={routePatterns.deliveryRouteCreate} element={protectedPage(routeAccess.deliveryRoutesCreate, <DeliveryRoutesCreate/>)} />
+        <Route path={routePatterns.deliveryRoute} element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesDetails/>)} />
+        <Route path={routePatterns.deliveryRouteLoading} element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesLoading/>)} />
+        <Route path={routePatterns.deliveryRouteReturn} element={protectedPage(routeAccess.deliveryRoutesRead, <DeliveryRoutesReturn/>)} />
+        <Route path={routePatterns.vehicles} element={protectedPage(routeAccess.vehiclesList, <Vehicles/>)} />
+        <Route path={routePatterns.vehicle} element={protectedPage(routeAccess.vehiclesRead, <VehicleDetails/>)} />
+        <Route path={routePatterns.deliveryTasks} element={protectedPage(routeAccess.deliveryTasksList, <DeliveryTasksList/>)} />
+        <Route path={routePatterns.deliveryTask} element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksDetails/>)} />
+        <Route path={routePatterns.deliveryTaskScan} element={protectedPage(routeAccess.deliveryTasksRead, <DeliveryTasksScan/>)} />
+        <Route path={routePatterns.invoices} element={protectedPage(routeAccess.invoicesList, <InvoicesList/>)} />
+        <Route path={routePatterns.invoice} element={protectedPage(routeAccess.invoicesRead, <InvoicesDetails/>)} />
+        <Route path={routePatterns.waybills} element={protectedPage(routeAccess.waybillsList, <WaybillsList/>)} />
+        <Route path={routePatterns.waybill} element={protectedPage(routeAccess.waybillsRead, <WaybillsDetails/>)} />
+        <Route path={routePatterns.companyIntegrations} element={protectedPage(routeAccess.integrationsRead, <CompanyIntegrations/>)} />
       </Routes>
     </Suspense>
   );

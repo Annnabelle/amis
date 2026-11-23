@@ -1,4 +1,5 @@
 import { Form, Input, Select, Spin } from 'antd'
+import { routes } from "shared/config/routes";
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -93,7 +94,7 @@ const UsersEdit = () => {
             subtitle={t('organizations.subtitle')}>
             <div className="btns-group">
                 <CustomButton type="submit">{t('btn.save')} </CustomButton>
-                <CustomButton onClick={() => navigateBack('/users')}>{t('btn.back')}</CustomButton>
+                <CustomButton onClick={() => navigateBack(routes.users())}>{t('btn.back')}</CustomButton>
             </div>
         </Heading>
         <div className="box">

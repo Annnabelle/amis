@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { routes } from "shared/config/routes";
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { BatchTableDataType } from 'entities/markingCodes/ui/tableData/markingCodes/types'
@@ -148,7 +149,7 @@ const Batches = () => {
                         {t('btn.applyAll')}
                     </CustomButton>
                 )}
-                <CustomButton variant='outline' onClick={() => navigate(`/organization/${orgId}/orders`)}>{t("markingCodes.backToOrders")}</CustomButton>
+                <CustomButton variant='outline' onClick={() => navigate(routes.markingCodeOrders(orgId))}>{t("markingCodes.backToOrders")}</CustomButton>
             </div>
         </Heading>
         {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}

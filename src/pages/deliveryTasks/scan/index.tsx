@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { Alert, Empty, Input, Modal, Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -79,11 +80,11 @@ const DeliveryTasksScan = () => {
     (scanSession?.status !== 'active' || canCompleteScanSession);
   const routePath = task?.deliveryRouteId
     ? orgId
-      ? `/organization/${orgId}/delivery-routes/${task.deliveryRouteId}`
-      : '/organization'
+      ? routes.deliveryRoute(orgId, task.deliveryRouteId)
+      : routes.companies()
     : orgId
-      ? `/organization/${orgId}/delivery-routes`
-      : '/organization';
+      ? routes.deliveryRoutes(orgId)
+      : routes.companies();
 
   useEffect(() => {
     if (!taskId) return;

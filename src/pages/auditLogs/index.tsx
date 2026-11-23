@@ -1,4 +1,5 @@
 import { resolveMultiLanguage } from 'shared/lib/multiLanguage';
+import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import React, { useState, useMemo, type JSX } from "react";
 import {
@@ -200,7 +201,7 @@ const AuditLogsPage: React.FC = () => {
               <h5 className="description">
                 <PermissionLink
                     endpoint={endpointAccessMap.ordersRead}
-                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${batches[0]?.id ?? ""}`}
+                    to={routes.markingCodeBatch(orgId, orderId, batches[0]?.id ?? "")}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
@@ -221,7 +222,7 @@ const AuditLogsPage: React.FC = () => {
               <h5 className="description">
                 <PermissionLink
                     endpoint={endpointAccessMap.ordersRead}
-                    to={`/organization/${orgId}/orderId/${orderId}/batchId/${batch.id ?? ""}`}
+                    to={routes.markingCodeBatch(orgId, orderId, batch.id ?? "")}
                     className="actor-link-hover"
                     style={{ color: "inherit" }}
                 >
@@ -296,15 +297,15 @@ const AuditLogsPage: React.FC = () => {
             let path = "";
             switch (targetEntity) {
               case "user":
-                path = `/users/${entityId}`;
+                path = routes.user(entityId);
                 break;
               case "company":
-                path = `/organization/${entityId}`;
+                path = routes.company(entityId);
                 break;
               case "product":
                 path = target.companyId
-                  ? `/organization/${String(target.companyId)}/products/${entityId}`
-                  : "/organization";
+                  ? routes.product(String(target.companyId), entityId)
+                  : routes.companies();
                 break;
             }
 
@@ -403,7 +404,7 @@ const AuditLogsPage: React.FC = () => {
                     value: (
                       <PermissionLink
                         endpoint={endpointAccessMap.usersRead}
-                        to={`/users/${item.actorId}`}
+                        to={routes.user(item.actorId)}
                         style={{ color: "inherit" }}
                         className="actor-link-hover"
                       >

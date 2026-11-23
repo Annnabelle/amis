@@ -1,4 +1,5 @@
 import {Form, Input, Spin, Steps, Tag} from 'antd'
+import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
 import { normalizeLanguage } from 'shared/lib/language';
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
@@ -355,10 +356,10 @@ const Organizations = () => {
 
     const handleRowClick = (type: 'Company', action: 'retrieve' | 'edit' | 'delete', record: OrganizationTableDataType) => {
         if (type === "Company" && action === "retrieve") {
-            navigate(`/organization/${record.key}`); 
+            navigate(routes.company(record.key)); 
         }
         if (action === "edit") {
-            navigate(`/organization/${record.key}/edit`);
+            navigate(routes.companyEdit(record.key));
         }
     };
 
@@ -400,7 +401,7 @@ const Organizations = () => {
             <Heading title={t('organizations.title')} subtitle={t('organizations.subtitle')} totalAmount={`${dataTotal}`}>
                 <div className="btns-group">
                     {canReadAudit && (
-                        <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                        <CustomButton variant='outline' onClick={() => navigate(routes.auditLogs())}>{t('navigation.audit')}</CustomButton>
                     )}
                     {canCreateCompany && (
                         <CustomButton onClick={() => handleModal('addCompany', true)}>{t('organizations.btnAdd')}</CustomButton>

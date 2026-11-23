@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { BrowserRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
@@ -131,7 +132,7 @@ const AuthSessionGuard = () => {
 
   useEffect(() => {
     const handleLogout = () => {
-      void requestLogout().then(() => navigate('/', { replace: true }));
+      void requestLogout().then(() => navigate(routes.login(), { replace: true }));
     };
 
     const handleSessionCheck = () => {

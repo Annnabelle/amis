@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { routes } from "shared/config/routes";
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from 'app/store';
 import GlobalLoader from 'shared/ui/loader';
@@ -32,7 +33,7 @@ export const PermissionRoute = ({
 
   /** Без входа прав никто не запросит — ждать нечего, сразу на страницу входа. */
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={routes.login()} replace />;
   }
 
   if (loading || (!userAccess && !error)) {
@@ -40,7 +41,7 @@ export const PermissionRoute = ({
   }
 
   if (!userAccess) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={routes.login()} replace />;
   }
 
   const allowed = canAccessRoute({
@@ -62,7 +63,7 @@ export const PermissionRoute = ({
   if (isMobile) {
     return (
       <Navigate
-        to={companyId ? `/organization/${companyId}` : '/organization'}
+        to={companyId ? routes.company(companyId) : routes.companies()}
         replace
       />
     );

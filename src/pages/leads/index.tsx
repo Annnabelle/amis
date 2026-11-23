@@ -1,4 +1,5 @@
 import { Form, Input, Modal, Select } from "antd";
+import { routes } from "shared/config/routes";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -154,7 +155,7 @@ const Leads = () => {
                 onStatusChange: openStatusModal,
               })}
               data={tableData}
-              onRowClick={canRead ? (record) => navigate(`/leads/${record.key}`) : undefined}
+              onRowClick={canRead ? (record) => navigate(routes.lead(record.key)) : undefined}
               pagination={{
                 current: dataPage,
                 pageSize: dataLimit,

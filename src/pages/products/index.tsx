@@ -1,4 +1,5 @@
 import {Form, Input} from 'antd'
+import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -213,10 +214,10 @@ const Products = () => {
                 productData: product
             }));
             if (action === "retrieve") {
-                navigate(`/organization/${orgId}/products/${record.key}`);
+                navigate(routes.product(orgId, record.key));
             }
             if(action === 'edit'){
-                navigate(`/organization/${orgId}/products/${record.key}/edit`)
+                navigate(routes.productEdit(orgId, record.key))
             }
         }
     };
@@ -270,7 +271,7 @@ const Products = () => {
                 <FormActions>
                     <CompanyImportStageButton companyId={orgId} stage={CompanyImportStage.Products} />
                     {canReadAudit && (
-                        <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                        <CustomButton variant='outline' onClick={() => navigate(routes.auditLogs())}>{t('navigation.audit')}</CustomButton>
                     )}
                     {canCreateProduct && (
                         <CustomButton onClick={() => handleModal('addProduct', true)}>{t('products.btnAdd')}</CustomButton>

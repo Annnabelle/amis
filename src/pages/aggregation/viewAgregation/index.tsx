@@ -1,4 +1,5 @@
 import React, {useMemo, useState} from "react";
+import { routes } from "shared/config/routes";
 import {useParams} from "react-router-dom";
 import {
     useGetAggregationReportByIdQuery,
@@ -163,7 +164,7 @@ const AggregationReportPage: React.FC = () => {
 
                             <CustomButton
                                 variant="outline"
-                                onClick={() => navigateBack(`/organization/${orgId}/agregations`)}
+                                onClick={() => navigateBack(routes.aggregations(orgId))}
                             >
                                 {t("btn.back")}
                             </CustomButton>

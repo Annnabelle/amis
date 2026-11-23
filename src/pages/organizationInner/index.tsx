@@ -1,4 +1,5 @@
 import { Empty } from 'antd';
+import { routes } from "shared/config/routes";
 import { LeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -66,13 +67,13 @@ const OrganizationsInner = () => {
     modules: readonly AccessModule[]
   ) => {
     const modulePaths: Array<{ module: AccessModule; path: string }> = [
-      { module: AccessModules.Products, path: `/organization/${companyId}/products` },
-      { module: AccessModules.Orders, path: `/organization/${companyId}/orders` },
-      { module: AccessModules.Reports, path: `/organization/${companyId}/agregations` },
-      { module: AccessModules.SalesOrders, path: `/organization/${companyId}/sales-orders` },
-      { module: AccessModules.DeliveryRoutes, path: `/organization/${companyId}/delivery-routes` },
-      { module: AccessModules.Invoices, path: `/organization/${companyId}/invoices` },
-      { module: AccessModules.Integrations, path: `/organization/${companyId}/integrations` },
+      { module: AccessModules.Products, path: routes.products(companyId) },
+      { module: AccessModules.Orders, path: routes.markingCodeOrders(companyId) },
+      { module: AccessModules.Reports, path: routes.aggregations(companyId) },
+      { module: AccessModules.SalesOrders, path: routes.salesOrders(companyId) },
+      { module: AccessModules.DeliveryRoutes, path: routes.deliveryRoutes(companyId) },
+      { module: AccessModules.Invoices, path: routes.invoices(companyId) },
+      { module: AccessModules.Integrations, path: routes.companyIntegrations(companyId) },
     ];
 
     return modulePaths.find((item) => modules.includes(item.module))?.path;
@@ -102,7 +103,7 @@ const OrganizationsInner = () => {
         {isMobile && (
           <div className="mobile-route-toolbar">
             <div className="mobile-route-toolbar-back">
-              <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+              <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
                 <LeftOutlined />
               </CustomButton>
             </div>
@@ -110,7 +111,7 @@ const OrganizationsInner = () => {
         )}
         {!isMobile && (
           <Heading title={t('organizations.title')} subtitle={t('common.details')}>
-            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
               {t('common.backToList')}
             </CustomButton>
           </Heading>
@@ -206,7 +207,7 @@ const OrganizationsInner = () => {
       {isMobile && (
         <div className="mobile-route-toolbar">
           <div className="mobile-route-toolbar-back">
-            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
               <LeftOutlined />
             </CustomButton>
           </div>
@@ -224,7 +225,7 @@ const OrganizationsInner = () => {
           subtitle={t('common.details')}
         >
           <div className="btns-group">
-            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
               {t('common.backToList')}
             </CustomButton>
             <CustomButton onClick={handleEnterCompany}>
@@ -314,7 +315,7 @@ const OrganizationsInner = () => {
                     )}
 
                     <div className="btns-group">
-                      <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+                      <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
                         {t('common.backToList')}
                       </CustomButton>
                     </div>

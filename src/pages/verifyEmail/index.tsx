@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useVerifyEmailMutation } from 'entities/users/api';
@@ -42,10 +43,10 @@ const VerifyEmailPage = () => {
     return (
       <AuthShell
         title={t('auth.verifyEmail.successTitle')}
-        footer={<Link to="/">{t('auth.backToLogin')}</Link>}
+        footer={<Link to={routes.login()}>{t('auth.backToLogin')}</Link>}
       >
         <p>{t('auth.verifyEmail.successDescription')}</p>
-        <Link to="/">
+        <Link to={routes.login()}>
           <CustomButton>{t('auth.goToLogin')}</CustomButton>
         </Link>
       </AuthShell>
@@ -55,7 +56,7 @@ const VerifyEmailPage = () => {
   return (
     <AuthShell
       title={t('auth.verifyEmail.errorTitle')}
-      footer={<Link to="/register">{t('auth.register.title')}</Link>}
+      footer={<Link to={routes.register()}>{t('auth.register.title')}</Link>}
     >
       <p>{status === 'missing-token' ? t('auth.errors.missingToken') : errorMessage}</p>
     </AuthShell>

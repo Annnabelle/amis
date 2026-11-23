@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { routes } from "shared/config/routes";
 import { useParams } from "react-router-dom";
 import {useEffect} from "react";
 import {
@@ -115,7 +116,7 @@ const OrganizationsEdit = () => {
         <Heading title={organizationById?.displayName ?? ''} isTest={organizationById?.isTest} subtitle={t('organizations.subtitle')}>
             <FormActions>
                 <CustomButton type="submit">{t('btn.save')} </CustomButton>
-                <CustomButton onClick={() => navigateBack('/organization')}>{t('btn.back')}</CustomButton>
+                <CustomButton onClick={() => navigateBack(routes.companies())}>{t('btn.back')}</CustomButton>
             </FormActions>
         </Heading>
         <div className="box">

@@ -1,4 +1,5 @@
 import { Alert, Spin } from 'antd';
+import { routes } from "shared/config/routes";
 import { SyncOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +54,7 @@ const CustomsCodeDetails = () => {
   const loadError = loadRequestError
     ? getApiErrorMessage(loadRequestError, t('customsCodes.messages.loadError'))
     : null;
-  const listPath = orgId ? `/organization/${orgId}/customs-codes` : '/organization';
+  const listPath = orgId ? routes.customsCodes(orgId) : routes.companies();
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.AggregatedCustomsCodeOrder,

@@ -1,4 +1,5 @@
 import { Form, Input } from 'antd'
+import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
 import { UsersTableColumns } from 'entities/users/ui/tableData/users'
 import { toast } from 'react-toastify'
@@ -125,10 +126,10 @@ const Users = () => {
             }));
 
             if (action === "retrieve") {
-                navigate(`/users/${record.key}`);
+                navigate(routes.user(record.key));
             }
                 if (action === "edit") {
-                navigate(`/users/${record.key}/edit`);
+                navigate(routes.userEdit(record.key));
             }
                 if (action === "delete") {
                 handleDeleteUser(record);
@@ -176,7 +177,7 @@ const Users = () => {
         <Heading title={t('users.title')} subtitle={t('users.subtitle')} totalAmount={`${dataTotal}`}>
             <div className="btns-group">
                 {canReadAudit && (
-                    <CustomButton variant='outline' onClick={() => navigate(`/audit-logs`)}>{t('navigation.audit')}</CustomButton>
+                    <CustomButton variant='outline' onClick={() => navigate(routes.auditLogs())}>{t('navigation.audit')}</CustomButton>
                 )}
                 <CustomButton onClick={() => handleModal('addUser', true)}>{t('users.btnAdd')}</CustomButton>
             </div>

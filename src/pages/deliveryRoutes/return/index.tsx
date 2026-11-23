@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { Alert, Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -39,7 +40,7 @@ const DeliveryRoutesReturn = () => {
   const { t } = useTranslation();
 
   const routeId = id ?? '';
-  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
+  const backPath = orgId ? routes.deliveryRoutes(orgId) : routes.companies();
 
   const {
     data: route,
@@ -331,7 +332,7 @@ const DeliveryRoutesReturn = () => {
 
       await completeDeliveryRouteReturn(routeId).unwrap();
       localStorage.removeItem(getScanCacheKey(routeId));
-      navigate(`${backPath}/${routeId}`);
+      navigate(routes.deliveryRoute(orgId, routeId));
     } catch (error) {
       toast.error(
         getApiErrorMessage(
@@ -436,7 +437,7 @@ const DeliveryRoutesReturn = () => {
               {isCompletingSession ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeReturn')}
             </CustomButton>
           )}
-          <CustomButton variant="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
+          <CustomButton variant="outline" onClick={() => navigate(routes.deliveryRoute(orgId, routeId))}>
             {t('common.backToRoute')}
           </CustomButton>
         </div>

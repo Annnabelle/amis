@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
+import { routes } from "shared/config/routes";
 import { type MenuProps } from 'antd';
 import { Menu, Select, Switch, Tag } from 'antd';
 
@@ -177,19 +178,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const orgId = parseCompanyFromPath(location.pathname) ?? undefined;
   const section = pathSegments[2];
   const routeId = section === 'delivery-routes' ? pathSegments[3] : undefined;
-  const isOrganizationRoot = location.pathname === '/organization';
+  const isOrganizationRoot = location.pathname === routes.companies();
   const isOrganizationScreen = pathSegments[0] === 'organization' && Boolean(orgId) && !section;
   const isRoutesScreen = pathSegments[0] === 'organization' && Boolean(orgId) && section === 'delivery-routes' && !routeId;
   /** Рейсы нужны только мобильному меню рейсов, поэтому вне него запрос не идёт. */
-  const { data: routes = [] } = useGetDeliveryRoutesQuery(
+  const { data: deliveryRoutes = [] } = useGetDeliveryRoutesQuery(
     {},
     { skip: !isMobile || !orgId || section !== 'delivery-routes' }
   );
   const isSystemScreen = [
-    '/users',
-    '/system-employees',
-    '/leads',
-    '/audit-logs',
+    routes.users(),
+    routes.systemEmployees(),
+    routes.leads(),
+    routes.auditLogs(),
   ].some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
   const routeCompanyId = orgId;
   const selectedCompanyId = routeCompanyId ?? storedCompanyId ?? companies[0]?.companyId;
@@ -290,7 +291,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'memberships',
         group: 'company',
         icon: <TeamOutlined />,
-        path: `/organization/${companyId}/memberships`,
+        path: routes.companyMemberships(companyId),
         label: t('navigation.companyMemberships'),
       },
       {
@@ -299,7 +300,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'products',
         group: 'marking',
         icon: <AppstoreOutlined />,
-        path: `/organization/${companyId}/products`,
+        path: routes.products(companyId),
         label: t('navigation.products'),
       },
       {
@@ -308,7 +309,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'orders',
         group: 'marking',
         icon: <CodeOutlined />,
-        path: `/organization/${companyId}/orders`,
+        path: routes.markingCodeOrders(companyId),
         label: t('navigation.markingCodes'),
       },
       {
@@ -317,7 +318,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'codes',
         group: 'marking',
         icon: <CodeOutlined />,
-        path: `/organization/${companyId}/codes`,
+        path: routes.ownedCodes(companyId),
         label: t('navigation.ownedCodes'),
       },
       {
@@ -326,7 +327,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'agregations',
         group: 'marking',
         icon: <ClusterOutlined />,
-        path: `/organization/${companyId}/agregations`,
+        path: routes.aggregations(companyId),
         label: t('navigation.agregations'),
       },
       {
@@ -335,7 +336,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'customs-codes',
         group: 'marking',
         icon: <SafetyCertificateOutlined />,
-        path: `/organization/${companyId}/customs-codes`,
+        path: routes.customsCodes(companyId),
         label: 'АИК',
       },
       {
@@ -344,7 +345,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'sales-orders',
         group: 'shipping',
         icon: <ShoppingCartOutlined />,
-        path: `/organization/${companyId}/sales-orders`,
+        path: routes.salesOrders(companyId),
         label: t('navigation.deals'),
       },
       {
@@ -353,7 +354,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'delivery-routes',
         group: 'shipping',
         icon: <CarOutlined />,
-        path: `/organization/${companyId}/delivery-routes`,
+        path: routes.deliveryRoutes(companyId),
         label: t('navigation.routes'),
       },
       {
@@ -362,7 +363,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'vehicles',
         group: 'company',
         icon: <CarOutlined />,
-        path: `/organization/${companyId}/vehicles`,
+        path: routes.vehicles(companyId),
         label: t('navigation.vehicles'),
       },
       {
@@ -371,7 +372,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'invoices',
         group: 'shipping',
         icon: <FileDoneOutlined />,
-        path: `/organization/${companyId}/invoices`,
+        path: routes.invoices(companyId),
         label: t('navigation.invoices'),
       },
       {
@@ -380,7 +381,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'waybills',
         group: 'shipping',
         icon: <FileProtectOutlined />,
-        path: `/organization/${companyId}/waybills`,
+        path: routes.waybills(companyId),
         label: t('navigation.waybills'),
       },
       {
@@ -392,7 +393,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'integrations',
         group: 'company',
         icon: <ApiOutlined />,
-        path: `/organization/${companyId}/integrations`,
+        path: routes.companyIntegrations(companyId),
         label: t('navigation.integrations'),
       },
     ];
@@ -417,10 +418,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   if (systemModules.includes(AccessModules.Users)) {
     items.push({
-      key: '/users',
+      key: routes.users(),
       icon: <UserOutlined />,
       label: (
-        <Link to="/users">
+        <Link to={routes.users()}>
           {t('navigation.users') || 'Пользователи'}
         </Link>
       ),
@@ -429,10 +430,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   if (systemModules.includes(AccessModules.SystemEmployees)) {
     items.push({
-      key: '/system-employees',
+      key: routes.systemEmployees(),
       icon: <TeamOutlined />,
       label: (
-        <Link to="/system-employees">
+        <Link to={routes.systemEmployees()}>
           {t('navigation.systemEmployees')}
         </Link>
       ),
@@ -441,10 +442,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   if (systemModules.includes(AccessModules.Companies)) {
     items.push({
-      key: '/organization',
+      key: routes.companies(),
       icon: <ApartmentOutlined />,
       label: (
-        <Link to="/organization">
+        <Link to={routes.companies()}>
           {t('navigation.organizations') || 'Организации'}
         </Link>
       ),
@@ -453,10 +454,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   if (systemModules.includes(AccessModules.Leads)) {
     items.push({
-      key: '/leads',
+      key: routes.leads(),
       icon: <ContactsOutlined />,
       label: (
-        <Link to="/leads">
+        <Link to={routes.leads()}>
           {t('navigation.leads')}
         </Link>
       ),
@@ -465,10 +466,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   if (systemModules.includes(AccessModules.Audit)) {
     items.push({
-      key: '/audit-logs',
+      key: routes.auditLogs(),
       icon: <FileTextOutlined />,
       label: (
-        <Link to="/audit-logs">
+        <Link to={routes.auditLogs()}>
           {t('navigation.audit') || 'Логи системы'}
         </Link>
       ),
@@ -487,49 +488,49 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const systemMobileNavItems = useMemo<MobileNavItem[]>(() => [
     ...(systemModules.includes(AccessModules.Users)
       ? [{
-          key: '/users',
+          key: routes.users(),
           label: t('navigation.users'),
           meta: '',
-          isActive: location.pathname === '/users' || location.pathname.startsWith('/users/'),
-          onClick: () => navigate('/users'),
+          isActive: location.pathname === routes.users() || location.pathname.startsWith(`${routes.users()}/`),
+          onClick: () => navigate(routes.users()),
         }]
       : []),
     ...(systemModules.includes(AccessModules.SystemEmployees)
       ? [{
-          key: '/system-employees',
+          key: routes.systemEmployees(),
           label: t('navigation.systemEmployees'),
           meta: '',
           isActive:
-            location.pathname === '/system-employees' ||
-            location.pathname.startsWith('/system-employees/'),
-          onClick: () => navigate('/system-employees'),
+            location.pathname === routes.systemEmployees() ||
+            location.pathname.startsWith(`${routes.systemEmployees()}/`),
+          onClick: () => navigate(routes.systemEmployees()),
         }]
       : []),
     ...(systemModules.includes(AccessModules.Companies)
       ? [{
-          key: '/organization',
+          key: routes.companies(),
           label: t('navigation.organizations'),
           meta: '',
-          isActive: location.pathname === '/organization',
-          onClick: () => navigate('/organization'),
+          isActive: location.pathname === routes.companies(),
+          onClick: () => navigate(routes.companies()),
         }]
       : []),
     ...(systemModules.includes(AccessModules.Leads)
       ? [{
-          key: '/leads',
+          key: routes.leads(),
           label: t('navigation.leads'),
           meta: '',
-          isActive: location.pathname === '/leads',
-          onClick: () => navigate('/leads'),
+          isActive: location.pathname === routes.leads(),
+          onClick: () => navigate(routes.leads()),
         }]
       : []),
     ...(systemModules.includes(AccessModules.Audit)
       ? [{
-          key: '/audit-logs',
+          key: routes.auditLogs(),
           label: t('navigation.audit'),
           meta: '',
-          isActive: location.pathname === '/audit-logs',
-          onClick: () => navigate('/audit-logs'),
+          isActive: location.pathname === routes.auditLogs(),
+          onClick: () => navigate(routes.auditLogs()),
         }]
       : []),
   ], [location.pathname, navigate, systemModules, t]);
@@ -580,7 +581,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('navigation.exitCompany'),
       onClick: () => {
         dispatch(setCurrentCompanyId(null));
-        navigate('/organization');
+        navigate(routes.companies());
       },
     });
   }
@@ -613,12 +614,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       ? getCompanyModuleItems(company.companyId, company.modules)[0]
       : undefined;
 
-    navigate(firstModule?.path ?? `/organization/${companyId}`);
+    navigate(firstModule?.path ?? routes.company(companyId));
   };
 
   const handleMobileCompanySelect = useCallback((companyId: string) => {
     dispatch(setCurrentCompanyId(companyId));
-    navigate(`/organization/${companyId}`);
+    navigate(routes.company(companyId));
   }, [dispatch, navigate]);
 
   const mobileNav = useMemo<MobileNavConfig | null>(() => {
@@ -654,7 +655,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       return {
         title: selectedCompany?.name ?? t('navigation.myOrganizations'),
         subtitle: t('navigation.myOrganizations'),
-        backPath: '/organization',
+        backPath: routes.companies(),
         items: selectedCompanyModuleItems.map((item) => ({
           key: `${orgId}-${item.key}`,
           label: item.label,
@@ -669,14 +670,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       return {
         title: t('navigation.routes'),
         subtitle: selectedCompany?.name ?? '',
-        backPath: `/organization/${orgId}`,
-        items: routes.map((route) => ({
+        backPath: routes.company(orgId),
+        items: deliveryRoutes.map((route) => ({
           key: route.id,
           label: route.routeNumber,
           meta: t(`deliveryRoutes.status.${route.status}`),
           status: route.status,
           isActive: route.id === routeId,
-          onClick: () => navigate(`/organization/${orgId}/delivery-routes/${route.id}`),
+          onClick: () => navigate(routes.deliveryRoute(orgId, route.id)),
         })),
       };
     }
@@ -692,7 +693,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     navigate,
     orgId,
     routeId,
-    routes,
+    deliveryRoutes,
     selectedCompany?.name,
     selectedCompanyModuleItems,
     systemMobileNavItems,

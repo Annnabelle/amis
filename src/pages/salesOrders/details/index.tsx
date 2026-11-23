@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { routes } from "shared/config/routes";
 import { Empty, Spin } from 'antd';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
@@ -43,8 +44,8 @@ const SalesOrdersDetails = () => {
   const { data: regions = [] } = useGetRegionsQuery();
   const empty = '-';
   const listPath = orgId
-    ? `/organization/${orgId}/sales-orders`
-    : '/organization';
+    ? routes.salesOrders(orgId)
+    : routes.companies();
   const { banner: lifecycleBanner, items: lifecycleTabItems } = useLifecycleTab({
     targetId: id,
     target: LifecycleTargetEntity.SalesOrder,

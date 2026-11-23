@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { routes } from "shared/config/routes";
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -21,18 +22,18 @@ const DeliveryRoutesList = () => {
   const canCreateRoute = useCan(endpointAccessMap.deliveryRoutesCreate);
   const canReadRoute = useCan(endpointAccessMap.deliveryRoutesRead);
 
-  const { data: routes = [], isFetching: isLoading } = useGetDeliveryRoutesQuery(
+  const { data: deliveryRoutes = [], isFetching: isLoading } = useGetDeliveryRoutesQuery(
     {},
     { skip: !orgId }
   );
-  const dataTotal = routes.length;
+  const dataTotal = deliveryRoutes.length;
 
   const createPath = orgId
-    ? `/organization/${orgId}/delivery-routes/create`
-    : '/organization';
+    ? routes.deliveryRouteCreate(orgId)
+    : routes.companies();
 
   const deliveryRoutesData = useMemo<DeliveryRoutesTableDataType[]>(() => {
-    return routes.map((route) => ({
+    return deliveryRoutes.map((route) => ({
       key: route.id,
       routeNumber: route.routeNumber,
       status: route.status,
@@ -48,7 +49,7 @@ const DeliveryRoutesList = () => {
       returnedQuantity: route.totals.returnedQuantity,
       registeredAt: formatDate(route.timestamps.registeredAt),
     }));
-  }, [routes]);
+  }, [deliveryRoutes]);
 
   const columns = useMemo(() => DeliveryRoutesTableColumns(t), [t]);
 
@@ -75,14 +76,14 @@ const DeliveryRoutesList = () => {
                   ? (record) =>
                       navigate(
                         orgId
-                          ? `/organization/${orgId}/delivery-routes/${record.key}`
-                          : '/organization'
+                          ? routes.deliveryRoute(orgId, record.key)
+                          : routes.companies()
                       )
                   : undefined
               }
               pagination={{
                 pageSize: 10,
-                total: dataTotal || routes.length,
+                total: dataTotal || deliveryRoutes.length,
                 showSizeChanger: false,
                 locale: { items_per_page: '' },
               }}

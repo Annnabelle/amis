@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { routes } from "shared/config/routes";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Empty, Segmented, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -74,12 +75,16 @@ const WaybillsDetails = () => {
     waybill?.deliveryTaskId ?? "",
     { skip: !waybill?.deliveryTaskId || !canReadDeliveryTask }
   );
-  const listPath = orgId ? `/organization/${orgId}/waybills` : "/organization";
+  const listPath = orgId ? routes.waybills(orgId) : routes.companies();
 
 
-  const linkedPath = (section: string, linkedId?: string) => {
+  /** Связанная запись открывается билдером своего раздела. */
+  const linkedPath = (
+    buildPath: (companyId: string | undefined, id: string) => string,
+    linkedId?: string
+  ) => {
     if (!linkedId) return undefined;
-    return orgId ? `/organization/${orgId}/${section}/${linkedId}` : "/organization";
+    return orgId ? buildPath(orgId, linkedId) : routes.companies();
   };
 
   const handleWaybillFile = async (download: boolean) => {
@@ -175,17 +180,17 @@ const WaybillsDetails = () => {
     {
       label: t("waybills.fields.salesOrderId"),
       value: salesOrder?.id === waybill.salesOrderId ? salesOrder.salesOrderNumber : waybill.salesOrderId,
-      path: canReadSalesOrder ? linkedPath("sales-orders", waybill.salesOrderId) : undefined,
+      path: canReadSalesOrder ? linkedPath(routes.salesOrder, waybill.salesOrderId) : undefined,
     },
     {
       label: t("waybills.fields.deliveryRouteId"),
       value: deliveryRoute?.id === waybill.deliveryRouteId ? deliveryRoute.routeNumber : waybill.deliveryRouteId,
-      path: canReadDeliveryRoute ? linkedPath("delivery-routes", waybill.deliveryRouteId) : undefined,
+      path: canReadDeliveryRoute ? linkedPath(routes.deliveryRoute, waybill.deliveryRouteId) : undefined,
     },
     {
       label: t("waybills.fields.deliveryTaskId"),
       value: deliveryTask?.id === waybill.deliveryTaskId ? deliveryTask.taskNumber : waybill.deliveryTaskId,
-      path: canReadDeliveryTask ? linkedPath("delivery-tasks", waybill.deliveryTaskId) : undefined,
+      path: canReadDeliveryTask ? linkedPath(routes.deliveryTask, waybill.deliveryTaskId) : undefined,
     },
   ];
 

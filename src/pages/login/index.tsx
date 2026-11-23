@@ -1,4 +1,5 @@
 import type { LoginForm } from 'entities/users/types';
+import { routes } from "shared/config/routes";
 import {useEffect, useState} from "react";
 import { Form, Input } from 'antd';
 import {useAppSelector} from 'app/store';
@@ -60,7 +61,7 @@ const LoginPage = () => {
         }
 
         if (accessError) {
-            navigate('/welcome', { replace: true });
+            navigate(routes.welcome(), { replace: true });
         }
     }, [access, accessError, accessLoading, isAuthenticated, isMobile, navigate]);
 
@@ -95,11 +96,11 @@ const LoginPage = () => {
                                     {t('login.btn.signIn')}
                                 </CustomButton>
                                 <div className="login-page-hints">
-                                    <Link className="login-page-hint" to="/forgot-password">
+                                    <Link className="login-page-hint" to={routes.forgotPassword()}>
                                         {t('auth.forgotPassword.link')}
                                     </Link>
                                     <p className="login-page-hint">
-                                        {t('auth.register.noAccount')} <Link to="/register">{t('auth.register.title')}</Link>
+                                        {t('auth.register.noAccount')} <Link to={routes.register()}>{t('auth.register.title')}</Link>
                                     </p>
                                 </div>
                             </div>

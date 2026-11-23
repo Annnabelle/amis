@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { Alert, Select, Space } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
@@ -572,7 +573,7 @@ const CustomsCodesPage = () => {
               }
               onRowClick={
                 canRead && orgId
-                  ? (record) => navigate(`/organization/${orgId}/customs-codes/${record.id}`)
+                  ? (record) => navigate(routes.customsCode(orgId, record.id))
                   : undefined
               }
               pagination={{
