@@ -1,7 +1,7 @@
 import { Empty, Form, Input, Spin, Tag } from 'antd';
+import PageHeader from 'shared/ui/pageHeader';
 import { routes } from "shared/config/routes";
 import { normalizeLanguage } from 'shared/lib/language';
-import { LeftOutlined } from '@ant-design/icons';
 import { useAppSelector } from 'app/store';
 import { canAccess } from 'entities/access/lib';
 import { EndpointScopes } from 'shared/config/endpointAccessMap';
@@ -31,7 +31,6 @@ import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import FormComponent from 'shared/ui/formComponent';
 import MainLayout from 'widgets/appShell';
-import Heading from 'shared/ui/mainHeading';
 import ModalWindow from 'shared/ui/modalWindow';
 import StatusBadge from 'shared/ui/statusBadge';
 import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
@@ -360,25 +359,12 @@ const CompanyIntegrations = () => {
 
   return (
     <MainLayout>
-      {isMobile && (
-        <div className="mobile-route-toolbar">
-          <div className="mobile-route-toolbar-back">
-            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
-              <LeftOutlined />
-            </CustomButton>
-          </div>
-        </div>
-      )}
-      {!isMobile && (
-        <Heading
-          title={t('navigation.integrations')}
-          subtitle={organizationById?.displayName ?? t('organizations.title')}
-        >
-          <CustomButton variant="outline" onClick={() => navigateBack(routes.company(orgId))}>
-            {t('common.backToList')}
-          </CustomButton>
-        </Heading>
-      )}
+      <PageHeader
+        title={t('navigation.integrations')}
+        subtitle={organizationById?.displayName ?? t('organizations.title')}
+        onBack={() => navigateBack(isMobile ? routes.companies() : routes.company(orgId))}
+        backLabel={t('common.backToList')}
+      />
 
       {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
       {canReadXTraceLifecycle && xTraceLifecycleSummary?.activeError && (

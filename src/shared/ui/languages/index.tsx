@@ -3,6 +3,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { isLanguage, type Language } from "shared/types/dtos";
 import { persistLanguage } from "shared/lib/languagePreference";
+import { activateOnKey } from "shared/lib/keyboardActivate";
 
 import "./styles.sass";
 
@@ -18,7 +19,7 @@ type LanguagesProps = {
 };
 
 const Languages: React.FC<LanguagesProps> = ({ onLanguageChange }) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -46,6 +47,12 @@ const Languages: React.FC<LanguagesProps> = ({ onLanguageChange }) => {
     <div className='language-switcher' ref={userDropdownRef}>
       <div
         className={`selected-language ${isOpen ? "open" : ""}`}
+        role="button"
+        tabIndex={0}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label={t("common.language")}
+        onKeyDown={activateOnKey(() => setIsOpen((prev) => !prev))}
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen((prev) => !prev)
@@ -57,11 +64,14 @@ const Languages: React.FC<LanguagesProps> = ({ onLanguageChange }) => {
         <div className='dropdown-arrow'></div>
       </div>
       {isOpen && (
-        <div className='dropdown-menu'>
+        <div className='dropdown-menu' role="menu">
           {Object.keys(flagMap).map((language) => (
             <div
               key={language}
               className='language-option'
+              role="menuitem"
+              tabIndex={0}
+              onKeyDown={activateOnKey(() => handleLanguageChange(language))}
               onClick={() => handleLanguageChange(language)}
             >
               <p

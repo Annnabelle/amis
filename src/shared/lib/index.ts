@@ -8,6 +8,7 @@ export { isFormValidationError } from "./formValidation";
 export { resolveMultiLanguage } from "./multiLanguage";
 export { getFileNameFromDisposition, useNavigationBack, FormatUzbekPhoneNumber } from "./utils";
 export { useDebouncedValue } from "./useDebouncedValue";
+export { activateOnKey } from "./keyboardActivate";
 export { useIsMobile } from "./useIsMobile";
 export type { LanguageKey } from "./utils";
 export * from "./scanner/zxingVideoScanner";

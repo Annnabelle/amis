@@ -1,6 +1,6 @@
 import { Empty } from 'antd';
+import PageHeader from 'shared/ui/pageHeader';
 import { routes } from "shared/config/routes";
-import { LeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { setCurrentCompanyId } from 'entities/access/model';
@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from 'app/store';
 import { useGetCompanyByIdQuery } from 'entities/organization/api';
 import type { Company } from 'entities/organization/types';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
-import { FormatUzbekPhoneNumber, useIsMobile, useNavigationBack } from 'shared/lib';
+import { FormatUzbekPhoneNumber, useNavigationBack } from 'shared/lib';
 import CustomButton from 'shared/ui/button';
 import {
   DetailCard,
@@ -20,7 +20,6 @@ import {
 } from 'shared/ui/details';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import MainLayout from 'widgets/appShell';
-import Heading from 'shared/ui/mainHeading';
 import StatusBadge from 'shared/ui/statusBadge';
 import { getCompanyStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
@@ -49,7 +48,6 @@ const OrganizationsInner = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigateBack = useNavigationBack();
-  const isMobile = useIsMobile();
   const { data: organizationById, isLoading } = useGetCompanyByIdQuery(
     { id: id ?? '' },
     { skip: !id }
@@ -100,22 +98,12 @@ const OrganizationsInner = () => {
   if (!organizationById || !isCurrentOrganizationLoaded) {
     return (
       <MainLayout>
-        {isMobile && (
-          <div className="mobile-route-toolbar">
-            <div className="mobile-route-toolbar-back">
-              <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
-                <LeftOutlined />
-              </CustomButton>
-            </div>
-          </div>
-        )}
-        {!isMobile && (
-          <Heading title={t('organizations.title')} subtitle={t('common.details')}>
-            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
-              {t('common.backToList')}
-            </CustomButton>
-          </Heading>
-        )}
+        <PageHeader
+          title={t('organizations.title')}
+          subtitle={t('common.details')}
+          onBack={() => navigateBack(routes.companies())}
+          backLabel={t('common.backToList')}
+        />
         <div className="box">
           <div className="box-container">
             <div className="box-container-items">
@@ -204,36 +192,18 @@ const OrganizationsInner = () => {
 
   return (
     <MainLayout>
-      {isMobile && (
-        <div className="mobile-route-toolbar">
-          <div className="mobile-route-toolbar-back">
-            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
-              <LeftOutlined />
-            </CustomButton>
-          </div>
-          <div className="mobile-route-toolbar-actions">
-            <CustomButton onClick={handleEnterCompany}>
-              {t('btn.enterCompany')}
-            </CustomButton>
-          </div>
-        </div>
-      )}
-      {!isMobile && (
-        <Heading
-          title={organization.displayName}
-          isTest={organization.isTest}
-          subtitle={t('common.details')}
-        >
-          <div className="btns-group">
-            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
-              {t('common.backToList')}
-            </CustomButton>
-            <CustomButton onClick={handleEnterCompany}>
-              {t('btn.enterCompany')}
-            </CustomButton>
-          </div>
-        </Heading>
-      )}
+      <PageHeader
+        title={organization.displayName}
+        isTest={organization.isTest}
+        subtitle={t('common.details')}
+        onBack={() => navigateBack(routes.companies())}
+        backLabel={t('common.backToList')}
+        actions={
+          <CustomButton onClick={handleEnterCompany}>
+            {t('btn.enterCompany')}
+          </CustomButton>
+        }
+      />
 
       {/* Незакрытая серия ошибок видна на любой вкладке — это главный сигнал карточки. */}
       {lifecycleBanner}
