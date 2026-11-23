@@ -26,8 +26,13 @@ import type { AdaptiveColumn } from 'shared/ui/table/types';
 import { PermissionLink, RequiredDataAlert } from 'entities/access/ui';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
-import { formatDate } from 'shared/lib/formatDate';
 import { buildOrderSelectionSummary } from 'features/deliveryRouteCreate/lib/orderSelectionSummary';
+import {
+  buildAvailableOrders,
+  formatVehicleLabel,
+  hasNoVehicleMatches,
+  type AvailableOrderRow,
+} from 'features/deliveryRouteCreate/lib/availableOrders';
 import SelectedOrdersPreview from 'features/deliveryRouteCreate/ui/selectedOrdersPreview';
 /** Вариант в подсказке экипажа: кроме подписи нужен id сотрудника. */
 type CrewMemberOption = {
@@ -166,44 +171,10 @@ const DeliveryRoutesCreate = () => {
     setMembershipSearch({ query: value, role });
   };
 
-  type AvailableOrderRow = {
-    key: string;
-    customer: string;
-    salesOrderNumber: string;
-    dueDate: string;
-    priority: string;
-    ordered: number;
-    assigned: number;
-    delivered: number;
-    remaining: number;
-  };
-
-  const availableOrders = useMemo<AvailableOrderRow[]>(() => {
-    if (!companyId) return [];
-    return orders
-      .map((order) => {
-        const ordered = order.totals.orderedQuantity ?? 0;
-        const assigned = order.totals.assignedQuantity ?? 0;
-        const delivered = order.totals.deliveredQuantity ?? 0;
-        const salesOrderNumber = order.salesOrderNumber;
-        const remaining = Math.max(0, ordered - assigned);
-
-        return {
-          key: order.id,
-          customer: order.customer.name,
-          dueDate: order.fulfillment.dueDate
-            ? formatDate(order.fulfillment.dueDate)
-            : '-',
-          priority: t(`salesOrders.priority.${order.fulfillment.priority}`),
-          ordered,
-          salesOrderNumber,
-          assigned,
-          delivered,
-          remaining,
-        };
-      })
-      .filter((row) => row.remaining > 0);
-  }, [companyId, orders, t]);
+  const availableOrders = useMemo(
+    () => (companyId ? buildAvailableOrders(orders, t) : []),
+    [companyId, orders, t]
+  );
 
   useEffect(() => {
     const availableIds = new Set(availableOrders.map((row) => row.key));
@@ -219,20 +190,16 @@ const DeliveryRoutesCreate = () => {
     () =>
       vehicles.map((vehicle) => ({
         value: vehicle.id,
-        label: vehicle.plateNumber
-          ? `${vehicle.name} · ${vehicle.plateNumber}`
-          : vehicle.name,
+        label: formatVehicleLabel(vehicle),
         vehicle,
       })),
     [vehicles]
   );
 
-  const hasNoVehicleMatches = useMemo(() => {
-    if (isVehiclesLoading) return false;
-    const query = vehicleSearchValue.trim().toLowerCase();
-    if (!query) return vehicleOptions.length === 0;
-    return !vehicleOptions.some((option) => option.label.toLowerCase().includes(query));
-  }, [vehicleOptions, vehicleSearchValue, isVehiclesLoading]);
+  const noVehicleMatches = useMemo(
+    () => hasNoVehicleMatches(vehicleOptions, vehicleSearchValue, isVehiclesLoading),
+    [isVehiclesLoading, vehicleOptions, vehicleSearchValue]
+  );
 
   const selectedVehicleId = Form.useWatch(['vehicle', 'vehicleId'], form);
   const selectedVehicle = useMemo(
@@ -420,7 +387,7 @@ const DeliveryRoutesCreate = () => {
                     searchValue={vehicleSearchValue}
                     onSearch={(value) => setVehicleSearchValue(value)}
                     notFoundContent={
-                      hasNoVehicleMatches ? (
+                      noVehicleMatches ? (
                         <div className="vehicle-select-empty">
                           <p className="vehicle-select-empty-text">
                             {t('deliveryRoutes.vehicleCard.notFound')}
