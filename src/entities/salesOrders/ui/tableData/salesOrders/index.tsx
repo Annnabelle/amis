@@ -101,7 +101,7 @@ export const SalesOrdersTableColumns = (
     flex: 1.5,
     align: "center",
     render: (text: string | number) => (
-      <p className="table-text" style={{ textAlign: "center", width: "100%" }}>
+      <p className="table-text table-text-center">
         {text}
       </p>
     ),
@@ -113,7 +113,7 @@ export const SalesOrdersTableColumns = (
     flex: 1.5,
     align: "center",
     render: (text: string | number) => (
-      <p className="table-text" style={{ textAlign: "center", width: "100%" }}>
+      <p className="table-text table-text-center">
         {text}
       </p>
     ),

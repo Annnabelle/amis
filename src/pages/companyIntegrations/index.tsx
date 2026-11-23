@@ -1,4 +1,5 @@
 import { Empty, Form, Input, Spin, Tag } from 'antd';
+import { notify } from 'shared/lib/notify';
 import PageHeader from 'shared/ui/pageHeader';
 import { routes } from "shared/config/routes";
 import { normalizeLanguage } from 'shared/lib/language';
@@ -20,7 +21,6 @@ import { getApiErrorMessage } from 'shared/api';
 import { useGetReferencesByTypeQuery } from 'entities/references/api';
 import { type ChangeEvent, type ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LifecycleTargetEntity, useLifecycleSummary } from 'entities/lifecycle/lib';
 import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
@@ -54,7 +54,7 @@ const renderStatus = (status: string, t: ReturnType<typeof useTranslation>['t'])
 
 const renderTestFlag = (isTest?: boolean, t?: ReturnType<typeof useTranslation>['t']) =>
   isTest && t ? (
-    <Tag className="test-flag" color="blue-inverse" style={{ margin: 0 }}>
+    <Tag className="test-flag tag-flat" color="blue-inverse">
       {t('organizations.testFlag')}
     </Tag>
   ) : '-';
@@ -209,7 +209,7 @@ const CompanyIntegrations = () => {
         setXTraceValidation(validation);
       } catch (error: unknown) {
         if (requestId === validationRequestRef.current) {
-          toast.error(getApiErrorMessage(error, t('organizations.addUserForm.validation.xTrace.invalidToken')));
+          notify.error(getApiErrorMessage(error, t('organizations.addUserForm.validation.xTrace.invalidToken')));
         }
       }
     }, 450);
@@ -231,11 +231,11 @@ const CompanyIntegrations = () => {
         businessPlaceId: Number(values.businessPlaceId),
       }).unwrap();
 
-      toast.success(t('organizations.messages.success.createXTraceIntegration'));
+      notify.success(t('organizations.messages.success.createXTraceIntegration'));
       closeXTraceModal();
     } catch (error: unknown) {
       if (isFormValidationError(error)) return;
-      toast.error(getApiErrorMessage(error, t('organizations.messages.error.createXTraceIntegration')));
+      notify.error(getApiErrorMessage(error, t('organizations.messages.error.createXTraceIntegration')));
     }
   };
 
@@ -252,11 +252,11 @@ const CompanyIntegrations = () => {
         clientSecret: String(values.clientSecret ?? '').trim(),
       }).unwrap();
 
-      toast.success(t('organizations.messages.success.createFakturaUzIntegration'));
+      notify.success(t('organizations.messages.success.createFakturaUzIntegration'));
       setIsFakturaUzModalOpen(false);
     } catch (error: unknown) {
       if (isFormValidationError(error)) return;
-      toast.error(getApiErrorMessage(error, t('organizations.messages.error.createFakturaUzIntegration')));
+      notify.error(getApiErrorMessage(error, t('organizations.messages.error.createFakturaUzIntegration')));
     }
   };
 

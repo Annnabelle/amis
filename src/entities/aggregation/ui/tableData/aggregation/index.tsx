@@ -68,14 +68,14 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         dataIndex: "aggregationQuantity",
         align: "center",
         key: "aggregationQuantity",
-        render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>
+        render: (text) => <p className="table-text table-text-center">{text}</p>
     },
     {
         title: t("aggregations.aggregationsTableTitle.quantityPerPackage"),
         dataIndex: "quantityPerPackage",
         align: "center",
         key: "quantityPerPackage",
-        render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>
+        render: (text) => <p className="table-text table-text-center">{text}</p>
     },
     {
         title: t("aggregations.aggregationsTableTitle.orderDate"),

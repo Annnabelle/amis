@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -10,7 +11,6 @@ import ComponentTable from 'shared/ui/table'
 import { useGetMarkingCodeOrderByIdQuery } from 'entities/markingCodes/api'
 import CustomButton from 'shared/ui/button'
 import { OrderStatus } from '@edem2000/amis.contracts';
-import {toast} from "react-toastify";
 import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import {getApiErrorMessage} from "shared/api";
@@ -84,7 +84,7 @@ const Batches = () => {
 
     const handleApplyAll = async () => {
         if (!markingCodeById || !batchData?.length) {
-            toast.warning(t("markingCodes.applyAll.noBatchesToApply"));
+            notify.warning(t("markingCodes.applyAll.noBatchesToApply"));
             return;
         }
 
@@ -107,7 +107,7 @@ const Batches = () => {
         notifyUtilizationReportsCreated(t, created);
 
         if (failure) {
-            toast.error(getApiErrorMessage(failure, t('common.error')));
+            notify.error(getApiErrorMessage(failure, t('common.error')));
         }
 
         void refetchOrder();

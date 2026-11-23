@@ -1,9 +1,9 @@
 import { Empty, Form, Input, Modal, Tag } from "antd";
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useCan } from "entities/access/lib";
 import { getApiErrorMessage } from "shared/api";
 import { getAvailableLeadStatusActions } from "entities/leads/lib/statusActions";
@@ -93,10 +93,10 @@ const LeadDetails = () => {
         },
       }).unwrap();
 
-      toast.success(t("leads.messages.statusUpdated"));
+      notify.success(t("leads.messages.statusUpdated"));
       closeStatusModal();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
+      notify.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
     } finally {
       setIsStatusSaving(false);
     }
@@ -159,9 +159,9 @@ const LeadDetails = () => {
               <div className="route-overview-status">
                 <div className="invoice-status-pair-item">
                   <Tag
-                    className="leads-status-tag"
+                    className="leads-status-tag tag-flat"
                     color={statusColors[lead.status] ?? "default"}
-                    style={{ margin: 0 }}
+                   
                   >
                     {getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, lead.status)}
                   </Tag>
@@ -192,9 +192,9 @@ const LeadDetails = () => {
                   <span className="label inline-label">{t("leads.fields.status")}</span>
                   <span className="detail-separator">:</span>
                   <Tag
-                    className="leads-status-tag"
+                    className="leads-status-tag tag-flat"
                     color={statusColors[lead.status] ?? "default"}
-                    style={{ margin: 0 }}
+                   
                   >
                     {getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, lead.status)}
                   </Tag>

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { Alert, Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
@@ -155,8 +155,8 @@ const DeliveryRoutesReturn = () => {
   };
 
   const pushSingleScanToast = (type: 'success' | 'error', message: string) => {
-    if (toast.isActive(SCAN_RESULT_TOAST_ID)) {
-      toast.update(SCAN_RESULT_TOAST_ID, {
+    if (notify.isActive(SCAN_RESULT_TOAST_ID)) {
+      notify.update(SCAN_RESULT_TOAST_ID, {
         render: message,
         type,
         autoClose: 2200,
@@ -164,7 +164,7 @@ const DeliveryRoutesReturn = () => {
       return;
     }
 
-    toast[type](message, {
+    notify[type](message, {
       toastId: SCAN_RESULT_TOAST_ID,
       autoClose: 2200,
     });
@@ -236,7 +236,7 @@ const DeliveryRoutesReturn = () => {
         }).unwrap();
       setScannerOpen(true);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryRoutes.messages.error.createScanSession', {
@@ -262,7 +262,7 @@ const DeliveryRoutesReturn = () => {
       setIsClosingSession(true);
       await completeScanSession(scanSession.id).unwrap();
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryRoutes.messages.error.completeScanSession', {
@@ -334,7 +334,7 @@ const DeliveryRoutesReturn = () => {
       localStorage.removeItem(getScanCacheKey(routeId));
       navigate(routes.deliveryRoute(orgId, routeId));
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryRoutes.messages.error.completeReturn', {

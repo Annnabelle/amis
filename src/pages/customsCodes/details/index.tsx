@@ -1,7 +1,7 @@
 import { Alert, Spin } from 'antd';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { SyncOutlined } from '@ant-design/icons';
-import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -46,9 +46,9 @@ const CustomsCodeDetails = () => {
 
     try {
       await resumeCustomsCodeOrder(id).unwrap();
-      toast.success(t('customsCodes.messages.resumeStarted'));
+      notify.success(t('customsCodes.messages.resumeStarted'));
     } catch (err) {
-      toast.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
+      notify.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
     }
   };
   const loadError = loadRequestError

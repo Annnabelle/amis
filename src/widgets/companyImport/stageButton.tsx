@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { notify } from 'shared/lib/notify';
 import { useCompanyImportStage } from "entities/companyImport/lib";
 import {
   CompanyImportStageStatus,
@@ -41,9 +41,9 @@ const CompanyImportStageButton = ({
   const handleClick = async () => {
     try {
       await start();
-      toast.success(t("companyImport.toast.started"));
+      notify.success(t("companyImport.toast.started"));
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("companyImport.toast.startError")),
       );
     }

@@ -35,7 +35,7 @@ const Heading: React.FC<HeadingProps> = ({
           <div className="heading-container-items-item">
             <div className="heading-container-items-item-title">
               {isTest && (
-                <Tag className="test-flag test-flag-heading" color="blue-inverse" style={{ margin: 0 }}>
+                <Tag className="test-flag test-flag-heading tag-flat" color="blue-inverse">
                   Тест
                 </Tag>
               )}

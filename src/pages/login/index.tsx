@@ -1,11 +1,11 @@
 import type { LoginForm } from 'entities/users/types';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import {useEffect, useState} from "react";
 import { Form, Input } from 'antd';
 import {useAppSelector} from 'app/store';
 import { useLoginMutation } from 'entities/users/api';
 import { getApiErrorMessage } from 'shared/api';
-import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { resolveFallbackPath } from 'app/routes/routeAccessPath';
@@ -17,9 +17,6 @@ import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { useTheme } from 'app/themeContext';
 import { useIsMobile } from 'shared/lib';
 import './styles.sass';
-
-const mobileToastPosition = () =>
-    window.matchMedia('(max-width: 600px)').matches ? 'bottom-center' : undefined;
 
 const LoginPage = () => {
     const form = useFormInstance();
@@ -40,12 +37,10 @@ const LoginPage = () => {
         setIsSubmitting(true);
         login(values).unwrap()
             .then(() => {
-                toast.success(t('login.messages.successLogin'), {
-                    position: mobileToastPosition(),
-                });
+                notify.success(t('login.messages.successLogin'));
             })
             .catch((error: unknown) => {
-                toast.error(getApiErrorMessage(error, t('login.messages.errorLogin')));
+                notify.error(getApiErrorMessage(error, t('login.messages.errorLogin')));
                 setIsSubmitting(false);
             });
     };

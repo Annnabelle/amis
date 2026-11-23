@@ -1,4 +1,5 @@
 import { DatePicker, Form, Input, InputNumber, Radio, Select, Spin, Tooltip } from 'antd';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { CloseOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { debugLog } from 'shared/lib/debugLog';
@@ -8,7 +9,6 @@ import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import { useCreateSalesOrderMutation } from 'entities/salesOrders/api';
 import {
   mapSalesOrderFormToCreateDto,
@@ -524,7 +524,7 @@ const SalesOrdersCreate = () => {
 
       if (!company) {
         setIsSearchingCompany(false);
-        toast.error(t('salesOrders.validation.customerCompanyNotFound'));
+        notify.error(t('salesOrders.validation.customerCompanyNotFound'));
         return;
       }
 
@@ -543,7 +543,7 @@ const SalesOrdersCreate = () => {
         setIsSearchingCompany(false);
         const message = getApiErrorMessage(error, t('common.error'));
         setCompanyLookupError(message);
-        toast.error(message);
+        notify.error(message);
       }
     }
   };
@@ -654,7 +654,7 @@ const SalesOrdersCreate = () => {
         ...prev,
         [productId]: { loading: false, loaded: false, options: [] },
       }));
-      toast.error(getApiErrorMessage(error, t('common.error')));
+      notify.error(getApiErrorMessage(error, t('common.error')));
 
       return [];
     }
@@ -698,12 +698,12 @@ const SalesOrdersCreate = () => {
 
   const handleCreateSalesOrder = async (values: SalesOrderFormValues) => {
     if (!orgId) {
-      toast.error(t('salesOrders.validation.companyRequired'));
+      notify.error(t('salesOrders.validation.companyRequired'));
       return;
     }
 
     if (!isCompanyFound) {
-      toast.error(t('salesOrders.validation.customerCompanyNotFound'));
+      notify.error(t('salesOrders.validation.customerCompanyNotFound'));
       return;
     }
 
@@ -712,7 +712,7 @@ const SalesOrdersCreate = () => {
       payload = mapSalesOrderFormToCreateDto(values);
     } catch (error: unknown) {
       if (error instanceof SalesOrderContractError) {
-        toast.error(t('salesOrders.createValidation.contractDetailsIncomplete'));
+        notify.error(t('salesOrders.createValidation.contractDetailsIncomplete'));
         return;
       }
       throw error;
@@ -720,11 +720,11 @@ const SalesOrdersCreate = () => {
 
     try {
       await createSalesOrder(payload).unwrap();
-      toast.success(t('salesOrders.messages.success.create'));
+      notify.success(t('salesOrders.messages.success.create'));
       form.resetFields();
       navigate(listPath);
     } catch (error: unknown) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t('common.error'))
       );
     }

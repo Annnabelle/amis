@@ -1,7 +1,7 @@
 import { Form, Select, Tag, Tooltip, type SelectProps } from "antd";
+import { notify } from 'shared/lib/notify';
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
@@ -261,11 +261,11 @@ const SystemEmployees = () => {
         roles: values.roles,
       }).unwrap();
 
-      toast.success(t("systemEmployees.messages.success.invite"));
+      notify.success(t("systemEmployees.messages.success.invite"));
       inviteForm.resetFields();
       openModal("invite", false);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("systemEmployees.messages.error.invite"))
       );
     }
@@ -282,10 +282,10 @@ const SystemEmployees = () => {
         data: { roles: values.roles },
       }).unwrap();
 
-      toast.success(t("systemEmployees.messages.success.update"));
+      notify.success(t("systemEmployees.messages.success.update"));
       openModal("edit", false);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("systemEmployees.messages.error.update"))
       );
     }
@@ -296,10 +296,10 @@ const SystemEmployees = () => {
 
     try {
       await deleteSystemEmployee({ id: selectedEmployee.id }).unwrap();
-      toast.success(t("systemEmployees.messages.success.revoke"));
+      notify.success(t("systemEmployees.messages.success.revoke"));
       openModal("delete", false);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("systemEmployees.messages.error.revoke"))
       );
     }

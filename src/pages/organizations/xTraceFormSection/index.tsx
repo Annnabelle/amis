@@ -1,5 +1,5 @@
 import { Form, Input, Tag, type FormInstance } from "antd";
-import { toast } from "react-toastify";
+import { notify } from 'shared/lib/notify';
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useLazyValidateCompanyXTraceTokenQuery } from "entities/xTrace/api";
@@ -61,7 +61,7 @@ const XTraceFormSection = ({ form, setIsValidated }: XTraceFormSectionProps) => 
     useEffect(() => {
         if (!error) return;
 
-        toast.error(error);
+        notify.error(error);
         setIsValidated(false);
         setXTraceValidated(false);
     }, [error, setIsValidated]);

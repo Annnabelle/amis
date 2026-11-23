@@ -65,7 +65,7 @@ export const LeadsTableColumns = (
     key: "status",
     flex: 1.4,
     render: (status: LeadStatusType) => (
-      <Tag color={statusColors[status] ?? "default"} style={{ margin: 0 }}>
+      <Tag color={statusColors[status] ?? "default"} className="tag-flat">
         {getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, status)}
       </Tag>
     ),

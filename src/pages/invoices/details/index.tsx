@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { DownloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Empty, Pagination, Spin, Tag } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import {
   useGetInvoiceByIdQuery,
   useGetInvoiceItemsQuery,
@@ -194,11 +194,11 @@ const InvoicesDetails = () => {
           window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
         } else {
           window.URL.revokeObjectURL(url);
-          toast.error(t('invoices.file.openError'));
+          notify.error(t('invoices.file.openError'));
         }
       }
     } catch {
-      toast.error(t('invoices.file.loadError'));
+      notify.error(t('invoices.file.loadError'));
     } finally {
       setInvoiceFileLoading(false);
     }
@@ -361,13 +361,13 @@ const InvoicesDetails = () => {
                 <div className="route-overview-status">
                   <div className="invoice-status-pair-item">
                     <span className="invoice-status-pair-label">{t('invoices.fields.internalStatus')}</span>
-                    <Tag color={statusColors[invoiceStatusKey] ?? statusColors[invoice.status] ?? 'blue'} style={{ margin: 0 }}>
+                    <Tag color={statusColors[invoiceStatusKey] ?? statusColors[invoice.status] ?? 'blue'} className="tag-flat">
                       {t(`invoices.statuses.${invoiceStatusKey}`, { defaultValue: invoice.status })}
                     </Tag>
                   </div>
                   <div className="invoice-status-pair-item">
                     <span className="invoice-status-pair-label">{t('invoices.fields.externalStatus')}</span>
-                    <Tag color={statusColors[externalStatus ?? ''] ?? 'blue'} style={{ margin: 0 }} title={externalStatusLabel}>
+                    <Tag color={statusColors[externalStatus ?? ''] ?? 'blue'} className="tag-flat" title={externalStatusLabel}>
                       {externalStatusLabel}
                     </Tag>
                   </div>

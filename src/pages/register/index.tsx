@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { MailOutlined } from "@ant-design/icons";
 import { Form, Input } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import { useRegisterAccountMutation } from 'entities/users/api';
 import { getApiErrorMessage } from 'shared/api';
 import type { RegisterForm } from 'entities/users/types';
@@ -29,7 +29,7 @@ const RegisterPage = () => {
         setSubmittedEmail(user.email);
       })
       .catch((error: unknown) => {
-        toast.error(getApiErrorMessage(error, t('auth.register.messages.error')));
+        notify.error(getApiErrorMessage(error, t('auth.register.messages.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

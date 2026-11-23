@@ -1,7 +1,7 @@
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useMemo, useState } from "react";
-import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCan } from "entities/access/lib";
@@ -87,10 +87,10 @@ const Vehicles = () => {
     try {
       // Список перезапросится сам: мутация инвалидирует тег Vehicle.
       await deleteVehicle(selectedVehicle.id).unwrap();
-      toast.success(t("vehicles.messages.success.delete"));
+      notify.success(t("vehicles.messages.success.delete"));
       openModal("delete", false);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, t("vehicles.messages.error.delete")));
+      notify.error(getApiErrorMessage(error, t("vehicles.messages.error.delete")));
     }
   };
 

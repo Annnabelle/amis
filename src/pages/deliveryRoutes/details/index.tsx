@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { activateOnKey } from 'shared/lib/keyboardActivate';
 import PageHeader from 'shared/ui/pageHeader';
 import { routes } from "shared/config/routes";
@@ -26,7 +27,6 @@ import {
 } from 'entities/deliveryTasks/api';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
-import { toast } from 'react-toastify';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -144,7 +144,7 @@ const DeliveryRoutesDetails = () => {
       await startDeliveryRouteLoading(route.id).unwrap();
       navigate(routes.deliveryRouteLoading(orgId, route.id));
     } catch (error) {
-      toast.error(
+      notify.error(
         getBackendErrorMessage(
           error,
           t('deliveryRoutes.messages.error.startLoading', {
@@ -162,14 +162,14 @@ const DeliveryRoutesDetails = () => {
       setTransitStarted(true);
       // Карточка перезапросится сама: мутация инвалидирует тег рейса.
       await startDeliveryRouteTransit(route.id).unwrap();
-      toast.success(
+      notify.success(
         t('deliveryRoutes.messages.success.startTransit', {
           defaultValue: 'Машина отправлена',
         })
       );
     } catch (error) {
       setTransitStarted(false);
-      toast.error(
+      notify.error(
         getBackendErrorMessage(
           error,
           t('deliveryRoutes.messages.error.startTransit', {
@@ -190,7 +190,7 @@ const DeliveryRoutesDetails = () => {
 
       navigate(routes.deliveryRouteReturn(orgId, route.id));
     } catch (error) {
-      toast.error(
+      notify.error(
         getBackendErrorMessage(
           error,
           t('deliveryRoutes.messages.error.startReturn', {
@@ -207,9 +207,9 @@ const DeliveryRoutesDetails = () => {
     try {
       setIsClosing(true);
       await closeDeliveryRoute(route.id).unwrap();
-      toast.success(t('deliveryRoutes.messages.success.close'));
+      notify.success(t('deliveryRoutes.messages.success.close'));
     } catch (error) {
-      toast.error(
+      notify.error(
         getBackendErrorMessage(
           error,
           t('deliveryRoutes.messages.error.close')
@@ -226,7 +226,7 @@ const DeliveryRoutesDetails = () => {
       await startDeliveryTaskHandover(taskId).unwrap();
       navigate(taskScanPath(taskId));
     } catch (error) {
-      toast.error(
+      notify.error(
         getBackendErrorMessage(
           error,
           t('deliveryTasks.messages.error.startDelivery', {
