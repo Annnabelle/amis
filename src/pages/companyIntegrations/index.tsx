@@ -26,7 +26,9 @@ import { LifecycleTargetEntity, useLifecycleSummary } from 'entities/lifecycle/l
 import LifecyclePanel, { LifecycleActiveErrorAlert } from 'widgets/lifecycle';
 import CompanyImportPanel from 'widgets/companyImport';
 import CompanyImportStartButton from 'widgets/companyImport/startButton';
-import { isFormValidationError, useIsMobile, useNavigationBack } from 'shared/lib';
+import { isFormValidationError } from 'shared/lib/formValidation';
+import { useIsMobile } from 'shared/lib/useIsMobile';
+import { useNavigationBack } from 'shared/lib/utils';
 import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import FormComponent from 'shared/ui/formComponent';

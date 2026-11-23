@@ -16,12 +16,13 @@ import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import axiosInstance from "shared/lib/axiosInstance";
-import { BASE_URL, getFileNameFromDisposition } from "shared/lib";
+import { BASE_URL } from 'shared/lib/consts';
+import { getFileNameFromDisposition } from 'shared/lib/utils';
 import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
 import EntityTabs, { OVERVIEW_TAB_KEY } from "shared/ui/entityTabs";
-import { statusColors } from "shared/ui/statuses";
+import { statusColors } from "shared/ui/statusBadge/tagColors";
 import {
   DetailCard,
   DetailGrid,

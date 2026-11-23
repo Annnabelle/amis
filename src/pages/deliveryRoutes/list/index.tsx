@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useGetDeliveryRoutesQuery } from 'entities/deliveryRoutes/api';
 import { DeliveryRoutesTableColumns } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes';
 import type { DeliveryRoutesTableDataType } from 'entities/deliveryRoutes/ui/tableData/deliveryRoutes/types';
-import { useIsMobile } from 'shared/lib';
+import { useIsMobile } from 'shared/lib/useIsMobile';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 

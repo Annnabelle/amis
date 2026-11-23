@@ -2,7 +2,7 @@ import {type TableProps, Tag} from 'antd';
 import type { UserTableDataType } from './types';
 import { ActionDropdownButton, TextCell } from 'shared/ui/table/cells';
 import type { TFunction } from 'i18next';
-import {statusColors} from "shared/ui/statuses";
+import {statusColors} from "shared/ui/statusBadge/tagColors";
 export const UsersTableColumns = (
   t: TFunction,
   handleRowClick: (type: "User", action: "retrieve" | "edit" | "delete", record: UserTableDataType) => void,

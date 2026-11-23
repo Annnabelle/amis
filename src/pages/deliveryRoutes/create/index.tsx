@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateDeliveryRouteMutation } from 'entities/deliveryRoutes/api';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
 import { getApiErrorMessage } from 'shared/api';
-import { useSubmitGuard } from 'shared/lib';
+import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
 import { useGetSalesOrdersQuery } from 'entities/salesOrders/api';
 import { useSearchCompanyMembershipsQuery } from 'entities/companyMemberships/api';
 import { CompanyMembershipState, CompanyRole } from 'entities/companyMemberships/types';

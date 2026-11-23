@@ -17,7 +17,7 @@ import Heading from "shared/ui/mainHeading";
 import { useTranslation } from "react-i18next";
 import { useGetAuditLogsQuery } from "entities/auditLog/api";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
-import { FormatUzbekPhoneNumber } from "shared/lib";
+import { FormatUzbekPhoneNumber } from 'shared/lib/utils';
 import { getTargetLink } from "./targetMapper";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";

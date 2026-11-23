@@ -5,7 +5,7 @@ import { useAppSelector } from 'app/store';
 import GlobalLoader from 'shared/ui/loader';
 import type { RouteAccess } from './accessMap';
 import { canAccessRoute, resolveFallbackPath } from './routeAccessPath';
-import { useIsMobile } from 'shared/lib';
+import { useIsMobile } from 'shared/lib/useIsMobile';
 import { parseCompanyFromPath } from 'shared/lib/companyPath';
 
 type PermissionRouteProps = {

@@ -22,7 +22,7 @@ import { useAppSelector } from 'app/store';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
-import { FormatUzbekPhoneNumber, useNavigationBack } from 'shared/lib';
+import { FormatUzbekPhoneNumber, useNavigationBack } from 'shared/lib/utils';
 import { useGetCompaniesQuery } from 'entities/organization/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';

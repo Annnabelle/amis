@@ -29,7 +29,7 @@ import {
   useGetRegionsQuery,
   useLazyGetDistrictsByRegionQuery,
 } from 'entities/references/api';
-import { useSubmitGuard } from 'shared/lib';
+import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { RequiredDataAlert } from 'entities/access/ui';

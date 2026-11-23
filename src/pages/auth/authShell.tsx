@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useTheme } from 'app/themeContext';
+import { useTheme } from 'app/providers/theme';
 import lightMainBG from 'shared/assets/main-bg.webp';
 import darkMainBG from 'shared/assets/bg-black.webp';
 import './styles.sass';

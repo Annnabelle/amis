@@ -64,6 +64,11 @@ export default tseslint.config([
           message: 'Импорт без расширения: путь разрешает резолвер алиасов.',
         },
         {
+          selector: "ImportDeclaration[source.value='shared/lib']",
+          message:
+            'Модуль shared/lib импортируется по имени: shared/lib/formatDate, не общий бочонок.',
+        },
+        {
           selector: "ImportDeclaration[source.value='react-toastify']",
           message:
             'Уведомления показывает notify из shared/lib/notify: общие настройки тостов живут там.',

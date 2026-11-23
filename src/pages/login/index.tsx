@@ -14,8 +14,8 @@ import darkMainBG from 'shared/assets/bg-black.webp';
 import FormComponent from 'shared/ui/formComponent';
 import CustomButton from 'shared/ui/button';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
-import { useTheme } from 'app/themeContext';
-import { useIsMobile } from 'shared/lib';
+import { useTheme } from 'app/providers/theme';
+import { useIsMobile } from 'shared/lib/useIsMobile';
 import './styles.sass';
 
 const LoginPage = () => {

@@ -19,7 +19,7 @@ import { VehicleOwnershipType, VehicleType } from '@edem2000/amis.contracts';
 import type { Vehicle } from "entities/vehicles/types";
 import { getApiErrorMessage, type ApiError } from "shared/api";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
-import { useSubmitGuard } from "shared/lib";
+import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
 import CustomButton from "shared/ui/button";
 import FormComponent from "shared/ui/formComponent";
 import ModalWindow from "shared/ui/modalWindow";

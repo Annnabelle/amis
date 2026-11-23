@@ -1,0 +1,212 @@
+import { Form, Input, Modal, Select } from "antd";
+import { notify } from 'shared/lib/notify';
+import { routes } from "shared/config/routes";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useCan } from "entities/access/lib";
+import { getApiErrorMessage } from "shared/api";
+import { useGetLeadsQuery, useUpdateLeadStatusMutation } from "entities/leads/api";
+import { LeadStatuses, type LeadListQuery, type LeadStatus } from "entities/leads/types";
+import { LeadsTableColumns } from "entities/leads/ui/tableData/leads";
+import type { LeadTableDataType } from "entities/leads/ui/tableData/leads/types";
+import { endpointAccessMap } from "shared/config/endpointAccessMap";
+import FilterBar from "shared/ui/filterBar/filterBar";
+import FilterBarItem from "shared/ui/filterBar/filterBarItems";
+import MainLayout from "widgets/appShell";
+import Heading from "shared/ui/mainHeading";
+import ComponentTable from "shared/ui/table";
+import "../styles.sass";
+import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";
+import { getStatusLabel } from "shared/lib/useStatusLabel";
+
+import { formatDateTime } from 'shared/lib/formatDate';
+const formatValue = (value?: string | null) => value || "-";
+
+type StatusModalForm = {
+  comment?: string;
+};
+
+type PendingStatusChange = {
+  lead: LeadTableDataType;
+  status: LeadStatus;
+};
+
+const Leads = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const canRead = useCan(endpointAccessMap.leadsRead);
+  const canUpdateStatus = useCan(endpointAccessMap.leadsUpdateStatus);
+  const [statusForm] = Form.useForm<StatusModalForm>();
+  const [pendingStatusChange, setPendingStatusChange] =
+    useState<PendingStatusChange | null>(null);
+  const [isStatusSaving, setIsStatusSaving] = useState(false);
+  const [query, setQuery] = useState<LeadListQuery>({
+    page: 1,
+    limit: 10,
+    sortOrder: "desc",
+    sortBy: "createdAt",
+  });
+  const { data: leadsPage, isFetching: isLoading } = useGetLeadsQuery(query);
+  const [updateLeadStatus] = useUpdateLeadStatusMutation();
+  const leads = useMemo(() => leadsPage?.items ?? [], [leadsPage]);
+  const dataPage = query.page;
+  const dataLimit = query.limit;
+  const dataTotal = leadsPage?.total ?? 0;
+
+  const tableData = useMemo<LeadTableDataType[]>(
+    () =>
+      leads.map((lead) => ({
+        key: lead.id,
+        name: lead.name,
+        phone: lead.phone,
+        company: formatValue(lead.company),
+        status: lead.status,
+        comment: lead.comment,
+        createdAt: formatDateTime(lead.createdAt),
+      })),
+    [leads]
+  );
+
+  const openStatusModal = (lead: LeadTableDataType, status: LeadStatus) => {
+    setPendingStatusChange({ lead, status });
+    statusForm.setFieldsValue({ comment: "" });
+  };
+
+  const closeStatusModal = () => {
+    setPendingStatusChange(null);
+    statusForm.resetFields();
+  };
+
+  const handleStatusSubmit = async () => {
+    if (!pendingStatusChange) {
+      return;
+    }
+
+    const values = await statusForm.validateFields();
+
+    setIsStatusSaving(true);
+
+    try {
+      await updateLeadStatus({
+        id: pendingStatusChange.lead.key,
+        data: {
+          status: pendingStatusChange.status,
+          comment: values.comment?.trim() || undefined,
+        },
+      }).unwrap();
+
+      notify.success(t("leads.messages.statusUpdated"));
+      closeStatusModal();
+    } catch (error) {
+      notify.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
+    } finally {
+      setIsStatusSaving(false);
+    }
+  };
+
+  const statusOptions = useMemo(
+    () =>
+      LeadStatuses.map((status) => ({
+        value: status,
+        label: getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, status),
+      })),
+    [t]
+  );
+
+  return (
+    <MainLayout>
+      <Heading
+        title={t("leads.title")}
+        subtitle={t("leads.subtitle")}
+        totalAmount={`${dataTotal}`}
+      />
+
+      <div className="box">
+        <div className="box-container">
+          <div className="box-container-items">
+            <FilterBar className="leads-filters">
+              <FilterBarItem>
+                <Select
+                  className="leads-status-filter"
+                  popupClassName="leads-status-filter-popup"
+                  size="large"
+                  allowClear
+                  popupMatchSelectWidth={false}
+                  placeholder={t("leads.fields.status")}
+                  options={statusOptions}
+                  onChange={(status) =>
+                    setQuery((prev) => ({
+                      ...prev,
+                      page: 1,
+                      status: status || undefined,
+                    }))
+                  }
+                />
+              </FilterBarItem>
+            </FilterBar>
+          </div>
+
+          <div className="box-container-items">
+            <ComponentTable<LeadTableDataType>
+              loading={isLoading}
+              columns={LeadsTableColumns(t, {
+                canUpdateStatus,
+                onStatusChange: openStatusModal,
+              })}
+              data={tableData}
+              onRowClick={canRead ? (record) => navigate(routes.lead(record.key)) : undefined}
+              pagination={{
+                current: dataPage,
+                pageSize: dataLimit,
+                total: dataTotal,
+                showSizeChanger: { showSearch: false },
+                pageSizeOptions: ["10", "20", "30", "40", "50"],
+                locale: { items_per_page: "" },
+                onChange: (page, limit) => {
+                  setQuery((prev) => ({
+                    ...prev,
+                    page,
+                    limit: limit || prev.limit,
+                  }));
+                },
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Modal
+        title={t("leads.modal.changeStatus")}
+        open={Boolean(pendingStatusChange)}
+        centered
+        okText={t("btn.save")}
+        cancelText={t("btn.cancel")}
+        confirmLoading={isStatusSaving}
+        onOk={handleStatusSubmit}
+        onCancel={closeStatusModal}
+        destroyOnHidden
+      >
+        {pendingStatusChange && (
+          <div className="leads-status-modal">
+            <div className="leads-status-modal-summary">
+              <span>{pendingStatusChange.lead.name}</span>
+              <strong>{getStatusLabel(t, StatusEntity.Lead, LifecycleScope.Internal, pendingStatusChange.status)}</strong>
+            </div>
+            <Form form={statusForm} layout="vertical">
+              <Form.Item name="comment" label={t("leads.fields.comment")}>
+                <Input.TextArea
+                  className="leads-status-comment"
+                  rows={4}
+                  placeholder={t("leads.modal.commentPlaceholder")}
+                />
+              </Form.Item>
+            </Form>
+          </div>
+        )}
+      </Modal>
+    </MainLayout>
+  );
+};
+
+export default Leads;

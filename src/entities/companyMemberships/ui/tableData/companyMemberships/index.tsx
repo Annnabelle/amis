@@ -5,7 +5,7 @@ import type { CompanyMembershipTableDataType } from "./types";
 import type { UserPreview } from "entities/users/types";
 import UserPreviewCard from "entities/users/ui/userPreviewCard";
 import { ActionDropdownButton } from "shared/ui/table/cells";
-import { statusColors } from "shared/ui/statuses";
+import { statusColors } from "shared/ui/statusBadge/tagColors";
 
 export const CompanyMembershipsTableColumns = (
   t: TFunction,

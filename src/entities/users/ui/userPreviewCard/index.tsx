@@ -7,7 +7,7 @@ import { useGetUserPreviewQuery } from 'entities/users/api';
 import type { UserPreview } from 'entities/users/types';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { FormatUzbekPhoneNumber } from 'shared/lib';
+import { FormatUzbekPhoneNumber } from 'shared/lib/utils';
 
 const { Text } = Typography;
 

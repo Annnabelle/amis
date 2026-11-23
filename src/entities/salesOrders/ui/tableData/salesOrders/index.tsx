@@ -1,7 +1,7 @@
 import { Tag } from "antd";
 import { routes } from "shared/config/routes";
 import type { TFunction } from "i18next";
-import { statusColors } from "shared/ui/statuses";
+import { statusColors } from "shared/ui/statusBadge/tagColors";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { SalesOrdersTableDataType } from "./types";
 import { PermissionLink } from "entities/access/ui";
