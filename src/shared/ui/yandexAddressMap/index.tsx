@@ -12,7 +12,7 @@ import {
   type YMapsApi,
   type YPlacemarkInstance,
   type YandexAddressMapProps,
-} from "./yandexMaps";
+} from "shared/lib/yandexMaps";
 
 const YandexAddressMap = ({
   address,

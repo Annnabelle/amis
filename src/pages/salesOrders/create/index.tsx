@@ -38,11 +38,32 @@ import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
 import type { Company } from 'entities/organization/types';
 import type { Reference } from 'entities/references/types';
 import { getApiErrorMessage } from 'shared/api';
-import YandexAddressMap from './YandexAddressMap';
+import AddressFields from 'features/salesOrderCreate/ui/addressFields';
+import {
+  allowOnlyDigitsKeyDown,
+  allowOnlyDigitsPaste,
+  decimalParser,
+  digitsOnlyParser,
+} from 'features/salesOrderCreate/lib/numericInput';
+import {
+  calculateDeliveryCost,
+  calculateItemsTotal,
+  formatAmount,
+  formatDeliveryCost,
+} from 'features/salesOrderCreate/lib/orderTotals';
+import {
+  buildGeocodeAddress,
+  getReferenceDebugInfo,
+  getReferenceLabel,
+  getReferenceValue,
+  normalizeReferenceText,
+  resolveReferenceByCandidates,
+  resolveReferenceValue,
+} from 'features/salesOrderCreate/lib/referenceMatch';
 import {
   calculateYandexRouteDistanceKm,
   type YandexResolvedAddress,
-} from './yandexMaps';
+} from 'shared/lib/yandexMaps';
 
 const TIN_LENGTH = 9;
 
@@ -123,261 +144,46 @@ const SalesOrdersCreate = () => {
     ? getApiErrorMessage(regionsError, t('common.error'))
     : null;
 
-  const digitsOnlyParser = (maxDigits?: number) => (value?: string) => {
-    const digits = value?.replace(/\D/g, '') ?? '';
-    return maxDigits ? digits.slice(0, maxDigits) : digits;
-  };
-
-  const decimalParser = (maxIntegerDigits?: number, maxFractionDigits = 2) => (value?: string) => {
-    const normalized = (value ?? '').replace(',', '.').replace(/[^\d.]/g, '');
-    const [integerPart = '', ...fractionParts] = normalized.split('.');
-    const integer = maxIntegerDigits ? integerPart.slice(0, maxIntegerDigits) : integerPart;
-    const fraction = fractionParts.join('').slice(0, maxFractionDigits);
-
-    return fractionParts.length > 0 ? `${integer}.${fraction}` : integer;
-  };
-
-  const totalAmount = useMemo(() => {
-    const safeItems = Array.isArray(items) ? items : [];
-
-    const toBigInt = (value: unknown) => {
-      const digits = String(value ?? '').replace(/\D/g, '');
-      if (!digits) return 0n;
-      try {
-        return BigInt(digits);
-      } catch {
-        return 0n;
-      }
-    };
-
-    return safeItems.reduce((sum, item) => {
-      const quantity = toBigInt(item?.quantity);
-      const unitPrice = toBigInt(item?.unitPrice);
-      return sum + quantity * unitPrice;
-    }, 0n);
-  }, [items]);
-
-  const formattedTotalAmount = useMemo(() => new Intl.NumberFormat().format(totalAmount), [totalAmount]);
-  const deliveryTotalCost = useMemo(() => {
-    const cost = Number(deliveryCostPerDistanceUnit);
-    const distance = Number(deliveryTotalDistance);
-
-    if (!Number.isFinite(cost) || !Number.isFinite(distance)) return 0;
-    return cost * distance;
-  }, [deliveryCostPerDistanceUnit, deliveryTotalDistance]);
+  const totalAmount = useMemo(() => calculateItemsTotal(items), [items]);
+  const formattedTotalAmount = useMemo(() => formatAmount(totalAmount), [totalAmount]);
+  const deliveryTotalCost = useMemo(
+    () => calculateDeliveryCost(deliveryCostPerDistanceUnit, deliveryTotalDistance),
+    [deliveryCostPerDistanceUnit, deliveryTotalDistance]
+  );
   const formattedDeliveryTotalCost = useMemo(
-    () => new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(deliveryTotalCost),
+    () => formatDeliveryCost(deliveryTotalCost),
     [deliveryTotalCost]
   );
 
-  const allowOnlyDigitsKeyDown = (maxDigits?: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-
-    const allowedKeys = [
-      'Backspace',
-      'Delete',
-      'Tab',
-      'ArrowLeft',
-      'ArrowRight',
-      'Home',
-      'End',
-      'Enter',
-    ];
-    if (allowedKeys.includes(e.key)) return;
-
-    if (!/^\d$/.test(e.key)) {
-      e.preventDefault();
-      return;
-    }
-
-    if (!maxDigits) return;
-
-    const currentValue = e.currentTarget.value ?? '';
-    const selectionStart = e.currentTarget.selectionStart ?? currentValue.length;
-    const selectionEnd = e.currentTarget.selectionEnd ?? currentValue.length;
-    const hasSelection = selectionEnd > selectionStart;
-
-    if (!hasSelection && currentValue.length >= maxDigits) {
-      e.preventDefault();
-    }
-  };
-
-  const allowOnlyDigitsPaste = (maxDigits?: number) => (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const text = e.clipboardData.getData('text');
-    if (!/^\d*$/.test(text)) {
-      e.preventDefault();
-      return;
-    }
-
-    if (!maxDigits) return;
-
-    const currentValue = e.currentTarget.value ?? '';
-    const selectionStart = e.currentTarget.selectionStart ?? currentValue.length;
-    const selectionEnd = e.currentTarget.selectionEnd ?? currentValue.length;
-    const selectionLength = Math.max(0, selectionEnd - selectionStart);
-    const nextLength = currentValue.length - selectionLength + text.length;
-
-    if (nextLength > maxDigits) {
-      e.preventDefault();
-    }
-  };
-
   const normalizeTin = (value: string) => value.replace(/\D/g, '').slice(0, TIN_LENGTH);
 
-  const getReferenceValue = useCallback(
-    (reference: Reference) => reference.id ?? reference.alias,
-    []
-  );
-
-  const getReferenceLabel = (reference: Reference) =>
-    reference.title[currentLanguage] || reference.title.ru || reference.alias;
-
-  const getReferenceByValue = (items: Reference[], value?: string) =>
-    items.find((item) => getReferenceValue(item) === value);
-
-  const normalizeReferenceText = (value?: string) =>
-    value
-      ?.toLowerCase()
-      .replace(/ё/g, "е")
-      .replace(/[.,'`"_/-]/g, " ")
-      .replace(
-        /(^|\s)(республика|область|обл|район|р-н|город|г|shahar|shahri|city|viloyati|tumani|вилояти|тумани)(?=\s|$)/g,
-        " "
-      )
-      .replace(/\s+/g, " ")
-      .trim();
-
-  const getReferenceTextVariants = (value?: string) => {
-    const normalized = normalizeReferenceText(value);
-    if (!normalized) return [];
-
-    const stemmed = normalized.replace(/\b([а-я]+?)(ский|ской|цкий|кий|ый|ий)\b/g, "$1");
-
-    return [normalized, stemmed].filter((item, index, items) => item && items.indexOf(item) === index);
-  };
-
-  const getReferenceTitleValues = (title: Reference["title"] | string | undefined) => {
-    if (!title) return [];
-    if (typeof title === "string") return [title];
-
-    return Object.values(title).filter((value): value is string => typeof value === "string");
-  };
-
-  const getReferenceRawSearchValues = (reference: Reference) =>
-    [
-      reference.id,
-      reference.alias,
-      ...getReferenceTitleValues(reference.title),
-    ].filter((value): value is string => Boolean(value));
-
-  const getReferenceSearchValues = (reference: Reference) =>
-    getReferenceRawSearchValues(reference)
-      .flatMap(getReferenceTextVariants)
-      .filter((value, index, values): value is string => Boolean(value) && values.indexOf(value) === index);
-
-  const getReferenceDebugInfo = (reference: Reference) => ({
-    value: getReferenceValue(reference),
-    alias: reference.alias,
-    title: reference.title,
-    searchValues: getReferenceSearchValues(reference),
+  const senderGeocodeAddress = buildGeocodeAddress({
+    address: senderAddress,
+    regionId: senderRegionId,
+    districtId: senderDistrictId,
+    regions,
+    districts: senderDistricts,
+    language: currentLanguage,
+  });
+  const customerGeocodeAddress = buildGeocodeAddress({
+    address: customerAddress,
+    regionId: customerRegionId,
+    districtId: customerDistrictId,
+    regions,
+    districts: customerDistricts,
+    language: currentLanguage,
   });
 
-  const resolveReferenceByCandidates = (items: Reference[], candidates: string[]) => {
-    const normalizedCandidates = candidates
-      .flatMap(getReferenceTextVariants)
-      .filter((value, index, values): value is string => Boolean(value) && values.indexOf(value) === index);
+  /** Подпись справочника на языке интерфейса. */
+  const referenceLabel = (reference: Reference) => getReferenceLabel(reference, currentLanguage);
 
-    if (normalizedCandidates.length === 0) return undefined;
-
-    const exactMatch = normalizedCandidates
-      .map((candidate) =>
-        items.find((item) => getReferenceSearchValues(item).includes(candidate))
-      )
-      .find(Boolean);
-
-    if (exactMatch) return exactMatch;
-
-    const rawCandidates = candidates.map((candidate) => candidate.trim()).filter(Boolean);
-
-    const rawExactMatch = rawCandidates
-      .map((candidate) =>
-        items.find((item) =>
-          getReferenceRawSearchValues(item)
-            .map((value) => value.trim())
-            .includes(candidate)
-        )
-      )
-      .find(Boolean);
-
-    if (rawExactMatch) return rawExactMatch;
-
-    return normalizedCandidates
-      .map((candidate) =>
-        items.find((item) =>
-          getReferenceSearchValues(item).some((value) =>
-            value.length > 3 && candidate.includes(value)
-            || candidate.length > 3 && value.includes(candidate)
-          )
-        )
-      )
-      .find(Boolean);
-  };
-
-  const buildGeocodeAddress = (
-    address?: string,
-    regionId?: string,
-    districtId?: string,
-    districts: Reference[] = []
-  ) => {
-    const region = getReferenceByValue(regions, regionId);
-    const district = getReferenceByValue(districts, districtId);
-    const parts = [
-      "Узбекистан",
-      region ? getReferenceLabel(region) : undefined,
-      district ? getReferenceLabel(district) : undefined,
-      address?.trim(),
-    ].filter(Boolean);
-
-    return parts.join(", ");
-  };
-
+  /** Область и район без улицы: такой запрос геокодер отдаёт центром территории. */
   const buildAreaGeocodeAddress = (
     regionId?: string,
     districtId?: string,
     districts: Reference[] = []
-  ) => buildGeocodeAddress(undefined, regionId, districtId, districts);
-
-  const senderGeocodeAddress = buildGeocodeAddress(
-    senderAddress,
-    senderRegionId,
-    senderDistrictId,
-    senderDistricts
-  );
-  const customerGeocodeAddress = buildGeocodeAddress(
-    customerAddress,
-    customerRegionId,
-    customerDistrictId,
-    customerDistricts
-  );
-
-  const resolveReferenceValue = useCallback((items: Reference[], value?: string) => {
-    const normalized = value?.trim().toLowerCase();
-    if (!normalized) return undefined;
-
-    const found = items.find((item) => {
-      const candidates = [
-        item.id,
-        item.alias,
-        item.title.ru,
-        item.title.en,
-        item.title.uz,
-      ];
-
-      return candidates.some((candidate) => candidate?.trim().toLowerCase() === normalized);
-    });
-
-    return found ? getReferenceValue(found) : undefined;
-  }, [getReferenceValue]);
+  ) =>
+    buildGeocodeAddress({ regionId, districtId, regions, districts, language: currentLanguage });
 
   const getCompanyAddressDetails = useCallback(async (company: Company) => {
     const address = company.address.address?.trim();
@@ -396,7 +202,7 @@ const SalesOrdersCreate = () => {
       regionId,
       districtId,
     };
-  }, [loadDistricts, regions, resolveReferenceValue]);
+  }, [loadDistricts, regions]);
 
   const loadDistrictsForRegion = async (
     regionId: string,
@@ -674,28 +480,6 @@ const SalesOrdersCreate = () => {
   const getPackageLabel = (pkg: ProductPackage) =>
     pkg.name?.[currentLanguage] || pkg.name?.ru || pkg.name?.en || pkg.code;
 
-  const isValidLocation = (value?: { latitude?: number; longitude?: number }) =>
-    Boolean(value) &&
-    Number.isFinite(Number(value?.latitude)) &&
-    Number.isFinite(Number(value?.longitude));
-
-  const locationRule = {
-    validator: (_: unknown, value: { latitude?: number; longitude?: number } | undefined) =>
-      isValidLocation(value)
-        ? Promise.resolve()
-        : Promise.reject(
-            new Error(
-              t('salesOrders.createValidation.locationRequired', {
-                defaultValue: 'Отметьте точку на карте',
-              })
-            )
-          ),
-  };
-
-  const locationValueProps = (value?: { latitude?: number; longitude?: number }) => ({
-    value: isValidLocation(value) ? `${value?.latitude}, ${value?.longitude}` : '',
-  });
-
   const handleCreateSalesOrder = async (values: SalesOrderFormValues) => {
     if (!orgId) {
       notify.error(t('salesOrders.validation.companyRequired'));
@@ -782,95 +566,32 @@ const SalesOrdersCreate = () => {
                   <Input className="input" size="large" disabled />
                 </Form.Item>
               </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["sender", "addressDetails", "regionId"]}
-                  label={t('salesOrders.createFields.region', { defaultValue: 'Region' })}
-                  rules={[{ required: true, message: t('salesOrders.createValidation.regionRequired', { defaultValue: 'Select region' }) }]}
-                >
-                  <Select
-                    className="input"
-                    size="large"
-                    loading={referencesLoading}
-                    options={regions.map((region) => ({
-                      value: getReferenceValue(region),
-                      label: getReferenceLabel(region),
-                    }))}
-                    onChange={(regionId) => handleAddressRegionChange("sender", regionId)}
-                    placeholder={t('salesOrders.createPlaceholders.region', { defaultValue: 'Region' })}
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["sender", "addressDetails", "districtId"]}
-                  label={t('salesOrders.createFields.district', { defaultValue: 'District' })}
-                  rules={[{ required: true, message: t('salesOrders.createValidation.districtRequired', { defaultValue: 'Select district' }) }]}
-                >
-                  <Select
-                    className="input"
-                    size="large"
-                    disabled={!senderRegionId}
-                    loading={districtsLoadingByOwner.sender}
-                    onChange={(districtId) => handleAddressDistrictChange("sender", districtId)}
-                    options={senderDistricts.map((district) => ({
-                      value: getReferenceValue(district),
-                      label: getReferenceLabel(district),
-                    }))}
-                    placeholder={t('salesOrders.createPlaceholders.district', { defaultValue: 'District' })}
-                  />
-                </Form.Item>
-              </div>
-              <div className="form-inputs">
-                <Form.Item
-                  className="input"
-                  name={["sender", "addressDetails", "address"]}
-                  label={t('salesOrders.createFields.address', { defaultValue: 'Address' })}
-                  rules={[{ required: true, message: t('salesOrders.createValidation.addressRequired', { defaultValue: 'Enter address' }) }]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    placeholder={t('salesOrders.createPlaceholders.address', { defaultValue: 'Address' })}
-                  />
-                </Form.Item>
-              </div>
-              <div className="form-inputs">
-                <Form.Item
-                  className="input"
-                  name={["sender", "addressDetails", "location"]}
-                  label={t('salesOrders.fields.senderLocation')}
-                  getValueProps={locationValueProps}
-                  rules={[locationRule]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    disabled
-                    placeholder={t('salesOrders.createPlaceholders.location', {
-                      defaultValue: 'Отметьте точку на карте',
-                    })}
-                  />
-                </Form.Item>
-              </div>
-              <YandexAddressMap
+              <AddressFields
+                owner="sender"
+                form={form}
+                regions={regions}
+                districts={senderDistricts}
+                regionsLoading={referencesLoading}
+                districtsLoading={districtsLoadingByOwner.sender}
+                regionId={senderRegionId}
                 address={senderAddress}
-                forcedGeocodeAddress={forcedMapGeocodeAddress.sender}
+                location={senderLocation}
                 geocodeAddress={senderGeocodeAddress}
                 geocodeRequestKey={mapGeocodeRequestKey.sender}
-                location={senderLocation}
-                onAddressChange={(address) => {
-                  form.setFieldValue(["sender", "addressDetails", "address"], address);
-                }}
+                forcedGeocodeAddress={forcedMapGeocodeAddress.sender}
+                addressLabelKey="salesOrders.createFields.address"
+                addressPlaceholderKey="salesOrders.createPlaceholders.address"
+                addressRequiredKey="salesOrders.createValidation.addressRequired"
+                locationLabelKey="salesOrders.fields.senderLocation"
+                wideRowClassName="form-inputs"
+                referenceLabel={referenceLabel}
+                onRegionChange={(regionId) => handleAddressRegionChange("sender", regionId)}
+                onDistrictChange={(districtId) => handleAddressDistrictChange("sender", districtId)}
                 onAddressSelect={(address) => {
                   void applyMapAddressSelection("sender", address);
                 }}
                 onForcedGeocodeComplete={() => {
                   setForcedMapGeocodeAddress((prev) => ({ ...prev, sender: undefined }));
-                }}
-                onLocationChange={(location) => {
-                  form.setFieldValue(["sender", "addressDetails", "location"], location);
-                  void form.validateFields([["sender", "addressDetails", "location"]]).catch(() => undefined);
                 }}
               />
                 </div>
@@ -956,104 +677,31 @@ const SalesOrdersCreate = () => {
                   />
                 </Form.Item>
               </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["customer", "addressDetails", "regionId"]}
-                  label={t('salesOrders.createFields.region', { defaultValue: 'Region' })}
-                  rules={[{ required: true, message: t('salesOrders.createValidation.regionRequired', { defaultValue: 'Select region' }) }]}
-                >
-                  <Select
-                    className="input"
-                    size="large"
-                    loading={referencesLoading}
-                    options={regions.map((region) => ({
-                      value: getReferenceValue(region),
-                      label: getReferenceLabel(region),
-                    }))}
-                    onChange={(regionId) => handleAddressRegionChange("customer", regionId)}
-                    placeholder={t('salesOrders.createPlaceholders.region', { defaultValue: 'Region' })}
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["customer", "addressDetails", "districtId"]}
-                  label={t('salesOrders.createFields.district', { defaultValue: 'District' })}
-                  rules={[{ required: true, message: t('salesOrders.createValidation.districtRequired', { defaultValue: 'Select district' }) }]}
-                >
-                  <Select
-                    className="input"
-                    size="large"
-                    disabled={!customerRegionId}
-                    loading={districtsLoadingByOwner.customer}
-                    onChange={(districtId) => handleAddressDistrictChange("customer", districtId)}
-                    options={customerDistricts.map((district) => ({
-                      value: getReferenceValue(district),
-                      label: getReferenceLabel(district),
-                    }))}
-                    placeholder={t('salesOrders.createPlaceholders.district', { defaultValue: 'District' })}
-                  />
-                </Form.Item>
-              </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["customer", "addressDetails", "address"]}
-                  label={t('salesOrders.createFields.companyAddress', { defaultValue: 'Адрес компании' })}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('salesOrders.createValidation.companyAddressRequired', {
-                        defaultValue: 'Адрес компании обязателен',
-                      }),
-                    },
-                  ]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    placeholder={t('salesOrders.createPlaceholders.companyAddress', {
-                      defaultValue: 'Адрес компании',
-                    })}
-                  />
-                </Form.Item>
-              </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  className="input"
-                  name={["customer", "addressDetails", "location"]}
-                  label={t('salesOrders.fields.customerLocation')}
-                  getValueProps={locationValueProps}
-                  rules={[locationRule]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    disabled
-                    placeholder={t('salesOrders.createPlaceholders.location', {
-                      defaultValue: 'Отметьте точку на карте',
-                    })}
-                  />
-                </Form.Item>
-              </div>
-              <YandexAddressMap
+              <AddressFields
+                owner="customer"
+                form={form}
+                regions={regions}
+                districts={customerDistricts}
+                regionsLoading={referencesLoading}
+                districtsLoading={districtsLoadingByOwner.customer}
+                regionId={customerRegionId}
                 address={customerAddress}
-                forcedGeocodeAddress={forcedMapGeocodeAddress.customer}
+                location={customerLocation}
                 geocodeAddress={customerGeocodeAddress}
                 geocodeRequestKey={mapGeocodeRequestKey.customer}
-                location={customerLocation}
-                onAddressChange={(address) => {
-                  form.setFieldValue(["customer", "addressDetails", "address"], address);
-                }}
+                forcedGeocodeAddress={forcedMapGeocodeAddress.customer}
+                addressLabelKey="salesOrders.createFields.companyAddress"
+                addressPlaceholderKey="salesOrders.createPlaceholders.companyAddress"
+                addressRequiredKey="salesOrders.createValidation.companyAddressRequired"
+                locationLabelKey="salesOrders.fields.customerLocation"
+                referenceLabel={referenceLabel}
+                onRegionChange={(regionId) => handleAddressRegionChange("customer", regionId)}
+                onDistrictChange={(districtId) => handleAddressDistrictChange("customer", districtId)}
                 onAddressSelect={(address) => {
                   void applyMapAddressSelection("customer", address);
                 }}
                 onForcedGeocodeComplete={() => {
                   setForcedMapGeocodeAddress((prev) => ({ ...prev, customer: undefined }));
-                }}
-                onLocationChange={(location) => {
-                  form.setFieldValue(["customer", "addressDetails", "location"], location);
-                  void form.validateFields([["customer", "addressDetails", "location"]]).catch(() => undefined);
                 }}
               />
                 </div>
