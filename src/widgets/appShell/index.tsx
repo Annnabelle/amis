@@ -913,6 +913,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   <button
                     type="button"
                     className="mobile-sider-back"
+                    aria-label={t('common.backToList')}
                     onClick={() => navigate(mobileNav.backPath as string)}
                   >
                     <LeftOutlined />

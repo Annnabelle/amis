@@ -1,4 +1,5 @@
 import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
+import { activateOnKey } from 'shared/lib/keyboardActivate';
 import { routes } from "shared/config/routes";
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import MainLayout from 'widgets/appShell';
@@ -754,6 +755,10 @@ const DeliveryRoutesCreate = () => {
                         >
                           <div 
                             className="order-header"
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={expandedCards.has(index)}
+                            onKeyDown={activateOnKey(() => toggleCardExpanded(index))}
                             onClick={() => toggleCardExpanded(index)}
                             style={{ cursor: 'pointer' }}
                           >

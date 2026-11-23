@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { activateOnKey } from "shared/lib/keyboardActivate";
 import { routes } from "shared/config/routes";
 import { DownOutlined, KeyOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar } from "antd";
@@ -53,17 +54,27 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
   const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
 
+  const handleUserInfoActivate = () => {
+    if (!showDropdown) {
+      onProfileClick?.();
+      return;
+    }
+
+    setIsOpen((prev) => !prev);
+  };
+
   return (
     <div className="user" ref={dropdownRef}>
       <div
         className={`user-info ${showDropdown ? "" : "user-info-static"} ${isOpen ? "open" : ""}`}
+        role="button"
+        tabIndex={0}
+        aria-haspopup={showDropdown ? "menu" : undefined}
+        aria-expanded={showDropdown ? isOpen : undefined}
+        onKeyDown={activateOnKey(handleUserInfoActivate)}
         onClick={(e) => {
           e.stopPropagation();
-          if (!showDropdown) {
-            onProfileClick?.();
-            return;
-          }
-          setIsOpen((prev) => !prev);
+          handleUserInfoActivate();
         }}
       >
         <Avatar

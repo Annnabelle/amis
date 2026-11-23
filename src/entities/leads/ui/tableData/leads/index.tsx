@@ -92,6 +92,7 @@ export const LeadsTableColumns = (
       return (
         <div
           className="leads-status-cell"
+          role="presentation"
           onClick={(event) => event.stopPropagation()}
           onMouseDown={(event) => event.stopPropagation()}
         >

@@ -26,19 +26,14 @@ const ActionLink = ({
   run,
   children,
 }: StatusChangeAction & { children?: string }) => (
-  <a
-    role="button"
-    tabIndex={0}
+  <button
+    type="button"
+    className="lifecycle-toast-link"
     title={label}
     onClick={run}
-    onKeyDown={(event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        run();
-      }
-    }}
   >
     {children ?? label}
-  </a>
+  </button>
 );
 
 const nameOf = (

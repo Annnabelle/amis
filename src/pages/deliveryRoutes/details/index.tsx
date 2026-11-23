@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { activateOnKey } from 'shared/lib/keyboardActivate';
+import PageHeader from 'shared/ui/pageHeader';
 import { routes } from "shared/config/routes";
 import MainLayout from 'widgets/appShell';
-import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
 import StatusBadge from 'shared/ui/statusBadge';
 import {
@@ -23,7 +24,7 @@ import {
   useGetDeliveryTasksQuery,
   useStartDeliveryTaskHandoverMutation,
 } from 'entities/deliveryTasks/api';
-import { DownOutlined, LeftOutlined, UpOutlined } from '@ant-design/icons';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useIsMobile } from 'shared/lib';
 import { toast } from 'react-toastify';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
@@ -243,18 +244,11 @@ const DeliveryRoutesDetails = () => {
   if (!route) {
     return (
       <MainLayout>
-        {isMobile && (
-          <div className="mobile-route-toolbar">
-            <div className="mobile-route-toolbar-back">
-              <CustomButton variant="outline" onClick={() => navigate(backPath)}>
-                <LeftOutlined />
-              </CustomButton>
-            </div>
-          </div>
-        )}
-        {!isMobile && (
-          <Heading title={t('deliveryRoutes.detailsTitle')} subtitle={t('common.details')} />
-        )}
+        <PageHeader
+          title={t('deliveryRoutes.detailsTitle')}
+          subtitle={t('common.details')}
+          onBack={() => navigate(backPath)}
+        />
         <div className="box">
           <div className="box-container">
             <div className="box-container-items">
@@ -325,92 +319,51 @@ const DeliveryRoutesDetails = () => {
   const headingTitle = `${t('deliveryRoutes.detailsTitle')} - ${route.routeNumber}`;
   const headingSubtitle = t('common.details');
 
+  const routeActions = (
+    <>
+      {canStartLoading && (
+        <CustomButton
+          onClick={() => void handleOpenLoading()}
+          disabled={!canOpenLoading}
+        >
+          {loadingButtonLabel}
+        </CustomButton>
+      )}
+      {canOpenReturn && (
+        <CustomButton
+          variant="outline"
+          onClick={() => void handleOpenReturn()}
+        >
+          {returnButtonLabel}
+        </CustomButton>
+      )}
+      {canStartTransit && (
+        <CustomButton
+          variant="outline"
+          onClick={() => void handleStartTransit()}
+        >
+          {transitButtonLabel}
+        </CustomButton>
+      )}
+      {showCloseRoute && (
+        <CustomButton
+          onClick={() => void handleCloseRoute()}
+          disabled={isClosing}
+        >
+          {closeRouteButtonLabel}
+        </CustomButton>
+      )}
+    </>
+  );
+
   return (
     <MainLayout>
-      {isMobile && (
-        <div className="mobile-route-toolbar">
-          <div className="mobile-route-toolbar-back">
-            <CustomButton variant="outline" onClick={() => navigate(backPath)}>
-              <LeftOutlined />
-            </CustomButton>
-          </div>
-          <div className="mobile-route-toolbar-actions">
-            {canStartLoading && (
-              <CustomButton
-                onClick={() => void handleOpenLoading()}
-                disabled={!canOpenLoading}
-              >
-                {loadingButtonLabel}
-              </CustomButton>
-            )}
-            {canOpenReturn && (
-              <CustomButton
-                variant="outline"
-                onClick={() => void handleOpenReturn()}
-              >
-                {returnButtonLabel}
-              </CustomButton>
-            )}
-            {canStartTransit && (
-              <CustomButton
-                variant="outline"
-                onClick={() => void handleStartTransit()}
-              >
-                {transitButtonLabel}
-              </CustomButton>
-            )}
-            {showCloseRoute && (
-              <CustomButton
-                onClick={() => void handleCloseRoute()}
-                disabled={isClosing}
-              >
-                {closeRouteButtonLabel}
-              </CustomButton>
-            )}
-          </div>
-        </div>
-      )}
-      {!isMobile && (
-        <Heading 
-          title={headingTitle}
-          subtitle={headingSubtitle}
-        >
-          <div className={`btns-group ${isMobile ? 'mobile-route-actions is-hidden-mobile' : ''}`}>
-            {canStartLoading && (
-              <CustomButton
-                onClick={() => void handleOpenLoading()}
-                disabled={!canOpenLoading}
-              >
-                {loadingButtonLabel}
-              </CustomButton>
-            )}
-            {canOpenReturn && (
-              <CustomButton
-                variant="outline"
-                onClick={() => void handleOpenReturn()}
-              >
-                {returnButtonLabel}
-              </CustomButton>
-            )}
-            {canStartTransit && (
-              <CustomButton
-                variant="outline"
-                onClick={() => void handleStartTransit()}
-              >
-                {transitButtonLabel}
-              </CustomButton>
-            )}
-            {showCloseRoute && (
-              <CustomButton
-                onClick={() => void handleCloseRoute()}
-                disabled={isClosing}
-              >
-                {closeRouteButtonLabel}
-              </CustomButton>
-            )}
-          </div>
-        </Heading>
-      )}
+      <PageHeader
+        title={headingTitle}
+        subtitle={headingSubtitle}
+        onBack={() => navigate(backPath)}
+        actions={routeActions}
+      />
       {lifecycleBanner}
       <EntityTabs
         defaultActiveKey={OVERVIEW_TAB_KEY}
@@ -517,7 +470,7 @@ const DeliveryRoutesDetails = () => {
                         aria-label={t('common.expandAll')}
                         title={t('common.expandAll')}
                       >
-                        <DownOutlined /> {isMobile ? 'Развернуть' : t('common.expandAll')}
+                        <DownOutlined /> {isMobile ? t('common.expand') : t('common.expandAll')}
                       </button>
                       <button
                         className="route-task-control-btn"
@@ -525,7 +478,7 @@ const DeliveryRoutesDetails = () => {
                         aria-label={t('common.collapseAll')}
                         title={t('common.collapseAll')}
                       >
-                        <UpOutlined /> {isMobile ? 'Свернуть' : t('common.collapseAll')}
+                        <UpOutlined /> {isMobile ? t('common.collapse') : t('common.collapseAll')}
                       </button>
                     </div>
                   )
@@ -543,6 +496,10 @@ const DeliveryRoutesDetails = () => {
                         >
                           <div
                             className="route-task-header"
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={expandedTasks.has(index)}
+                            onKeyDown={activateOnKey(() => toggleTaskExpanded(index))}
                             onClick={() => toggleTaskExpanded(index)}
                             style={{ cursor: 'pointer' }}
                           >
