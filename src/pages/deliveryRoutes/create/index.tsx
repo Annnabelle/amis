@@ -1,8 +1,6 @@
-import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
+import { AutoComplete, DatePicker, Form, Input, Select } from 'antd';
 import { notify } from 'shared/lib/notify';
-import { activateOnKey } from 'shared/lib/keyboardActivate';
 import { routes } from "shared/config/routes";
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -29,23 +27,8 @@ import { PermissionLink, RequiredDataAlert } from 'entities/access/ui';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 import { formatDate } from 'shared/lib/formatDate';
-const getPriorityColor = (priority?: string) => {
-  if (!priority) return 'default';
-
-  switch (priority.toLowerCase()) {
-    case 'urgent':
-      return 'red';
-    case 'high':
-      return 'gold';
-    case 'normal':
-      return 'blue';
-    case 'low':
-      return 'green';
-    default:
-      return 'default';
-  }
-};
-
+import { buildOrderSelectionSummary } from 'features/deliveryRouteCreate/lib/orderSelectionSummary';
+import SelectedOrdersPreview from 'features/deliveryRouteCreate/ui/selectedOrdersPreview';
 /** Вариант в подсказке экипажа: кроме подписи нужен id сотрудника. */
 type CrewMemberOption = {
   value: string;
@@ -76,7 +59,6 @@ const DeliveryRoutesCreate = () => {
   const [form] = Form.useForm<DeliveryRouteFormValues>();
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
-  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
   const [vehicleSearchValue, setVehicleSearchValue] = useState('');
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const isSelectingDriverRef = useRef(false);
@@ -147,24 +129,6 @@ const DeliveryRoutesCreate = () => {
     if (!companyId) return;
     setSelectedOrderIds([]);
   }, [dispatch, companyId]);
-
-  const toggleCardExpanded = (index: number) => {
-    const newExpanded = new Set(expandedCards);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
-    setExpandedCards(newExpanded);
-  };
-
-  const expandAllCards = (customersCount: number) => {
-    setExpandedCards(new Set(Array.from({ length: customersCount }, (_, i) => i)));
-  };
-
-  const collapseAllCards = () => {
-    setExpandedCards(new Set());
-  };
 
   const handleCreateDeliveryRoute = async (values: DeliveryRouteFormValues) => {
     const finalCompanyId = orgId ?? values.companyId;
@@ -246,67 +210,10 @@ const DeliveryRoutesCreate = () => {
     setSelectedOrderIds((prev) => prev.filter((id) => availableIds.has(id)));
   }, [availableOrders]);
 
-  const selectedOrdersPreview = useMemo(() => {
-    const selectedOrders = orders.filter(order => selectedOrderIds.includes(order.id));
-
-    const uniqueCustomers = new Set(selectedOrders.map(order => order.customer.name));
-    const customerCount = uniqueCustomers.size;
-    const customerList = Array.from(uniqueCustomers);
-
-    const aggregatedProducts = selectedOrders.reduce((acc, order) => {
-      order.items.forEach(item => {
-        const productName = item.product.name;
-        const quantity = item.quantities.ordered;
-        acc[productName] = (acc[productName] || 0) + quantity;
-      });
-      return acc;
-    }, {} as Record<string, number>);
-
-    const totalVolume = selectedOrders.reduce((sum, order) => sum + (order.totals.orderedQuantity ?? 0), 0);
-    const totalAmount = selectedOrders.reduce((sum, order) => sum + (order.totals.amount ?? 0), 0);
-
-    const dueDates = selectedOrders.map(order => dayjs(order.fulfillment.dueDate));
-    const earliestDueDate = dueDates.length > 0 ? dueDates.reduce((min, date) => date.isBefore(min) ? date : min) : null;
-    const latestDueDate = dueDates.length > 0 ? dueDates.reduce((max, date) => date.isAfter(max) ? date : max) : null;
-
-    const priorities = selectedOrders.map(order => order.fulfillment.priority);
-    const priorityCounts = priorities.reduce((acc, priority) => {
-      acc[priority] = (acc[priority] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const customersDetails = selectedOrders.map(order => ({
-      name: order.customer.name,
-      tin: order.customer.tin,
-      address: order.customer.address,
-      salesOrderNumber: order.salesOrderNumber ?? '-',
-      contractDate: order.contract?.date ? formatDate(order.contract.date) : '-',
-      dueDate: formatDate(order.fulfillment.dueDate),
-      priority: order.fulfillment.priority,
-      items: order.items.map(item => ({
-        productName: item.product.name,
-        quantity: item.quantities.ordered,
-        unitPrice: item.commercial?.unitPrice ?? 0,
-        amount: item.commercial?.amount ?? 0,
-        comment: item.comment
-      })),
-      totalQuantity: order.totals.orderedQuantity,
-      totalAmount: order.totals.amount
-    }));
-
-    return {
-      orderCount: selectedOrderIds.length,
-      customerCount,
-      customerList,
-      aggregatedProducts,
-      totalVolume,
-      totalAmount,
-      earliestDueDate,
-      latestDueDate,
-      priorityCounts,
-      customersDetails,
-    };
-  }, [selectedOrderIds, orders]);
+  const selectedOrdersPreview = useMemo(
+    () => buildOrderSelectionSummary(orders, selectedOrderIds),
+    [orders, selectedOrderIds]
+  );
 
   const vehicleOptions = useMemo(
     () =>
@@ -728,116 +635,7 @@ const DeliveryRoutesCreate = () => {
               </div>
 
               {selectedOrderIds.length > 0 && (
-                // <div className="route-preview">
-                  <div className="route-preview-section">
-                    {/* <h5 className="section-title"><InboxOutlined /> {t('deliveryRoutes.preview.selectedOrders')}</h5> */}
-                    <div className="route-preview-orders-details">
-                      {selectedOrdersPreview.customersDetails.length > 0 && (
-                        <div className="expand-controls">
-                          <button 
-                            className="expand-btn expand-all" 
-                            onClick={() => expandAllCards(selectedOrdersPreview.customersDetails.length)}
-                          >
-                            <DownOutlined /> {t('common.expandAll')}
-                          </button>
-                          <button 
-                            className="expand-btn collapse-all" 
-                            onClick={collapseAllCards}
-                          >
-                            <UpOutlined /> {t('common.collapseAll')}
-                          </button>
-                        </div>
-                      )}
-                      {selectedOrdersPreview.customersDetails.map((customer, index) => (
-                        <div 
-                          key={index} 
-                          className={`order-detail-card ${expandedCards.has(index) ? 'expanded' : 'collapsed'}`}
-                        >
-                          <div 
-                            className="order-header"
-                            role="button"
-                            tabIndex={0}
-                            aria-expanded={expandedCards.has(index)}
-                            onKeyDown={activateOnKey(() => toggleCardExpanded(index))}
-                            onClick={() => toggleCardExpanded(index)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            <div className="expand-icon">
-                              {expandedCards.has(index) ? <UpOutlined /> : <DownOutlined />}
-                            </div>
-                            <div className="customer-info">
-                              <h6 className="customer-name">{customer.name}</h6>
-                              <div className="customer-details">
-                                <span className="detail-item">
-                                  <span className="label">{t('deliveryRoutes.preview.tin')}:</span> {customer.tin}
-                                </span>
-                                <span className="detail-item">
-                                  <span className="label">{t('deliveryRoutes.preview.address')}:</span> {customer.address}
-                                </span>
-                                <span className="detail-item">
-                                  <span className="label">{t('salesOrders.fields.orderNumber')}:</span> {customer.salesOrderNumber}
-                                </span>
-                                <span className="detail-item">
-                                  <span className="label">{t('deliveryRoutes.preview.contractDate')}:</span> {customer.contractDate}
-                                </span>
-                                <span className="detail-item highlight">
-                                  <span className="label">{t('deliveryRoutes.preview.orderedQuantity')}:</span> {customer.totalQuantity}
-                                </span>
-                                <span className="detail-item highlight">
-                                  <span className="label">{t('deliveryRoutes.preview.totalAmount')}:</span> {customer.totalAmount}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="order-meta">
-                              <Tag color={getPriorityColor(customer.priority)} className="tag-flat">
-                                {t(`salesOrders.priority.${customer.priority}`)}
-                              </Tag>
-                              <span className="due-date">{customer.dueDate}</span>
-                            </div>
-                          </div>
-
-                          {expandedCards.has(index) && (
-                            <div className="items-table">
-                              <div className="table-header">
-                                <span className="col-product">{t('salesOrders.fields.product')}</span>
-                                <span className="col-quantity">{t('deliveryRoutes.preview.orderedQuantity')}</span>
-                                <span className="col-price">{t('deliveryRoutes.preview.unitPrice')}</span>
-                                <span className="col-amount">{t('deliveryRoutes.preview.amount')}</span>
-                                <span className="col-comment">{t('deliveryRoutes.preview.comment')}</span>
-                              </div>
-                              {customer.items.map((item, itemIndex) => (
-                                <div key={itemIndex} className="table-row">
-                                  <span className="col-product">{item.productName}</span>
-                                  <span className="col-quantity">{item.quantity}</span>
-                                  <span className="col-price">{item.unitPrice}</span>
-                                  <span className="col-amount">{item.amount}</span>
-                                  <span className="col-comment">{item.comment || '-'}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-
-                      <div className="orders-summary">
-                        <div className="summary-stats">
-                          <div className="stat">
-                            <span className="stat-label">{t('deliveryRoutes.preview.ordersSelected')}:</span>
-                            <span className="stat-value">{selectedOrdersPreview.orderCount}</span>
-                          </div>
-                          <div className="stat">
-                            <span className="stat-label">{t('deliveryRoutes.preview.totalVolume')}:</span>
-                            <span className="stat-value">{selectedOrdersPreview.totalVolume}</span>
-                          </div>
-                          <div className="stat">
-                            <span className="stat-label">{t('deliveryRoutes.preview.totalAmount')}:</span>
-                            <span className="stat-value">{selectedOrdersPreview.totalAmount}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                // {/* </div> */}
+                <SelectedOrdersPreview summary={selectedOrdersPreview} />
               )}
               <div className="form-btns-group">
                 <CustomButton variant="outline" onClick={() => navigate(listPath)}>
