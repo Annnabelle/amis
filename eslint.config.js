@@ -7,12 +7,13 @@ import jsxA11y from 'eslint-plugin-jsx-a11y'
 import { globalIgnores } from 'eslint/config'
 
 /**
- * Направление зависимостей FSD: pages → widgets → entities → shared.
+ * Направление зависимостей FSD: pages → widgets → features → entities → shared.
  * Каждому слою запрещены импорты из тех, что выше него.
  */
 const layerBoundaries = [
-  { layer: 'shared', forbidden: ['app', 'entities', 'widgets', 'pages'] },
-  { layer: 'entities', forbidden: ['widgets', 'pages'] },
+  { layer: 'shared', forbidden: ['app', 'entities', 'features', 'widgets', 'pages'] },
+  { layer: 'entities', forbidden: ['features', 'widgets', 'pages'] },
+  { layer: 'features', forbidden: ['widgets', 'pages'] },
   { layer: 'widgets', forbidden: ['pages'] },
 ].map(({ layer, forbidden }) => ({
   files: [`src/${layer}/**/*.{ts,tsx}`],
