@@ -1,24 +1,24 @@
-import React, {
-  useCallback,
-  useState,
-  type ReactNode,
-  useEffect,
-  useMemo,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { routes } from "shared/config/routes";
+import {
+  buildCompanyModuleItems,
+  COMPANY_MENU_GROUPS,
+  type CompanyMenuGroup,
+  type CompanyModuleMenuItem,
+} from 'widgets/appShell/lib/companyMenuItems';
 import { type MenuProps } from 'antd';
 import { Menu, Select, Switch, Tag } from 'antd';
 
 import ConnectionBadge from './connectionBadge';
 import PageLayout from './pageLayout';
-import { ApartmentOutlined, ApiOutlined, AppstoreOutlined, CarOutlined, CloseOutlined, ClusterOutlined, CodeOutlined, ContactsOutlined, FileDoneOutlined, FileProtectOutlined, FileTextOutlined, LeftOutlined, LogoutOutlined, MenuOutlined, MoonOutlined, SafetyCertificateOutlined, ShoppingCartOutlined, SunOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import MobileSider from 'widgets/appShell/ui/mobileSider';
+import type { MobileNavConfig, MobileNavItem } from 'widgets/appShell/lib/mobileNav';
+import { ApartmentOutlined, CloseOutlined, ContactsOutlined, FileTextOutlined, LogoutOutlined, MenuOutlined, MoonOutlined, SunOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
 import Languages from 'shared/ui/languages';
-import StatusBadge from 'shared/ui/statusBadge';
 import CustomButton from 'shared/ui/button';
-import { getDeliveryRouteStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import './styles.sass';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from 'app/store';
@@ -45,16 +45,11 @@ import { useTheme } from 'app/providers/theme';
 import { useIsMobile } from 'shared/lib/useIsMobile';
 import { parseCompanyFromPath } from 'shared/lib/companyPath';
 import { isLanguage, type Language } from 'shared/types/dtos';
-import { canAccessEndpoint, useCan } from 'entities/access/lib';
-import {
-  endpointAccessMap,
-  type StaticEndpointAccess,
-} from 'shared/config/endpointAccessMap';
+import { useCan } from 'entities/access/lib';
+import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 // Порядок групп в меню компании. Системное меню не группируется.
-const COMPANY_MENU_GROUPS = ['marking', 'shipping', 'company'] as const;
 
-type CompanyMenuGroup = (typeof COMPANY_MENU_GROUPS)[number];
 
 // Разделы нижней панели на телефоне, в порядке приоритета. Пункты
 // отбираются из доступных пользователю, поэтому панель не ведёт туда,
@@ -64,22 +59,6 @@ const MOBILE_TABBAR_KEYS = ['orders', 'delivery-routes', 'waybills', 'products']
 interface MainLayoutProps {
   children: ReactNode;
 }
-
-type MobileNavItem = {
-  key: string;
-  label: string;
-  meta: string;
-  isActive: boolean;
-  onClick: () => void | Promise<void>;
-  status?: string;
-};
-
-type MobileNavConfig = {
-  title: string;
-  subtitle: string;
-  backPath: string | null;
-  items: MobileNavItem[];
-};
 
 const getLocalizedText = (
   value: Record<Language, string>,
@@ -270,148 +249,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     });
   }, [companyInvitationRoles, loadCompanyRoleReferences, pendingCompanyInvitations]);
 
-  type CompanyModuleMenuItem = {
-    module: AccessModule;
-    access: StaticEndpointAccess | readonly StaticEndpointAccess[];
-    key: string;
-    icon: ReactNode;
-    path: string;
-    label: string;
-    group: CompanyMenuGroup;
-  };
-
-  const getCompanyModuleItems = useCallback((
-    companyId: string,
-    modules: AccessModule[]
-  ): CompanyModuleMenuItem[] => {
-    const frontendModuleOrder: CompanyModuleMenuItem[] = [
-      {
-        module: AccessModules.CompanyMemberships,
-        access: endpointAccessMap.companyMembershipsList,
-        key: 'memberships',
-        group: 'company',
-        icon: <TeamOutlined />,
-        path: routes.companyMemberships(companyId),
-        label: t('navigation.companyMemberships'),
-      },
-      {
-        module: AccessModules.Products,
-        access: endpointAccessMap.productsList,
-        key: 'products',
-        group: 'marking',
-        icon: <AppstoreOutlined />,
-        path: routes.products(companyId),
-        label: t('navigation.products'),
-      },
-      {
-        module: AccessModules.Orders,
-        access: endpointAccessMap.ordersList,
-        key: 'orders',
-        group: 'marking',
-        icon: <CodeOutlined />,
-        path: routes.markingCodeOrders(companyId),
-        label: t('navigation.markingCodes'),
-      },
-      {
-        module: AccessModules.Orders,
-        access: endpointAccessMap.ownedCodesList,
-        key: 'codes',
-        group: 'marking',
-        icon: <CodeOutlined />,
-        path: routes.ownedCodes(companyId),
-        label: t('navigation.ownedCodes'),
-      },
-      {
-        module: AccessModules.Reports,
-        access: endpointAccessMap.aggregationReportsList,
-        key: 'agregations',
-        group: 'marking',
-        icon: <ClusterOutlined />,
-        path: routes.aggregations(companyId),
-        label: t('navigation.agregations'),
-      },
-      {
-        module: AccessModules.Reports,
-        access: endpointAccessMap.customsCodesList,
-        key: 'customs-codes',
-        group: 'marking',
-        icon: <SafetyCertificateOutlined />,
-        path: routes.customsCodes(companyId),
-        label: 'АИК',
-      },
-      {
-        module: AccessModules.SalesOrders,
-        access: endpointAccessMap.salesOrdersList,
-        key: 'sales-orders',
-        group: 'shipping',
-        icon: <ShoppingCartOutlined />,
-        path: routes.salesOrders(companyId),
-        label: t('navigation.deals'),
-      },
-      {
-        module: AccessModules.DeliveryRoutes,
-        access: endpointAccessMap.deliveryRoutesList,
-        key: 'delivery-routes',
-        group: 'shipping',
-        icon: <CarOutlined />,
-        path: routes.deliveryRoutes(companyId),
-        label: t('navigation.routes'),
-      },
-      {
-        module: AccessModules.Vehicles,
-        access: endpointAccessMap.vehiclesList,
-        key: 'vehicles',
-        group: 'company',
-        icon: <CarOutlined />,
-        path: routes.vehicles(companyId),
-        label: t('navigation.vehicles'),
-      },
-      {
-        module: AccessModules.Invoices,
-        access: endpointAccessMap.invoicesList,
-        key: 'invoices',
-        group: 'shipping',
-        icon: <FileDoneOutlined />,
-        path: routes.invoices(companyId),
-        label: t('navigation.invoices'),
-      },
-      {
-        module: AccessModules.Waybills,
-        access: endpointAccessMap.waybillsList,
-        key: 'waybills',
-        group: 'shipping',
-        icon: <FileProtectOutlined />,
-        path: routes.waybills(companyId),
-        label: t('navigation.waybills'),
-      },
-      {
-        module: AccessModules.Integrations,
-        access: [
-          endpointAccessMap.integrationsXTraceRead,
-          endpointAccessMap.integrationsFakturaUzRead,
-        ],
-        key: 'integrations',
-        group: 'company',
-        icon: <ApiOutlined />,
-        path: routes.companyIntegrations(companyId),
-        label: t('navigation.integrations'),
-      },
-    ];
-
-    return frontendModuleOrder.filter((item) => {
-      if (!modules.includes(item.module)) return false;
-
-      const endpoints = Array.isArray(item.access) ? item.access : [item.access];
-
-      return endpoints.some((endpoint) =>
-        canAccessEndpoint({
-          access,
-          endpoint,
-          companyId,
-        })
-      );
-    });
-  }, [access, t]);
+  const getCompanyModuleItems = useCallback(
+    (companyId: string, modules: AccessModule[]) =>
+      access ? buildCompanyModuleItems({ companyId, modules, access, t }) : [],
+    [access, t]
+  );
 
   const systemMenuItems = useMemo<MenuProps['items']>(() => {
     const items: MenuProps['items'] = [];
@@ -906,58 +748,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         ) : null
       }
     >
-          {mobileNav && (
-            <div className="mobile-sider">
-              <div className="mobile-sider-header">
-                {mobileNav.backPath ? (
-                  <button
-                    type="button"
-                    className="mobile-sider-back"
-                    aria-label={t('common.backToList')}
-                    onClick={() => navigate(mobileNav.backPath as string)}
-                  >
-                    <LeftOutlined />
-                  </button>
-                ) : (
-                  <span className="mobile-sider-back-placeholder is-hidden" />
-                )}
-
-                <div className="mobile-sider-header-copy">
-                  <span className="mobile-sider-eyebrow">AMIS</span>
-                  <h2>{mobileNav.title}</h2>
-                  {mobileNav.subtitle ? <p>{mobileNav.subtitle}</p> : null}
-                </div>
-              </div>
-
-              <div className="mobile-sider-list">
-                {mobileNav.items.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    className={`mobile-sider-item ${item.isActive ? 'is-active' : ''}`}
-                    onClick={item.onClick}
-                  >
-                    {item.status ? (
-                      <div className="mobile-sider-item-row">
-                        <span className="mobile-sider-item-label">{item.label}</span>
-                        <StatusBadge
-                          variant={getDeliveryRouteStatusBadgeVariant(item.status)}
-                          mode="compact"
-                        >
-                          {item.meta}
-                        </StatusBadge>
-                      </div>
-                    ) : (
-                      <span className="mobile-sider-item-label">{item.label}</span>
-                    )}
-                    {!item.status && item.meta ? (
-                      <span className="mobile-sider-item-meta">{item.meta}</span>
-                    ) : null}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          {mobileNav && <MobileSider nav={mobileNav} />}
 
           {children}
 
