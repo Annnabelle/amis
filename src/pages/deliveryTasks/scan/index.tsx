@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { Alert, Empty, Input, Modal, Spin } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import MainLayout from 'widgets/appShell';
@@ -27,11 +26,19 @@ import {
 } from 'entities/scanSessions/api';
 import { ScanSessionType } from 'entities/scanSessions/types';
 import { getApiErrorMessage } from 'shared/api';
+import { createScanToast, formatCodeForToast } from 'features/scanning/lib/scanToast';
+import ScanList from 'features/scanning/ui/scanList';
+import {
+  buildProductsById,
+  groupAcceptedScans,
+  selectIncompleteProducts,
+  selectRejectedScans,
+} from 'features/deliveryTaskScan/lib/scanGroups';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const SCAN_CACHE_PREFIX = 'delivery-task-scans';
-const SCAN_RESULT_TOAST_ID = 'delivery-task-scan-result';
+const pushSingleScanToast = createScanToast('delivery-task-scan-result');
 
 type ScannerMode = 'delivery' | 'delete' | null;
 
@@ -130,79 +137,16 @@ const DeliveryTasksScan = () => {
     scanSession?.status,
   ]);
 
-  const formatCodeForToast = (code: string) => {
-    const trimmed = code.trim();
-    if (trimmed.length <= 24) return trimmed;
+  const productsById = useMemo(() => buildProductsById(task), [task]);
 
-    return `${trimmed.slice(0, 12)}...${trimmed.slice(-8)}`;
-  };
-
-  const pushSingleScanToast = (type: 'success' | 'error', message: string) => {
-    if (notify.isActive(SCAN_RESULT_TOAST_ID)) {
-      notify.update(SCAN_RESULT_TOAST_ID, {
-        render: message,
-        type,
-        autoClose: 2200,
-      });
-      return;
-    }
-
-    notify[type](message, {
-      toastId: SCAN_RESULT_TOAST_ID,
-      autoClose: 2200,
-    });
-  };
-
-  const productsById = useMemo(
-    () =>
-      new Map(
-        (task?.items ?? []).map((item) => [
-          item.product.id,
-          {
-            id: item.product.id,
-            name: item.product.name,
-            shortName: item.product.shortName,
-          },
-        ])
-      ),
-    [task?.items]
+  const acceptedScanGroups = useMemo(
+    () => groupAcceptedScans(recentScans, productsById),
+    [productsById, recentScans]
   );
 
-  const acceptedScanGroups = useMemo(() => {
-    const groups = new Map<
-      string,
-      { productId: string; productName: string; scans: typeof recentScans }
-    >();
+  const rejectedScans = useMemo(() => selectRejectedScans(recentScans), [recentScans]);
 
-    recentScans.forEach((scan) => {
-      if (scan.status !== 'accepted' || !scan.productId) return;
-
-      const product = productsById.get(scan.productId);
-      const existing = groups.get(scan.productId);
-      if (existing) {
-        existing.scans.push(scan);
-        return;
-      }
-
-      groups.set(scan.productId, {
-        productId: scan.productId,
-        productName: product?.name ?? scan.productId,
-        scans: [scan],
-      });
-    });
-
-    return Array.from(groups.values());
-  }, [productsById, recentScans]);
-
-  const rejectedScans = useMemo(
-    () => recentScans.filter((scan) => scan.status === 'rejected'),
-    [recentScans]
-  );
-
-  const incompleteProducts = useMemo(
-    () => (task?.items ?? []).filter((item) => item.quantities.delivered < item.quantities.planned),
-    [task?.items]
-  );
+  const incompleteProducts = useMemo(() => selectIncompleteProducts(task), [task]);
 
   const refreshTask = async () => {
     if (!taskId) return;
@@ -454,55 +398,15 @@ const DeliveryTasksScan = () => {
   };
 
   const lastScansContent = (
-    <div className="loading-scans-groups">
-      {acceptedScanGroups.length === 0 && rejectedScans.length === 0 && (
-        <div className="dm-scanner-empty">{t('scanner.empty')}</div>
-      )}
-
-      {acceptedScanGroups.map((group) => (
-        <section key={group.productId} className="loading-scan-group">
-          <div className="loading-scan-group-title">
-            <span>{group.productName}</span>
-            <span className="loading-scan-group-count">{group.scans.length}</span>
-          </div>
-          <div className="loading-scan-group-items">
-            {group.scans.map((scan) => (
-              <div key={`${scan.code}-${scan.ts}`} className="loading-scan-item accepted">
-                <div className="loading-scan-item-code">{scan.code}</div>
-                {canCancelScan && (
-                  <button
-                    type="button"
-                    className="loading-scan-item-delete"
-                    aria-label={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
-                    title={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
-                    onClick={() => void handleDeleteScan(scan.code)}
-                  >
-                    <DeleteOutlined />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
-
-      {rejectedScans.length > 0 && (
-        <section className="loading-scan-group loading-scan-group-errors">
-          <div className="loading-scan-group-title">
-            <span>{t('deliveryTasks.warnings.scanErrors', { defaultValue: 'Ошибки сканирования' })}</span>
-            <span className="loading-scan-group-count">{rejectedScans.length}</span>
-          </div>
-          <div className="loading-scan-group-items">
-            {rejectedScans.map((scan) => (
-              <div key={`${scan.code}-${scan.ts}`} className="loading-scan-item rejected">
-                <div className="loading-scan-item-code">{scan.code}</div>
-                <div className="loading-scan-item-reason">{scan.reason}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
+    <ScanList
+      groups={acceptedScanGroups}
+      rejected={rejectedScans}
+      onDelete={canCancelScan ? (code) => void handleDeleteScan(code) : undefined}
+      deleteLabel={t('deliveryTasks.actions.deleteScan', { defaultValue: 'Удалить' })}
+      errorsTitle={t('deliveryTasks.warnings.scanErrors', {
+        defaultValue: 'Ошибки сканирования',
+      })}
+    />
   );
 
   if (taskLoading && !task) {
