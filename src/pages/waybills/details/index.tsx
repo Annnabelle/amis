@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { notify } from 'shared/lib/notify';
+import axiosInstance from "shared/lib/axiosInstance";
+import { BASE_URL } from "shared/lib/consts";
+import { useDocumentFile } from 'features/documentFile/lib/useDocumentFile';
 import { routes } from "shared/config/routes";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Empty, Segmented, Tag } from "antd";
@@ -15,9 +17,6 @@ import { useCan } from "entities/access/lib";
 import { LifecycleTargetEntity } from "entities/lifecycle/lib";
 import { useLifecycleTab } from "widgets/lifecycle/useLifecycleTab";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
-import axiosInstance from "shared/lib/axiosInstance";
-import { BASE_URL } from 'shared/lib/consts';
-import { getFileNameFromDisposition } from 'shared/lib/utils';
 import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
@@ -57,13 +56,25 @@ const WaybillsDetails = () => {
     targetId: id,
     target: LifecycleTargetEntity.Waybill,
   });
-  const [waybillFileLoading, setWaybillFileLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<WaybillDetailsSection>("overview");
 
   const { data: waybill, isLoading } = useGetWaybillByIdQuery(
     { id: id ?? "" },
     { skip: !id }
   );
+
+  const waybillFile = useDocumentFile({
+    request: id
+      ? (download) =>
+          axiosInstance.get(`${BASE_URL}/waybills/${id}/file`, {
+            params: { download },
+            responseType: "blob",
+          })
+      : undefined,
+    fallbackName: `${waybill?.waybillNumber || id}.pdf`,
+    openErrorMessage: t("waybills.file.openError"),
+    loadErrorMessage: t("waybills.file.loadError"),
+  });
   const { data: salesOrder } = useGetSalesOrderByIdQuery(
     { id: waybill?.salesOrderId ?? "" },
     { skip: !waybill?.salesOrderId || !canReadSalesOrder }
@@ -86,56 +97,6 @@ const WaybillsDetails = () => {
   ) => {
     if (!linkedId) return undefined;
     return orgId ? buildPath(orgId, linkedId) : routes.companies();
-  };
-
-  const handleWaybillFile = async (download: boolean) => {
-    if (!id || waybillFileLoading) return;
-
-    setWaybillFileLoading(true);
-
-    try {
-      const response = await axiosInstance.get(`${BASE_URL}/waybills/${id}/file`, {
-        params: { download },
-        responseType: "blob",
-      });
-      const blob = new Blob([response.data], {
-        type: response.data.type || "application/pdf",
-      });
-      const url = window.URL.createObjectURL(blob);
-
-      if (download) {
-        const filename =
-          getFileNameFromDisposition(response.headers["content-disposition"]) ??
-          `${waybill?.waybillNumber || id}.pdf`;
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        /**
-         * Изоляция открытой вкладки — через opener = null: window.open с
-         * noopener возвращает null, и блокировку вкладки не отличить от
-         * успеха, а blob-ссылку надо отозвать.
-         */
-        const openedWindow = window.open(url, "_blank");
-
-        if (openedWindow) {
-          openedWindow.opener = null;
-          window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
-        } else {
-          window.URL.revokeObjectURL(url);
-          notify.error(t("waybills.file.openError"));
-        }
-      }
-    } catch {
-      notify.error(t("waybills.file.loadError"));
-    } finally {
-      setWaybillFileLoading(false);
-    }
   };
 
   if (isLoading) {
@@ -265,16 +226,16 @@ const WaybillsDetails = () => {
             <button
               type="button"
               className="invoice-file-action invoice-file-action-main"
-              disabled={waybillFileLoading}
-              onClick={() => void handleWaybillFile(false)}
+              disabled={waybillFile.isLoading}
+              onClick={() => void waybillFile.open()}
             >
               {t("waybills.sections.file")}
             </button>
             <button
               type="button"
               className="invoice-file-action invoice-file-action-icon"
-              disabled={waybillFileLoading}
-              onClick={() => void handleWaybillFile(true)}
+              disabled={waybillFile.isLoading}
+              onClick={() => void waybillFile.download()}
               aria-label={t("waybills.file.download")}
               title={t("waybills.file.download")}
             >

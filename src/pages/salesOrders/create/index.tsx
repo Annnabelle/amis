@@ -1,4 +1,4 @@
-import { Form, Input, Spin } from 'antd';
+import { Form, Input } from 'antd';
 import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { debugLog } from 'shared/lib/debugLog';
@@ -38,12 +38,9 @@ import type { Reference } from 'entities/references/types';
 import { getApiErrorMessage } from 'shared/api';
 import { SalesOrderDeliveryType } from '@edem2000/amis.contracts';
 import AddressFields from 'features/salesOrderCreate/ui/addressFields';
+import CustomerFields from 'features/salesOrderCreate/ui/customerFields';
 import OrderItemsSection from 'features/salesOrderCreate/ui/orderItemsSection';
 import OrderTermsSection from 'features/salesOrderCreate/ui/orderTermsSection';
-import {
-  allowOnlyDigitsKeyDown,
-  allowOnlyDigitsPaste,
-} from 'features/salesOrderCreate/lib/numericInput';
 import {
   calculateDeliveryCost,
   calculateItemsTotal,
@@ -598,84 +595,7 @@ const SalesOrdersCreate = () => {
               <div className="form-divider-title">
                 <h4 className="title">{t('salesOrders.createSections.recipient', { defaultValue: 'Получатель' })}</h4>
               </div>
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item
-                  name={["customer", "id"]}
-                  hidden
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["customer", "tin"]}
-                  label={t('salesOrders.createFields.companyTin', { defaultValue: 'ИНН компании' })}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('salesOrders.validation.customerTinRequired'),
-                    },
-                    {
-                      validator: async (_, value) => {
-                        const tin = String(value ?? '').trim();
-
-                        if (!tin) {
-                          return Promise.resolve();
-                        }
-
-                        if (!/^\d+$/.test(tin)) {
-                          return Promise.reject(new Error(t('salesOrders.validation.customerTinDigitsOnly')));
-                        }
-
-                        if (tin.length !== TIN_LENGTH) {
-                          return Promise.reject(new Error(t('salesOrders.validation.customerTinLength')));
-                        }
-
-                        if (/^0+$/.test(tin)) {
-                          return Promise.reject(new Error(t('salesOrders.validation.customerTinInvalid')));
-                        }
-
-                        return Promise.resolve();
-                      },
-                    },
-                  ]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    maxLength={TIN_LENGTH}
-                    inputMode="numeric"
-                    autoComplete="off"
-                    onChange={handleTinChange}
-                    onKeyDown={allowOnlyDigitsKeyDown(TIN_LENGTH)}
-                    onPaste={allowOnlyDigitsPaste(TIN_LENGTH)}
-                    suffix={isSearchingCompany ? <Spin size="small" /> : undefined}
-                    placeholder={t('salesOrders.createPlaceholders.companyTin', {
-                      defaultValue: 'ИНН компании',
-                    })}
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="input"
-                  name={["customer", "name"]}
-                  label={t('salesOrders.createFields.companyName', { defaultValue: 'Название компании' })}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('salesOrders.createValidation.companyNameRequired', {
-                        defaultValue: 'Название компании обязательно',
-                      }),
-                    },
-                  ]}
-                >
-                  <Input
-                    className="input"
-                    size="large"
-                    placeholder={t('salesOrders.createPlaceholders.companyName', {
-                      defaultValue: 'Название компании',
-                    })}
-                  />
-                </Form.Item>
-              </div>
+              <CustomerFields onTinChange={handleTinChange} isSearching={isSearchingCompany} />
               <AddressFields
                 owner="customer"
                 form={form}

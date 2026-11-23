@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { notify } from 'shared/lib/notify';
+import axiosInstance from 'shared/lib/axiosInstance';
+import { BASE_URL } from 'shared/lib/consts';
+import { useDocumentFile } from 'features/documentFile/lib/useDocumentFile';
 import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { DownloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
@@ -25,9 +27,6 @@ import { useCan } from 'entities/access/lib';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
 import { useLifecycleTab } from 'widgets/lifecycle/useLifecycleTab';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import axiosInstance from 'shared/lib/axiosInstance';
-import { BASE_URL } from 'shared/lib/consts';
-import { getFileNameFromDisposition } from 'shared/lib/utils';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
 import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 import {
@@ -71,12 +70,24 @@ const InvoicesDetails = () => {
     target: LifecycleTargetEntity.Invoice,
   });
   const [expandedCodesProductIds, setExpandedCodesProductIds] = useState<Set<string>>(new Set());
-  const [invoiceFileLoading, setInvoiceFileLoading] = useState(false);
 
   const { data: invoice, isLoading } = useGetInvoiceByIdQuery(
     { id: id ?? '' },
     { skip: !id }
   );
+
+  const invoiceFile = useDocumentFile({
+    request: id
+      ? (download) =>
+          axiosInstance.get(`${BASE_URL}/invoices/${id}/file`, {
+            params: { download },
+            responseType: 'blob',
+          })
+      : undefined,
+    fallbackName: `${invoice?.invoiceNumber || id}.pdf`,
+    openErrorMessage: t('invoices.file.openError'),
+    loadErrorMessage: t('invoices.file.loadError'),
+  });
   const invoiceSalesOrderId = invoice?.salesOrderId;
   const invoiceDeliveryTaskId = invoice?.deliveryTaskId;
   const invoiceDeliveryRouteId = invoice?.deliveryRouteId;
@@ -153,56 +164,6 @@ const InvoicesDetails = () => {
 
       return next;
     });
-  };
-
-  const handleInvoiceFile = async (download: boolean) => {
-    if (!id || invoiceFileLoading) return;
-
-    setInvoiceFileLoading(true);
-
-    try {
-      const response = await axiosInstance.get(`${BASE_URL}/invoices/${id}/file`, {
-        params: { download },
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], {
-        type: response.data.type || 'application/pdf',
-      });
-      const url = window.URL.createObjectURL(blob);
-
-      if (download) {
-        const filename =
-          getFileNameFromDisposition(response.headers['content-disposition']) ??
-          `${invoice?.invoiceNumber || id}.pdf`;
-        const link = document.createElement('a');
-
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        /**
-         * Изоляция открытой вкладки — через opener = null: window.open с
-         * noopener возвращает null, и блокировку вкладки не отличить от
-         * успеха, а blob-ссылку надо отозвать.
-         */
-        const openedWindow = window.open(url, '_blank');
-
-        if (openedWindow) {
-          openedWindow.opener = null;
-          window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
-        } else {
-          window.URL.revokeObjectURL(url);
-          notify.error(t('invoices.file.openError'));
-        }
-      }
-    } catch {
-      notify.error(t('invoices.file.loadError'));
-    } finally {
-      setInvoiceFileLoading(false);
-    }
   };
 
   if (isLoading) {
@@ -321,16 +282,16 @@ const InvoicesDetails = () => {
             <button
               type="button"
               className="invoice-file-action invoice-file-action-main"
-              disabled={invoiceFileLoading}
-              onClick={() => void handleInvoiceFile(false)}
+              disabled={invoiceFile.isLoading}
+              onClick={() => void invoiceFile.open()}
             >
               {t('invoices.sections.file')}
             </button>
             <button
               type="button"
               className="invoice-file-action invoice-file-action-icon"
-              disabled={invoiceFileLoading}
-              onClick={() => void handleInvoiceFile(true)}
+              disabled={invoiceFile.isLoading}
+              onClick={() => void invoiceFile.download()}
               aria-label={t('invoices.file.download')}
               title={t('invoices.file.download')}
             >

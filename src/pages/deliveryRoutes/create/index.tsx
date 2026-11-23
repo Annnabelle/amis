@@ -1,4 +1,4 @@
-import { AutoComplete, DatePicker, Form, Input, Select } from 'antd';
+import { DatePicker, Form, Input, Select } from 'antd';
 import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import MainLayout from 'widgets/appShell';
@@ -7,7 +7,7 @@ import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCreateDeliveryRouteMutation } from 'entities/deliveryRoutes/api';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
 import { getApiErrorMessage } from 'shared/api';
@@ -34,11 +34,7 @@ import {
   type AvailableOrderRow,
 } from 'features/deliveryRouteCreate/lib/availableOrders';
 import SelectedOrdersPreview from 'features/deliveryRouteCreate/ui/selectedOrdersPreview';
-/** Вариант в подсказке экипажа: кроме подписи нужен id сотрудника. */
-type CrewMemberOption = {
-  value: string;
-  userId: string;
-};
+import CrewFields from 'features/deliveryRouteCreate/ui/crewFields';
 
 const DeliveryRoutesCreate = () => {
   const navigate = useNavigate();
@@ -66,8 +62,6 @@ const DeliveryRoutesCreate = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(orgId);
   const [vehicleSearchValue, setVehicleSearchValue] = useState('');
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
-  const isSelectingDriverRef = useRef(false);
-  const isSelectingAgentRef = useRef(false);
   const companyId = orgId ?? selectedCompanyId;
   const {
     data: ordersPage,
@@ -463,121 +457,11 @@ const DeliveryRoutesCreate = () => {
                   </div>
                 </div>
               )}
-              <div className="form-inputs form-inputs-organization">
-                <Form.Item className="input" name={["crew", "driverName"]} label={t('deliveryRoutes.fields.driver')}>
-                  <AutoComplete<string, CrewMemberOption>
-                    className="input"
-                    size="large"
-                    placeholder={t('deliveryRoutes.placeholders.driver')}
-                    filterOption={false}
-                    allowClear
-                    onSearch={(value) => handleUserSearch(value, CompanyRole.Driver)}
-                    options={searchedMemberships.map((membership) => ({
-                      value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
-                      userId: membership.userId,
-                    }))}
-                    onSelect={(value, option) => {
-                      isSelectingDriverRef.current = true;
-                      const currentCrew = form.getFieldValue('crew') || {};
-                      form.setFieldsValue({
-                        crew: {
-                          ...currentCrew,
-                          driverName: value,
-                          driverId: option.userId,
-                        },
-                      });
-                      setTimeout(() => {
-                        isSelectingDriverRef.current = false;
-                      }, 0);
-                    }}
-                    onChange={(value) => {
-                      if (isSelectingDriverRef.current) {
-                        isSelectingDriverRef.current = false;
-                        return;
-                      }
-
-                      const currentCrew = form.getFieldValue('crew') || {};
-                      form.setFieldsValue({
-                        crew: {
-                          ...currentCrew,
-                          driverName: value?.toString() || undefined,
-                          driverId: undefined,
-                        },
-                      });
-                    }}
-                    onClear={() => {
-                      const currentCrew = form.getFieldValue('crew') || {};
-                      form.setFieldsValue({
-                        crew: {
-                          ...currentCrew,
-                          driverName: undefined,
-                          driverId: undefined,
-                        },
-                      });
-                    }}
-                  />
-                </Form.Item>
-                <Form.Item className="input" name={["crew", "driverId"]} hidden>
-                  <Input />
-                </Form.Item>
-
-                <Form.Item className="input" name={["crew", "agentName"]} label={t('deliveryRoutes.fields.agent')}>
-                  <AutoComplete<string, CrewMemberOption>
-                    className="input"
-                    size="large"
-                    placeholder={t('deliveryRoutes.placeholders.agent')}
-                    filterOption={false}
-                    allowClear
-                    onSearch={(value) => handleUserSearch(value, CompanyRole.DeliveryAgent)}
-                    options={searchedMemberships.map((membership) => ({
-                      value: `${membership.user?.firstName ?? ''} ${membership.user?.lastName ?? ''}`.trim(),
-                      userId: membership.userId,
-                    }))}
-                    onSelect={(value, option) => {
-                      isSelectingAgentRef.current = true;
-                      const currentCrew = form.getFieldValue('crew') || {};
-                      form.setFieldsValue({
-                        crew: {
-                          ...currentCrew,
-                          agentName: value,
-                          agentId: option.userId,
-                        },
-                      });
-                      setTimeout(() => {
-                        isSelectingAgentRef.current = false;
-                      }, 0);
-                    }}
-                    onChange={(value) => {
-                      if (isSelectingAgentRef.current) {
-                        isSelectingAgentRef.current = false;
-                        return;
-                      }
-
-                      const currentCrew = form.getFieldValue('crew') || {};
-                      form.setFieldsValue({
-                        crew: {
-                          ...currentCrew,
-                          agentName: value?.toString() || undefined,
-                          agentId: undefined,
-                        },
-                      });
-                    }}
-                    onClear={() => {
-                      const currentCrew = form.getFieldValue('crew') || {};
-                      form.setFieldsValue({
-                        crew: {
-                          ...currentCrew,
-                          agentName: undefined,
-                          agentId: undefined,
-                        },
-                      });
-                    }}
-                  />
-                </Form.Item>
-                <Form.Item className="input" name={["crew", "agentId"]} hidden>
-                  <Input />
-                </Form.Item>
-              </div>
+              <CrewFields
+                form={form}
+                memberships={searchedMemberships}
+                onSearch={handleUserSearch}
+              />
 
               <div className="form-divider-title">
                 <h4 className="title">{t('deliveryRoutes.sections.availableOrders')}</h4>

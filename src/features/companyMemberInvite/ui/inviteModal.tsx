@@ -1,8 +1,8 @@
 import { Form, Input } from "antd";
 import { useTranslation } from "react-i18next";
 
-import RoleSelect from "entities/companyMemberships/ui/roleSelect";
-import type { RoleOption } from "entities/companyMemberships/ui/roleSelect/renderers";
+import RoleSelect from "shared/ui/roleSelect";
+import type { RoleOption } from "shared/ui/roleSelect/renderers";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
 import { useMemberInvite } from "features/companyMemberInvite/lib/useMemberInvite";
 import CustomButton from "shared/ui/button";

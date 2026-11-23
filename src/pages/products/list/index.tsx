@@ -2,15 +2,15 @@ import {Form, Input} from 'antd'
 import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import ComponentTable from 'shared/ui/table'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
-import FormComponent from 'shared/ui/formComponent'
-import { FormActions, FormGrid, FormRow, SelectField, TextAreaField, TextField } from 'shared/ui/form'
+import ProductCreateModal from 'features/productCreate/ui/productCreateModal'
+import { FormActions } from 'shared/ui/form'
 import { useGetCompanyByIdQuery } from 'entities/organization/api'
 import {
     useCreateProductMutation,
@@ -32,7 +32,6 @@ import FilterBar from "shared/ui/filterBar/filterBar";
 import FilterBarItem from "shared/ui/filterBar/filterBarItems";
 import { useCan } from "entities/access/lib";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
-import { RequiredDataAlert } from 'entities/access/ui';
 import { CompanyImportStage } from 'entities/companyImport/types';
 import { useDebouncedValue } from 'shared/lib/useDebouncedValue';
 import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
@@ -47,7 +46,6 @@ const Products = () => {
     const canUpdateProduct = useCan(endpointAccessMap.productsUpdate);
     const canDeleteProduct = useCan(endpointAccessMap.productsDelete);
     const canReadAudit = useCan(endpointAccessMap.auditList);
-    const shortNameEdited = useRef(false);
     const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedQuery = useDebouncedValue(searchQuery);
@@ -97,6 +95,7 @@ const Products = () => {
         ? getApiErrorMessage(referencesRequestError, t('common.error'))
         : null;
     const referencesLoading = countryReferencesLoading || productGroupReferencesLoading;
+    const referencesLoadingWithCompany = referencesLoading || companyLoading;
 
     const currentLang = (i18n.language as Lang) || 'en';
     const productGroupTitleByAlias = useMemo(() => {
@@ -332,157 +331,20 @@ const Products = () => {
                 </div>
             </div>
         </div>
-        <ModalWindow
-            titleAction={t('products.modalWindow.adding')}
-            title={t('products.modalWindow.product')}
-            openModal={modalState.addProduct}
-            closeModal={() => handleModal('addProduct', false)}
-            className="modal-large"
-            >
-            <RequiredDataAlert
-                endpoints={[
-                    endpointAccessMap.companiesRead,
-                    endpointAccessMap.referencesRead,
-                ]}
-                errors={[companyError, referencesError]}
-            />
-            <FormComponent onFinish={submitRegisterProduct}
-              form={form}
-                onValuesChange={(changedValues) => {
-                    // если пользователь сам вводит shortName — запоминаем
-                    if (changedValues.shortName !== undefined) {
-                    shortNameEdited.current = true;
-                    }
-
-                    // если пользователь меняет name и shortName еще не редактировали — копируем
-                    if (changedValues.name !== undefined && !shortNameEdited.current) {
-                    form.setFieldsValue({ shortName: changedValues.name });
-                    }
-                }}
-            >
-                <FormGrid>
-                <FormRow>
-                    <TextField name="name" label={t('products.addProductForm.label.name')} rules={[ { required: true, message: t('products.addProductForm.validation.required.name') }, ]} placeholder={t('products.addProductForm.placeholder.name')} />
-
-                    <TextField name="shortName" label={t('products.addProductForm.label.shortName')} rules={[ { required: true, message: t('products.addProductForm.validation.required.shortName') }, ]} placeholder={t('products.addProductForm.placeholder.shortName')} />
-                </FormRow>
-                <FormRow>
-                    <SelectField
-                        name="manufacturerCountry"
-                        label={t('products.addProductForm.label.manufacturerCountry')}
-                        rules={[
-                            {
-                                required: true,
-                                message: t('products.addProductForm.validation.required.manufacturerCountry'),
-                            },
-                        ]}
-                        showSearch
-                        allowClear
-                        placeholder={t('products.addProductForm.placeholder.manufacturerCountry')}
-                        optionFilterProp="label"
-                        filterOption={(input, option) =>
-                            (option?.label ?? '')
-                                .toString()
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                        }
-                        options={countryReferences.map(ref => ({
-                            label: getTitle(ref.title, ref.alias),
-                            value: ref.alias,
-                        }))}
-                    />
-
-                    <TextField name="expiration" label={t('products.addProductForm.label.expiration')} rules={[ { required: true, message: t('products.addProductForm.validation.required.expiration'), }, ]} placeholder={t('products.addProductForm.placeholder.expiration')} />
-                </FormRow>
-                <FormRow>
-                    <TextAreaField name="description" label={t('products.addProductForm.label.description')} placeholder={t('products.addProductForm.placeholder.description')} />
-                </FormRow>
-
-                <FormRow>
-                    <TextField name={['gtin', 'unit']} label={t('products.gtin.unit')} rules={[ { required: true, message: t('products.addProductForm.validation.required.gtin') }, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
-                    <TextField name={['gtin', 'group']} label={t('products.gtin.group')} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
-                </FormRow>
-
-                <FormRow>
-                    <TextField name={['gtin', 'box_lv_1']} label={t('products.gtin.box_lv_1')} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
-                    <TextField name={['gtin', 'box_lv_2']} label={t('products.gtin.box_lv_2')} rules={[ { required: false}, { pattern: /^\d{14}$/, message: t('products.addProductForm.validation.pattern.gtin') }, ]} placeholder={t('products.addProductForm.placeholder.gtin')} />
-                </FormRow>
-
-                <FormRow>
-                    <TextField name="icps" label={t('products.addProductForm.label.icps')} placeholder={t('products.addProductForm.placeholder.icps')} />
-                    <SelectField
-                        name="productGroup"
-                        label={t('products.addProductForm.label.productType')}
-                        rules={[
-                            { required: true, message: t('products.addProductForm.validation.required.productType') }
-                        ]}
-                        key={currentLang}
-                        placeholder={t('products.addProductForm.placeholder.productType')}
-                        options={companyProductGroups.map(ref => ({
-                            label: getTitle(ref.title, ref.alias),
-                            value: ref.alias,
-                        }))}
-                    />
-
-                    {/*<Form.Item*/}
-                    {/*    className="input"*/}
-                    {/*    name="productType"*/}
-                    {/*    label={t('products.addProductForm.label.productType')}*/}
-                    {/*    rules={[*/}
-                    {/*        { required: true, message: t('products.addProductForm.validation.required.productType') }*/}
-                    {/*    ]}*/}
-                    {/*>*/}
-                    {/*    <Select*/}
-                    {/*        key={currentLang} // перерендер при смене языка*/}
-                    {/*        className="input"*/}
-                    {/*        size="large"*/}
-                    {/*        placeholder={t('products.addProductForm.placeholder.productType')}*/}
-                    {/*        options={productGroupReferences.map(ref => ({*/}
-                    {/*            label: ref.title?.[currentLang as Lang] ?? ref.title?.ru ?? ref.title?.en ?? ref.alias,*/}
-                    {/*            value: ref.alias,*/}
-                    {/*        }))}*/}
-                    {/*    />*/}
-                    {/*</Form.Item>*/}
-
-                </FormRow>
-
-                <FormRow>
-                    {/* <TextField name="expiration" label={t('products.addProductForm.label.expiration')} rules={[ { required: true, message: t('products.addProductForm.validation.required.expiration') }, { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.expiration') }, ]} placeholder={t('products.addProductForm.placeholder.expiration')} /> */}
-                    <TextField name="aggregationQuantity" label={t('products.addProductForm.label.aggregationQuantity')} rules={[ { required: true, message: t('products.addProductForm.validation.required.aggregationQuantity') }, { pattern: /^\d+$/, message: t('products.addProductForm.validation.pattern.aggregationQuantity') }, ]} placeholder={t('products.addProductForm.placeholder.aggregationQuantity')} />
-
-                    <TextField name={['measurement', 'unit']} label={t('products.addProductForm.label.unit')} rules={[ { required: false, message: t('products.addProductForm.validation.required.measurementUnit') }, { max: 10, message: t('products.addProductForm.validation.pattern.measurementUnit') }, ]} placeholder={t('products.addProductForm.placeholder.unit')} />
-
-                </FormRow>
-
-                <FormRow>
-                    <TextField name={['measurement', 'amount']} label={t('products.addProductForm.label.amount')} rules={[ { required: false, message: t('products.addProductForm.validation.required.requiredField') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.amount')} />
-
-                    <TextField name={['weight', 'net']} label={t('products.addProductForm.label.net')} rules={[ { required: false, message: t('products.addProductForm.validation.required.requiredField') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.validation.decimal') }, ]} placeholder={t('products.addProductForm.placeholder.net')} />
-                </FormRow>
-
-                <FormRow>
-                    <TextField name={['weight', 'gross']} label={t('products.addProductForm.label.gross')} rules={[ { required: false, message: t('products.addProductForm.validation.required.measurementAmount') }, { pattern: /^\d+(\.\d+)?$/, message: t('products.addProductForm.validation.pattern.measurementAmount') }, ]} placeholder={t('products.addProductForm.placeholder.gross')} />
-
-                    <TextField name="price" label={t('products.addProductForm.label.price')} rules={[ { required: false, message: t('products.addProductForm.validation.required.weightNet') }, { pattern: /^\d+(\.\d{1,2})?$/, message: t('products.addProductForm.validation.pattern.weightNet') }, ]} placeholder={t('products.addProductForm.placeholder.price')} />
-                </FormRow>
-
-                <FormActions>
-                    <CustomButton
-                        type="submit"
-                        loading={isCreatingProduct}
-                        disabled={
-                            companyLoading ||
-                            referencesLoading ||
-                            Boolean(companyError) ||
-                            Boolean(referencesError)
-                        }
-                    >
-                        {t('btn.create')}
-                    </CustomButton>
-                </FormActions>
-                </FormGrid>
-            </FormComponent>
-        </ModalWindow>
+        <ProductCreateModal
+            form={form}
+            open={modalState.addProduct}
+            onClose={() => handleModal('addProduct', false)}
+            onSubmit={submitRegisterProduct}
+            isCreating={isCreatingProduct}
+            productGroups={companyProductGroups}
+            countries={countryReferences}
+            language={currentLang}
+            getTitle={getTitle}
+            isReferencesLoading={referencesLoadingWithCompany}
+            referencesError={referencesError}
+            companyError={companyError}
+        />
         <ModalWindow
             titleAction={t('products.modalWindow.deletion')}
             title={t('products.modalWindow.product')}

@@ -30,8 +30,8 @@ import {
 import type { CompanyMembershipTableDataType } from "entities/companyMemberships/ui/tableData/companyMemberships/types";
 import type { UserPreview } from "entities/users/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
-import RoleSelect from "entities/companyMemberships/ui/roleSelect";
-import { renderRoleOption } from "entities/companyMemberships/ui/roleSelect/renderers";
+import RoleSelect from "shared/ui/roleSelect";
+import { renderRoleOption } from "shared/ui/roleSelect/renderers";
 import InviteModal from "features/companyMemberInvite/ui/inviteModal";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
