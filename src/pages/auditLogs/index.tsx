@@ -1,57 +1,35 @@
 import { resolveMultiLanguage } from 'shared/lib/multiLanguage';
 import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import React, { useState, useMemo, type JSX } from "react";
+import React, { useState, useMemo } from "react";
+import { Card, Collapse, List, Pagination, Space, Tag } from "antd";
 import {
-  List,
-  Space,
-  Tag,
-  Pagination,
-  Card,
-  Collapse,
-  Tooltip,
-} from "antd";
-import { ApartmentOutlined, ArrowRightOutlined, ClockCircleOutlined, GlobalOutlined, MailOutlined, MinusOutlined, PhoneOutlined, PlusOutlined, TagOutlined, UserOutlined } from "@ant-design/icons";
+  ArrowRightOutlined,
+  ClockCircleOutlined,
+  GlobalOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  TagOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import { useTranslation } from "react-i18next";
 import { useGetAuditLogsQuery } from "entities/auditLog/api";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
-import { FormatUzbekPhoneNumber } from 'shared/lib/utils';
 import { getTargetLink } from "./targetMapper";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import dayjs from "dayjs";
 import { PermissionLink } from "entities/access/ui";
+import { getTargetAccess, type AuditTarget } from "features/auditTarget/lib/targetFields";
+import TargetFields from "features/auditTarget/ui/targetFields";
+import { FormatUzbekPhoneNumber } from "shared/lib/utils";
 import { formatDate } from 'shared/lib/formatDate';
-import {
-  endpointAccessMap,
-  type StaticEndpointAccess,
-} from "shared/config/endpointAccessMap";
+import { endpointAccessMap } from "shared/config/endpointAccessMap";
 
 const { Panel } = Collapse;
-
-/** Цель события аудита: набор полей зависит от сущности, перебираем по ключам. */
-type AuditTarget = Record<string, unknown>;
-
-const getTargetAccess = (
-  targetEntity: string
-): StaticEndpointAccess | null => {
-  switch (targetEntity) {
-    case "user":
-      return endpointAccessMap.usersRead;
-    case "company":
-      return endpointAccessMap.companiesRead;
-    case "product":
-      return endpointAccessMap.productsRead;
-    case "markingCodeOrder":
-    case "order":
-      return endpointAccessMap.ordersRead;
-    default:
-      return null;
-  }
-};
 
 const AuditLogsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -114,228 +92,6 @@ const AuditLogsPage: React.FC = () => {
     company: { bg: "var(--status-purple-bg)", color: "var(--status-purple-color)", border: "var(--status-purple-border)" },
     product: { bg: "var(--status-warning-bg)", color: "var(--status-warning-color)", border: "var(--status-warning-border)" },
     order: { bg: "var(--status-danger-bg)", color: "var(--status-danger-color)", border: "var(--status-danger-border)" },
-  };
-
-  const targetFieldMap: Record<string, { label: string; icon: JSX.Element }> = {
-    // User
-    fullName: { label: t('users.addUserForm.label.firstName'), icon: <UserOutlined style={{ color: "var(--main-primary)" }} /> },
-    lastName: { label: t('users.addUserForm.label.lastName'), icon: <UserOutlined style={{ color: "var(--main-primary)" }} /> },
-    email: { label: t('users.addUserForm.label.email'), icon: <MailOutlined style={{ color: "var(--status-cyan-color)" }} /> },
-    phone: { label: t('users.addUserForm.label.phone'), icon: <PhoneOutlined style={{ color: "var(--status-success-color)" }} /> },
-    lastLoggedInAt: { label: t('users.addUserForm.label.lastLoggedInAt'), icon: <ClockCircleOutlined style={{ color: "var(--status-warning-color)" }} /> },
-    // status: { label: "Статус", icon: <TagOutlined style={{ color: "var(--main-primary)" }} /> },
-
-    // Company
-    displayName: { label: t('organizations.addUserForm.label.displayName'), icon: <TagOutlined /> },
-    legalName: { label: t('organizations.addUserForm.label.legalName'), icon: <TagOutlined /> },
-    tin: { label: t('organizations.addUserForm.label.tin'), icon: <TagOutlined /> },
-    director: { label: t('organizations.addUserForm.label.director'), icon: <UserOutlined /> },
-    companyType: { label: t('organizations.addUserForm.label.companyType'), icon: <TagOutlined /> },
-    productGroup: { label:t('organizations.addUserForm.label.productGroup'), icon: <TagOutlined /> },
-    status: { label: t('organizations.addUserForm.label.status'), icon: <TagOutlined /> },
-    deleted: { label: t('organizations.addUserForm.label.deleted'), icon: <TagOutlined /> },
-    // deletedAt: { label: t('organizations.addUserForm.label.deletedAt'), icon: <ClockCircleOutlined /> },
-
-    // Address
-    "address.region": { label: t('organizations.addUserForm.label.region'), icon: <TagOutlined /> },
-    "address.district": { label: t('organizations.addUserForm.label.district'), icon: <TagOutlined /> },
-    "address.address": { label: t('organizations.addUserForm.label.address'), icon: <TagOutlined /> },
-
-    // Bank details
-    "bankDetails.bankName": { label: t('organizations.addUserForm.label.bankName'), icon: <TagOutlined /> },
-    "bankDetails.ccea": { label: t('organizations.addUserForm.label.ccea'), icon: <TagOutlined /> },
-    "bankDetails.account": { label: t('organizations.addUserForm.label.account'), icon: <TagOutlined /> },
-    "bankDetails.mfo": { label: t('organizations.addUserForm.label.mfo'), icon: <TagOutlined /> },
-
-    // Contacts
-    "contacts.phone": { label: t('organizations.addUserForm.label.phone'), icon: <PhoneOutlined style={{ color: "var(--status-success-color)" }} /> },
-    "contacts.email": { label: t('organizations.addUserForm.label.email'), icon: <MailOutlined style={{ color: "var(--status-cyan-color)" }} /> },
-    "contacts.url": { label: t('organizations.addUserForm.label.url'), icon: <GlobalOutlined /> },
-    "contacts.person": { label: t('organizations.addUserForm.label.person'), icon: <UserOutlined /> },
-
-    // Access codes
-    "accessCodes.gcpCode": { label: t('organizations.addUserForm.label.gcpCode'), icon: <TagOutlined /> },
-    "accessCodes.omsId": { label: t('organizations.addUserForm.label.omsId'), icon: <TagOutlined /> },
-    "accessCodes.turonToken": { label: t('organizations.addUserForm.label.turonToken'), icon: <TagOutlined /> },
-    // Product
-    name: { label:  t('products.addProductForm.label.name'), icon: <TagOutlined /> },
-    shortName: { label: t('products.addProductForm.label.shortName'), icon: <TagOutlined /> },
-    description: { label: t('products.addProductForm.label.description'), icon: <TagOutlined /> },
-    gtin: { label: t('products.addProductForm.label.gtin'), icon: <TagOutlined /> },
-    barcode: { label: t('products.addProductForm.label.barcode'), icon: <TagOutlined /> },
-    icps: { label: t('products.addProductForm.label.icps'), icon: <TagOutlined /> },
-    productType: { label: t('products.addProductForm.label.productType'), icon: <TagOutlined /> },
-    aggregationQuantity: { label: t('products.addProductForm.label.aggregationQuantity'), icon: <TagOutlined /> },
-    expiration: { label: t('products.addProductForm.label.expiration'), icon: <ClockCircleOutlined /> },
-    price: { label: t('products.addProductForm.label.price'), icon: <TagOutlined /> },
-    companyId: { label:t('products.addProductForm.label.companyId'), icon: <ApartmentOutlined /> },
-    "measurement.unit": { label:t('products.addProductForm.label.unit'), icon: <TagOutlined /> },
-    "measurement.amount": { label: t('products.addProductForm.label.amount'), icon: <TagOutlined /> },
-
-    // Weight
-    "weight.net": { label: t('products.addProductForm.label.net'), icon: <TagOutlined /> },
-    "weight.gross": { label: t('products.addProductForm.label.gross'), icon: <TagOutlined /> },
-  };
-
-  const formatValueByKey = (key: string, value: unknown): string => {
-    if (key === "phone" || key === "contacts.phone") return FormatUzbekPhoneNumber(String(value));
-    return Array.isArray(value) ? value.map(String).join(", ") : String(value);
-  };
-
-  const renderTargetFields = (target: AuditTarget, targetEntity?: string) => {
-    // Спец-обработка заказов (orderNumber + batches)
-    if (targetEntity === "markingCodeOrder") {
-      const orgId = String(target.companyId ?? target.orgId ?? '');
-      const orderId = String(target.id ?? '');
-      const batches = Array.isArray(target.batches)
-        ? (target.batches as { id?: string }[])
-        : [];
-
-      const orderNumberItem = target.orderNumber ? (
-          <div className="content-items" key="orderNumber">
-            <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <TagOutlined style={{ color: "var(--text-muted)" }} />
-              <h5 className="title">{t("orders.orderNumber")}:</h5>
-            </div>
-            <div className="content-items-item-description">
-              <h5 className="description">
-                <PermissionLink
-                    endpoint={endpointAccessMap.ordersRead}
-                    to={routes.markingCodeBatch(orgId, orderId, batches[0]?.id ?? "")}
-                    className="actor-link-hover"
-                    style={{ color: "inherit" }}
-                >
-                  {String(target.orderNumber)}
-                </PermissionLink>
-              </h5>
-            </div>
-          </div>
-      ) : null;
-
-      const batchesItems = batches.map((batch, index) => (
-          <div className="content-items" key={`batch-${index}`}>
-            <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <TagOutlined style={{ color: "var(--text-muted)" }} />
-              <h5 className="title">{t("markingCodes.tableTitles.batchNumber")} {index + 1}:</h5>
-            </div>
-            <div className="content-items-item-description">
-              <h5 className="description">
-                <PermissionLink
-                    endpoint={endpointAccessMap.ordersRead}
-                    to={routes.markingCodeBatch(orgId, orderId, batch.id ?? "")}
-                    className="actor-link-hover"
-                    style={{ color: "inherit" }}
-                >
-                  {batch.id}
-                </PermissionLink>
-              </h5>
-            </div>
-          </div>
-      ));
-
-      return (
-          <div>
-            {orderNumberItem}
-            {batchesItems}
-          </div>
-      );
-    }
-
-    // 🔹 Существующий flatten + map для всех остальных targetEntity
-    const flatten = (
-      obj: AuditTarget,
-      prefix = ""
-    ): [string, unknown][] => {
-      return Object.entries(obj).flatMap(([key, value]) => {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (value && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date)) {
-          return flatten(value as AuditTarget, fullKey);
-        }
-        return [[fullKey, value]];
-      });
-    };
-
-    const excludedFieldsByEntity: Record<string, string[]> = {
-      user: ["companyIds", "id", "status", "firstName", "lastName"],
-      company: ["id", "companyId"],
-      product: ["id", "companyId"],
-    };
-
-    const linkFieldByEntity: Record<string, string> = {
-      user: "fullName",
-      company: "displayName",
-      product: "name",
-    };
-
-    if (targetEntity === "user" && target.firstName && target.lastName) {
-      target = {
-        fullName: `${String(target.firstName)} ${String(target.lastName)}`,
-        ...target,
-      };
-    }
-
-    const excludedFields = excludedFieldsByEntity[targetEntity || ""] || [];
-    const linkField = linkFieldByEntity[targetEntity || ""];
-    const entityId = target.id ? String(target.id) : undefined;
-
-    return flatten(target)
-        .filter(([key, value]) => {
-          const baseKey = key.split(".").pop() || key;
-          if (excludedFields.includes(baseKey)) return false;
-          return value !== null && value !== undefined;
-        })
-        .map(([key, value], index) => {
-          const baseKey = key.split(".").pop() || key;
-          const config = targetFieldMap[key] || targetFieldMap[baseKey] || {
-            label: baseKey,
-            icon: <TagOutlined style={{ color: "var(--text-muted)" }} />,
-          };
-
-          let formattedValue: React.ReactNode = formatValueByKey(baseKey, value);
-
-          if (baseKey === linkField && typeof value === "string" && entityId) {
-            let path = "";
-            switch (targetEntity) {
-              case "user":
-                path = routes.user(entityId);
-                break;
-              case "company":
-                path = routes.company(entityId);
-                break;
-              case "product":
-                path = target.companyId
-                  ? routes.product(String(target.companyId), entityId)
-                  : routes.companies();
-                break;
-            }
-
-            const targetAccess = getTargetAccess(targetEntity ?? "");
-            if (path && targetAccess) {
-              formattedValue = (
-                  <PermissionLink
-                    endpoint={targetAccess}
-                    to={path}
-                    className="actor-link-hover"
-                    style={{ color: "inherit" }}
-                  >
-                    {value}
-                  </PermissionLink>
-              );
-            }
-          }
-
-          return (
-              <div className="content-items" key={index}>
-                <div className="content-items-item-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Tooltip title={key}>{config.icon}</Tooltip>
-                  <h5 className="title">{config.label}:</h5>
-                </div>
-                <div className="content-items-item-description">
-                  <h5 className="description">{formattedValue}</h5>
-                </div>
-              </div>
-          );
-        });
   };
 
   const handleFilterChange = (filter: string) => {
@@ -565,7 +321,7 @@ const AuditLogsPage: React.FC = () => {
                                 <h3 className="logs-info-container-heading-title">{t('auditLog.target')}:</h3>
                               </div>
                               <div className="logs-info-container-content">
-                                {renderTargetFields(item.target, item.targetEntity)}
+                                <TargetFields target={item.target} targetEntity={item.targetEntity} />
                               </div>
                             </div>
                           )}
