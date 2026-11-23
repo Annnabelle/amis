@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { DeliveryTask } from "entities/deliveryTasks/types";
 import type { ScanAttempt } from "entities/scanSessions/types";
 import {
-  buildProductsById,
   groupAcceptedScans,
-  selectIncompleteProducts,
   selectRejectedScans,
+} from "features/scanning/lib/scanGroups";
+import {
+  buildProductsById,
+  selectIncompleteProducts,
 } from "features/deliveryTaskScan/lib/scanGroups";
 
 const task = {
