@@ -1,6 +1,6 @@
 import { Dropdown, Menu } from "antd";
+import { EllipsisOutlined } from "@ant-design/icons";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
-import { HiDotsHorizontal } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import CustomButton from "shared/ui/button";
 import type { ButtonVariant } from "shared/ui/button";
@@ -89,7 +89,7 @@ export const ActionDropdownButton = ({ actions }: ActionDropdownButtonProps) => 
           onClick={(event) => event.stopPropagation()}
           variant="text"
           iconOnly
-          icon={<HiDotsHorizontal />}
+          icon={<EllipsisOutlined />}
           aria-label="Open row actions"
         />
       </Dropdown>

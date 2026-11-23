@@ -10,17 +10,7 @@ import {
   Collapse,
   Tooltip,
 } from "antd";
-import {
-  ClockCircleOutlined,
-  GlobalOutlined,
-  PlusOutlined,
-  MinusOutlined,
-  UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  ApartmentOutlined,
-  TagOutlined,
-} from "@ant-design/icons";
+import { ApartmentOutlined, ArrowRightOutlined, ClockCircleOutlined, GlobalOutlined, MailOutlined, MinusOutlined, PhoneOutlined, PlusOutlined, TagOutlined, UserOutlined } from "@ant-design/icons";
 import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import { useTranslation } from "react-i18next";
@@ -28,7 +18,6 @@ import { useGetAuditLogsQuery } from "entities/auditLog/api";
 import { ActionsMap, CategoryMap, TypeMap } from "./auditMappers";
 import { FormatUzbekPhoneNumber } from "shared/lib";
 import { getTargetLink } from "./targetMapper";
-import { FaArrowRightLong } from "react-icons/fa6";
 import "./styles.sass";
 import type { AuditCategory } from "shared/types/dtos";
 import type { UserResponseDto } from '@edem2000/amis.contracts/api/common/responses';
@@ -513,7 +502,7 @@ const AuditLogsPage: React.FC = () => {
 
                                         return (
                                           <span className="log-list-heading-container-target" style={{ marginLeft: 6 }}>
-                                            {" "}<FaArrowRightLong/>{" "}
+                                            {" "}<ArrowRightOutlined/>{" "}
                                             {targetInfo.path && getTargetAccess(item.targetEntity) ? (
                                               <PermissionLink
                                                 endpoint={getTargetAccess(item.targetEntity)!}

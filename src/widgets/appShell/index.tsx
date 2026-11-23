@@ -10,28 +10,7 @@ import { Menu, Select, Switch, Tag } from 'antd';
 
 import ConnectionBadge from './connectionBadge';
 import PageLayout from './pageLayout';
-import {
-  ApartmentOutlined,
-  UserOutlined,
-  FileTextOutlined,
-  ContactsOutlined,
-  LeftOutlined,
-  AppstoreOutlined,
-  CodeOutlined,
-  ClusterOutlined,
-  ShoppingCartOutlined,
-  CarOutlined,
-  FileDoneOutlined,
-  FileProtectOutlined,
-  ApiOutlined,
-  LogoutOutlined,
-  SunOutlined,
-  MoonOutlined,
-  TeamOutlined,
-  SafetyCertificateOutlined,
-} from '@ant-design/icons';
-import { GiHamburgerMenu } from 'react-icons/gi';
-import { IoClose } from 'react-icons/io5';
+import { ApartmentOutlined, ApiOutlined, AppstoreOutlined, CarOutlined, CloseOutlined, ClusterOutlined, CodeOutlined, ContactsOutlined, FileDoneOutlined, FileProtectOutlined, FileTextOutlined, LeftOutlined, LogoutOutlined, MenuOutlined, MoonOutlined, SafetyCertificateOutlined, ShoppingCartOutlined, SunOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserInfo from 'widgets/userInfo';
 import { UserPreviewCardById } from 'entities/users/ui/userPreviewCard';
@@ -765,7 +744,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <div className={`layout-sider-trigger ${collapsed ? 'triggered' : ''}`}>
               <CustomButton
                 variant="text"
-                icon={collapsed ? <GiHamburgerMenu /> : <IoClose />}
+                icon={collapsed ? <MenuOutlined /> : <CloseOutlined />}
                 iconOnly
                 onClick={() => setCollapsed(!collapsed)}
                 aria-label={collapsed ? t('navigation.openMenu', { defaultValue: 'Открыть меню' }) : t('navigation.closeMenu', { defaultValue: 'Закрыть меню' })}

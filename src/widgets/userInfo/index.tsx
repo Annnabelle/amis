@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { DownOutlined, KeyOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar } from "antd";
-import { LuUserRound, LuKeyRound, LuLogOut } from "react-icons/lu";
-import { IoIosArrowDown } from "react-icons/io";
 import { useAppSelector } from "app/store";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -69,7 +68,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <Avatar
           className="user-avatar"
           size="large"
-          icon={<LuUserRound className="user-icon" />}
+          icon={<UserOutlined className="user-icon" />}
         />
         <div className="user-text">
           <div className="user-text-container">
@@ -78,7 +77,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         </div>
         {showDropdown && (
           <div className="user-arrow">
-            <IoIosArrowDown />
+            <DownOutlined />
           </div>
         )}
       </div>
@@ -87,11 +86,11 @@ const UserInfo: React.FC<UserInfoProps> = ({
           {showProfileAction && (
             <>
               <button type="button" className="user-dropdown-item" onClick={() => go("/profile")}>
-                <LuUserRound className="user-dropdown-item-icon" />
+                <UserOutlined className="user-dropdown-item-icon" />
                 <span>{t("me.title")}</span>
               </button>
               <button type="button" className="user-dropdown-item" onClick={() => go("/change-password")}>
-                <LuKeyRound className="user-dropdown-item-icon" />
+                <KeyOutlined className="user-dropdown-item-icon" />
                 <span>{t("changePwd.title")}</span>
               </button>
               <div className="user-dropdown-divider" />
@@ -102,7 +101,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
             className="user-dropdown-item user-dropdown-item--danger"
             onClick={handleLogout}
           >
-            <LuLogOut className="user-dropdown-item-icon" />
+            <LogoutOutlined className="user-dropdown-item-icon" />
             <span>{t("users.logOut")}</span>
           </button>
         </div>

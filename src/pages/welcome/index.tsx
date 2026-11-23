@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { LuMailPlus } from "react-icons/lu";
+import { MailOutlined } from "@ant-design/icons";
 import MainLayout from "widgets/appShell";
 import "./styles.sass";
 
@@ -11,7 +11,7 @@ const WelcomePage = () => {
       <div className="welcome-page">
         <div className="welcome-card">
           <div className="welcome-card-icon">
-            <LuMailPlus />
+            <MailOutlined />
           </div>
           <span className="welcome-card-brand">AMIS</span>
           <h1 className="welcome-card-title">{t("welcome.title")}</h1>
