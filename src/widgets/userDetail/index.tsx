@@ -1,4 +1,5 @@
 import { Empty, Spin, Tag } from 'antd';
+import { routes } from "shared/config/routes";
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
@@ -181,7 +182,7 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
       <MainLayout>
         <Heading title={self ? t('me.title') : t('users.details.title')} subtitle={t('common.details')}>
           {!self && (
-            <CustomButton variant="outline" onClick={() => navigateBack('/users')}>
+            <CustomButton variant="outline" onClick={() => navigateBack(routes.users())}>
               {t('common.backToList')}
             </CustomButton>
           )}
@@ -234,17 +235,17 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
       >
         <div className="btns-group">
           {self ? (
-            <CustomButton onClick={() => navigate('/change-password')}>
+            <CustomButton onClick={() => navigate(routes.changePassword())}>
               {t('me.changePassword')}
             </CustomButton>
           ) : (
             <>
               {canUpdateUser && (
-                <CustomButton onClick={() => navigate(`/users/${viewedUser.id}/edit`)}>
+                <CustomButton onClick={() => navigate(routes.userEdit(viewedUser.id))}>
                   {t('btn.edit')}
                 </CustomButton>
               )}
-              <CustomButton variant="outline" onClick={() => navigateBack('/users')}>
+              <CustomButton variant="outline" onClick={() => navigateBack(routes.users())}>
                 {t('common.backToList')}
               </CustomButton>
             </>
@@ -376,7 +377,7 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
                         return (
                           <DetailItem key={membership.id} label={companyName}>
                             {canReadCompany && company ? (
-                              <Link className="value link" to={`/organization/${company.id}`}>
+                              <Link className="value link" to={routes.company(company.id)}>
                                 {companyName}
                               </Link>
                             ) : (
@@ -402,7 +403,7 @@ const UserDetail = ({ self = false, userId }: UserDetailProps) => {
                       {userOrganizations.map((company) => (
                         <DetailItem key={company.id} label={t('organizations.addUserForm.label.displayName')}>
                           {canReadCompany ? (
-                            <Link className="value link" to={`/organization/${company.id}`}>
+                            <Link className="value link" to={routes.company(company.id)}>
                               {company.displayName}
                             </Link>
                           ) : (

@@ -1,4 +1,5 @@
 import type { TFunction } from "i18next";
+import { routes } from "shared/config/routes";
 import { getInvoiceStatusKey } from "entities/invoices/lib/status";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { InvoicesTableDataType } from "./types";
@@ -74,8 +75,8 @@ export const InvoicesTableColumns = (
         title={record.invoiceNumber}
         to={
           orgId
-            ? `/organization/${orgId}/invoices/${record.key}`
-            : '/organization'
+            ? routes.invoice(orgId, record.key)
+            : routes.companies()
         }
       >
         {shortenMiddle(record.invoiceNumber)}

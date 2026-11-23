@@ -1,4 +1,5 @@
 import { DatePicker, Form, Input, InputNumber, Radio, Select, Spin, Tooltip } from 'antd';
+import { routes } from "shared/config/routes";
 import { CloseOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { debugLog } from 'shared/lib/debugLog';
 import MainLayout from 'widgets/appShell';
@@ -96,7 +97,7 @@ const SalesOrdersCreate = () => {
   const companyLookupRequestRef = useRef(0);
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : 'ru';
   const listPath = orgId
-    ? `/organization/${orgId}/sales-orders`
+    ? routes.salesOrders(orgId)
     : '/sales-orders';
 
   const items = Form.useWatch('items', form);

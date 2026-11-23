@@ -3,6 +3,7 @@
  * в каталоге. Ключи — машинные имена сущностей бэкенда.
  */
 import { LifecycleTargetEntity } from "./targets";
+import { routes } from "shared/config/routes";
 import { StatusEntity } from "shared/config/statusCatalog";
 
 
@@ -26,11 +27,11 @@ const inCompany =
   ({ id, companyId }: RouteParams) =>
     companyId ? path(companyId, id) : null;
 
-const routes: Record<string, EntityRoutes> = {
+const entityRoutes: Record<string, EntityRoutes> = {
   [LifecycleTargetEntity.MarkingCodeOrder]: {
     statusEntity: StatusEntity.MarkingCodeOrder,
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/orders/${id}`,
+      (companyId, id) => routes.markingCodeOrder(companyId, id),
     ),
   },
   /**
@@ -44,7 +45,7 @@ const routes: Record<string, EntityRoutes> = {
   [LifecycleTargetEntity.AggregationReport]: {
     statusEntity: StatusEntity.AggregationReport,
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/aggregations/${id}`,
+      (companyId, id) => routes.aggregationReport(companyId, id),
     ),
   },
   // Отдельной страницы у отчёта о нанесении нет: он живёт в карточке партии.
@@ -55,68 +56,68 @@ const routes: Record<string, EntityRoutes> = {
   [LifecycleTargetEntity.AggregatedCustomsCodeOrder]: {
     statusEntity: StatusEntity.AggregatedCustomsCodeOrder,
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/customs-codes/${id}`,
+      (companyId, id) => routes.customsCode(companyId, id),
     ),
   },
   [LifecycleTargetEntity.Waybill]: {
     statusEntity: StatusEntity.Waybill,
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/waybills/${id}`,
+      (companyId, id) => routes.waybill(companyId, id),
     ),
   },
   [LifecycleTargetEntity.Invoice]: {
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/invoices/${id}`,
+      (companyId, id) => routes.invoice(companyId, id),
     ),
   },
   [LifecycleTargetEntity.DeliveryRoute]: {
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/delivery-routes/${id}`,
+      (companyId, id) => routes.deliveryRoute(companyId, id),
     ),
   },
   [LifecycleTargetEntity.DeliveryTask]: {
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/delivery-tasks/${id}`,
+      (companyId, id) => routes.deliveryTask(companyId, id),
     ),
   },
   [LifecycleTargetEntity.SalesOrder]: {
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/sales-orders/${id}`,
+      (companyId, id) => routes.salesOrder(companyId, id),
     ),
   },
   [LifecycleTargetEntity.Vehicle]: {
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/vehicles/${id}`,
+      (companyId, id) => routes.vehicle(companyId, id),
     ),
   },
   [LifecycleTargetEntity.Product]: {
     card: inCompany(
-      (companyId, id) => `/organization/${companyId}/products/${id}`,
+      (companyId, id) => routes.product(companyId, id),
     ),
   },
   [LifecycleTargetEntity.Lead]: {
     statusEntity: StatusEntity.Lead,
-    card: ({ id }) => `/leads/${id}`,
+    card: ({ id }) => routes.lead(id),
   },
   [LifecycleTargetEntity.User]: {
-    card: ({ id }) => `/users/${id}`,
+    card: ({ id }) => routes.user(id),
   },
   [LifecycleTargetEntity.Company]: {
-    card: ({ id }) => `/organization/${id}`,
+    card: ({ id }) => routes.company(id),
   },
   [LifecycleTargetEntity.CompanyXTraceIntegration]: {
-    card: inCompany((companyId) => `/organization/${companyId}/integrations`),
+    card: inCompany((companyId) => routes.companyIntegrations(companyId)),
   },
   [LifecycleTargetEntity.CompanyFakturaUzIntegration]: {
-    card: inCompany((companyId) => `/organization/${companyId}/integrations`),
+    card: inCompany((companyId) => routes.companyIntegrations(companyId)),
   },
 };
 
 export const resolveStatusChangeCard = (
   entity: string,
   params: RouteParams,
-): string | null => routes[entity]?.card?.(params) ?? null;
+): string | null => entityRoutes[entity]?.card?.(params) ?? null;
 
 export const resolveStatusChangeStatusEntity = (
   entity: string,
-): StatusEntity | undefined => routes[entity]?.statusEntity;
+): StatusEntity | undefined => entityRoutes[entity]?.statusEntity;

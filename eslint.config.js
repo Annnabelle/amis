@@ -28,6 +28,10 @@ const layerBoundaries = [
   },
 }));
 
+/** Адреса страниц живут в shared/config/routes. */
+const ROUTE_LITERAL_MESSAGE =
+  'Адрес страницы собирается билдером из shared/config/routes, литерал пути здесь запрещён.';
+
 export default tseslint.config([
   globalIgnores(['dist']),
   {
@@ -56,6 +60,29 @@ export default tseslint.config([
         {
           selector: 'ImportExpression[source.value=/\\.tsx?$/]',
           message: 'Импорт без расширения: путь разрешает резолвер алиасов.',
+        },
+        {
+          selector: 'JSXAttribute[name.name=/^(to|path|backPath)$/] > Literal[value=/^\\u002f/]',
+          message: ROUTE_LITERAL_MESSAGE,
+        },
+        {
+          selector:
+            'JSXAttribute[name.name=/^(to|path|backPath)$/] > JSXExpressionContainer > TemplateLiteral',
+          message: ROUTE_LITERAL_MESSAGE,
+        },
+        {
+          selector:
+            'CallExpression[callee.name=/^(navigate|navigateBack)$/] > Literal[value=/^\\u002f/]',
+          message: ROUTE_LITERAL_MESSAGE,
+        },
+        {
+          selector: 'CallExpression[callee.name=/^(navigate|navigateBack)$/] > TemplateLiteral',
+          message: ROUTE_LITERAL_MESSAGE,
+        },
+        {
+          selector:
+            'Property[key.name=/^(backPath|listPath|createPath)$/] > Literal[value=/^\\u002f(organization|users|leads|audit-logs|system-employees|profile|welcome)/]',
+          message: ROUTE_LITERAL_MESSAGE,
         },
       ],
     },

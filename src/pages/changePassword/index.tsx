@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { routes } from "shared/config/routes";
 import { useTranslation } from 'react-i18next'
 import { useAppSelector } from 'app/store'
 import {
@@ -46,7 +47,7 @@ const ChangePasswordPage = () => {
         setModalOpen(false);
         setFormValues(null);
         form.resetFields();
-        navigate('/profile');
+        navigate(routes.profile());
       })
       .catch((error: unknown) => {
         toast.error(

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { routes } from "shared/config/routes";
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -64,7 +65,7 @@ const DeliveryRoutesDetails = () => {
     { skip: !id || !canListTasks }
   );
   const [startDeliveryTaskHandover] = useStartDeliveryTaskHandoverMutation();
-  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
+  const backPath = orgId ? routes.deliveryRoutes(orgId) : routes.companies();
   const canStartLoading = useCan(endpointAccessMap.deliveryRoutesStartLoading);
   const canStartTransitPermission = useCan(endpointAccessMap.deliveryRoutesStartTransit);
   const canStartReturn = useCan(endpointAccessMap.deliveryRoutesStartReturn);
@@ -107,7 +108,7 @@ const DeliveryRoutesDetails = () => {
   );
   const closeRouteButtonLabel = t('deliveryRoutes.actions.close');
   const taskScanPath = (taskId: string) =>
-    orgId ? `/organization/${orgId}/delivery-tasks/${taskId}/scan` : '/organization';
+    orgId ? routes.deliveryTaskScan(orgId, taskId) : routes.companies();
 
   useEffect(() => {
     if (route?.status && route.status !== 'loaded') {
@@ -140,7 +141,7 @@ const DeliveryRoutesDetails = () => {
 
     try {
       await startDeliveryRouteLoading(route.id).unwrap();
-      navigate(`${backPath}/${route.id}/loading`);
+      navigate(routes.deliveryRouteLoading(orgId, route.id));
     } catch (error) {
       toast.error(
         getBackendErrorMessage(
@@ -186,7 +187,7 @@ const DeliveryRoutesDetails = () => {
         await startDeliveryRouteReturn(route.id).unwrap();
       }
 
-      navigate(`${backPath}/${route.id}/return`);
+      navigate(routes.deliveryRouteReturn(orgId, route.id));
     } catch (error) {
       toast.error(
         getBackendErrorMessage(

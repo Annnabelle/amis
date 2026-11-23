@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -67,8 +68,8 @@ const WaybillsList = () => {
                   ? (record) =>
                       navigate(
                         orgId
-                          ? `/organization/${orgId}/waybills/${record.key}`
-                          : "/organization"
+                          ? routes.waybill(orgId, record.key)
+                          : routes.companies()
                       )
                   : undefined
               }

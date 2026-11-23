@@ -1,4 +1,5 @@
 import { Spin } from "antd";
+import { routes } from "shared/config/routes";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGetVehicleByIdQuery } from "entities/vehicles/api";
@@ -49,7 +50,7 @@ const VehicleDetails = () => {
         title={vehicle.name}
         subtitle={t("vehicles.title")}
       >
-        <CustomButton onClick={() => navigateBack(`/organization/${orgId}/vehicles`)}>
+        <CustomButton onClick={() => navigateBack(routes.vehicles(orgId))}>
           {t("btn.back")}
         </CustomButton>
       </Heading>

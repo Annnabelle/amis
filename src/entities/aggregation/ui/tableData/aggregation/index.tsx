@@ -1,4 +1,5 @@
 import {type TableProps, Tag} from 'antd';
+import { routes } from "shared/config/routes";
 import type { TFunction } from 'i18next';
 import type {AggregationDataType} from "./types";
 import {statusColors} from "shared/ui/statuses";
@@ -15,7 +16,7 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         render: (_, record) => (
             <PermissionLink
                 endpoint={endpointAccessMap.aggregationReportsRead}
-                to={`/organization/${orgId}/aggregations/${record?.id}`}
+                to={routes.aggregationReport(orgId, record?.id)}
                 className="table-text">
                 {record.aggregationNumber}
             </PermissionLink>
@@ -28,7 +29,7 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         render: (_, record) => (
             <PermissionLink
                 endpoint={endpointAccessMap.ordersRead}
-                to={`/organization/${orgId}/orderId/${record?.orderIdParent}/batchId/${record?.batchIdParent}`}
+                to={routes.markingCodeBatch(orgId, record?.orderIdParent, record?.batchIdParent)}
                 className="table-text">
                 {record.batchNumberParent}
             </PermissionLink>
@@ -41,7 +42,7 @@ export const AggregationColumns = (t: TFunction, orgId: string | undefined) : Ta
         render: (_, record) => (
             <PermissionLink
                 endpoint={endpointAccessMap.ordersRead}
-                to={`/organization/${orgId}/orderId/${record?.childOrderId}/batchId/${record?.batchOrderId}`}
+                to={routes.markingCodeBatch(orgId, record?.childOrderId, record?.batchOrderId)}
                 className="table-text">
                 {record.batchNumberChild}
             </PermissionLink>

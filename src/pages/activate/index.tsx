@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { routes } from "shared/config/routes";
 import { Form, Input } from 'antd';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +40,7 @@ const ActivatePage = () => {
     return (
       <AuthShell
         title={t('auth.activate.errorTitle')}
-        footer={<Link to="/">{t('auth.backToLogin')}</Link>}
+        footer={<Link to={routes.login()}>{t('auth.backToLogin')}</Link>}
       >
         <p>{t('auth.errors.missingToken')}</p>
       </AuthShell>
@@ -50,10 +51,10 @@ const ActivatePage = () => {
     return (
       <AuthShell
         title={t('auth.activate.successTitle')}
-        footer={<Link to="/">{t('auth.backToLogin')}</Link>}
+        footer={<Link to={routes.login()}>{t('auth.backToLogin')}</Link>}
       >
         <p>{t('auth.activate.successDescription')}</p>
-        <Link to="/">
+        <Link to={routes.login()}>
           <CustomButton>{t('auth.goToLogin')}</CustomButton>
         </Link>
       </AuthShell>

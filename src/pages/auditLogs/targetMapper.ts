@@ -1,3 +1,4 @@
+import { routes } from "shared/config/routes";
 export type TargetEntity = "user" | "company" | "product" | "auth";
 
 /** Цель события аудита: набор полей зависит от сущности. */
@@ -13,18 +14,18 @@ interface TargetRule {
 const targetRules: Record<TargetEntity, TargetRule> = {
   user: {
     getName: (t) => (t.firstName ? `${text(t.firstName)} ${text(t.lastName)}`.trim() : null),
-    getPath: (t) => `/users/${text(t.id)}`,
+    getPath: (t) => routes.user(text(t.id)),
   },
   company: {
     getName: (t) => text(t.displayName) || null,
-    getPath: (t) => `/organization/${text(t.id)}`,
+    getPath: (t) => routes.company(text(t.id)),
   },
   product: {
     getName: (t) => text(t.name) || null,
     getPath: (t) =>
       t.companyId
-        ? `/organization/${text(t.companyId)}/products/${text(t.id)}`
-        : "/organization",
+        ? routes.product(text(t.companyId), text(t.id))
+        : routes.companies(),
   },
   auth: {
     getName: () => "Аутентификация",

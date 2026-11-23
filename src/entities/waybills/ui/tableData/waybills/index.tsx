@@ -1,4 +1,5 @@
 import { Tag } from "antd";
+import { routes } from "shared/config/routes";
 import type { TFunction } from "i18next";
 import { PermissionLink } from "entities/access/ui";
 import { getWaybillStatusKey } from "entities/waybills/lib/status";
@@ -61,7 +62,7 @@ export const WaybillsTableColumns = (
         endpoint={endpointAccessMap.waybillsRead}
         className="table-text link"
         title={record.waybillNumber}
-        to={orgId ? `/organization/${orgId}/waybills/${record.key}` : "/organization"}
+        to={orgId ? routes.waybill(orgId, record.key) : routes.companies()}
       >
         {shortenMiddle(record.waybillNumber)}
       </PermissionLink>

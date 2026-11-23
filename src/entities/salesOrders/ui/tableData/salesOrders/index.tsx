@@ -1,4 +1,5 @@
 import { Tag } from "antd";
+import { routes } from "shared/config/routes";
 import type { TFunction } from "i18next";
 import { statusColors } from "shared/ui/statuses";
 import type { AdaptiveColumn } from "shared/ui/table/types";
@@ -38,8 +39,8 @@ export const SalesOrdersTableColumns = (
         className="table-text link"
         to={
           orgId
-            ? `/organization/${orgId}/sales-orders/${record.key}`
-            : '/organization'
+            ? routes.salesOrder(orgId, record.key)
+            : routes.companies()
         }
       >
         {record.orderNumber}

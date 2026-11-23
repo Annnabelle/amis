@@ -1,4 +1,5 @@
 import { Popover, Skeleton, Tag, Typography } from 'antd';
+import { routes } from "shared/config/routes";
 import { UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -150,7 +151,7 @@ const UserPreviewCard = ({ user, compact = false }: UserPreviewCardProps) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
             {canReadUser ? (
                 <Link
-            to={`/users/${user.id}`}
+            to={routes.user(user.id)}
             style={{
               color: 'var(--text-primary)',
               fontWeight: compact ? 400 : 600,

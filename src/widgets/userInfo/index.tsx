@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { routes } from "shared/config/routes";
 import { DownOutlined, KeyOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar } from "antd";
 import { useAppSelector } from "app/store";
@@ -42,7 +43,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   }, [handleClickOutside]);
 
   const handleLogout = () => {
-    void requestLogout().then(() => navigate("/", { replace: true }));
+    void requestLogout().then(() => navigate(routes.login(), { replace: true }));
   };
 
   const go = (path: string) => {
@@ -85,11 +86,11 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <div className="user-dropdown">
           {showProfileAction && (
             <>
-              <button type="button" className="user-dropdown-item" onClick={() => go("/profile")}>
+              <button type="button" className="user-dropdown-item" onClick={() => go(routes.profile())}>
                 <UserOutlined className="user-dropdown-item-icon" />
                 <span>{t("me.title")}</span>
               </button>
-              <button type="button" className="user-dropdown-item" onClick={() => go("/change-password")}>
+              <button type="button" className="user-dropdown-item" onClick={() => go(routes.changePassword())}>
                 <KeyOutlined className="user-dropdown-item-icon" />
                 <span>{t("changePwd.title")}</span>
               </button>

@@ -1,4 +1,5 @@
 import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
+import { routes } from "shared/config/routes";
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
@@ -125,7 +126,7 @@ const DeliveryRoutesCreate = () => {
   const vehiclesError = vehiclesRequestError
     ? getApiErrorMessage(vehiclesRequestError, t('vehicles.messages.error.load'))
     : null;
-  const listPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
+  const listPath = orgId ? routes.deliveryRoutes(orgId) : routes.companies();
   const initialValues = useMemo(
     () => ({
       schedule: {
@@ -361,8 +362,8 @@ const DeliveryRoutesCreate = () => {
             className="table-text link"
             to={
               orgId
-                ? `/organization/${orgId}/sales-orders/${record.key}`
-                : '/organization'
+                ? routes.salesOrder(orgId, record.key)
+                : routes.companies()
             }
           >
             {record.salesOrderNumber}

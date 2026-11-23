@@ -1,4 +1,5 @@
 import { Tag, type TableProps } from 'antd';
+import { routes } from "shared/config/routes";
 import type { TFunction } from 'i18next';
 import type { BatchTableDataType } from '../markingCodes/types';
 import {statusColors} from "shared/ui/statuses";
@@ -12,16 +13,18 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
     title: t("markingCodes.tableTitles.batchNumber"),
     dataIndex: "batchNumber",
     key: "batchNumber",
-    render: (_, record) => (
-      <PermissionLink
-        endpoint={endpointAccessMap.ordersRead}
-        className="table-text link"
-        // to=""
-        to={`/organization/${orgId}/orderId/${record?.id}/batchId/${record?.batchId}`}
-      >
-        {record.batchNumber}
-      </PermissionLink>
-    ),
+    render: (_, record) =>
+      record.id ? (
+        <PermissionLink
+          endpoint={endpointAccessMap.ordersRead}
+          className="table-text link"
+          to={routes.markingCodeBatch(orgId, record.id, record.batchId)}
+        >
+          {record.batchNumber}
+        </PermissionLink>
+      ) : (
+        <span className="table-text">{record.batchNumber}</span>
+      ),
   },
   {
     title: t("markingCodes.tableTitles.products"),
@@ -31,7 +34,7 @@ export const MarkingCodeTableColumns = (t: TFunction, orgId: string | undefined)
       <PermissionLink
         endpoint={endpointAccessMap.productsRead}
         className="table-text link"
-        to={`/organization/${orgId}/products/${record?.productId}`}
+        to={routes.product(orgId, record?.productId)}
       >
         {record.productName}
       </PermissionLink>

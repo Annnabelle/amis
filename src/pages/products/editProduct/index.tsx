@@ -1,4 +1,5 @@
 import {Form} from 'antd'
+import { routes } from "shared/config/routes";
 import { normalizeLanguage } from 'shared/lib/language';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom'
@@ -114,7 +115,7 @@ const ProductsEdit = () => {
             <Heading title={t('products.edit')} subtitle={t('users.subtitle')}>
                 <FormActions>
                     <CustomButton type="submit" disabled={requiredDataUnavailable}>{t('btn.save')} </CustomButton>
-                   <CustomButton onClick={() => navigateBack(`/organization/${id}/products`)}>{t('btn.back')}</CustomButton>
+                   <CustomButton onClick={() => navigateBack(routes.products(id))}>{t('btn.back')}</CustomButton>
                 </FormActions>
             </Heading>
             <div className="box">

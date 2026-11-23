@@ -1,4 +1,5 @@
 import { Empty, Form, Input, Spin, Tag } from 'antd';
+import { routes } from "shared/config/routes";
 import { normalizeLanguage } from 'shared/lib/language';
 import { LeftOutlined } from '@ant-design/icons';
 import { useAppSelector } from 'app/store';
@@ -362,7 +363,7 @@ const CompanyIntegrations = () => {
       {isMobile && (
         <div className="mobile-route-toolbar">
           <div className="mobile-route-toolbar-back">
-            <CustomButton variant="outline" onClick={() => navigateBack('/organization')}>
+            <CustomButton variant="outline" onClick={() => navigateBack(routes.companies())}>
               <LeftOutlined />
             </CustomButton>
           </div>
@@ -373,7 +374,7 @@ const CompanyIntegrations = () => {
           title={t('navigation.integrations')}
           subtitle={organizationById?.displayName ?? t('organizations.title')}
         >
-          <CustomButton variant="outline" onClick={() => navigateBack(`/organization/${orgId}`)}>
+          <CustomButton variant="outline" onClick={() => navigateBack(routes.company(orgId))}>
             {t('common.backToList')}
           </CustomButton>
         </Heading>

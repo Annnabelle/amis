@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { routes } from "shared/config/routes";
 import { Alert, Empty, Input, Modal } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -42,7 +43,7 @@ const DeliveryRoutesLoading = () => {
   const { t } = useTranslation();
 
   const routeId = id ?? '';
-  const backPath = orgId ? `/organization/${orgId}/delivery-routes` : '/organization';
+  const backPath = orgId ? routes.deliveryRoutes(orgId) : routes.companies();
 
   const {
     data: route,
@@ -337,7 +338,7 @@ const DeliveryRoutesLoading = () => {
         payload: comment?.trim() ? { comment: comment.trim() } : undefined,
       }).unwrap();
       localStorage.removeItem(getScanCacheKey(routeId));
-      navigate(`${backPath}/${routeId}`);
+      navigate(routes.deliveryRoute(orgId, routeId));
     } catch (error) {
       toast.error(
         getApiErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
@@ -501,7 +502,7 @@ const DeliveryRoutesLoading = () => {
               {isCompleting ? t('scanner.completingSession') : t('deliveryRoutes.actions.completeLoading')}
             </CustomButton>
           )}
-          <CustomButton variant="outline" onClick={() => navigate(`${backPath}/${routeId}`)}>
+          <CustomButton variant="outline" onClick={() => navigate(routes.deliveryRoute(orgId, routeId))}>
             {t('common.backToRoute')}
           </CustomButton>
         </div>

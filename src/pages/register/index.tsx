@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { routes } from "shared/config/routes";
 import { MailOutlined } from "@ant-design/icons";
 import { Form, Input } from 'antd';
 import { Link } from 'react-router-dom';
@@ -37,7 +38,7 @@ const RegisterPage = () => {
     return (
       <AuthShell
         title={t('auth.register.checkInbox.title')}
-        footer={<Link to="/">{t('auth.backToLogin')}</Link>}
+        footer={<Link to={routes.login()}>{t('auth.backToLogin')}</Link>}
       >
         <div className="auth-message">
           <MailOutlined className="auth-message-icon" />
@@ -55,7 +56,7 @@ const RegisterPage = () => {
       title={t('auth.register.title')}
       footer={
         <>
-          {t('auth.register.haveAccount')} <Link to="/">{t('auth.backToLogin')}</Link>
+          {t('auth.register.haveAccount')} <Link to={routes.login()}>{t('auth.backToLogin')}</Link>
         </>
       }
     >

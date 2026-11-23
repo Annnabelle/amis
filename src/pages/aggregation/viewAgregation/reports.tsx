@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { routes } from "shared/config/routes";
 import BatchItem from "../../markingCodeProduct/batchItem";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -38,7 +39,7 @@ const AgregationReport: React.FC = () => {
                         <div className="product-title">
                             <PermissionLink
                                 endpoint={endpointAccessMap.productsRead}
-                                to={`/organization/${orgId}/products/${reportData?.product.id}`}
+                                to={routes.product(orgId, reportData?.product.id)}
                             >
                                 {reportData?.product.name}
                             </PermissionLink>

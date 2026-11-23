@@ -1,4 +1,5 @@
 import { Empty, Form, Input, Modal, Tag } from "antd";
+import { routes } from "shared/config/routes";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -109,7 +110,7 @@ const LeadDetails = () => {
     return (
       <MainLayout>
         <Heading title={t("leads.detailsTitle")} subtitle={t("common.details")}>
-          <CustomButton variant="outline" onClick={() => navigate("/leads")}>
+          <CustomButton variant="outline" onClick={() => navigate(routes.leads())}>
             {t("common.backToList")}
           </CustomButton>
         </Heading>
@@ -237,7 +238,7 @@ const LeadDetails = () => {
               ))}
             </div>
           )}
-          <CustomButton variant="outline" onClick={() => navigate("/leads")}>
+          <CustomButton variant="outline" onClick={() => navigate(routes.leads())}>
             {t("common.backToList")}
           </CustomButton>
         </div>

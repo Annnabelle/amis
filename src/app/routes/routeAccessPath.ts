@@ -1,4 +1,5 @@
 import { canAccessEndpoint } from 'entities/access/lib';
+import { routes } from "shared/config/routes";
 import { AccessModules, type UserAccess } from 'entities/access/types';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import type { RouteAccess } from './accessMap';
@@ -28,10 +29,10 @@ export const resolveFallbackPath = (
   options?: { mobile?: boolean }
 ) => {
   const systemCandidates = [
-    [AccessModules.Users, endpointAccessMap.usersList, '/users'],
-    [AccessModules.Companies, endpointAccessMap.companiesList, '/organization'],
-    [AccessModules.Leads, endpointAccessMap.leadsList, '/leads'],
-    [AccessModules.Audit, endpointAccessMap.auditList, '/audit-logs'],
+    [AccessModules.Users, endpointAccessMap.usersList, routes.users()],
+    [AccessModules.Companies, endpointAccessMap.companiesList, routes.companies()],
+    [AccessModules.Leads, endpointAccessMap.leadsList, routes.leads()],
+    [AccessModules.Audit, endpointAccessMap.auditList, routes.auditLogs()],
   ] as const;
   const systemPath = systemCandidates.find(
     ([module, endpoint]) =>
@@ -44,20 +45,20 @@ export const resolveFallbackPath = (
   }
 
   const companyCandidates = [
-    [AccessModules.CompanyMemberships, endpointAccessMap.companyMembershipsList, 'memberships'],
-    [AccessModules.Products, endpointAccessMap.productsList, 'products'],
-    [AccessModules.Orders, endpointAccessMap.ordersList, 'orders'],
-    [AccessModules.Reports, endpointAccessMap.aggregationReportsList, 'agregations'],
-    [AccessModules.SalesOrders, endpointAccessMap.salesOrdersList, 'sales-orders'],
-    [AccessModules.DeliveryRoutes, endpointAccessMap.deliveryRoutesList, 'delivery-routes'],
-    [AccessModules.Vehicles, endpointAccessMap.vehiclesList, 'vehicles'],
-    [AccessModules.Invoices, endpointAccessMap.invoicesList, 'invoices'],
-    [AccessModules.Waybills, endpointAccessMap.waybillsList, 'waybills'],
-    [AccessModules.Integrations, [endpointAccessMap.integrationsXTraceRead, endpointAccessMap.integrationsFakturaUzRead], 'integrations'],
+    [AccessModules.CompanyMemberships, endpointAccessMap.companyMembershipsList, routes.companyMemberships],
+    [AccessModules.Products, endpointAccessMap.productsList, routes.products],
+    [AccessModules.Orders, endpointAccessMap.ordersList, routes.markingCodeOrders],
+    [AccessModules.Reports, endpointAccessMap.aggregationReportsList, routes.aggregations],
+    [AccessModules.SalesOrders, endpointAccessMap.salesOrdersList, routes.salesOrders],
+    [AccessModules.DeliveryRoutes, endpointAccessMap.deliveryRoutesList, routes.deliveryRoutes],
+    [AccessModules.Vehicles, endpointAccessMap.vehiclesList, routes.vehicles],
+    [AccessModules.Invoices, endpointAccessMap.invoicesList, routes.invoices],
+    [AccessModules.Waybills, endpointAccessMap.waybillsList, routes.waybills],
+    [AccessModules.Integrations, [endpointAccessMap.integrationsXTraceRead, endpointAccessMap.integrationsFakturaUzRead], routes.companyIntegrations],
   ] as const;
 
   for (const company of access.companies) {
-    const section = companyCandidates.find(
+    const buildSectionPath = companyCandidates.find(
       ([module, endpoint]) =>
         company.modules.includes(module) &&
         canAccessRoute({
@@ -67,14 +68,14 @@ export const resolveFallbackPath = (
         })
     )?.[2];
 
-    if (section) {
+    if (buildSectionPath) {
       if (options?.mobile) {
-        return `/organization/${company.companyId}`;
+        return routes.company(company.companyId);
       }
 
-      return `/organization/${company.companyId}/${section}`;
+      return buildSectionPath(company.companyId);
     }
   }
 
-  return '/welcome';
+  return routes.welcome();
 };

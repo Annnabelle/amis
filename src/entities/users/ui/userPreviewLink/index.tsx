@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { routes } from "shared/config/routes";
 import { useGetUserPreviewQuery } from 'entities/users/api';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
@@ -18,7 +19,7 @@ const UserPreviewLink = ({ userId }: UserPreviewLinkProps) => {
   const label = preview ? `${preview.firstName} ${preview.lastName}` : userId;
 
   return canReadUser ? (
-    <Link to={`/users/${userId}`} style={{ color: 'inherit' }}>
+    <Link to={routes.user(userId)} style={{ color: 'inherit' }}>
       {label}
     </Link>
   ) : (

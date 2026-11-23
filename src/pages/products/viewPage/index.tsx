@@ -1,4 +1,5 @@
 import { Spin } from 'antd';
+import { routes } from "shared/config/routes";
 import { normalizeLanguage } from 'shared/lib/language';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -101,7 +102,7 @@ const ProductsView = () => {
                 errors={[referencesError]}
             />
             <Heading title={t('products.view')}>
-                <CustomButton onClick={() => navigateBack(`/organization/${orgId}/products`)}>
+                <CustomButton onClick={() => navigateBack(routes.products(orgId))}>
                     {t('btn.back')}
                 </CustomButton>
             </Heading>

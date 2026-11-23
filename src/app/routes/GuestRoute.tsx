@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { routes } from "shared/config/routes";
 import { Navigate } from 'react-router-dom';
 import { useAppSelector } from 'app/store';
 import GlobalLoader from 'shared/ui/loader';
@@ -18,7 +19,7 @@ export const GuestRoute = ({ children }: GuestRouteProps) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={routes.login()} replace />;
   }
 
   return <>{children}</>;

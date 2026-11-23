@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { routes } from "shared/config/routes";
 import {useGetOrderBatchQuery} from 'entities/markingCodes/api'
 import {useParams} from "react-router-dom";
 import BatchItem from "./batchItem";
@@ -44,8 +45,8 @@ const MarkingCodeProductBatches = () => {
                                 endpoint={endpointAccessMap.productsRead}
                                 to={
                                     orgId
-                                        ? `/organization/${orgId}/products/${orderProductBatch.productId}`
-                                        : "/organization"
+                                        ? routes.product(orgId, orderProductBatch.productId)
+                                        : routes.companies()
                                 }
                             >
                                 {orderProductBatch.productName}
@@ -83,9 +84,9 @@ const MarkingCodeProductBatches = () => {
                             <PermissionLink
                                 endpoint={endpointAccessMap.ordersRead}
                                 to={
-                                    orgId
-                                        ? `/organization/${orgId}/orders/${orderProductBatch?.order.id}`
-                                        : "/organization"
+                                    orderProductBatch
+                                        ? routes.markingCodeOrder(orgId, orderProductBatch.order.id)
+                                        : routes.companies()
                                 }
                             >
                                 {orderProductBatch?.order.orderNumber}
