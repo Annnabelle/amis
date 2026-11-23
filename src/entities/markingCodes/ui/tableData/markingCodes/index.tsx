@@ -3,7 +3,7 @@ import { routes } from "shared/config/routes";
 import CustomButton from 'shared/ui/button';
 import type { TFunction } from 'i18next';
 import type { MarkingCodesTableDataType } from './types';
-import {statusColors} from "shared/ui/statuses";
+import {statusColors} from "shared/ui/statusBadge/tagColors";
 import type {AdaptiveColumn} from "shared/ui/table/types";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';

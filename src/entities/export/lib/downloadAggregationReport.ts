@@ -1,5 +1,5 @@
 import type { ExportAggregationReportParams } from "entities/export/types";
-import { getFileNameFromDisposition } from "shared/lib";
+import { getFileNameFromDisposition } from 'shared/lib/utils';
 import axiosInstance from "shared/lib/axiosInstance";
 import { BASE_URL } from "shared/lib/consts";
 

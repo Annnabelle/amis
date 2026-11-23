@@ -1,7 +1,7 @@
 import { type TableProps, Tag } from 'antd';
 import type { TFunction } from 'i18next';
 import type {OrderProductDataType} from "./types";
-import {statusColors} from "shared/ui/statuses";
+import {statusColors} from "shared/ui/statusBadge/tagColors";
 
 export const OrderProductTableColumns = (t: TFunction): TableProps<OrderProductDataType>["columns"] => [
   {

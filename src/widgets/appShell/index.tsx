@@ -41,8 +41,8 @@ import {
   type AccessModule,
   type RoleReference,
 } from 'entities/access/types';
-import { useTheme } from 'app/themeContext';
-import { useIsMobile } from 'shared/lib';
+import { useTheme } from 'app/providers/theme';
+import { useIsMobile } from 'shared/lib/useIsMobile';
 import { parseCompanyFromPath } from 'shared/lib/companyPath';
 import { isLanguage, type Language } from 'shared/types/dtos';
 import { canAccessEndpoint, useCan } from 'entities/access/lib';

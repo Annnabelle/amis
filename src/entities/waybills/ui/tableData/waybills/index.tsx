@@ -4,7 +4,7 @@ import type { TFunction } from "i18next";
 import { PermissionLink } from "entities/access/ui";
 import { getWaybillStatusKey } from "entities/waybills/lib/status";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
-import { statusColors } from "shared/ui/statuses";
+import { statusColors } from "shared/ui/statusBadge/tagColors";
 import type { AdaptiveColumn } from "shared/ui/table/types";
 import type { WaybillsTableDataType } from "./types";
 

@@ -1,7 +1,7 @@
 import { Alert, Empty, Spin } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { resolveMultiLanguage } from "shared/lib";
+import { resolveMultiLanguage } from 'shared/lib/multiLanguage';
 import {
   getCompanyImportStageProgress,
   getCompanyImportStageVariant,

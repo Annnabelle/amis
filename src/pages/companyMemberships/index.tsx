@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
-import { useSubmitGuard } from "shared/lib";
+import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
 import {
   useGetAssignableRolesQuery,
   useGetRoleReferencesQuery,
@@ -42,7 +42,7 @@ import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ModalWindow from "shared/ui/modalWindow";
 import ComponentTable from "shared/ui/table";
-import { statusColors } from "shared/ui/statuses";
+import { statusColors } from "shared/ui/statusBadge/tagColors";
 import { FormatUzbekPhoneNumber } from "shared/lib/utils";
 import { isLanguage, type Language } from "shared/types/dtos";
 import { formatDate, formatDateTime } from 'shared/lib/formatDate';

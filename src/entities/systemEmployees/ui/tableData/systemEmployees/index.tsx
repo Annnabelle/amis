@@ -1,7 +1,7 @@
 import { Tag, type TableProps } from "antd";
 import type { SystemEmployeeTableDataType } from "./types";
 import { ActionDropdownButton } from "shared/ui/table/cells";
-import { statusColors } from "shared/ui/statuses";
+import { statusColors } from "shared/ui/statusBadge/tagColors";
 import type { TFunction } from "i18next";
 import UserPreviewCard from "entities/users/ui/userPreviewCard";
 import type { UserPreview } from "entities/users/types";

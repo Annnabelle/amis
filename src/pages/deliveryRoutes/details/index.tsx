@@ -26,7 +26,7 @@ import {
   useStartDeliveryTaskHandoverMutation,
 } from 'entities/deliveryTasks/api';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
-import { useIsMobile } from 'shared/lib';
+import { useIsMobile } from 'shared/lib/useIsMobile';
 import { getBackendErrorMessage } from 'shared/lib/getBackendErrorMessage';
 import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';

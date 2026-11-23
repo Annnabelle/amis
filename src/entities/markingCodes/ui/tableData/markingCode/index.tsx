@@ -2,7 +2,7 @@ import { Tag, type TableProps } from 'antd';
 import { routes } from "shared/config/routes";
 import type { TFunction } from 'i18next';
 import type { BatchTableDataType } from '../markingCodes/types';
-import {statusColors} from "shared/ui/statuses";
+import {statusColors} from "shared/ui/statusBadge/tagColors";
 import { PermissionLink } from "entities/access/ui";
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 import { StatusEntity, LifecycleScope } from "shared/config/statusCatalog";

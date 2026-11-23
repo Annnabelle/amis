@@ -7,7 +7,7 @@ import Router from './routes';
 import i18n from './i18n';
 import { useAppDispatch, useAppSelector } from './store';
 import ErrorBoundary from 'shared/ui/errorBoundary';
-import { ThemeContext, type ThemeMode } from './themeContext';
+import { ThemeContext, type ThemeMode } from './providers/theme';
 import {
   sessionRefreshed,
   sessionRestoreFailed,
@@ -33,7 +33,7 @@ import {
   type AuthTokens,
 } from 'shared/lib/authSession';
 import { refreshAuthSession } from 'shared/lib/axiosInstance';
-import StatusChangeListener from './statusChangeListener';
+import StatusChangeListener from './statusChange/listener';
 import './styles/App.sass';
 
 const THEME_STORAGE_KEY = 'amis-theme-mode';
