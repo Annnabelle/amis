@@ -1,4 +1,4 @@
-import { Empty, Form, Input, Spin, Tag } from 'antd';
+import { Empty, Form, Spin } from 'antd';
 import { notify } from 'shared/lib/notify';
 import PageHeader from 'shared/ui/pageHeader';
 import { routes } from "shared/config/routes";
@@ -13,13 +13,19 @@ import {
   useCreateCompanyXTraceIntegrationMutation,
   useGetCompanyFakturaUzIntegrationQuery,
   useGetCompanyXTraceIntegrationQuery,
-  useLazyValidateCompanyXTraceIntegrationTokenQuery,
   useUpdateCompanyXTraceIntegrationMutation,
 } from 'entities/xTrace/api';
-import type { XTraceIntegrationTokenValidation } from 'entities/xTrace/types';
 import { getApiErrorMessage } from 'shared/api';
+import { buildProductGroupTitles } from 'entities/references/lib/productGroupTitles';
+import { useXTraceTokenValidation } from 'features/companyIntegrations/lib/useXTraceTokenValidation';
+import XTraceModal from 'features/companyIntegrations/ui/xTraceModal';
+import {
+  renderIntegrationStatus,
+  renderTestFlag,
+} from 'features/companyIntegrations/ui/renderers';
+import FakturaUzModal from 'features/companyIntegrations/ui/fakturaUzModal';
 import { useGetReferencesByTypeQuery } from 'entities/references/api';
-import { type ChangeEvent, type ReactNode, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LifecycleTargetEntity, useLifecycleSummary } from 'entities/lifecycle/lib';
@@ -31,11 +37,7 @@ import { useIsMobile } from 'shared/lib/useIsMobile';
 import { useNavigationBack } from 'shared/lib/utils';
 import CustomButton from 'shared/ui/button';
 import EntityTabs, { OVERVIEW_TAB_KEY } from 'shared/ui/entityTabs';
-import FormComponent from 'shared/ui/formComponent';
 import MainLayout from 'widgets/appShell';
-import ModalWindow from 'shared/ui/modalWindow';
-import StatusBadge from 'shared/ui/statusBadge';
-import { getIntegrationStatusBadgeVariant } from 'shared/ui/statusBadge/variants';
 import { formatDateTime } from 'shared/lib/formatDate';
 import '../organizations/styles.sass';
 
@@ -47,19 +49,6 @@ type DetailItem = {
   label: string;
   value: ReactNode;
 };
-
-const renderStatus = (status: string, t: ReturnType<typeof useTranslation>['t']) => (
-  <StatusBadge variant={getIntegrationStatusBadgeVariant(status)}>
-    {t(`statuses.${status}`, { defaultValue: status })}
-  </StatusBadge>
-);
-
-const renderTestFlag = (isTest?: boolean, t?: ReturnType<typeof useTranslation>['t']) =>
-  isTest && t ? (
-    <Tag className="test-flag tag-flat" color="blue-inverse">
-      {t('organizations.testFlag')}
-    </Tag>
-  ) : '-';
 
 const renderDetailItems = (items: DetailItem[]) => (
   <div className="detail-items">
@@ -87,8 +76,6 @@ const CompanyIntegrations = () => {
   const [fakturaUzForm] = Form.useForm();
   const [isXTraceModalOpen, setIsXTraceModalOpen] = useState(false);
   const [isFakturaUzModalOpen, setIsFakturaUzModalOpen] = useState(false);
-  const validationTimeoutRef = useRef<number | null>(null);
-  const validationRequestRef = useRef(0);
 
   const access = useAppSelector((state) => state.access.data);
   const { data: organizationById, isLoading: organizationLoading } =
@@ -122,11 +109,12 @@ const CompanyIntegrations = () => {
       { skip: !orgId || !canReadFakturaUz }
     );
   const integrationsLoading = xTraceLoading || fakturaUzLoading;
-  /** Проверка токена — состояние открытой формы, а не серверные данные. */
-  const [xTraceValidation, setXTraceValidation] =
-    useState<XTraceIntegrationTokenValidation | null>(null);
-  const [validateXTraceToken, { isFetching: xTraceValidationLoading }] =
-    useLazyValidateCompanyXTraceIntegrationTokenQuery();
+  const {
+    validation: xTraceValidation,
+    isValidating: xTraceValidationLoading,
+    handleTokenChange: handleXTraceTokenChange,
+    reset: resetXTraceValidation,
+  } = useXTraceTokenValidation({ companyId: orgId, enabled: canValidateXTrace });
   const [createXTraceIntegration, { isLoading: xTraceCreateLoading }] =
     useCreateCompanyXTraceIntegrationMutation();
   const [updateXTraceIntegration] = useUpdateCompanyXTraceIntegrationMutation();
@@ -136,24 +124,11 @@ const CompanyIntegrations = () => {
   const canCreateFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsCreate);
   const canUpdateFakturaUz = hasPermission(Permissions.CompanyFakturaUzIntegrationsUpdate);
 
-  const productGroupTitleByAlias = useMemo(() => {
-    const map = new Map<string, string>();
+  const productGroupTitleByAlias = useMemo(
+    () => buildProductGroupTitles(productGroupReferences, currentLanguage),
+    [currentLanguage, productGroupReferences]
+  );
 
-    productGroupReferences.forEach((reference) => {
-      const localizedTitle =
-        reference.title?.[currentLanguage] ??
-        reference.title?.ru ??
-        reference.title?.en ??
-        reference.alias;
-
-      map.set(reference.alias, localizedTitle);
-      map.set(reference.alias.trim().toLowerCase(), localizedTitle);
-    });
-
-    return map;
-  }, [currentLanguage, productGroupReferences]);
-
-  const xTraceValidationData = xTraceValidation;
 
   const openLifecycleTab = (tabKey: string) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -164,7 +139,7 @@ const CompanyIntegrations = () => {
   const closeXTraceModal = () => {
     setIsXTraceModalOpen(false);
     xTraceForm.resetFields();
-    setXTraceValidation(null);
+    resetXTraceValidation();
   };
 
   const openXTraceModal = () => {
@@ -173,7 +148,7 @@ const CompanyIntegrations = () => {
       token: xTraceIntegration?.tokenInfo.token ?? '',
       businessPlaceId: xTraceIntegration?.businessPlaceId,
     });
-    setXTraceValidation(null);
+    resetXTraceValidation();
     setIsXTraceModalOpen(true);
   };
 
@@ -185,36 +160,6 @@ const CompanyIntegrations = () => {
       clientSecret: fakturaUzIntegration?.credentials.clientSecret ?? '',
     });
     setIsFakturaUzModalOpen(true);
-  };
-
-  const handleXTraceTokenChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const token = event.target.value.trim();
-    const requestId = ++validationRequestRef.current;
-
-    if (validationTimeoutRef.current) {
-      window.clearTimeout(validationTimeoutRef.current);
-    }
-
-    setXTraceValidation(null);
-
-    if (!orgId || !token || !canValidateXTrace) return;
-
-    validationTimeoutRef.current = window.setTimeout(async () => {
-      try {
-        const validation = await validateXTraceToken({
-          companyId: orgId,
-          token,
-        }).unwrap();
-
-        if (requestId !== validationRequestRef.current) return;
-
-        setXTraceValidation(validation);
-      } catch (error: unknown) {
-        if (requestId === validationRequestRef.current) {
-          notify.error(getApiErrorMessage(error, t('organizations.addUserForm.validation.xTrace.invalidToken')));
-        }
-      }
-    }, 450);
   };
 
   const handleSaveXTrace = async () => {
@@ -262,28 +207,9 @@ const CompanyIntegrations = () => {
     }
   };
 
-  const renderProductGroups = (productGroups: string[]) => (
-    <div className="organization-product-group-pills">
-      {productGroups.length > 0
-        ? productGroups.map((productGroup) => {
-            const productGroupTitle =
-              productGroupTitleByAlias.get(productGroup) ??
-              productGroupTitleByAlias.get(productGroup.trim().toLowerCase()) ??
-              productGroup;
-
-            return (
-              <span key={productGroup} className="organization-product-group-pill">
-                {productGroupTitle}
-              </span>
-            );
-          })
-        : <span className="value">-</span>}
-    </div>
-  );
-
   const xTraceItems: DetailItem[] = xTraceIntegration
     ? [
-        { label: t('organizations.status'), value: renderStatus(xTraceIntegration.status, t) },
+        { label: t('organizations.status'), value: renderIntegrationStatus(xTraceIntegration.status, t) },
         { label: t('organizations.testFlag'), value: renderTestFlag(xTraceIntegration.isTest, t) },
         { label: t('organizations.addUserForm.label.expireDate'), value: formatDateTime(xTraceIntegration.tokenInfo.expireDate) },
       ]
@@ -291,7 +217,7 @@ const CompanyIntegrations = () => {
 
   const fakturaItems: DetailItem[] = fakturaUzIntegration
     ? [
-        { label: t('organizations.status'), value: renderStatus(fakturaUzIntegration.status, t) },
+        { label: t('organizations.status'), value: renderIntegrationStatus(fakturaUzIntegration.status, t) },
         { label: t('organizations.testFlag'), value: renderTestFlag(fakturaUzIntegration.isTest, t) },
         { label: t('organizations.integrations.fakturaUz.username'), value: fakturaUzIntegration.credentials.username || '-' },
       ]
@@ -456,143 +382,25 @@ const CompanyIntegrations = () => {
         ]}
       />
 
-      <ModalWindow
-        className="modal-large"
-        width="880px"
-        titleAction={t('organizations.modalWindow.editing')}
-        title={t('organizations.integrations.xTrace.title')}
-        openModal={isXTraceModalOpen}
-        closeModal={closeXTraceModal}
-      >
-        <div className="organization-integration-step">
-          <FormComponent form={xTraceForm}>
-            <div className="form-inputs form-inputs-row">
-              <Form.Item name="tin" className="input" label={t('organizations.addUserForm.label.tin')}>
-                <Input size="large" className="input" disabled />
-              </Form.Item>
-              <Form.Item
-                name="token"
-                className="input"
-                label={t('organizations.addUserForm.label.xTraceToken')}
-                rules={[{ required: true, message: t('organizations.addUserForm.validation.required.token') }]}
-              >
-                <Input
-                  size="large"
-                  className="input"
-                  onChange={handleXTraceTokenChange}
-                  disabled={xTraceCreateLoading}
-                />
-              </Form.Item>
-            </div>
+      <XTraceModal
+        form={xTraceForm}
+        open={isXTraceModalOpen}
+        onClose={closeXTraceModal}
+        onSave={handleSaveXTrace}
+        onTokenChange={handleXTraceTokenChange}
+        validation={xTraceValidation}
+        isValidating={xTraceValidationLoading}
+        isSaving={xTraceCreateLoading}
+        productGroupTitleByAlias={productGroupTitleByAlias}
+      />
 
-            {xTraceValidationData && (
-              <div className="detail-grid detail-grid-main organization-create-preview">
-                <div className="detail-card detail-card-full organization-xtrace-validation-card">
-                  <h4>{t('organizations.integrations.receivedData')}</h4>
-                  <div className="detail-items">
-                    <div className="detail-item">
-                      <span className="label inline-label">{t('organizations.addUserForm.label.expireDate')}</span>
-                      <span className="detail-separator">:</span>
-                      <span className="value">{formatDateTime(xTraceValidationData.expireDate)}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label inline-label">{t('organizations.testFlag')}</span>
-                      <span className="detail-separator">:</span>
-                      <span className="value">{renderTestFlag(xTraceValidationData.isTest, t)}</span>
-                    </div>
-                    <div className="organization-product-group-row">
-                      <span className="label">{t('organizations.addUserForm.label.productGroup')}</span>
-                      {renderProductGroups(xTraceValidationData.productGroups)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="form-inputs form-inputs-row">
-              <Form.Item
-                name="businessPlaceId"
-                className="input"
-                label={t('organizations.addUserForm.label.businessPlaceId')}
-                rules={[{ required: true, message: t('organizations.addUserForm.validation.required.businessPlaceId') }]}
-              >
-                <Input size="large" className="input" type="number" disabled={xTraceCreateLoading} />
-              </Form.Item>
-            </div>
-          </FormComponent>
-
-          <div className="btns-group organization-integration-actions">
-            <CustomButton variant="outline" onClick={closeXTraceModal} disabled={xTraceCreateLoading}>
-              {t('btn.cancel')}
-            </CustomButton>
-            <CustomButton
-              onClick={handleSaveXTrace}
-              disabled={xTraceCreateLoading || xTraceValidationLoading || !xTraceValidationData}
-            >
-              {xTraceCreateLoading ? t('common.loading') : t('btn.save')}
-            </CustomButton>
-          </div>
-        </div>
-      </ModalWindow>
-
-      <ModalWindow
-        className="modal-large"
-        width="880px"
-        titleAction={t('organizations.modalWindow.editing')}
-        title={t('organizations.integrations.fakturaUz.title')}
-        openModal={isFakturaUzModalOpen}
-        closeModal={() => setIsFakturaUzModalOpen(false)}
-      >
-        <div className="organization-integration-step">
-          <FormComponent form={fakturaUzForm}>
-            <div className="form-inputs form-inputs-row">
-              <Form.Item
-                name="username"
-                className="input"
-                label={t('organizations.integrations.fakturaUz.username')}
-                rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.username') }]}
-              >
-                <Input size="large" className="input" disabled={fakturaUzCreateLoading} />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                className="input"
-                label={t('organizations.integrations.fakturaUz.password')}
-                rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.password') }]}
-              >
-                <Input.Password size="large" className="input" disabled={fakturaUzCreateLoading} />
-              </Form.Item>
-            </div>
-            <div className="form-inputs form-inputs-row">
-              <Form.Item
-                name="clientId"
-                className="input"
-                label={t('organizations.integrations.fakturaUz.clientId')}
-                rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.clientId') }]}
-              >
-                <Input size="large" className="input" disabled={fakturaUzCreateLoading} />
-              </Form.Item>
-              <Form.Item
-                name="clientSecret"
-                className="input"
-                label={t('organizations.integrations.fakturaUz.clientSecret')}
-                rules={[{ required: true, message: t('organizations.integrations.fakturaUz.validation.clientSecret') }]}
-              >
-                <Input.Password size="large" className="input" disabled={fakturaUzCreateLoading} />
-              </Form.Item>
-            </div>
-          </FormComponent>
-
-          <div className="btns-group organization-integration-actions">
-            <CustomButton variant="outline" onClick={() => setIsFakturaUzModalOpen(false)} disabled={fakturaUzCreateLoading}>
-              {t('btn.cancel')}
-            </CustomButton>
-            <CustomButton onClick={handleSaveFakturaUz} disabled={fakturaUzCreateLoading}>
-              {fakturaUzCreateLoading ? t('common.loading') : t('btn.save')}
-            </CustomButton>
-          </div>
-        </div>
-      </ModalWindow>
+      <FakturaUzModal
+        form={fakturaUzForm}
+        open={isFakturaUzModalOpen}
+        onClose={() => setIsFakturaUzModalOpen(false)}
+        onSave={handleSaveFakturaUz}
+        isSaving={fakturaUzCreateLoading}
+      />
     </MainLayout>
   );
 };

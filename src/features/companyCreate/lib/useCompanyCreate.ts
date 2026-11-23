@@ -8,6 +8,7 @@ import {
 } from "entities/organization/api";
 import type { Company } from "entities/organization/types";
 import { useGetReferencesByTypeQuery } from "entities/references/api";
+import { buildProductGroupTitles } from "entities/references/lib/productGroupTitles";
 import {
   useCreateCompanyFakturaUzIntegrationMutation,
   useCreateCompanyXTraceIntegrationMutation,
@@ -79,22 +80,10 @@ export const useCompanyCreate = () => {
   ] = useCreateCompanyFakturaUzIntegrationMutation();
   const { data: productGroupReferences = [] } = useGetReferencesByTypeQuery("productGroup");
 
-  const productGroupTitleByAlias = useMemo(() => {
-    const map = new Map<string, string>();
-
-    productGroupReferences.forEach((reference) => {
-      const localizedTitle =
-        reference.title?.[currentLanguage] ??
-        reference.title?.ru ??
-        reference.title?.en ??
-        reference.alias;
-
-      map.set(reference.alias, localizedTitle);
-      map.set(reference.alias.trim().toLowerCase(), localizedTitle);
-    });
-
-    return map;
-  }, [currentLanguage, productGroupReferences]);
+  const productGroupTitleByAlias = useMemo(
+    () => buildProductGroupTitles(productGroupReferences, currentLanguage),
+    [currentLanguage, productGroupReferences],
+  );
 
   const reset = () => {
     form.resetFields();
