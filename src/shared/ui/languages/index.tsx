@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { DownOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { IoIosArrowDown } from "react-icons/io";
 import { isLanguage, type Language } from "shared/types/dtos";
 import { persistLanguage } from "shared/lib/languagePreference";
 
@@ -53,7 +53,7 @@ const Languages: React.FC<LanguagesProps> = ({ onLanguageChange }) => {
       >
         <p
           className='flag'
-        >{flagMap[i18n.language]}</p>  <IoIosArrowDown />
+        >{flagMap[i18n.language]}</p>  <DownOutlined />
         <div className='dropdown-arrow'></div>
       </div>
       {isOpen && (

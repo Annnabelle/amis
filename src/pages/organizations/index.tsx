@@ -1,6 +1,6 @@
 import {Form, Input, Spin, Steps, Tag} from 'antd'
+import { SearchOutlined } from "@ant-design/icons";
 import { normalizeLanguage } from 'shared/lib/language';
-import { IoSearch } from 'react-icons/io5'
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'widgets/appShell'
@@ -417,7 +417,7 @@ const Organizations = () => {
                                     <Input
                                         size="large"
                                         placeholder={t('search.byOrganization')}
-                                        suffix={<IoSearch />}
+                                        suffix={<SearchOutlined />}
                                         allowClear
                                         onChange={handleSearchChange}
                                     />

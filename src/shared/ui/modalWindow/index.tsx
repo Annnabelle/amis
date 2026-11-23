@@ -1,7 +1,6 @@
 import React, { type ReactNode } from 'react';
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Modal } from 'antd';
-import { FaRegTrashAlt } from 'react-icons/fa';
-import { BiEditAlt } from 'react-icons/bi';
 import './styles.sass';
 
 export interface ModalProps {
@@ -33,12 +32,12 @@ const ModalWindow: React.FC<ModalProps> = ({ children, ...props }) => {
             <div className="modal-heading-title-icon">
               {props?.handleDelete && (
                 <div className="modal-heading-title-icon-trash">
-                  <FaRegTrashAlt onClick={props?.handleDelete} className='svg-trash' />
+                  <DeleteOutlined onClick={props?.handleDelete} className='svg-trash' />
                 </div>
               )}
               {props?.handleEdit && (
                 <div className="modal-heading-title-icon-edit">
-                  <BiEditAlt onClick={props?.handleEdit} className='svg-edit' />
+                  <EditOutlined onClick={props?.handleEdit} className='svg-edit' />
                 </div>
               )}
             </div>

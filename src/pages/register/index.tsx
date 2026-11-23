@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { MailOutlined } from "@ant-design/icons";
 import { Form, Input } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { LuMailCheck } from 'react-icons/lu';
 import { useRegisterAccountMutation } from 'entities/users/api';
 import { getApiErrorMessage } from 'shared/api';
 import type { RegisterForm } from 'entities/users/types';
@@ -40,7 +40,7 @@ const RegisterPage = () => {
         footer={<Link to="/">{t('auth.backToLogin')}</Link>}
       >
         <div className="auth-message">
-          <LuMailCheck className="auth-message-icon" />
+          <MailOutlined className="auth-message-icon" />
           <p>{t('auth.register.checkInbox.intro')}</p>
           <p className="auth-message-email">{submittedEmail}</p>
           <p>{t('auth.register.checkInbox.hint')}</p>

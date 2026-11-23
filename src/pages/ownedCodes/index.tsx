@@ -1,7 +1,7 @@
 import { Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IoSearch } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import {
   useGetOwnedCodesQuery,
@@ -150,7 +150,7 @@ const OwnedCodes = () => {
                   maxLength={14}
                   onChange={(event) => handleGtinChange(event.target.value.trim())}
                   placeholder={t("ownedCodes.filters.gtin")}
-                  suffix={<IoSearch />}
+                  suffix={<SearchOutlined />}
                 />
               </FilterBarItem>
             </FilterBar>

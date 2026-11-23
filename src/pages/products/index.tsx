@@ -1,5 +1,5 @@
 import {Form, Input} from 'antd'
-import { IoSearch } from 'react-icons/io5'
+import { SearchOutlined } from "@ant-design/icons";
 import { toast } from 'react-toastify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -288,7 +288,7 @@ const Products = () => {
                                     size="large"
                                     className="input"
                                     placeholder={t('search.byName')}
-                                    suffix={<IoSearch />}
+                                    suffix={<SearchOutlined />}
                                     allowClear
                                     onChange={handleSearchChange}
                                 />

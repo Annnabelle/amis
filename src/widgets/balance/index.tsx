@@ -1,5 +1,5 @@
-import { TbPigMoney } from 'react-icons/tb'
 import './styles.sass'
+import { WalletOutlined } from "@ant-design/icons";
 
 const Balance = () => {
   return (
@@ -7,7 +7,7 @@ const Balance = () => {
       <div className="balance-container">
         <div className="balance-container-items">
           <div className="balance-container-items-item">
-            <div className="item-icon"><TbPigMoney/></div>
+            <div className="item-icon"><WalletOutlined/></div>
           </div>
         </div>
         <div className="balance-container-items">

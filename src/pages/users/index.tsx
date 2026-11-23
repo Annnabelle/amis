@@ -1,6 +1,6 @@
 import { Form, Input } from 'antd'
+import { SearchOutlined } from "@ant-design/icons";
 import { UsersTableColumns } from 'entities/users/ui/tableData/users'
-import { IoSearch } from 'react-icons/io5'
 import { toast } from 'react-toastify'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -192,7 +192,7 @@ const Users = () => {
                                     size="large"
                                     className="input"
                                     placeholder={t('search.byName')}
-                                    suffix={<IoSearch />}
+                                    suffix={<SearchOutlined />}
                                     allowClear
                                     onChange={handleSearchChange}
                                 />
