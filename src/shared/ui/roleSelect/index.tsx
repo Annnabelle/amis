@@ -4,7 +4,7 @@ import {
   renderRoleOption,
   renderRoleTag,
   type RoleOption,
-} from "entities/companyMemberships/ui/roleSelect/renderers";
+} from "shared/ui/roleSelect/renderers";
 
 type RoleSelectProps = {
   options: RoleOption[];

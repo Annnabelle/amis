@@ -1,4 +1,4 @@
-import { Form, Select, Tag, Tooltip, type SelectProps } from "antd";
+import { Form, Select, Tag } from "antd";
 import { notify } from 'shared/lib/notify';
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -40,6 +40,8 @@ import FormComponent from "shared/ui/formComponent";
 import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import ModalWindow from "shared/ui/modalWindow";
+import RoleSelect from "shared/ui/roleSelect";
+import { renderRoleOption } from "shared/ui/roleSelect/renderers";
 import ComponentTable from "shared/ui/table";
 import { statusColors } from "shared/ui/statusBadge/tagColors";
 import { isLanguage, type Language } from "shared/types/dtos";
@@ -66,30 +68,10 @@ const getEmployeeName = (employee: SystemEmployee) =>
   [employee.user.name.first, employee.user.name.last].filter(Boolean).join(" ") ||
   employee.user.email;
 
-const renderRoleTag: SelectProps["tagRender"] = ({ label, closable, onClose }) => (
-  <Tag
-    className="system-employees-role-tag"
-    closable={closable}
-    onClose={onClose}
-    onMouseDown={(event) => {
-      event.preventDefault();
-      event.stopPropagation();
-    }}
-  >
-    {label}
-  </Tag>
-);
-
 const getLocalizedText = (
   value: Record<Language, string>,
   language: Language
 ) => value[language] || value.ru || value.en || value.uz;
-
-const renderRoleOption = (option: { data: RoleOption }) => (
-  <Tooltip placement="right" title={option.data.description}>
-    <div className="system-employees-role-option">{option.data.label}</div>
-  </Tooltip>
-);
 
 const SystemEmployees = () => {
   const { t, i18n } = useTranslation();
@@ -418,17 +400,9 @@ const SystemEmployees = () => {
             label={t("systemEmployees.fields.roles")}
             rules={[{ required: true, message: t("systemEmployees.validation.rolesRequired") }]}
           >
-            <Select
-              mode="multiple"
-              showSearch
-              className="input"
-              size="large"
+            <RoleSelect
               options={assignableRoleOptions}
               loading={areRolesLoading}
-              optionFilterProp="label"
-              optionLabelProp="label"
-              optionRender={renderRoleOption}
-              tagRender={renderRoleTag}
               placeholder={t("systemEmployees.placeholders.selectRoles")}
             />
           </Form.Item>
@@ -514,17 +488,9 @@ const SystemEmployees = () => {
             label={t("systemEmployees.fields.roles")}
             rules={[{ required: true, message: t("systemEmployees.validation.rolesRequired") }]}
           >
-            <Select
-              mode="multiple"
-              showSearch
-              className="input"
-              size="large"
+            <RoleSelect
               options={assignableRoleOptions}
               loading={areRolesLoading}
-              optionFilterProp="label"
-              optionLabelProp="label"
-              optionRender={renderRoleOption}
-              tagRender={renderRoleTag}
               placeholder={t("systemEmployees.placeholders.selectRoles")}
             />
           </Form.Item>
