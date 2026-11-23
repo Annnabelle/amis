@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
+import { notify } from 'shared/lib/notify';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 import type { Socket } from "socket.io-client";
 
 import { store, useAppDispatch, useAppSelector } from "app/store";
@@ -134,13 +134,13 @@ const StatusChangeListener = () => {
 
       // Открытый тост по этой же записи переписывается: иначе следующий переход
       // отбросится как повтор.
-      if (toast.isActive(toastId)) {
-        toast.update(toastId, { render: content });
+      if (notify.isActive(toastId)) {
+        notify.update(toastId, { render: content });
 
         return;
       }
 
-      toast.info(content, { toastId, className: "lifecycle-toast-card" });
+      notify.info(content, { toastId, className: "lifecycle-toast-card" });
     },
     [dispatch, navigate, t],
   );

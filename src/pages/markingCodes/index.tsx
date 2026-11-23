@@ -1,4 +1,5 @@
 import { Select} from 'antd'
+import { notify } from 'shared/lib/notify';
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'widgets/appShell'
@@ -17,7 +18,6 @@ import { useSearchProductsQuery } from 'entities/products/api'
 import {useCreateUtilizationReportMutation} from "entities/utilization/api";
 import {notifyUtilizationReportsCreated} from "entities/utilization/lib/notifyCreated";
 import { useCreateCustomsCodeOrderMutation } from "entities/customsCodes/api";
-import {toast} from "react-toastify";
 import { BatchStatus } from "shared/types/dtos";
 import {
     hasStatusInCatalog,
@@ -220,7 +220,7 @@ const MarkingCodes = () => {
                 result.map((report) => report.reportNumber)
             );
         } catch (error: unknown) {
-            toast.error(
+            notify.error(
                 getBackendErrorMessage(error, t('common.error'))
             );
         }
@@ -244,10 +244,10 @@ const MarkingCodes = () => {
             await createCustomsCodeOrder({ batchId: record.batchId }).unwrap();
 
             setCreatedCustomsCodeBatchIds((prev) => new Set(prev).add(record.batchId));
-            toast.success(t('customsCodes.messages.createSuccess'));
+            notify.success(t('customsCodes.messages.createSuccess'));
             void refreshMarkingCodes();
         } catch (error: unknown) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(error, t('customsCodes.messages.createError'))
             );
         } finally {

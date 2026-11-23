@@ -1,4 +1,5 @@
 import { AutoComplete, DatePicker, Form, Input, Select, Tag } from 'antd';
+import { notify } from 'shared/lib/notify';
 import { activateOnKey } from 'shared/lib/keyboardActivate';
 import { routes } from "shared/config/routes";
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
@@ -8,7 +9,6 @@ import CustomButton from 'shared/ui/button';
 import FormComponent from 'shared/ui/formComponent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateDeliveryRouteMutation } from 'entities/deliveryRoutes/api';
 import { mapDeliveryRouteFormToCreateDto, type DeliveryRouteFormValues } from 'entities/deliveryRoutes/mappers';
@@ -169,12 +169,12 @@ const DeliveryRoutesCreate = () => {
   const handleCreateDeliveryRoute = async (values: DeliveryRouteFormValues) => {
     const finalCompanyId = orgId ?? values.companyId;
     if (!finalCompanyId) {
-      toast.error(t('deliveryRoutes.validation.companyRequired'));
+      notify.error(t('deliveryRoutes.validation.companyRequired'));
       return;
     }
 
     if (!selectedOrderIds.length) {
-      toast.error(t('deliveryRoutes.validation.salesOrdersRequired'));
+      notify.error(t('deliveryRoutes.validation.salesOrdersRequired'));
       return;
     }
 
@@ -184,11 +184,11 @@ const DeliveryRoutesCreate = () => {
         finalCompanyId
       );
       await createDeliveryRoute(payload).unwrap();
-      toast.success(t('deliveryRoutes.messages.success.create'));
+      notify.success(t('deliveryRoutes.messages.success.create'));
       form.resetFields();
       navigate(listPath);
     } catch (error: unknown) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t('deliveryRoutes.messages.error.create'))
       );
     }
@@ -403,7 +403,7 @@ const DeliveryRoutesCreate = () => {
         flex: 1,
         align: 'center',
         render: (text: number) => (
-          <p className="table-text" style={{ textAlign: 'center', width: '100%' }}>
+          <p className="table-text table-text-center">
             {text}
           </p>
         ),
@@ -415,7 +415,7 @@ const DeliveryRoutesCreate = () => {
       //   flex: 1,
       //   align: 'center',
       //   render: (text: number) => (
-      //     <p className="table-text" style={{ textAlign: 'center', width: '100%' }}>
+      //     <p className="table-text table-text-center">
       //       {text}
       //     </p>
       //   ),
@@ -427,7 +427,7 @@ const DeliveryRoutesCreate = () => {
       //   flex: 1,
       //   align: 'center',
       //   render: (text: number) => (
-      //     <p className="table-text" style={{ textAlign: 'center', width: '100%' }}>
+      //     <p className="table-text table-text-center">
       //       {text}
       //     </p>
       //   ),
@@ -439,7 +439,7 @@ const DeliveryRoutesCreate = () => {
         flex: 1,
         align: 'center',
         render: (text: number) => (
-          <p className="table-text" style={{ textAlign: 'center', width: '100%' }}>
+          <p className="table-text table-text-center">
             {text}
           </p>
         ),
@@ -789,7 +789,7 @@ const DeliveryRoutesCreate = () => {
                               </div>
                             </div>
                             <div className="order-meta">
-                              <Tag color={getPriorityColor(customer.priority)} style={{ margin: 0 }}>
+                              <Tag color={getPriorityColor(customer.priority)} className="tag-flat">
                                 {t(`salesOrders.priority.${customer.priority}`)}
                               </Tag>
                               <span className="due-date">{customer.dueDate}</span>

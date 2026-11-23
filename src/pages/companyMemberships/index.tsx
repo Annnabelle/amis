@@ -1,8 +1,8 @@
 import { Form, Input, Select, Tag, Tooltip, type SelectProps } from "antd";
+import { notify } from 'shared/lib/notify';
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
@@ -362,11 +362,11 @@ const CompanyMemberships = () => {
         },
       }).unwrap();
 
-      toast.success(t("companyMemberships.messages.success.invite"));
+      notify.success(t("companyMemberships.messages.success.invite"));
       inviteForm.resetFields();
       openModal("invite", false);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("companyMemberships.messages.error.invite"))
       );
     }
@@ -384,10 +384,10 @@ const CompanyMemberships = () => {
         data: { roles: values.roles },
       }).unwrap();
 
-      toast.success(t("companyMemberships.messages.success.update"));
+      notify.success(t("companyMemberships.messages.success.update"));
       openModal("edit", false);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("companyMemberships.messages.error.update"))
       );
     }
@@ -402,10 +402,10 @@ const CompanyMemberships = () => {
         id: selectedMembership.id,
       }).unwrap();
 
-      toast.success(t("companyMemberships.messages.success.revoke"));
+      notify.success(t("companyMemberships.messages.success.revoke"));
       openModal("delete", false);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("companyMemberships.messages.error.revoke"))
       );
     }

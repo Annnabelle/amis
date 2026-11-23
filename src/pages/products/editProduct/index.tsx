@@ -1,4 +1,5 @@
 import {Form} from 'antd'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { normalizeLanguage } from 'shared/lib/language';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +10,6 @@ import {
     useUpdateProductMutation,
 } from 'entities/products/api';
 import type { UpdateProductDto } from '@edem2000/amis.contracts/api/products/requests';
-import { toast } from 'react-toastify';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import CustomButton from 'shared/ui/button';
@@ -89,9 +89,9 @@ const ProductsEdit = () => {
         try {
             // Карточка перечитается сама: мутация инвалидирует тег товара.
             await updateProduct({ id, data: values }).unwrap();
-            toast.success(t('products.messages.success.updateProduct'));
+            notify.success(t('products.messages.success.updateProduct'));
         } catch (err) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(err, t('products.messages.error.updateProduct'))
             );
         }

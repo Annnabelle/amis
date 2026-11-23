@@ -1,4 +1,5 @@
 import { Form, Input, Select, Spin } from 'antd'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +10,6 @@ import {
 } from 'entities/users/api'
 import { getApiErrorMessage } from 'shared/api'
 import { useNavigationBack } from 'shared/lib'
-import { toast } from 'react-toastify'
 import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
 import FormComponent from 'shared/ui/formComponent'
@@ -48,15 +48,15 @@ const UsersEdit = () => {
 
     const handleUpdateUser = async (values: UpdateUserDto) => {
         if (!id) {
-            toast.error(t('users.messages.error.updateUser'));
+            notify.error(t('users.messages.error.updateUser'));
             return;
         }
         try {
             // Карточка перечитается сама: мутация инвалидирует тег пользователя.
             await updateUser({ id, data: values }).unwrap();
-            toast.success(t('users.messages.success.updateUser'));
+            notify.success(t('users.messages.success.updateUser'));
         } catch (err) {
-            toast.error(getApiErrorMessage(err, t('users.messages.error.updateUser')));
+            notify.error(getApiErrorMessage(err, t('users.messages.error.updateUser')));
         }
     };
 

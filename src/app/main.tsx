@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { store } from './store'
+// eslint-disable-next-line no-restricted-syntax -- контейнер тостов монтируется один раз
 import { ToastContainer } from 'react-toastify'
 import App from './App'
 import { i18nReady } from './i18n';

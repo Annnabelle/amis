@@ -1,5 +1,5 @@
-import { toast } from "react-toastify";
 import type { TFunction } from "i18next";
+import { notify } from 'shared/lib/notify';
 
 /**
  * Итог создания отчётов о нанесении одним сообщением.
@@ -16,14 +16,14 @@ export const notifyUtilizationReportsCreated = (
   }
 
   if (reportNumbers.length === 1) {
-    toast.success(
+    notify.success(
       t("markingCodes.utilization.createdOne", { number: reportNumbers[0] })
     );
 
     return;
   }
 
-  toast.success(
+  notify.success(
     t("markingCodes.utilization.createdMany", { count: reportNumbers.length })
   );
 };

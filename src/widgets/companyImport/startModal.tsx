@@ -1,7 +1,7 @@
 import { Checkbox } from "antd";
+import { notify } from 'shared/lib/notify';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 import {
   selectableCompanyImportStages,
   type CompanyImportStage,
@@ -37,10 +37,10 @@ const CompanyImportStartModal = ({
   const handleStart = async () => {
     try {
       await start(isWholePipeline ? undefined : stages);
-      toast.success(t("companyImport.toast.started"));
+      notify.success(t("companyImport.toast.started"));
       onClose();
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t("companyImport.toast.startError")),
       );
     }

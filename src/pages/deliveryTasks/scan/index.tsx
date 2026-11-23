@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { Alert, Empty, Input, Modal, Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
@@ -138,8 +138,8 @@ const DeliveryTasksScan = () => {
   };
 
   const pushSingleScanToast = (type: 'success' | 'error', message: string) => {
-    if (toast.isActive(SCAN_RESULT_TOAST_ID)) {
-      toast.update(SCAN_RESULT_TOAST_ID, {
+    if (notify.isActive(SCAN_RESULT_TOAST_ID)) {
+      notify.update(SCAN_RESULT_TOAST_ID, {
         render: message,
         type,
         autoClose: 2200,
@@ -147,7 +147,7 @@ const DeliveryTasksScan = () => {
       return;
     }
 
-    toast[type](message, {
+    notify[type](message, {
       toastId: SCAN_RESULT_TOAST_ID,
       autoClose: 2200,
     });
@@ -225,7 +225,7 @@ const DeliveryTasksScan = () => {
         }).unwrap();
       setScannerMode('delivery');
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.createScanSession', {
@@ -255,7 +255,7 @@ const DeliveryTasksScan = () => {
       setIsClosingSession(true);
       await completeScanSession(scanSession.id).unwrap();
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.completeScanSession', {
@@ -386,7 +386,7 @@ const DeliveryTasksScan = () => {
       localStorage.removeItem(getScanCacheKey(task.id));
       navigate(routePath);
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.completeDelivery', {
@@ -408,7 +408,7 @@ const DeliveryTasksScan = () => {
 
   const handleForceComplete = async () => {
     if (!completeComment.trim()) {
-      toast.error(
+      notify.error(
         t('deliveryTasks.warnings.commentRequired', {
           defaultValue: 'Укажите причину недостачи перед завершением выдачи',
         })
@@ -431,14 +431,14 @@ const DeliveryTasksScan = () => {
         }).unwrap();
 
       await refreshTask();
-      toast.success(
+      notify.success(
         t('deliveryTasks.messages.success.cancelScan', {
           defaultValue: 'Скан {{code}} удалён',
           code: formatCodeForToast(code),
         })
       );
     } catch (error: unknown) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(
           error,
           t('deliveryTasks.messages.error.cancelScan', {

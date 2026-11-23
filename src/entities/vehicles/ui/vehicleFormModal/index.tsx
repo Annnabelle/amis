@@ -1,6 +1,6 @@
 import { Form, Input, InputNumber, Radio, Select, type RadioChangeEvent } from "antd";
+import { notify } from 'shared/lib/notify';
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useCan } from "entities/access/lib";
 import {
@@ -262,12 +262,12 @@ export const VehicleFormModal = ({
         errorCode === VEHICLE_OWNERSHIP_NOT_FOUND_ERROR_CODE
       ) {
         setOwnershipStatus("not-registered");
-        toast.error(getApiErrorMessage(error, t("vehicles.ownership.notRegistered")));
+        notify.error(getApiErrorMessage(error, t("vehicles.ownership.notRegistered")));
         return;
       }
 
       setOwnershipStatus("error");
-      toast.error(getApiErrorMessage(error, t("vehicles.messages.error.verifyOwnership")));
+      notify.error(getApiErrorMessage(error, t("vehicles.messages.error.verifyOwnership")));
     }
   };
 
@@ -316,7 +316,7 @@ export const VehicleFormModal = ({
       if (!ownerCompany) {
         setOwnerData(null);
         setOwnerLookupStatus("not-found");
-        toast.error(t("vehicles.ownerLookup.notFound"));
+        notify.error(t("vehicles.ownerLookup.notFound"));
         return;
       }
 
@@ -338,7 +338,7 @@ export const VehicleFormModal = ({
       if (ownerLookupRequestRef.current !== requestId) return;
       setOwnerData(null);
       setOwnerLookupStatus("not-found");
-      toast.error(t("vehicles.ownerLookup.notFound"));
+      notify.error(t("vehicles.ownerLookup.notFound"));
     }
   };
 
@@ -368,7 +368,7 @@ export const VehicleFormModal = ({
 
   const handleSubmit = async (values: VehicleFormValues) => {
     if (values.ownershipType === VehicleOwnershipType.External && !ownerData) {
-      toast.error(t("vehicles.validation.ownerRequired"));
+      notify.error(t("vehicles.validation.ownerRequired"));
       return;
     }
 
@@ -381,11 +381,11 @@ export const VehicleFormModal = ({
           ...getVehiclePayload(values, ownerData),
         } as CreateVehicleRequestDto).unwrap();
 
-        toast.success(t("vehicles.messages.success.create"));
+        notify.success(t("vehicles.messages.success.create"));
         onSaved?.(vehicle);
         onClose();
       } catch (error) {
-        toast.error(getApiErrorMessage(error, t("vehicles.messages.error.create")));
+        notify.error(getApiErrorMessage(error, t("vehicles.messages.error.create")));
       }
 
       return;
@@ -399,11 +399,11 @@ export const VehicleFormModal = ({
         data: getVehiclePayload(values, ownerData),
       }).unwrap();
 
-      toast.success(t("vehicles.messages.success.update"));
+      notify.success(t("vehicles.messages.success.update"));
       onSaved?.(updated);
       onClose();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, t("vehicles.messages.error.update")));
+      notify.error(getApiErrorMessage(error, t("vehicles.messages.error.update")));
     }
   };
 

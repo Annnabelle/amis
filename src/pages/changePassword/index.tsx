@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useTranslation } from 'react-i18next'
 import { useAppSelector } from 'app/store'
@@ -15,7 +16,6 @@ import FormComponent from 'shared/ui/formComponent'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 
 const ChangePasswordPage = () => {
   const { t } = useTranslation();
@@ -43,14 +43,14 @@ const ChangePasswordPage = () => {
     changeOwnPassword(formValues)
       .unwrap()
       .then(() => {
-        toast.success(t('changePwd.changePasswordForm.message.success'));
+        notify.success(t('changePwd.changePasswordForm.message.success'));
         setModalOpen(false);
         setFormValues(null);
         form.resetFields();
         navigate(routes.profile());
       })
       .catch((error: unknown) => {
-        toast.error(
+        notify.error(
           getApiErrorMessage(error, t('changePwd.changePasswordForm.message.error'))
         );
       })

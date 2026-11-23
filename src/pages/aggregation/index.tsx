@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useState} from 'react'
+import { notify } from 'shared/lib/notify';
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'widgets/appShell'
 import Heading from 'shared/ui/mainHeading'
@@ -18,7 +19,6 @@ import ModalWindow from "shared/ui/modalWindow";
 import dayjs, { type Dayjs } from "dayjs";
 import type {CreateAggregationReport} from "entities/aggregation/types";
 import {useGetMarkingCodeOrdersQuery} from "entities/markingCodes/api";
-import {toast} from "react-toastify";
 import {useParams} from "react-router-dom";
 import { PackageType, type AggregationReportStatus } from "shared/types/dtos";
 import { useSearchProductsQuery } from "entities/products/api";
@@ -129,7 +129,7 @@ const Aggregations = () => {
     useEffect(() => {
         if (!error) return;
 
-        toast.error(
+        notify.error(
             getApiErrorMessage(error, t("aggregations.messages.createError"))
         );
     }, [error, t]);
@@ -224,11 +224,11 @@ const Aggregations = () => {
 
         try {
             await createAggregationReport(payload).unwrap();
-            toast.success(t("aggregations.messages.createSuccess"));
+            notify.success(t("aggregations.messages.createSuccess"));
             handleModal("addAggregation", false);
             setPagination((prev) => ({ ...prev, page: 1 }));
         } catch (err) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(err, t("aggregations.messages.createError"))
             );
         }

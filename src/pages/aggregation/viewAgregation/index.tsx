@@ -1,4 +1,5 @@
 import React, {useMemo, useState} from "react";
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import {useParams} from "react-router-dom";
 import {
@@ -18,7 +19,6 @@ import type {ExportAggregationReportParams} from "entities/export/types";
 import {downloadAggregationReport} from "entities/export/lib/downloadAggregationReport";
 import ExportDropdownButton from "shared/ui/exportDropdown";
 import {getBackendErrorMessage} from "shared/lib/getBackendErrorMessage";
-import {toast} from "react-toastify";
 import { Pagination, Select, Tooltip } from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import { useCan } from "entities/access/lib";
@@ -104,7 +104,7 @@ const AggregationReportPage: React.FC = () => {
 
     const handleCopyParentCode = async (parentCode: string) => {
         await navigator.clipboard.writeText(parentCode);
-        toast.success(t("common.copied", { defaultValue: "Скопировано" }));
+        notify.success(t("common.copied", { defaultValue: "Скопировано" }));
     };
 
     const handleExport = async (
@@ -124,7 +124,7 @@ const AggregationReportPage: React.FC = () => {
         try {
             await downloadAggregationReport(id, params);
         } catch (error) {
-            toast.error(getBackendErrorMessage(error, t('common.error')));
+            notify.error(getBackendErrorMessage(error, t('common.error')));
         } finally {
             setExportLoading(null);
         }

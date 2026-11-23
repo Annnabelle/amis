@@ -85,7 +85,7 @@ export const MarkingCodesTableColumns = (t: TFunction, orgId: string | undefined
     width: 90,
     minWidth: 80,
     key: "totalQuantity",
-    render: (text) => <p className="table-text" style={{ textAlign: "center", width: "100%" }}>{text}</p>,
+    render: (text) => <p className="table-text table-text-center">{text}</p>,
   },
   // {
   //   title: t("markingCodes.tableTitles.orderedMCQuantity"),

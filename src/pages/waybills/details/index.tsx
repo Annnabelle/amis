@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Empty, Segmented, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 import { useGetWaybillByIdQuery } from "entities/waybills/api";
 import { getWaybillStatusKey } from "entities/waybills/lib/status";
 import type { WaybillContractedPartySnapshotResponseDto, WaybillVehicleSnapshotResponseDto } from '@edem2000/amis.contracts/api/common/responses';
@@ -127,11 +127,11 @@ const WaybillsDetails = () => {
           window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
         } else {
           window.URL.revokeObjectURL(url);
-          toast.error(t("waybills.file.openError"));
+          notify.error(t("waybills.file.openError"));
         }
       }
     } catch {
-      toast.error(t("waybills.file.loadError"));
+      notify.error(t("waybills.file.loadError"));
     } finally {
       setWaybillFileLoading(false);
     }
@@ -304,13 +304,13 @@ const WaybillsDetails = () => {
                 <div className="route-overview-status">
                   <div className="invoice-status-pair-item">
                     <span className="invoice-status-pair-label">{t("waybills.fields.internalStatus")}</span>
-                    <Tag color={statusColors[waybillStatusKey] ?? "blue"} style={{ margin: 0 }}>
+                    <Tag color={statusColors[waybillStatusKey] ?? "blue"} className="tag-flat">
                       {getStatusLabel(t, StatusEntity.Waybill, LifecycleScope.Internal, waybillStatusKey, waybill.status)}
                     </Tag>
                   </div>
                   <div className="invoice-status-pair-item">
                     <span className="invoice-status-pair-label">{t("waybills.fields.externalStatus")}</span>
-                    <Tag color={statusColors[externalStatus ?? ""] ?? "blue"} style={{ margin: 0 }} title={externalStatusLabel}>
+                    <Tag color={statusColors[externalStatus ?? ""] ?? "blue"} className="tag-flat" title={externalStatusLabel}>
                       {externalStatusLabel}
                     </Tag>
                   </div>

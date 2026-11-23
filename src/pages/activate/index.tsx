@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { Form, Input } from 'antd';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import { useSetPasswordMutation } from 'entities/users/api';
 import { getApiErrorMessage } from 'shared/api';
 import AuthShell from 'pages/auth/authShell';
@@ -31,7 +31,7 @@ const ActivatePage = () => {
       .unwrap()
       .then(() => setDone(true))
       .catch((error: unknown) => {
-        toast.error(getApiErrorMessage(error, t('auth.activate.error')));
+        notify.error(getApiErrorMessage(error, t('auth.activate.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

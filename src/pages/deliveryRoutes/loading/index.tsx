@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { Alert, Empty, Input, Modal } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import DataMatrixScanner from 'shared/ui/dataMatrixScanner';
@@ -152,8 +152,8 @@ const DeliveryRoutesLoading = () => {
   };
 
   const pushSingleScanToast = (type: 'success' | 'error', message: string) => {
-    if (toast.isActive(SCAN_RESULT_TOAST_ID)) {
-      toast.update(SCAN_RESULT_TOAST_ID, {
+    if (notify.isActive(SCAN_RESULT_TOAST_ID)) {
+      notify.update(SCAN_RESULT_TOAST_ID, {
         render: message,
         type,
         autoClose: 2200,
@@ -161,7 +161,7 @@ const DeliveryRoutesLoading = () => {
       return;
     }
 
-    toast[type](message, {
+    notify[type](message, {
       toastId: SCAN_RESULT_TOAST_ID,
       autoClose: 2200,
     });
@@ -236,7 +236,7 @@ const DeliveryRoutesLoading = () => {
         }).unwrap();
       setScannerMode('loading');
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t('deliveryRoutes.messages.error.createScanSession'))
       );
     }
@@ -340,7 +340,7 @@ const DeliveryRoutesLoading = () => {
       localStorage.removeItem(getScanCacheKey(routeId));
       navigate(routes.deliveryRoute(orgId, routeId));
     } catch (error) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t('deliveryRoutes.messages.error.completeScanSession'))
       );
     }
@@ -357,7 +357,7 @@ const DeliveryRoutesLoading = () => {
 
   const handleForceComplete = async () => {
     if (!completeComment.trim()) {
-      toast.error(
+      notify.error(
         t('deliveryRoutes.loadingWarnings.commentRequired', {
           defaultValue: 'Укажите причину недостачи перед завершением погрузки',
         })
@@ -377,14 +377,14 @@ const DeliveryRoutesLoading = () => {
         }).unwrap();
 
       await refetchRoute();
-      toast.success(
+      notify.success(
         t('deliveryRoutes.messages.success.cancelScan', {
           defaultValue: 'Скан {{code}} удалён',
           code: formatCodeForToast(code),
         })
       );
     } catch (error: unknown) {
-      toast.error(
+      notify.error(
         getApiErrorMessage(error, t('deliveryRoutes.messages.error.cancelScan', {
           defaultValue: 'Не удалось удалить скан',
         }))

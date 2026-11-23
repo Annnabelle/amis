@@ -64,6 +64,11 @@ export default tseslint.config([
           message: 'Импорт без расширения: путь разрешает резолвер алиасов.',
         },
         {
+          selector: "ImportDeclaration[source.value='react-toastify']",
+          message:
+            'Уведомления показывает notify из shared/lib/notify: общие настройки тостов живут там.',
+        },
+        {
           selector: 'JSXAttribute[name.name=/^(to|path|backPath)$/] > Literal[value=/^\\u002f/]',
           message: ROUTE_LITERAL_MESSAGE,
         },

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useParams } from "react-router-dom";
 import {useEffect} from "react";
@@ -8,7 +9,6 @@ import {
 } from "entities/organization/api";
 import { getApiErrorMessage } from "shared/api";
 import type { UpdateCompanyDto } from '@edem2000/amis.contracts/api/companies/requests';
-import { toast } from "react-toastify";
 import MainLayout from "widgets/appShell";
 import Heading from "shared/ui/mainHeading";
 import CustomButton from "shared/ui/button";
@@ -90,9 +90,9 @@ const OrganizationsEdit = () => {
         try {
             // Карточка перечитается сама: мутация инвалидирует тег компании.
             await updateCompany({ id, data: values }).unwrap();
-            toast.success(t('organizations.messages.success.updateUser'));
+            notify.success(t('organizations.messages.success.updateUser'));
         } catch (err) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(err, t('organizations.messages.error.updateUser'))
             );
         }

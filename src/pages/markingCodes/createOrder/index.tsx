@@ -1,7 +1,7 @@
 import { Alert, Form, Select, InputNumber, Tooltip } from "antd";
+import { notify } from 'shared/lib/notify';
 import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 
 import FormComponent from "shared/ui/formComponent";
 import CustomButton from "shared/ui/button";
@@ -201,11 +201,11 @@ const OrderForm = ({ onCreated }: OrderFormProps) => {
 
     try {
       await createMarkingCodeOrder(payload).unwrap();
-      toast.success(t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated"));
+      notify.success(t("markingCodes.orderCreation.orderHasBeenSuccessfullyCreated"));
       form.resetFields();
       onCreated?.();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, t('common.error')));
+      notify.error(getApiErrorMessage(error, t('common.error')));
     } finally {
       setIsSubmitting(false);
     }

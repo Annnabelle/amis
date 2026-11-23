@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
 import { Alert, Select, Space } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
-import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LifecycleTargetEntity } from 'entities/lifecycle/lib';
@@ -174,7 +174,7 @@ const CustomsCodesPage = () => {
   useEffect(() => {
     if (!error) return;
 
-    toast.error(getApiErrorMessage(error, t('customsCodes.messages.loadError')));
+    notify.error(getApiErrorMessage(error, t('customsCodes.messages.loadError')));
   }, [error, t]);
 
   const loadCertificates = useCallback(() => {
@@ -231,7 +231,7 @@ const CustomsCodesPage = () => {
       try {
         full = await loadCustomsCodeOrder(order.id).unwrap();
       } catch (err) {
-        toast.error(getApiErrorMessage(err, t('customsCodes.messages.loadError')));
+        notify.error(getApiErrorMessage(err, t('customsCodes.messages.loadError')));
         return;
       }
     }
@@ -271,7 +271,7 @@ const CustomsCodesPage = () => {
         batchId: selectedBatchId,
       }).unwrap();
 
-      toast.success(t('customsCodes.messages.createSuccess'));
+      notify.success(t('customsCodes.messages.createSuccess'));
       closeCreateModal();
       setPagination((prev) => ({ ...prev, page: 1 }));
 
@@ -289,9 +289,9 @@ const CustomsCodesPage = () => {
         return;
       }
 
-      toast.info(t('customsCodes.messages.documentPending'));
+      notify.info(t('customsCodes.messages.documentPending'));
     } catch (err) {
-      toast.error(getApiErrorMessage(err, t('customsCodes.messages.createError')));
+      notify.error(getApiErrorMessage(err, t('customsCodes.messages.createError')));
     }
   };
 
@@ -305,7 +305,7 @@ const CustomsCodesPage = () => {
     try {
       const initiatedOrder = await initiateDissolution(order.id).unwrap();
 
-      toast.success(t('customsCodes.messages.dissolutionInitiated'));
+      notify.success(t('customsCodes.messages.dissolutionInitiated'));
 
       let orderForSigning = initiatedOrder;
 
@@ -321,16 +321,16 @@ const CustomsCodesPage = () => {
         await openSignModal(orderForSigning, 'dissolution');
       }
     } catch (err) {
-      toast.error(getApiErrorMessage(err, t('customsCodes.messages.dissolutionError')));
+      notify.error(getApiErrorMessage(err, t('customsCodes.messages.dissolutionError')));
     }
   }, [initiateDissolution, loadCustomsCodeOrder, openSignModal, t]);
 
   const handleResume = useCallback(async (order: CustomsCodeOrder) => {
     try {
       await resumeCustomsCodeOrder(order.id).unwrap();
-      toast.success(t('customsCodes.messages.resumeStarted'));
+      notify.success(t('customsCodes.messages.resumeStarted'));
     } catch (err) {
-      toast.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
+      notify.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
     }
   }, [resumeCustomsCodeOrder, t]);
 
@@ -345,12 +345,12 @@ const CustomsCodesPage = () => {
       : undefined;
 
     if (!documentBase64) {
-      toast.error(t('customsCodes.messages.documentMissing'));
+      notify.error(t('customsCodes.messages.documentMissing'));
       return;
     }
 
     if (!certificate) {
-      toast.error(t('customsCodes.messages.selectKey'));
+      notify.error(t('customsCodes.messages.selectKey'));
       return;
     }
 
@@ -373,7 +373,7 @@ const CustomsCodesPage = () => {
         await signDissolution(payload).unwrap();
       }
 
-      toast.success(t('customsCodes.messages.signSuccess'));
+      notify.success(t('customsCodes.messages.signSuccess'));
       closeSignModal();
     } catch (err) {
       const message = getEImzoErrorMessage(
@@ -381,7 +381,7 @@ const CustomsCodesPage = () => {
         getApiErrorMessage(err, t('customsCodes.messages.signError'))
       );
 
-      toast.error(message);
+      notify.error(message);
     } finally {
       setLocalSigning(false);
     }

@@ -1,8 +1,8 @@
 import { Form, Input } from 'antd'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
 import { UsersTableColumns } from 'entities/users/ui/tableData/users'
-import { toast } from 'react-toastify'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebouncedValue, useSubmitGuard } from 'shared/lib'
@@ -99,11 +99,11 @@ const Users = () => {
         try {
             // Список перезапросится сам: мутация инвалидирует тег пользователя.
             await createUser(values).unwrap();
-            toast.success(t('users.messages.success.activationEmailSent'));
+            notify.success(t('users.messages.success.activationEmailSent'));
             handleModal('addUser', false);
             addUserForm.resetFields();
         } catch (err) {
-            toast.error(getApiErrorMessage(err, t('users.messages.error.createUser')));
+            notify.error(getApiErrorMessage(err, t('users.messages.error.createUser')));
         }
     };
 
@@ -154,10 +154,10 @@ const Users = () => {
 
         try {
             await deleteUser({ id: modalState.userData.id }).unwrap();
-            toast.success(t('users.messages.success.deleteUser'));
+            notify.success(t('users.messages.success.deleteUser'));
             handleModal("deleteUser", false);
         } catch (err) {
-            toast.error(getApiErrorMessage(err, t('users.messages.error.deleteUser')));
+            notify.error(getApiErrorMessage(err, t('users.messages.error.deleteUser')));
         }
     };
 

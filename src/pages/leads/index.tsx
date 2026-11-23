@@ -1,9 +1,9 @@
 import { Form, Input, Modal, Select } from "antd";
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useCan } from "entities/access/lib";
 import { getApiErrorMessage } from "shared/api";
 import { useGetLeadsQuery, useUpdateLeadStatusMutation } from "entities/leads/api";
@@ -96,10 +96,10 @@ const Leads = () => {
         },
       }).unwrap();
 
-      toast.success(t("leads.messages.statusUpdated"));
+      notify.success(t("leads.messages.statusUpdated"));
       closeStatusModal();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
+      notify.error(getApiErrorMessage(error, t("leads.messages.statusUpdateError")));
     } finally {
       setIsStatusSaving(false);
     }

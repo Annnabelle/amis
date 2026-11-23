@@ -1,4 +1,5 @@
 import {Form, Input, Spin, Steps, Tag} from 'antd'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
 import { normalizeLanguage } from 'shared/lib/language';
@@ -17,7 +18,6 @@ import {
 import { OrganizationsTableColumns } from 'entities/organization/ui/tableData/organizations'
 import type { OrganizationTableDataType } from 'entities/organization/ui/tableData/organizations/types'
 import type {Company} from 'entities/organization/types'
-import { toast } from 'react-toastify'
 import CustomButton from 'shared/ui/button'
 import ModalWindow from 'shared/ui/modalWindow'
 import FormComponent from 'shared/ui/formComponent'
@@ -216,7 +216,7 @@ const Organizations = () => {
             setSearchedCompanyByTin(company);
         } catch (error: unknown) {
             if (requestId === companyLookupRequestRef.current) {
-                toast.error(
+                notify.error(
                     getApiErrorMessage(error, t("common.dataNotFound"))
                 );
             }
@@ -250,12 +250,12 @@ const Organizations = () => {
             const company = await createCompany({
                 companyId: searchedCompanyByTin.id,
             }).unwrap();
-            toast.success(t("organizations.messages.success.activateCompany"));
+            notify.success(t("organizations.messages.success.activateCompany"));
             setActivatedCompany(company);
             setCreateCompanyStep("xTrace");
             xTraceForm.setFieldsValue({ tin: company.tin });
         } catch (error: unknown) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(error, t("organizations.messages.error.activateCompany"))
             );
         } finally {
@@ -291,7 +291,7 @@ const Organizations = () => {
                 setXTraceValidation(validation);
             } catch (error: unknown) {
                 if (requestId === xTraceValidationRequestRef.current) {
-                    toast.error(getApiErrorMessage(error, t("organizations.addUserForm.validation.xTrace.invalidToken")));
+                    notify.error(getApiErrorMessage(error, t("organizations.addUserForm.validation.xTrace.invalidToken")));
                 }
             }
         }, 450);
@@ -310,7 +310,7 @@ const Organizations = () => {
             const businessPlaceId = Number(values.businessPlaceId);
 
             if (!isSuccessfulXTraceValidation) {
-                toast.error(t("organizations.addUserForm.validation.xTrace.invalidToken"));
+                notify.error(t("organizations.addUserForm.validation.xTrace.invalidToken"));
                 return;
             }
 
@@ -320,11 +320,11 @@ const Organizations = () => {
                 businessPlaceId,
             }).unwrap();
 
-            toast.success(t("organizations.messages.success.createXTraceIntegration"));
+            notify.success(t("organizations.messages.success.createXTraceIntegration"));
             setCreateCompanyStep("fakturaUz");
         } catch (error: unknown) {
             if (isFormValidationError(error)) return;
-            toast.error(getApiErrorMessage(error, t("organizations.messages.error.createXTraceIntegration")));
+            notify.error(getApiErrorMessage(error, t("organizations.messages.error.createXTraceIntegration")));
         }
     };
 
@@ -347,10 +347,10 @@ const Organizations = () => {
                 clientSecret: String(values.clientSecret ?? "").trim(),
             }).unwrap();
 
-            toast.success(t("organizations.messages.success.createFakturaUzIntegration"));
+            notify.success(t("organizations.messages.success.createFakturaUzIntegration"));
         } catch (error: unknown) {
             if (isFormValidationError(error)) return;
-            toast.error(getApiErrorMessage(error, t("organizations.messages.error.createFakturaUzIntegration")));
+            notify.error(getApiErrorMessage(error, t("organizations.messages.error.createFakturaUzIntegration")));
         }
     };
 
@@ -380,10 +380,10 @@ const Organizations = () => {
         try {
             // Список перезапросится сам: мутация инвалидирует тег компании.
             await deleteCompany({ id: modalState.companyData.id }).unwrap();
-            toast.success(t('organizations.messages.success.deleteUser'));
+            notify.success(t('organizations.messages.success.deleteUser'));
             handleModal("deleteCompany", false);
         } catch (err) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(err, t('organizations.messages.error.deleteUser'))
             );
         }
@@ -716,7 +716,7 @@ const Organizations = () => {
                                                     <span className="detail-separator">:</span>
                                                     <span className="value">
                                                         {xTraceValidationData.isTest ? (
-                                                            <Tag className="test-flag" color="blue-inverse" style={{ margin: 0 }}>
+                                                            <Tag className="test-flag tag-flat" color="blue-inverse">
                                                                 {t('organizations.testFlag')}
                                                             </Tag>
                                                         ) : '-'}
@@ -889,7 +889,7 @@ const Organizations = () => {
                                             <span className="detail-separator">:</span>
                                             <span className="value">
                                                 {fakturaUzIntegration.isTest ? (
-                                                    <Tag className="test-flag" color="blue-inverse" style={{ margin: 0 }}>
+                                                    <Tag className="test-flag tag-flat" color="blue-inverse">
                                                         {t('organizations.testFlag')}
                                                     </Tag>
                                                 ) : '-'}

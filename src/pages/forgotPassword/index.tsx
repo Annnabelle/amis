@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { MailOutlined } from "@ant-design/icons";
 import { Form, Input } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import { useForgotPasswordMutation } from 'entities/users/api';
 import { getApiErrorMessage } from 'shared/api';
 import AuthShell from 'pages/auth/authShell';
@@ -31,7 +31,7 @@ const ForgotPasswordPage = () => {
         setSubmittedEmail(email.trim());
       })
       .catch((error: unknown) => {
-        toast.error(getApiErrorMessage(error, t('common.error')));
+        notify.error(getApiErrorMessage(error, t('common.error')));
       })
       .finally(() => setIsSubmitting(false));
   };

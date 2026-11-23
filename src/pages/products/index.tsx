@@ -1,7 +1,7 @@
 import {Form, Input} from 'antd'
+import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { SearchOutlined } from "@ant-design/icons";
-import { toast } from 'react-toastify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MainLayout from 'widgets/appShell'
@@ -182,7 +182,7 @@ const Products = () => {
 
             await createProduct(newData).unwrap();
 
-            toast.success(t("products.messages.success.createProduct"));
+            notify.success(t("products.messages.success.createProduct"));
 
             form.resetFields();
 
@@ -192,7 +192,7 @@ const Products = () => {
             handleModal("addProduct", false);
 
         } catch (error: unknown) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(error, t('products.messages.error.createProduct'))
             );
         }
@@ -241,10 +241,10 @@ const Products = () => {
         try {
             // Список перезапросится сам: мутация инвалидирует тег товара.
             await deleteProduct({ id: modalState.productData.id }).unwrap();
-            toast.success(t('products.messages.success.deleteProduct'));
+            notify.success(t('products.messages.success.deleteProduct'));
             handleModal("deleteProduct", false);
         } catch (err) {
-            toast.error(
+            notify.error(
                 getApiErrorMessage(err, t('products.messages.error.deleteProduct'))
             );
         }
