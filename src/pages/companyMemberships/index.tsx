@@ -1,19 +1,17 @@
-import { Form, Input, Select, Tag, Tooltip, type SelectProps } from "antd";
+import { Form, Select, Tag } from "antd";
 import { notify } from 'shared/lib/notify';
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "app/store";
 import { useCan } from "entities/access/lib";
-import { useSubmitGuard } from 'shared/lib/useSubmitGuard';
 import {
   useGetAssignableRolesQuery,
   useGetRoleReferencesQuery,
 } from "entities/access/api";
 import { RoleScope, type RoleReference } from "entities/access/types";
 import {
-  useCreateCompanyMembershipInvitationMutation,
   useDeleteCompanyMembershipMutation,
   useGetCompanyMembershipByIdQuery,
   useGetCompanyMembershipsQuery,
@@ -30,9 +28,11 @@ import {
   CompanyMembershipsTableColumns,
 } from "entities/companyMemberships/ui/tableData/companyMemberships";
 import type { CompanyMembershipTableDataType } from "entities/companyMemberships/ui/tableData/companyMemberships/types";
-import { useLazySearchUsersQuery } from "entities/users/api";
-import type { UserPreview, User } from "entities/users/types";
+import type { UserPreview } from "entities/users/types";
 import { UserPreviewCardById } from "entities/users/ui/userPreviewCard";
+import RoleSelect from "entities/companyMemberships/ui/roleSelect";
+import { renderRoleOption } from "entities/companyMemberships/ui/roleSelect/renderers";
+import InviteModal from "features/companyMemberInvite/ui/inviteModal";
 import { endpointAccessMap } from "shared/config/endpointAccessMap";
 import CustomButton from "shared/ui/button";
 import FilterBar from "shared/ui/filterBar/filterBar";
@@ -47,12 +47,6 @@ import { FormatUzbekPhoneNumber } from "shared/lib/utils";
 import { isLanguage, type Language } from "shared/types/dtos";
 import { formatDate, formatDateTime } from 'shared/lib/formatDate';
 import "./styles.sass";
-
-type InviteForm = {
-  email: string;
-  userId: string;
-  roles: CompanyRole[];
-};
 
 type RolesForm = {
   roles: CompanyRole[];
@@ -69,26 +63,6 @@ const getLocalizedText = (
   value: Record<Language, string>,
   language: Language
 ) => value[language] || value.ru || value.en || value.uz;
-
-const renderRoleTag: SelectProps["tagRender"] = ({ label, closable, onClose }) => (
-  <Tag
-    className="company-memberships-role-tag"
-    closable={closable}
-    onClose={onClose}
-    onMouseDown={(event) => {
-      event.preventDefault();
-      event.stopPropagation();
-    }}
-  >
-    {label}
-  </Tag>
-);
-
-const renderRoleOption = (option: { data: RoleOption }) => (
-  <Tooltip placement="right" title={option.data.description}>
-    <div className="company-memberships-role-option">{option.data.label}</div>
-  </Tooltip>
-);
 
 const getFallbackPreview = (userId: string): UserPreview => ({
   id: userId,
@@ -107,8 +81,6 @@ const getMembershipName = (
     ? [userPreview.firstName, userPreview.lastName].filter(Boolean).join(" ") ||
       userPreview.email
     : membership.userId;
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const CompanyMemberships = () => {
   const { orgId } = useParams<{ orgId: string }>();
@@ -134,7 +106,6 @@ const CompanyMemberships = () => {
   );
   const assignableCompanyRoles = assignableRoles as RoleReference<CompanyRole>[];
   const companyRoleReferences = roleReferences as RoleReference<CompanyRole>[];
-  const [inviteForm] = Form.useForm<InviteForm>();
   const [rolesForm] = Form.useForm<RolesForm>();
   const [query, setQuery] = useState<CompanyMembershipListQuery>({
     companyId: orgId ?? "",
@@ -142,9 +113,6 @@ const CompanyMemberships = () => {
     limit: 10,
   });
   const [selectedMembership, setSelectedMembership] = useState<CompanyMembership | null>(null);
-  const [inviteUser, setInviteUser] = useState<User | null>(null);
-  const [isInviteUserSearching, setIsInviteUserSearching] = useState(false);
-  const [lastSearchedInviteEmail, setLastSearchedInviteEmail] = useState("");
   const [modalState, setModalState] = useState({
     invite: false,
     details: false,
@@ -152,7 +120,6 @@ const CompanyMemberships = () => {
     delete: false,
   });
   const currentLanguage = isLanguage(i18n.language) ? i18n.language : "ru";
-  const inviteEmail = Form.useWatch("email", inviteForm);
 
   useEffect(() => {
     if (!companyId) return;
@@ -210,12 +177,9 @@ const CompanyMemberships = () => {
 
   const { data: membershipsPage, isFetching: isLoading } =
     useGetCompanyMembershipsQuery(query, { skip: !query.companyId });
-  const [createCompanyMembershipInvitation] =
-    useCreateCompanyMembershipInvitationMutation();
   const [updateCompanyMembershipRoles] =
     useUpdateCompanyMembershipRolesMutation();
   const [deleteCompanyMembership] = useDeleteCompanyMembershipMutation();
-  const [searchUsersByQuery] = useLazySearchUsersQuery();
   const memberships = useMemo(
     () => membershipsPage?.items ?? [],
     [membershipsPage]
@@ -224,80 +188,11 @@ const CompanyMemberships = () => {
   const dataLimit = query.limit;
   const dataTotal = membershipsPage?.total ?? 0;
 
-  const searchInviteUserByEmail = useCallback(async (email: string) => {
-    setInviteUser(null);
-    inviteForm.setFieldValue("userId", undefined);
-    setIsInviteUserSearching(true);
-    setLastSearchedInviteEmail(email);
-
-    try {
-      const found = await searchUsersByQuery({
-        query: email,
-        page: 1,
-        limit: 10,
-        sortOrder: "asc",
-      }).unwrap();
-      const user =
-        found.items.find((item) => item.email.trim().toLowerCase() === email) ??
-        null;
-
-      if (user) {
-        setInviteUser(user);
-        inviteForm.setFieldValue("userId", user.id);
-        return;
-      }
-
-      inviteForm.setFields([
-        {
-          name: "email",
-          errors: [t("companyMemberships.validation.userNotFound")],
-        },
-      ]);
-    } finally {
-      setIsInviteUserSearching(false);
-    }
-  }, [inviteForm, searchUsersByQuery, t]);
-
   useEffect(() => {
     if (modalState.edit && selectedMembership) {
       rolesForm.setFieldsValue({ roles: selectedMembership.roles });
     }
   }, [modalState.edit, rolesForm, selectedMembership]);
-
-  useEffect(() => {
-    const normalizedEmail =
-      typeof inviteEmail === "string" ? inviteEmail.trim().toLowerCase() : "";
-
-    if (!modalState.invite) {
-      return;
-    }
-
-    if (!normalizedEmail || !EMAIL_PATTERN.test(normalizedEmail)) {
-      setInviteUser(null);
-      inviteForm.setFieldValue("userId", undefined);
-      return;
-    }
-
-    if (
-      normalizedEmail === lastSearchedInviteEmail ||
-      normalizedEmail === inviteUser?.email.trim().toLowerCase()
-    ) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      void searchInviteUserByEmail(normalizedEmail);
-    }, 350);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [
-    inviteEmail,
-    inviteForm,
-    inviteUser,
-    lastSearchedInviteEmail,
-    modalState.invite,
-    searchInviteUserByEmail,
-  ]);
 
   const tableData = useMemo<CompanyMembershipTableDataType[]>(
     () =>
@@ -313,12 +208,6 @@ const CompanyMemberships = () => {
   );
 
   const openModal = (name: keyof typeof modalState, value: boolean) => {
-    if (name === "invite" && !value) {
-      inviteForm.resetFields();
-      setInviteUser(null);
-      setLastSearchedInviteEmail("");
-    }
-
     setModalState((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -349,30 +238,6 @@ const CompanyMemberships = () => {
 
     openModal("delete", true);
   };
-
-  const handleInvite = async (values: InviteForm) => {
-    if (!companyId || !values.userId) return;
-
-    try {
-      await createCompanyMembershipInvitation({
-        companyId,
-        data: {
-          userId: values.userId,
-          roles: values.roles,
-        },
-      }).unwrap();
-
-      notify.success(t("companyMemberships.messages.success.invite"));
-      inviteForm.resetFields();
-      openModal("invite", false);
-    } catch (error) {
-      notify.error(
-        getApiErrorMessage(error, t("companyMemberships.messages.error.invite"))
-      );
-    }
-  };
-
-  const { isSubmitting: isInviting, onSubmit: submitInvite } = useSubmitGuard(handleInvite);
 
   const handleUpdateRoles = async (values: RolesForm) => {
     if (!selectedMembership || !companyId) return;
@@ -495,70 +360,13 @@ const CompanyMemberships = () => {
         </div>
       </div>
 
-      <ModalWindow
-        className="company-memberships-invite-modal"
-        width="460px"
-        title={t("companyMemberships.modal.inviteTitle")}
-        openModal={modalState.invite}
-        closeModal={() => openModal("invite", false)}
-      >
-        <FormComponent form={inviteForm} onFinish={submitInvite}>
-          <Form.Item
-            className="input"
-            name="email"
-            label={t("companyMemberships.fields.existingUser")}
-            rules={[
-              { required: true, message: t("companyMemberships.validation.emailRequired") },
-              { type: "email", message: t("companyMemberships.validation.emailInvalid") },
-            ]}
-          >
-            <Input
-              className="input company-memberships-email-input"
-              size="large"
-              disabled={isInviteUserSearching}
-              placeholder={t("companyMemberships.placeholders.searchUserByEmail")}
-              onChange={() => {
-                setInviteUser(null);
-                inviteForm.setFieldValue("userId", undefined);
-                setLastSearchedInviteEmail("");
-              }}
-            />
-          </Form.Item>
-          <Form.Item
-            hidden
-            name="userId"
-            rules={[{ required: true, message: t("companyMemberships.validation.userRequired") }]}
-          >
-            <Input />
-          </Form.Item>
-          {inviteUser && (
-            <div className="company-memberships-invite-user">
-              <UserPreviewCardById userId={inviteUser.id} />
-            </div>
-          )}
-          <Form.Item
-            className="input"
-            name="roles"
-            label={t("companyMemberships.fields.roles")}
-            rules={[{ required: true, message: t("companyMemberships.validation.rolesRequired") }]}
-          >
-            <Select
-              mode="multiple"
-              showSearch
-              className="input"
-              size="large"
-              options={assignableRoleOptions}
-              loading={areRolesLoading}
-              optionFilterProp="label"
-              optionLabelProp="label"
-              optionRender={renderRoleOption}
-              tagRender={renderRoleTag}
-              placeholder={t("companyMemberships.placeholders.selectRoles")}
-            />
-          </Form.Item>
-          <CustomButton type="submit" loading={isInviting}>{t("companyMemberships.actions.sendInvitation")}</CustomButton>
-        </FormComponent>
-      </ModalWindow>
+      <InviteModal
+        companyId={companyId}
+        open={modalState.invite}
+        onClose={() => openModal("invite", false)}
+        roleOptions={assignableRoleOptions}
+        rolesLoading={areRolesLoading}
+      />
 
       <ModalWindow
         className="company-memberships-details-modal"
@@ -644,17 +452,9 @@ const CompanyMemberships = () => {
             label={t("companyMemberships.fields.roles")}
             rules={[{ required: true, message: t("companyMemberships.validation.rolesRequired") }]}
           >
-            <Select
-              mode="multiple"
-              showSearch
-              className="input"
-              size="large"
+            <RoleSelect
               options={assignableRoleOptions}
               loading={areRolesLoading}
-              optionFilterProp="label"
-              optionLabelProp="label"
-              optionRender={renderRoleOption}
-              tagRender={renderRoleTag}
               placeholder={t("companyMemberships.placeholders.selectRoles")}
             />
           </Form.Item>
