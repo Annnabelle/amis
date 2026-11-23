@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { notify } from 'shared/lib/notify';
 import { routes } from "shared/config/routes";
 import { DEFAULT_PAGINATION } from 'shared/config/pagination';
-import { Alert, Select, Space } from 'antd';
+import { Select, Space } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +14,6 @@ import {
   useInitiateCustomsCodeOrderDissolutionMutation,
   useLazyGetCustomsCodeOrderByIdQuery,
   useResumeCustomsCodeOrderMutation,
-  useSignCustomsCodeOrderDissolutionMutation,
-  useSignCustomsCodeOrderRegistrationMutation,
 } from 'entities/customsCodes/api';
 import { getApiErrorMessage } from 'shared/api';
 import { useGetMarkingCodeOrdersQuery } from 'entities/markingCodes/api';
@@ -32,16 +30,19 @@ import { useCan } from 'entities/access/lib';
 import MainLayout from 'widgets/appShell';
 import Heading from 'shared/ui/mainHeading';
 import ComponentTable from 'shared/ui/table';
-import { DetailItems } from 'shared/ui/details';
 import ModalWindow from 'shared/ui/modalWindow';
 import CustomButton from 'shared/ui/button';
 import EntityStatusBadge from 'shared/ui/statusBadge/entityStatus';
 import type { AdaptiveColumn } from 'shared/ui/table/types';
 import {
-  eImzoClient,
-  getCertificateTitle,
-  type EImzoCertificate,
-} from 'shared/lib/eImzo';
+  canInitiateDissolution,
+  canResume,
+  canSignDissolution,
+  canSignRegistration,
+  wait,
+} from 'features/customsCodeSign/lib/orderActions';
+import { useCustomsCodeSigning } from 'features/customsCodeSign/lib/useCustomsCodeSigning';
+import SignModal from 'features/customsCodeSign/ui/signModal';
 import './styles.sass';
 
 type CustomsCodeTableRow = {
@@ -60,30 +61,6 @@ type CustomsCodeTableRow = {
   status: AggregatedCustomsCodeOrderStatus;
   order: CustomsCodeOrder;
 };
-
-type SignMode = 'registration' | 'dissolution';
-
-// Только по статусу: документ со всеми кодами партии в строку списка не
-// приезжает, его подтягивает модалка подписи.
-const canSignRegistration = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.ReadyForSign ||
-  order.status === AggregatedCustomsCodeOrderStatus.SignedForRegistration;
-
-// Отказ вендора оставляет код зарегистрированным, поэтому снять его можно и из него.
-const canInitiateDissolution = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.Registered ||
-  order.status === AggregatedCustomsCodeOrderStatus.DissolutionFailed;
-
-// Отказ регистрации: второй заказ на партию не заводится, повтор идёт по этому же.
-const canResume = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.RegistrationFailed;
-
-const canSignDissolution = (order: CustomsCodeOrder) =>
-  order.status === AggregatedCustomsCodeOrderStatus.DissolutionInitialized ||
-  order.status === AggregatedCustomsCodeOrderStatus.SignedForDissolution;
-
-const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-const E_IMZO_ERROR_KEY_PREFIX = 'customsCodes.eImzoErrors.';
 
 const CustomsCodesPage = () => {
   const { t } = useTranslation();
@@ -108,19 +85,14 @@ const CustomsCodesPage = () => {
     useCreateCustomsCodeOrderMutation();
   const [initiateDissolution, { isLoading: dissolving }] =
     useInitiateCustomsCodeOrderDissolutionMutation();
-  const [signRegistration, { isLoading: signingRegistration }] =
-    useSignCustomsCodeOrderRegistrationMutation();
-  const [signDissolution, { isLoading: signingDissolution }] =
-    useSignCustomsCodeOrderDissolutionMutation();
   const [resumeCustomsCodeOrder, { isLoading: resuming }] =
     useResumeCustomsCodeOrderMutation();
   const [loadCustomsCodeOrder] = useLazyGetCustomsCodeOrderByIdQuery();
-  const signing = signingRegistration || signingDissolution;
   const data = useMemo(() => ordersPage?.items ?? [], [ordersPage]);
   const total = ordersPage?.total ?? 0;
 
-  const [modalOpen, setModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [selectedBatchId, setSelectedBatchId] = useState<string>();
   const [batchProductId, setBatchProductId] = useState<string>();
   const [productQuery, setProductQuery] = useState('');
   const { data: productsPage } = useSearchProductsQuery(
@@ -142,25 +114,8 @@ const CustomsCodesPage = () => {
       { skip: !createModalOpen || !canListOrders }
     );
   const batches = useMemo(() => batchesPage?.items ?? [], [batchesPage]);
-  const [selectedOrder, setSelectedOrder] = useState<CustomsCodeOrder | null>(null);
-  const [signMode, setSignMode] = useState<SignMode>('registration');
-  const [selectedBatchId, setSelectedBatchId] = useState<string>();
-  const [certificates, setCertificates] = useState<EImzoCertificate[]>([]);
-  const [selectedCertificateIndex, setSelectedCertificateIndex] = useState<string>();
-  const [certificatesLoading, setCertificatesLoading] = useState(false);
-  const [eImzoError, setEImzoError] = useState<string | null>(null);
-  const [localSigning, setLocalSigning] = useState(false);
-
-  const getEImzoErrorMessage = useCallback(
-    (err: unknown, fallback: string) => {
-      if (err instanceof Error && err.message.startsWith(E_IMZO_ERROR_KEY_PREFIX)) {
-        return t(err.message);
-      }
-
-      return err instanceof Error ? err.message : fallback;
-    },
-    [t]
-  );
+  const signing = useCustomsCodeSigning();
+  const { open: openSignModal } = signing;
 
   useStatusChangeListRefresh(
     LifecycleTargetEntity.AggregatedCustomsCodeOrder,
@@ -176,31 +131,6 @@ const CustomsCodesPage = () => {
 
     notify.error(getApiErrorMessage(error, t('customsCodes.messages.loadError')));
   }, [error, t]);
-
-  const loadCertificates = useCallback(() => {
-    setCertificatesLoading(true);
-    setEImzoError(null);
-    eImzoClient
-      .listCertificates()
-      .then((items) => {
-        setCertificates(items);
-        setSelectedCertificateIndex(items.length > 0 ? '0' : undefined);
-      })
-      .catch((err: Error) => {
-        setEImzoError(getEImzoErrorMessage(err, t('customsCodes.messages.signError')));
-        setCertificates([]);
-        setSelectedCertificateIndex(undefined);
-      })
-      .finally(() => {
-        setCertificatesLoading(false);
-      });
-  }, [getEImzoErrorMessage, t]);
-
-  useEffect(() => {
-    if (!modalOpen) return;
-
-    loadCertificates();
-  }, [loadCertificates, modalOpen]);
 
   const rows = useMemo<CustomsCodeTableRow[]>(() => {
     return data.map((order, index) => ({
@@ -220,36 +150,6 @@ const CustomsCodesPage = () => {
       order,
     }));
   }, [data, limit, page]);
-
-  const openSignModal = useCallback(async (order: CustomsCodeOrder, mode: SignMode) => {
-    const signed = mode === 'registration'
-      ? order.external.registration.documentBase64
-      : order.external.dissolution.documentBase64;
-    let full = order;
-
-    if (!signed) {
-      try {
-        full = await loadCustomsCodeOrder(order.id).unwrap();
-      } catch (err) {
-        notify.error(getApiErrorMessage(err, t('customsCodes.messages.loadError')));
-        return;
-      }
-    }
-
-    setSelectedOrder(full);
-    setSignMode(mode);
-    setSelectedCertificateIndex(undefined);
-    setModalOpen(true);
-  }, [loadCustomsCodeOrder, t]);
-
-  const closeSignModal = () => {
-    setModalOpen(false);
-    setSelectedOrder(null);
-    setSignMode('registration');
-    setCertificates([]);
-    setSelectedCertificateIndex(undefined);
-    setEImzoError(null);
-  };
 
   const handleProductSearch = (value: string) => {
     if (value.trim()) {
@@ -295,12 +195,6 @@ const CustomsCodesPage = () => {
     }
   };
 
-  const handleOpenEImzo = async () => {
-    eImzoClient.openApplication();
-    await wait(3000);
-    loadCertificates();
-  };
-
   const handleInitiateDissolution = useCallback(async (order: CustomsCodeOrder) => {
     try {
       const initiatedOrder = await initiateDissolution(order.id).unwrap();
@@ -333,59 +227,6 @@ const CustomsCodesPage = () => {
       notify.error(getApiErrorMessage(err, t('customsCodes.messages.resumeError')));
     }
   }, [resumeCustomsCodeOrder, t]);
-
-  const handleSign = async () => {
-    if (!selectedOrder) return;
-
-    const documentBase64 = signMode === 'registration'
-      ? selectedOrder.external.registration.documentBase64
-      : selectedOrder.external.dissolution.documentBase64;
-    const certificate = selectedCertificateIndex
-      ? certificates[Number(selectedCertificateIndex)]
-      : undefined;
-
-    if (!documentBase64) {
-      notify.error(t('customsCodes.messages.documentMissing'));
-      return;
-    }
-
-    if (!certificate) {
-      notify.error(t('customsCodes.messages.selectKey'));
-      return;
-    }
-
-    try {
-      setLocalSigning(true);
-      const keyId = await eImzoClient.loadKey(certificate);
-      await eImzoClient.validateCertificate(certificate, keyId);
-      const signedDocumentBase64 = await eImzoClient.createPkcs7(documentBase64, keyId, {
-        detached: true,
-      });
-
-      const payload = {
-        accOrderId: selectedOrder.id,
-        signedDocumentBase64,
-      };
-
-      if (signMode === 'registration') {
-        await signRegistration(payload).unwrap();
-      } else {
-        await signDissolution(payload).unwrap();
-      }
-
-      notify.success(t('customsCodes.messages.signSuccess'));
-      closeSignModal();
-    } catch (err) {
-      const message = getEImzoErrorMessage(
-        err,
-        getApiErrorMessage(err, t('customsCodes.messages.signError'))
-      );
-
-      notify.error(message);
-    } finally {
-      setLocalSigning(false);
-    }
-  };
 
   const columns = useMemo<AdaptiveColumn<CustomsCodeTableRow>[]>(() => [
     {
@@ -594,96 +435,7 @@ const CustomsCodesPage = () => {
         </div>
       </div>
 
-      <ModalWindow
-        title={t(`customsCodes.signModal.${signMode}Title`)}
-        openModal={modalOpen}
-        closeModal={closeSignModal}
-        width="640px"
-        maskClosable={!signing && !localSigning}
-      >
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {/* Под ЭЦП уходит base64, которого не видно: состав документа — здесь. */}
-          {selectedOrder && (
-            <DetailItems
-              items={[
-                {
-                  label: t('customsCodes.table.accOrderNumber'),
-                  value: selectedOrder.accOrderNumber ?? '-',
-                },
-                {
-                  label: t('customsCodes.table.customsCode'),
-                  value: selectedOrder.customsCode ?? '-',
-                },
-                {
-                  label: t('customsCodes.table.product'),
-                  value: selectedOrder.product
-                    ? `${selectedOrder.product.name} · ${selectedOrder.product.gtin}`
-                    : '-',
-                },
-                {
-                  label: t('customsCodes.table.quantity'),
-                  value: selectedOrder.quantity,
-                },
-                {
-                  label: t('customsCodes.table.measurement'),
-                  value: selectedOrder.measurement
-                    ? `${selectedOrder.measurement.value} · ${selectedOrder.measurement.quantity}`
-                    : '-',
-                },
-              ]}
-            />
-          )}
-
-          <Alert
-            type={eImzoError ? 'warning' : 'info'}
-            showIcon
-            message={eImzoError ?? t('customsCodes.signModal.hint')}
-            description={eImzoError ? t('customsCodes.signModal.openAppHint') : undefined}
-            action={
-              eImzoError ? (
-                <CustomButton size="sm" fullWidth={false} onClick={handleOpenEImzo}>
-                  {t('customsCodes.signModal.openApp')}
-                </CustomButton>
-              ) : undefined
-            }
-          />
-
-          <Select
-            size="large"
-            style={{ width: '100%' }}
-            loading={certificatesLoading}
-            disabled={certificatesLoading || signing || localSigning}
-            placeholder={t('customsCodes.signModal.selectKey')}
-            value={selectedCertificateIndex}
-            notFoundContent={t('customsCodes.signModal.keysNotFound')}
-            options={certificates.map((certificate, index) => ({
-              value: String(index),
-              label: getCertificateTitle(certificate),
-            }))}
-            onChange={setSelectedCertificateIndex}
-          />
-
-          <CustomButton
-            onClick={handleSign}
-            disabled={
-              certificatesLoading ||
-              signing ||
-              localSigning ||
-              !selectedCertificateIndex
-            }
-            className="btn-large"
-          >
-            {signing || localSigning ? (
-              <Space>
-                <SyncOutlined spin />
-                {t('customsCodes.actions.signing')}
-              </Space>
-            ) : (
-              t('customsCodes.actions.signAndSend')
-            )}
-          </CustomButton>
-        </Space>
-      </ModalWindow>
+      <SignModal signing={signing} />
 
       <ModalWindow
         title={t('customsCodes.createModal.title')}
