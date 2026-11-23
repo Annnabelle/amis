@@ -21,12 +21,10 @@ import {
 import {
   useCancelScanMutation,
   useCompleteScanSessionMutation,
-  useCreateScanSessionMutation,
-  useScanSessionCodeMutation,
 } from 'entities/scanSessions/api';
-import { ScanSessionType } from 'entities/scanSessions/types';
 import { getApiErrorMessage } from 'shared/api';
-import { createScanToast, formatCodeForToast } from 'features/scanning/lib/scanToast';
+import { useTaskScanning } from 'features/deliveryTaskScan/lib/useTaskScanning';
+import { formatCodeForToast } from 'features/scanning/lib/scanToast';
 import ScanList from 'features/scanning/ui/scanList';
 import { groupAcceptedScans, selectRejectedScans } from 'features/scanning/lib/scanGroups';
 import {
@@ -37,9 +35,6 @@ import { useCan } from 'entities/access/lib';
 import { endpointAccessMap } from 'shared/config/endpointAccessMap';
 
 const SCAN_CACHE_PREFIX = 'delivery-task-scans';
-const pushSingleScanToast = createScanToast('delivery-task-scan-result');
-
-type ScannerMode = 'delivery' | 'delete' | null;
 
 const getScanCacheKey = (taskId: string) => `${SCAN_CACHE_PREFIX}:${taskId}`;
 
@@ -57,9 +52,7 @@ const DeliveryTasksScan = () => {
     refetch: refetchTask,
   } = useGetDeliveryTaskByIdQuery(taskId, { skip: !taskId });
   const [completeDeliveryTaskHandover] = useCompleteDeliveryTaskHandoverMutation();
-  const [createScanSession] = useCreateScanSessionMutation();
   const [completeScanSession] = useCompleteScanSessionMutation();
-  const [scanSessionCode] = useScanSessionCodeMutation();
   const [cancelScan] = useCancelScanMutation();
   const taskError = taskRequestError
     ? getApiErrorMessage(taskRequestError, t('common.error'))
@@ -73,8 +66,6 @@ const DeliveryTasksScan = () => {
 
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
-  const [scannerMode, setScannerMode] = useState<ScannerMode>(null);
-  const [isClosingSession, setIsClosingSession] = useState(false);
 
   const canCreateScanSession = useCan(endpointAccessMap.scanSessionsCreate);
   const canScan = useCan(endpointAccessMap.scanSessionsScan);
@@ -152,166 +143,18 @@ const DeliveryTasksScan = () => {
     await refetchTask();
   };
 
-  const handleStartScanning = async () => {
-    if (!task?.id) return;
-
-    if (scanSession?.id && scanSession.status === 'active') {
-      setScannerMode('delivery');
-      return;
-    }
-
-    try {
-      await createScanSession({
-          type: ScanSessionType.Delivery,
-          routeId: task.deliveryRouteId,
-          taskId: task.id,
-        }).unwrap();
-      setScannerMode('delivery');
-    } catch (error) {
-      notify.error(
-        getApiErrorMessage(
-          error,
-          t('deliveryTasks.messages.error.createScanSession', {
-            defaultValue: 'Не удалось начать сессию сканирования',
-          })
-        )
-      );
-    }
-  };
-
-  const handleStartDeleteScanning = () => {
-    setScannerMode('delete');
-  };
-
-  const handleScannerClose = async () => {
-    if (scannerMode !== 'delivery' || !scanSession?.id) {
-      setScannerMode(null);
-      return;
-    }
-
-    if (scanSession.status !== 'active') {
-      setScannerMode(null);
-      return;
-    }
-
-    try {
-      setIsClosingSession(true);
-      await completeScanSession(scanSession.id).unwrap();
-    } catch (error) {
-      notify.error(
-        getApiErrorMessage(
-          error,
-          t('deliveryTasks.messages.error.completeScanSession', {
-            defaultValue: 'Не удалось завершить сессию сканирования',
-          })
-        )
-      );
-    } finally {
-      setIsClosingSession(false);
-      setScannerMode(null);
-    }
-  };
+  const {
+    scannerMode,
+    setScannerMode,
+    isClosingSession,
+    handleStartScanning,
+    handleStartDeleteScanning,
+    handleScannerClose,
+    handleScan,
+  } = useTaskScanning({ task, scanSession, refreshTask });
 
   void handleScannerClose;
 
-  const handleScan = async (code: string) => {
-    if (!task?.id) {
-      return {
-        status: 'rejected' as const,
-        reason: t('common.dataNotFound'),
-      };
-    }
-
-    if (scannerMode === 'delete') {
-      try {
-        await cancelScan({
-            code,
-            routeId: task.deliveryRouteId,
-            taskId: task.id,
-          }).unwrap();
-
-        await refreshTask();
-        pushSingleScanToast(
-          'success',
-          t('deliveryTasks.messages.success.cancelScan', {
-            defaultValue: 'Скан {{code}} удалён',
-            code: formatCodeForToast(code),
-          })
-        );
-
-        return { status: 'accepted' as const };
-      } catch (error: unknown) {
-        const reason = getApiErrorMessage(
-          error,
-          t('deliveryTasks.messages.error.cancelScan', {
-            defaultValue: 'Не удалось удалить скан',
-          })
-        );
-
-        pushSingleScanToast(
-          'error',
-          t('deliveryTasks.messages.error.scanCodeDetailed', {
-            defaultValue: 'Код {{code}} отклонён: {{reason}}',
-            code: formatCodeForToast(code),
-            reason,
-          })
-        );
-
-        return {
-          status: 'rejected' as const,
-          reason,
-        };
-      }
-    }
-
-    if (!scanSession?.id) {
-      return {
-        status: 'rejected' as const,
-        reason: t('deliveryTasks.messages.error.scanSessionRequired', {
-          defaultValue: 'Сначала запустите сессию сканирования',
-        }),
-      };
-    }
-
-    try {
-      await scanSessionCode({
-          sessionId: scanSession.id,
-          code,
-        }).unwrap();
-
-      await refreshTask();
-      pushSingleScanToast(
-        'success',
-        t('deliveryTasks.messages.success.scanCode', {
-          defaultValue: 'Код {{code}} отсканирован',
-          code: formatCodeForToast(code),
-        })
-      );
-
-      return { status: 'accepted' as const };
-    } catch (error: unknown) {
-      const reason = getApiErrorMessage(
-        error,
-        t('deliveryTasks.messages.error.scanCode', {
-          defaultValue: 'Ошибка сканирования',
-        })
-      );
-
-      pushSingleScanToast(
-        'error',
-        t('deliveryTasks.messages.error.scanCodeDetailed', {
-          defaultValue: 'Код {{code}} отклонён: {{reason}}',
-          code: formatCodeForToast(code),
-          reason,
-        })
-      );
-
-      return {
-        status: 'rejected' as const,
-        reason,
-      };
-    }
-  };
 
   const executeCompleteDelivery = async (comment?: string) => {
     if (!task?.id) return;
