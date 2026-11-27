@@ -88,10 +88,14 @@ const DeliveryRoutesDetails = () => {
   const transitButtonLabel = t('deliveryRoutes.actions.startTransit', {
     defaultValue: 'Начать перевозку',
   });
+  // Остаток в машине остаётся и после закрытия развоза: недобор по задачам
+  // делает рейс partially_delivered, и принять товар обратно нужно именно тогда.
   const canOpenReturn = Boolean(
     canStartReturn &&
       route?.status &&
-      ['in_transit', 'returning'].includes(route.status)
+      ['in_transit', 'returning', 'partially_delivered', 'delivered'].includes(
+        route.status
+      )
   );
   const loadingButtonLabel = isMobile
     ? 'Начать погрузку'
@@ -100,7 +104,9 @@ const DeliveryRoutesDetails = () => {
     ? 'Начать возврат'
     : t('deliveryRoutes.actions.openReturn');
   const showCloseRoute = Boolean(
-    canCloseRoute && route?.status === 'delivered'
+    canCloseRoute &&
+      route?.status &&
+      ['delivered', 'partially_delivered', 'returned'].includes(route.status)
   );
   const closeRouteButtonLabel = t('deliveryRoutes.actions.close');
   const taskScanPath = (taskId: string) =>

@@ -4,10 +4,13 @@ import { BASE_URL } from "shared/lib/consts";
 import { useDocumentFile } from 'features/documentFile/lib/useDocumentFile';
 import { routes } from "shared/config/routes";
 import { DownloadOutlined } from "@ant-design/icons";
-import { Empty, Segmented, Tag } from "antd";
+import { Empty, message, Segmented, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useGetWaybillByIdQuery } from "entities/waybills/api";
+import {
+  useGetWaybillByIdQuery,
+  useSendWaybillMutation,
+} from "entities/waybills/api";
 import { getWaybillStatusKey } from "entities/waybills/lib/status";
 import type { WaybillContractedPartySnapshotResponseDto, WaybillVehicleSnapshotResponseDto } from '@edem2000/amis.contracts/api/common/responses';
 import { useGetSalesOrderByIdQuery } from "entities/salesOrders/api";
@@ -57,6 +60,8 @@ const WaybillsDetails = () => {
     target: LifecycleTargetEntity.Waybill,
   });
   const [activeSection, setActiveSection] = useState<WaybillDetailsSection>("overview");
+  const canSendWaybill = useCan(endpointAccessMap.waybillSend);
+  const [sendWaybill, { isLoading: isSending }] = useSendWaybillMutation();
 
   const { data: waybill, isLoading } = useGetWaybillByIdQuery(
     { id: id ?? "" },
@@ -123,6 +128,19 @@ const WaybillsDetails = () => {
   }
 
   const waybillStatusKey = getWaybillStatusKey(waybill.status);
+  // Отправка доступна, пока документ не ушёл: вторую ТТН вендор не примет.
+  const showSendWaybill =
+    canSendWaybill && ["draft", "ready", "send_failed"].includes(waybill.status);
+  const handleSendWaybill = async () => {
+    if (!waybill.id) return;
+
+    try {
+      await sendWaybill({ id: waybill.id }).unwrap();
+      message.success(t("waybills.send.success"));
+    } catch {
+      message.error(t("waybills.send.error"));
+    }
+  };
   const externalStatus = waybill.external?.status;
   const externalStatusLabel = externalStatus
     ? getStatusLabel(t, StatusEntity.Waybill, LifecycleScope.External, externalStatus)
@@ -242,6 +260,14 @@ const WaybillsDetails = () => {
               <DownloadOutlined />
             </button>
           </div>
+          {showSendWaybill && (
+            <CustomButton
+              disabled={isSending}
+              onClick={() => void handleSendWaybill()}
+            >
+              {t("waybills.send.action")}
+            </CustomButton>
+          )}
           <CustomButton variant="outline" onClick={() => navigate(listPath)}>
             {t("common.backToList")}
           </CustomButton>

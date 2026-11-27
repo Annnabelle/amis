@@ -1304,6 +1304,11 @@ const uz = {
       loadError: "TTN faylini yuklab bo'lmadi",
       openError: "Faylni yangi oynada ochib bo'lmadi"
     },
+    send: {
+      action: "Faktura.uz ga yuborish",
+      success: "Yuk xati yuborishga qoʻyildi",
+      error: "Yuk xatini yuborib boʻlmadi"
+    },
     statuses: {
       draft: "Qoralama",
       ready: "Tayyor",

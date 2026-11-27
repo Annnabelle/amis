@@ -165,6 +165,7 @@ export const endpointAccessMap = {
   waybillsList: endpoint({ method: "GET", path: "/waybills", permission: Permissions.WaybillsList, scope: EndpointScopes.Company }),
   waybillsRead: endpoint({ method: "GET", path: "/waybills/:id", permission: Permissions.WaybillsRead, scope: EndpointScopes.Company }),
   waybillFileRead: endpoint({ method: "GET", path: "/waybills/:id/file", permission: Permissions.WaybillsRead, scope: EndpointScopes.Company }),
+  waybillSend: endpoint({ method: "POST", path: "/waybills/:id/send", permission: Permissions.WaybillsSend, scope: EndpointScopes.Company }),
 
   utilizationReportsCreate: endpoint({ method: "POST", path: "/reports/utilization", permission: Permissions.ReportsCreateUtilization, scope: EndpointScopes.Company }),
   aggregationReportsCreate: endpoint({ method: "POST", path: "/reports/aggregation", permission: Permissions.ReportsCreateAggregation, scope: EndpointScopes.Company }),

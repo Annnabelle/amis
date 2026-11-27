@@ -21,7 +21,14 @@ export const waybillsApi = baseApi.injectEndpoints({
       transformResponse: (response: SuccessOf<GetWaybillResponseDto>) =>
         mapWaybillDtoToEntity(response.waybill),
     }),
+
+    sendWaybill: build.mutation<Waybill, GetWaybillDto>({
+      query: ({ id }) =>
+        request(endpointAccessMap.waybillSend, { pathParams: { id } }),
+      transformResponse: (response: SuccessOf<GetWaybillResponseDto>) =>
+        mapWaybillDtoToEntity(response.waybill),
+    }),
   }),
 });
 
-export const { useGetWaybillsQuery, useGetWaybillByIdQuery } = waybillsApi;
+export const { useGetWaybillsQuery, useGetWaybillByIdQuery, useSendWaybillMutation } = waybillsApi;

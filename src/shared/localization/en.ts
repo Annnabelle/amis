@@ -1304,6 +1304,11 @@ const en = {
       loadError: "Could not load waybill file",
       openError: "Could not open file in a new tab"
     },
+    send: {
+      action: "Send to Faktura.uz",
+      success: "The waybill is queued for sending",
+      error: "Could not send the waybill"
+    },
     statuses: {
       draft: "Draft",
       ready: "Ready",
